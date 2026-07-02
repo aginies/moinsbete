@@ -69,6 +69,18 @@ export default function AproposPage() {
             Le contenu est extrait de Wikipédia en français et enrichi par intelligence artificielle
             pour offrir des idées claires et digestibles.
           </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Découvrez nos sources sur{' '}
+            <a
+              href="https://fr.wikipedia.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Wikipédia en français
+            </a>
+            .
+          </p>
         </section>
 
         <section>
