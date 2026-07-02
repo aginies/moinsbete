@@ -6,7 +6,6 @@ const prisma = new PrismaClient()
 const ARCHIVE_URL =
   'https://fr.wikipedia.org/w/index.php?title=Wikip%C3%A9dia:Le_saviez-vous_%3F/Archives&action=raw'
 
-// Pages to fetch (most recent first)
 const PAGES = [
   'Wikipédia:Le_saviez-vous_?/Archives',
   'Wikipédia:Le_saviez-vous_?/Archives/2025',
@@ -17,25 +16,18 @@ const PAGES = [
 ]
 
 function cleanText(wikiText: string): string {
-  // Remove wiki links [[...]]
   let text = wikiText.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
-  // Remove bold/italic
   text = text.replace(/'''([^']*)'''/g, '$1')
   text = text.replace(/''([^']*)''/g, '$1')
-  // Remove templates {{...}}
   text = text.replace(/\{\{[^}]*\}\}/g, '')
-  // Remove HTML tags
   text = text.replace(/<[^>]+>/g, '')
-  // Remove language tags
   text = text.replace(/\{\{lang\|[^\}]*\}\}/g, '')
   text = text.replace(/\{\{noble\|[^\}]*\}\}/g, '')
   text = text.replace(/\{\{s\|[^\}]*\}\}/g, '')
   text = text.replace(/\{\{nobr\|[^\}]*\}\}/g, '')
   text = text.replace(/\{\{XV\}\}/g, '15')
   text = text.replace(/\{\{VII\}\}/g, '7')
-  // Remove references <ref>
   text = text.replace(/<ref[^>]*>.*?<\/ref>/gs, '')
-  // Clean whitespace
   text = text.replace(/\n/g, ' ')
   text = text.replace(/\s+/g, ' ')
   text = text.trim()
@@ -79,10 +71,8 @@ async function parseFacts(wikitext: string): Array<{ text: string; image: string
 
   const lines = wikitext.split('\n')
   for (const line of lines) {
-    // Match fact lines: * <!--@ID_xxxxx-->fact text
     if (!line.match(/^\*\s*<!--@ID_\d+-->/)) continue
 
-    // Remove the ID comment
     const afterComment = line.replace(/^\*\s*<!--@ID_\d+-->\s*/, '')
 
     const text = cleanText(afterComment)
@@ -98,18 +88,26 @@ async function parseFacts(wikitext: string): Array<{ text: string; image: string
 }
 
 async function main() {
-  console.log('📚 Scraping Wikipedia Le saviez-vous ? archives\n')
+  console.log('🖼️  Updating image filenames for existing facts\n')
 
-  // Get existing facts
-  const existingFacts = await prisma.saviezVousFact.findMany({
-    select: { text: true },
+  // Get all facts that don't have an image
+  const factsWithoutImage = await prisma.saviezVousFact.findMany({
+    where: {
+      imageFilename: null,
+    },
+    select: {
+      id: true,
+      text: true,
+    },
   })
-  const existingTexts = new Set(existingFacts.map(f => f.text))
-  console.log(`Existing facts in DB: ${existingTexts.size}\n`)
 
-  let totalFetched = 0
-  let newInserted = 0
-  let duplicates = 0
+  console.log(`Facts without image: ${factsWithoutImage.length}\n`)
+
+  // Build a map of text -> fact for quick lookup
+  const factMap = new Map(factsWithoutImage.map(f => [f.text, f]))
+
+  let updated = 0
+  let notFound = 0
   let errors = 0
 
   for (const page of PAGES) {
@@ -118,27 +116,29 @@ async function main() {
     if (!wikitext) continue
 
     const facts = await parseFacts(wikitext)
-    console.log(`  Found ${facts.length} facts\n`)
 
     for (const fact of facts) {
-      totalFetched++
+      if (!factMap.has(fact.text)) {
+        notFound++
+        continue
+      }
 
-      if (existingTexts.has(fact.text)) {
-        duplicates++
+      if (!fact.image) {
         continue
       }
 
       try {
-        await prisma.saviezVousFact.create({
+        await prisma.saviezVousFact.update({
+          where: { id: factMap.get(fact.text)!.id },
           data: {
-            text: fact.text,
+            imageFilename: fact.image,
             sourceUrl: fact.article
               ? `https://fr.wikipedia.org/wiki/${fact.article}`
-              : null,
-            imageFilename: fact.image,
+              : undefined,
           },
         })
-        newInserted++
+        updated++
+        factMap.delete(fact.text)
       } catch {
         errors++
       }
@@ -146,23 +146,15 @@ async function main() {
   }
 
   console.log('\n=== Résumé ===')
-  console.log(`Total facts scraped: ${totalFetched}`)
-  console.log(`New inserted: ${newInserted}`)
-  console.log(`Duplicates skipped: ${duplicates}`)
+  console.log(`Updated with images: ${updated}`)
+  console.log(`Not found in DB: ${notFound}`)
   console.log(`Errors: ${errors}`)
+  console.log(`Still without image: ${factMap.size}`)
 
-  const total = await prisma.saviezVousFact.count()
-  console.log(`Total in DB: ${total}`)
-
-  const sample = await prisma.saviezVousFact.findMany({
-    take: 5,
-    orderBy: { createdAt: 'desc' },
+  const withImage = await prisma.saviezVousFact.count({
+    where: { imageFilename: { not: null } },
   })
-  console.log('\n--- Recent facts ---')
-  for (const f of sample) {
-    console.log(f.text.substring(0, 80))
-    console.log(`  URL: ${f.sourceUrl}`)
-  }
+  console.log(`Total with image: ${withImage}`)
 }
 
 main()

@@ -1664,6 +1664,7 @@ export const SaviezVousFactScalarFieldEnum = {
   id: 'id',
   text: 'text',
   sourceUrl: 'sourceUrl',
+  imageFilename: 'imageFilename',
   createdAt: 'createdAt'
 } as const
 
