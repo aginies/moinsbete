@@ -47,9 +47,9 @@ function cleanText(wikiText: string): string {
 }
 
 function extractImageFilename(wikiText: string): string | null {
-  const match = wikiText.match(/\[\[Fichier:([^\]|]+)\]\]/)
+  const match = wikiText.match(/\[\[Fichier:([^\]]+)\]\]/)
   if (match) {
-    return decodeURIComponent(match[1].trim())
+    return match[1].trim().split('|')[0]
   }
   return null
 }
