@@ -1,0 +1,92 @@
+'use server'
+
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/db'
+
+export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: 'Non authentifié' }
+  }
+
+  try {
+    if (action === 'add') {
+      await prisma.bookmark.create({
+        data: {
+          userId: session.user.id,
+          ideaId,
+        },
+      })
+    } else {
+      await prisma.bookmark.delete({
+        where: {
+          userId_ideaId: {
+            userId: session.user.id,
+            ideaId,
+          },
+        },
+      })
+    }
+
+    return { success: true }
+  } catch {
+    return { error: 'Erreur lors de la sauvegarde' }
+  }
+}
+
+export async function getSavedIdeas() {
+  const session = await auth()
+  if (!session?.user) {
+    return { ideas: [] }
+  }
+
+  const bookmarks = await prisma.bookmark.findMany({
+    where: { userId: session.user.id },
+    include: {
+      idea: {
+        include: {
+          topics: { select: { name: true, slug: true, icon: true, color: true } },
+          source: { select: { title: true, type: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+
+  return {
+    ideas: bookmarks.map(b => b.idea),
+    count: bookmarks.length,
+  }
+}
+
+export async function followTopic(topicId: string) {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: 'Non authentifié' }
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: {
+      following: {
+        connect: { id: topicId },
+      },
+    },
+  })
+
+  return { success: true }
+}
+
+export async function getFollowedTopics() {
+  const session = await auth()
+  if (!session?.user) {
+    return { topics: [] }
+  }
+
+  const topics = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { following: true },
+  })
+
+  return { topics: topics?.following || [] }
+}
