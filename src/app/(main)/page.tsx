@@ -40,15 +40,6 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6 md:pb-6">
-      <div className="mb-6">
-        <h1 className="mb-1 text-2xl font-heading font-bold">
-          Remplacez le scroll infini par l&apos;apprentissage rapide
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {total} idées à découvrir
-        </p>
-      </div>
-
       {!userId && (
         <div className="mb-6 rounded-lg border border-border/60 bg-card p-4 text-center">
           <p className="text-sm text-muted-foreground">

@@ -1,4 +1,4 @@
-# StashFru — Apprentissage rapide en français
+# MoinsBête — Apprentissage rapide en français
 
 Application de découverte de connaissances bite-sized : idées, sujets, sources Wikipédia, bookmarks et plan d'apprentissage.
 

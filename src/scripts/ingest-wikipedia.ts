@@ -374,7 +374,7 @@ async function fetchWikipediaSummary(title: string): Promise<WikipediaSummary | 
   try {
     const response = await fetch(`${WIKIPEDIA_API}/page/summary/${encodeURIComponent(title)}`, {
       headers: {
-        'User-Agent': 'StashFru/1.0 (contact: admin@stashfru.fr)',
+        'User-Agent': 'MoinsBête/1.0 (contact: admin@stashfru.fr)',
       },
     })
     if (!response.ok) return null
@@ -390,7 +390,7 @@ async function fetchWikipediaCategories(title: string): Promise<string[]> {
   try {
     const response = await fetch(`${WIKIPEDIA_API}/page/html/${encodeURIComponent(title)}`, {
       headers: {
-        'User-Agent': 'StashFru/1.0 (contact: admin@stashfru.fr)',
+        'User-Agent': 'MoinsBête/1.0 (contact: admin@stashfru.fr)',
       },
     })
     if (!response.ok) return []
@@ -662,7 +662,7 @@ async function createCollections() {
 }
 
 async function main() {
-  console.log('🚀 StashFru - Ingestion de contenu Wikipédia\n')
+  console.log('🚀 MoinsBête - Ingestion de contenu Wikipédia\n')
 
   await ensureRootTopics()
 

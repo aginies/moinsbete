@@ -14,7 +14,7 @@ export default function AproposPage() {
 
       <div className="mb-8 text-center">
         <BookOpen className="mx-auto mb-4 h-12 w-12 text-primary" />
-        <h1 className="text-3xl font-heading font-bold">StashFru</h1>
+        <h1 className="text-3xl font-heading font-bold">MoinsBête</h1>
         <p className="mt-2 text-lg text-muted-foreground">
           Remplacez le scroll infini par l&apos;apprentissage rapide
         </p>
@@ -22,9 +22,9 @@ export default function AproposPage() {
 
       <div className="space-y-6">
         <section>
-          <h2 className="mb-3 text-xl font-semibold">Qu&apos;est-ce que StashFru ?</h2>
+          <h2 className="mb-3 text-xl font-semibold">Qu&apos;est-ce que MoinsBête ?</h2>
           <p className="text-muted-foreground">
-            StashFru est une application d&apos;apprentissage rapide en français.
+            MoinsBête est une application d&apos;apprentissage rapide en français.
             Nous transformons les connaissances issues de livres, d&apos;articles et de Wikipédia
             en idées digestibles que vous pouvez apprendre en quelques minutes par jour.
           </p>
@@ -72,16 +72,16 @@ export default function AproposPage() {
 
         <section>
           <h2 className="mb-3 text-xl font-semibold">100% gratuit</h2>
-          <p className="text-muted-foreground">
-            StashFru est gratuit. Pas de publicité, pas d'abonnement.
+     <p className="text-muted-foreground">
+          MoinsBête est gratuit. Pas de publicité, pas d'abonnement.
             Juste de l'apprentissage de qualité, sans friction.
           </p>
         </section>
 
         <section>
           <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
-          <p className="text-muted-foreground">
-            StashFru a été créé par <strong>Antoine Giniès</strong>.
+    <p className="text-muted-foreground">
+          MoinsBête a été créé par <strong>Antoine Giniès</strong>.
             Le projet s'inspire de la philosophie Deep Stash, popularisée par
             <a
               href="https://fr.wikipedia.org/wiki/Deep_Stash"

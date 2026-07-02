@@ -9,8 +9,8 @@ import Link from 'next/link'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'StashFru - Apprentissage rapide en français',
-  description: 'Remplacez le scroll infini par l\'apprentissage rapide. Découvrez des idées issues de livres, articles et Wikipédia en français.',
+  title: 'MoinsBête - Apprendre en s\'amusant',
+  description: 'Des faits surprenants et des idées pour devenir moins bête tous les jours. Découvrez des faits insolites, des découvertes scientifiques et des anecdotes fascinantes.',
 }
 
 export default function RootLayout({

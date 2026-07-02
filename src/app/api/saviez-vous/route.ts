@@ -13,7 +13,7 @@ async function resolveImageUrls(facts: Array<{ id: string; text: string; sourceU
   try {
     const res = await fetch(
       `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url&format=json&origin=*`,
-      { headers: { 'User-Agent': 'StashFru/1.0' } }
+      { headers: { 'User-Agent': 'MoinsBête/1.0' } }
     )
     const data = await res.json()
     const pages = data?.query?.pages || {}

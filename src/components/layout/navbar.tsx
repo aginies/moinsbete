@@ -14,7 +14,7 @@ export async function Navbar() {
         <div className="flex items-center gap-2">
           <Link href="/sujets" className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-primary" />
-            <span className="font-heading font-bold text-lg">StashFru</span>
+            <span className="font-heading font-bold text-lg">MoinsBête</span>
           </Link>
         </div>
 
