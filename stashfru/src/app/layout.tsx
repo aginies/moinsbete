@@ -35,10 +35,9 @@ export default function RootLayout({
         <div className="flex min-h-screen flex-col">
           <Navbar />
           <main className="flex-1">{children}</main>
-          <footer className="py-6 text-center text-xs text-muted-foreground md:hidden">
+          <footer className="py-6 text-center text-xs text-muted-foreground">
             <Link href="/a-propos" className="hover:underline">À propos</Link>
           </footer>
-          <BottomNav />
         </div>
         <Toaster />
       </body>
