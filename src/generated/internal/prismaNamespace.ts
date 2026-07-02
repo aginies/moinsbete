@@ -400,7 +400,10 @@ export const ModelName = {
   Bookmark: 'Bookmark',
   GrowthPlan: 'GrowthPlan',
   TopicSuggestion: 'TopicSuggestion',
-  CommunityArticle: 'CommunityArticle'
+  CommunityArticle: 'CommunityArticle',
+  ViewedIdea: 'ViewedIdea',
+  PasswordResetToken: 'PasswordResetToken',
+  SaviezVousFact: 'SaviezVousFact'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -416,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "topic" | "source" | "sourceTopic" | "idea" | "ideaTopic" | "collection" | "bookmark" | "growthPlan" | "topicSuggestion" | "communityArticle"
+    modelProps: "user" | "topic" | "source" | "sourceTopic" | "idea" | "ideaTopic" | "collection" | "bookmark" | "growthPlan" | "topicSuggestion" | "communityArticle" | "viewedIdea" | "passwordResetToken" | "saviezVousFact"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1234,6 +1237,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ViewedIdea: {
+      payload: Prisma.$ViewedIdeaPayload<ExtArgs>
+      fields: Prisma.ViewedIdeaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ViewedIdeaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ViewedIdeaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload>
+        }
+        findFirst: {
+          args: Prisma.ViewedIdeaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ViewedIdeaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload>
+        }
+        findMany: {
+          args: Prisma.ViewedIdeaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload>[]
+        }
+        create: {
+          args: Prisma.ViewedIdeaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload>
+        }
+        createMany: {
+          args: Prisma.ViewedIdeaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ViewedIdeaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload>[]
+        }
+        delete: {
+          args: Prisma.ViewedIdeaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload>
+        }
+        update: {
+          args: Prisma.ViewedIdeaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload>
+        }
+        deleteMany: {
+          args: Prisma.ViewedIdeaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ViewedIdeaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ViewedIdeaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload>[]
+        }
+        upsert: {
+          args: Prisma.ViewedIdeaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ViewedIdeaPayload>
+        }
+        aggregate: {
+          args: Prisma.ViewedIdeaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateViewedIdea>
+        }
+        groupBy: {
+          args: Prisma.ViewedIdeaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ViewedIdeaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ViewedIdeaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ViewedIdeaCountAggregateOutputType> | number
+        }
+      }
+    }
+    PasswordResetToken: {
+      payload: Prisma.$PasswordResetTokenPayload<ExtArgs>
+      fields: Prisma.PasswordResetTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PasswordResetTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PasswordResetTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.PasswordResetTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PasswordResetTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+        }
+        findMany: {
+          args: Prisma.PasswordResetTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>[]
+        }
+        create: {
+          args: Prisma.PasswordResetTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+        }
+        createMany: {
+          args: Prisma.PasswordResetTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PasswordResetTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.PasswordResetTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+        }
+        update: {
+          args: Prisma.PasswordResetTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.PasswordResetTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PasswordResetTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PasswordResetTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.PasswordResetTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.PasswordResetTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePasswordResetToken>
+        }
+        groupBy: {
+          args: Prisma.PasswordResetTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PasswordResetTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PasswordResetTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PasswordResetTokenCountAggregateOutputType> | number
+        }
+      }
+    }
+    SaviezVousFact: {
+      payload: Prisma.$SaviezVousFactPayload<ExtArgs>
+      fields: Prisma.SaviezVousFactFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SaviezVousFactFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SaviezVousFactFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload>
+        }
+        findFirst: {
+          args: Prisma.SaviezVousFactFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SaviezVousFactFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload>
+        }
+        findMany: {
+          args: Prisma.SaviezVousFactFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload>[]
+        }
+        create: {
+          args: Prisma.SaviezVousFactCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload>
+        }
+        createMany: {
+          args: Prisma.SaviezVousFactCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SaviezVousFactCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload>[]
+        }
+        delete: {
+          args: Prisma.SaviezVousFactDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload>
+        }
+        update: {
+          args: Prisma.SaviezVousFactUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload>
+        }
+        deleteMany: {
+          args: Prisma.SaviezVousFactDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SaviezVousFactUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SaviezVousFactUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload>[]
+        }
+        upsert: {
+          args: Prisma.SaviezVousFactUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaviezVousFactPayload>
+        }
+        aggregate: {
+          args: Prisma.SaviezVousFactAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSaviezVousFact>
+        }
+        groupBy: {
+          args: Prisma.SaviezVousFactGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SaviezVousFactGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SaviezVousFactCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SaviezVousFactCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1326,6 +1551,7 @@ export const IdeaScalarFieldEnum = {
   title: 'title',
   content: 'content',
   takeaway: 'takeaway',
+  saviezVous: 'saviezVous',
   slug: 'slug',
   sourceId: 'sourceId',
   orderIndex: 'orderIndex',
@@ -1410,6 +1636,38 @@ export const CommunityArticleScalarFieldEnum = {
 } as const
 
 export type CommunityArticleScalarFieldEnum = (typeof CommunityArticleScalarFieldEnum)[keyof typeof CommunityArticleScalarFieldEnum]
+
+
+export const ViewedIdeaScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  ideaId: 'ideaId',
+  viewedAt: 'viewedAt'
+} as const
+
+export type ViewedIdeaScalarFieldEnum = (typeof ViewedIdeaScalarFieldEnum)[keyof typeof ViewedIdeaScalarFieldEnum]
+
+
+export const PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  email: 'email',
+  userId: 'userId',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const SaviezVousFactScalarFieldEnum = {
+  id: 'id',
+  text: 'text',
+  sourceUrl: 'sourceUrl',
+  createdAt: 'createdAt'
+} as const
+
+export type SaviezVousFactScalarFieldEnum = (typeof SaviezVousFactScalarFieldEnum)[keyof typeof SaviezVousFactScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1580,6 +1838,9 @@ export type GlobalOmitConfig = {
   growthPlan?: Prisma.GrowthPlanOmit
   topicSuggestion?: Prisma.TopicSuggestionOmit
   communityArticle?: Prisma.CommunityArticleOmit
+  viewedIdea?: Prisma.ViewedIdeaOmit
+  passwordResetToken?: Prisma.PasswordResetTokenOmit
+  saviezVousFact?: Prisma.SaviezVousFactOmit
 }
 
 /* Types for Logging */

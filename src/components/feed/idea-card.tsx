@@ -131,3 +131,59 @@ export function IdeaCard({ idea, isBookmarked: initialBookmarked, onBookmark }: 
     </Link>
   )
 }
+
+interface CompactIdeaCardProps {
+  idea: {
+    id: string
+    title: string
+    slug: string
+    source: {
+      title: string
+      type: string
+      url?: string | null
+      coverUrl?: string | null
+    }
+    topics: Array<{
+      id: string
+      name: string
+      slug: string
+      icon: string
+      color: string
+    }>
+    viewedAt: string
+  }
+}
+
+export function CompactIdeaCard({ idea }: CompactIdeaCardProps) {
+  return (
+    <Link href={`/idees/${idea.slug}`} className="block">
+      <article className="rounded-xl border border-border/40 bg-card p-4 transition-all hover:border-border hover:bg-muted/30">
+        <div className="mb-2 flex flex-wrap gap-1.5">
+          {idea.topics.map((topic) => (
+            <span
+              key={topic.id}
+              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+              style={{
+                backgroundColor: `${topic.color}15`,
+                color: topic.color,
+              }}
+            >
+              <span>{topic.icon}</span>
+              <span>{topic.name}</span>
+            </span>
+          ))}
+        </div>
+
+        <h3 className="text-sm font-semibold leading-tight text-foreground hover:text-primary">
+          {idea.title}
+        </h3>
+
+        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+          <span>{idea.source.title}</span>
+          <span>·</span>
+          <span>{new Date(idea.viewedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span>
+        </div>
+      </article>
+    </Link>
+  )
+}

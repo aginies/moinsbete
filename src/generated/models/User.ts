@@ -193,6 +193,8 @@ export type UserWhereInput = {
   bookmarks?: Prisma.BookmarkListRelationFilter
   following?: Prisma.TopicListRelationFilter
   growthPlan?: Prisma.XOR<Prisma.GrowthPlanNullableScalarRelationFilter, Prisma.GrowthPlanWhereInput> | null
+  viewedIdeas?: Prisma.ViewedIdeaListRelationFilter
+  resetTokens?: Prisma.PasswordResetTokenListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -205,6 +207,8 @@ export type UserOrderByWithRelationInput = {
   bookmarks?: Prisma.BookmarkOrderByRelationAggregateInput
   following?: Prisma.TopicOrderByRelationAggregateInput
   growthPlan?: Prisma.GrowthPlanOrderByWithRelationInput
+  viewedIdeas?: Prisma.ViewedIdeaOrderByRelationAggregateInput
+  resetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -220,6 +224,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   bookmarks?: Prisma.BookmarkListRelationFilter
   following?: Prisma.TopicListRelationFilter
   growthPlan?: Prisma.XOR<Prisma.GrowthPlanNullableScalarRelationFilter, Prisma.GrowthPlanWhereInput> | null
+  viewedIdeas?: Prisma.ViewedIdeaListRelationFilter
+  resetTokens?: Prisma.PasswordResetTokenListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -256,6 +262,8 @@ export type UserCreateInput = {
   bookmarks?: Prisma.BookmarkCreateNestedManyWithoutUserInput
   following?: Prisma.TopicCreateNestedManyWithoutUsersInput
   growthPlan?: Prisma.GrowthPlanCreateNestedOneWithoutUserInput
+  viewedIdeas?: Prisma.ViewedIdeaCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -268,6 +276,8 @@ export type UserUncheckedCreateInput = {
   bookmarks?: Prisma.BookmarkUncheckedCreateNestedManyWithoutUserInput
   following?: Prisma.TopicUncheckedCreateNestedManyWithoutUsersInput
   growthPlan?: Prisma.GrowthPlanUncheckedCreateNestedOneWithoutUserInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -280,6 +290,8 @@ export type UserUpdateInput = {
   bookmarks?: Prisma.BookmarkUpdateManyWithoutUserNestedInput
   following?: Prisma.TopicUpdateManyWithoutUsersNestedInput
   growthPlan?: Prisma.GrowthPlanUpdateOneWithoutUserNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -292,6 +304,8 @@ export type UserUncheckedUpdateInput = {
   bookmarks?: Prisma.BookmarkUncheckedUpdateManyWithoutUserNestedInput
   following?: Prisma.TopicUncheckedUpdateManyWithoutUsersNestedInput
   growthPlan?: Prisma.GrowthPlanUncheckedUpdateOneWithoutUserNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -441,6 +455,34 @@ export type UserUpdateOneRequiredWithoutGrowthPlanNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutGrowthPlanInput, Prisma.UserUpdateWithoutGrowthPlanInput>, Prisma.UserUncheckedUpdateWithoutGrowthPlanInput>
 }
 
+export type UserCreateNestedOneWithoutViewedIdeasInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutViewedIdeasInput, Prisma.UserUncheckedCreateWithoutViewedIdeasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutViewedIdeasInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutViewedIdeasNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutViewedIdeasInput, Prisma.UserUncheckedCreateWithoutViewedIdeasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutViewedIdeasInput
+  upsert?: Prisma.UserUpsertWithoutViewedIdeasInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutViewedIdeasInput, Prisma.UserUpdateWithoutViewedIdeasInput>, Prisma.UserUncheckedUpdateWithoutViewedIdeasInput>
+}
+
+export type UserCreateNestedOneWithoutResetTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutResetTokensInput, Prisma.UserUncheckedCreateWithoutResetTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutResetTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutResetTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutResetTokensInput, Prisma.UserUncheckedCreateWithoutResetTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutResetTokensInput
+  upsert?: Prisma.UserUpsertWithoutResetTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutResetTokensInput, Prisma.UserUpdateWithoutResetTokensInput>, Prisma.UserUncheckedUpdateWithoutResetTokensInput>
+}
+
 export type UserCreateWithoutFollowingInput = {
   id?: string
   email: string
@@ -450,6 +492,8 @@ export type UserCreateWithoutFollowingInput = {
   updatedAt?: Date | string
   bookmarks?: Prisma.BookmarkCreateNestedManyWithoutUserInput
   growthPlan?: Prisma.GrowthPlanCreateNestedOneWithoutUserInput
+  viewedIdeas?: Prisma.ViewedIdeaCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowingInput = {
@@ -461,6 +505,8 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   updatedAt?: Date | string
   bookmarks?: Prisma.BookmarkUncheckedCreateNestedManyWithoutUserInput
   growthPlan?: Prisma.GrowthPlanUncheckedCreateNestedOneWithoutUserInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowingInput = {
@@ -505,6 +551,8 @@ export type UserCreateWithoutBookmarksInput = {
   updatedAt?: Date | string
   following?: Prisma.TopicCreateNestedManyWithoutUsersInput
   growthPlan?: Prisma.GrowthPlanCreateNestedOneWithoutUserInput
+  viewedIdeas?: Prisma.ViewedIdeaCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBookmarksInput = {
@@ -516,6 +564,8 @@ export type UserUncheckedCreateWithoutBookmarksInput = {
   updatedAt?: Date | string
   following?: Prisma.TopicUncheckedCreateNestedManyWithoutUsersInput
   growthPlan?: Prisma.GrowthPlanUncheckedCreateNestedOneWithoutUserInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBookmarksInput = {
@@ -543,6 +593,8 @@ export type UserUpdateWithoutBookmarksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   following?: Prisma.TopicUpdateManyWithoutUsersNestedInput
   growthPlan?: Prisma.GrowthPlanUpdateOneWithoutUserNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBookmarksInput = {
@@ -554,6 +606,8 @@ export type UserUncheckedUpdateWithoutBookmarksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   following?: Prisma.TopicUncheckedUpdateManyWithoutUsersNestedInput
   growthPlan?: Prisma.GrowthPlanUncheckedUpdateOneWithoutUserNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGrowthPlanInput = {
@@ -565,6 +619,8 @@ export type UserCreateWithoutGrowthPlanInput = {
   updatedAt?: Date | string
   bookmarks?: Prisma.BookmarkCreateNestedManyWithoutUserInput
   following?: Prisma.TopicCreateNestedManyWithoutUsersInput
+  viewedIdeas?: Prisma.ViewedIdeaCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGrowthPlanInput = {
@@ -576,6 +632,8 @@ export type UserUncheckedCreateWithoutGrowthPlanInput = {
   updatedAt?: Date | string
   bookmarks?: Prisma.BookmarkUncheckedCreateNestedManyWithoutUserInput
   following?: Prisma.TopicUncheckedCreateNestedManyWithoutUsersInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGrowthPlanInput = {
@@ -603,6 +661,8 @@ export type UserUpdateWithoutGrowthPlanInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookmarks?: Prisma.BookmarkUpdateManyWithoutUserNestedInput
   following?: Prisma.TopicUpdateManyWithoutUsersNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGrowthPlanInput = {
@@ -614,6 +674,144 @@ export type UserUncheckedUpdateWithoutGrowthPlanInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookmarks?: Prisma.BookmarkUncheckedUpdateManyWithoutUserNestedInput
   following?: Prisma.TopicUncheckedUpdateManyWithoutUsersNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutViewedIdeasInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  displayName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bookmarks?: Prisma.BookmarkCreateNestedManyWithoutUserInput
+  following?: Prisma.TopicCreateNestedManyWithoutUsersInput
+  growthPlan?: Prisma.GrowthPlanCreateNestedOneWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutViewedIdeasInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  displayName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bookmarks?: Prisma.BookmarkUncheckedCreateNestedManyWithoutUserInput
+  following?: Prisma.TopicUncheckedCreateNestedManyWithoutUsersInput
+  growthPlan?: Prisma.GrowthPlanUncheckedCreateNestedOneWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutViewedIdeasInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutViewedIdeasInput, Prisma.UserUncheckedCreateWithoutViewedIdeasInput>
+}
+
+export type UserUpsertWithoutViewedIdeasInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutViewedIdeasInput, Prisma.UserUncheckedUpdateWithoutViewedIdeasInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutViewedIdeasInput, Prisma.UserUncheckedCreateWithoutViewedIdeasInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutViewedIdeasInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutViewedIdeasInput, Prisma.UserUncheckedUpdateWithoutViewedIdeasInput>
+}
+
+export type UserUpdateWithoutViewedIdeasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookmarks?: Prisma.BookmarkUpdateManyWithoutUserNestedInput
+  following?: Prisma.TopicUpdateManyWithoutUsersNestedInput
+  growthPlan?: Prisma.GrowthPlanUpdateOneWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutViewedIdeasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookmarks?: Prisma.BookmarkUncheckedUpdateManyWithoutUserNestedInput
+  following?: Prisma.TopicUncheckedUpdateManyWithoutUsersNestedInput
+  growthPlan?: Prisma.GrowthPlanUncheckedUpdateOneWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutResetTokensInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  displayName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bookmarks?: Prisma.BookmarkCreateNestedManyWithoutUserInput
+  following?: Prisma.TopicCreateNestedManyWithoutUsersInput
+  growthPlan?: Prisma.GrowthPlanCreateNestedOneWithoutUserInput
+  viewedIdeas?: Prisma.ViewedIdeaCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutResetTokensInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  displayName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bookmarks?: Prisma.BookmarkUncheckedCreateNestedManyWithoutUserInput
+  following?: Prisma.TopicUncheckedCreateNestedManyWithoutUsersInput
+  growthPlan?: Prisma.GrowthPlanUncheckedCreateNestedOneWithoutUserInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutResetTokensInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutResetTokensInput, Prisma.UserUncheckedCreateWithoutResetTokensInput>
+}
+
+export type UserUpsertWithoutResetTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutResetTokensInput, Prisma.UserUncheckedUpdateWithoutResetTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutResetTokensInput, Prisma.UserUncheckedCreateWithoutResetTokensInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutResetTokensInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutResetTokensInput, Prisma.UserUncheckedUpdateWithoutResetTokensInput>
+}
+
+export type UserUpdateWithoutResetTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookmarks?: Prisma.BookmarkUpdateManyWithoutUserNestedInput
+  following?: Prisma.TopicUpdateManyWithoutUsersNestedInput
+  growthPlan?: Prisma.GrowthPlanUpdateOneWithoutUserNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutResetTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookmarks?: Prisma.BookmarkUncheckedUpdateManyWithoutUserNestedInput
+  following?: Prisma.TopicUncheckedUpdateManyWithoutUsersNestedInput
+  growthPlan?: Prisma.GrowthPlanUncheckedUpdateOneWithoutUserNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpdateWithoutFollowingInput = {
@@ -625,6 +823,8 @@ export type UserUpdateWithoutFollowingInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookmarks?: Prisma.BookmarkUpdateManyWithoutUserNestedInput
   growthPlan?: Prisma.GrowthPlanUpdateOneWithoutUserNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowingInput = {
@@ -636,6 +836,8 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookmarks?: Prisma.BookmarkUncheckedUpdateManyWithoutUserNestedInput
   growthPlan?: Prisma.GrowthPlanUncheckedUpdateOneWithoutUserNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutFollowingInput = {
@@ -655,11 +857,15 @@ export type UserUncheckedUpdateManyWithoutFollowingInput = {
 export type UserCountOutputType = {
   bookmarks: number
   following: number
+  viewedIdeas: number
+  resetTokens: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bookmarks?: boolean | UserCountOutputTypeCountBookmarksArgs
   following?: boolean | UserCountOutputTypeCountFollowingArgs
+  viewedIdeas?: boolean | UserCountOutputTypeCountViewedIdeasArgs
+  resetTokens?: boolean | UserCountOutputTypeCountResetTokensArgs
 }
 
 /**
@@ -686,6 +892,20 @@ export type UserCountOutputTypeCountFollowingArgs<ExtArgs extends runtime.Types.
   where?: Prisma.TopicWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountViewedIdeasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ViewedIdeaWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PasswordResetTokenWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -697,6 +917,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   bookmarks?: boolean | Prisma.User$bookmarksArgs<ExtArgs>
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   growthPlan?: boolean | Prisma.User$growthPlanArgs<ExtArgs>
+  viewedIdeas?: boolean | Prisma.User$viewedIdeasArgs<ExtArgs>
+  resetTokens?: boolean | Prisma.User$resetTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -732,6 +954,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   bookmarks?: boolean | Prisma.User$bookmarksArgs<ExtArgs>
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   growthPlan?: boolean | Prisma.User$growthPlanArgs<ExtArgs>
+  viewedIdeas?: boolean | Prisma.User$viewedIdeasArgs<ExtArgs>
+  resetTokens?: boolean | Prisma.User$resetTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -743,6 +967,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     bookmarks: Prisma.$BookmarkPayload<ExtArgs>[]
     following: Prisma.$TopicPayload<ExtArgs>[]
     growthPlan: Prisma.$GrowthPlanPayload<ExtArgs> | null
+    viewedIdeas: Prisma.$ViewedIdeaPayload<ExtArgs>[]
+    resetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1148,6 +1374,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   bookmarks<T extends Prisma.User$bookmarksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$bookmarksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookmarkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   following<T extends Prisma.User$followingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$followingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   growthPlan<T extends Prisma.User$growthPlanArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$growthPlanArgs<ExtArgs>>): Prisma.Prisma__GrowthPlanClient<runtime.Types.Result.GetResult<Prisma.$GrowthPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  viewedIdeas<T extends Prisma.User$viewedIdeasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$viewedIdeasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ViewedIdeaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  resetTokens<T extends Prisma.User$resetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1633,6 +1861,54 @@ export type User$growthPlanArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   include?: Prisma.GrowthPlanInclude<ExtArgs> | null
   where?: Prisma.GrowthPlanWhereInput
+}
+
+/**
+ * User.viewedIdeas
+ */
+export type User$viewedIdeasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ViewedIdea
+   */
+  select?: Prisma.ViewedIdeaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ViewedIdea
+   */
+  omit?: Prisma.ViewedIdeaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ViewedIdeaInclude<ExtArgs> | null
+  where?: Prisma.ViewedIdeaWhereInput
+  orderBy?: Prisma.ViewedIdeaOrderByWithRelationInput | Prisma.ViewedIdeaOrderByWithRelationInput[]
+  cursor?: Prisma.ViewedIdeaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ViewedIdeaScalarFieldEnum | Prisma.ViewedIdeaScalarFieldEnum[]
+}
+
+/**
+ * User.resetTokens
+ */
+export type User$resetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PasswordResetToken
+   */
+  select?: Prisma.PasswordResetTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PasswordResetToken
+   */
+  omit?: Prisma.PasswordResetTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PasswordResetTokenInclude<ExtArgs> | null
+  where?: Prisma.PasswordResetTokenWhereInput
+  orderBy?: Prisma.PasswordResetTokenOrderByWithRelationInput | Prisma.PasswordResetTokenOrderByWithRelationInput[]
+  cursor?: Prisma.PasswordResetTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PasswordResetTokenScalarFieldEnum | Prisma.PasswordResetTokenScalarFieldEnum[]
 }
 
 /**

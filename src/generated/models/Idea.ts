@@ -39,6 +39,7 @@ export type IdeaMinAggregateOutputType = {
   title: string | null
   content: string | null
   takeaway: string | null
+  saviezVous: string | null
   slug: string | null
   sourceId: string | null
   orderIndex: number | null
@@ -52,6 +53,7 @@ export type IdeaMaxAggregateOutputType = {
   title: string | null
   content: string | null
   takeaway: string | null
+  saviezVous: string | null
   slug: string | null
   sourceId: string | null
   orderIndex: number | null
@@ -65,6 +67,7 @@ export type IdeaCountAggregateOutputType = {
   title: number
   content: number
   takeaway: number
+  saviezVous: number
   slug: number
   sourceId: number
   orderIndex: number
@@ -88,6 +91,7 @@ export type IdeaMinAggregateInputType = {
   title?: true
   content?: true
   takeaway?: true
+  saviezVous?: true
   slug?: true
   sourceId?: true
   orderIndex?: true
@@ -101,6 +105,7 @@ export type IdeaMaxAggregateInputType = {
   title?: true
   content?: true
   takeaway?: true
+  saviezVous?: true
   slug?: true
   sourceId?: true
   orderIndex?: true
@@ -114,6 +119,7 @@ export type IdeaCountAggregateInputType = {
   title?: true
   content?: true
   takeaway?: true
+  saviezVous?: true
   slug?: true
   sourceId?: true
   orderIndex?: true
@@ -214,6 +220,7 @@ export type IdeaGroupByOutputType = {
   title: string
   content: string
   takeaway: string
+  saviezVous: string | null
   slug: string
   sourceId: string
   orderIndex: number
@@ -250,6 +257,7 @@ export type IdeaWhereInput = {
   title?: Prisma.StringFilter<"Idea"> | string
   content?: Prisma.StringFilter<"Idea"> | string
   takeaway?: Prisma.StringFilter<"Idea"> | string
+  saviezVous?: Prisma.StringNullableFilter<"Idea"> | string | null
   slug?: Prisma.StringFilter<"Idea"> | string
   sourceId?: Prisma.StringFilter<"Idea"> | string
   orderIndex?: Prisma.IntFilter<"Idea"> | number
@@ -259,6 +267,7 @@ export type IdeaWhereInput = {
   source?: Prisma.XOR<Prisma.SourceScalarRelationFilter, Prisma.SourceWhereInput>
   bookmarks?: Prisma.BookmarkListRelationFilter
   ideaTopics?: Prisma.IdeaTopicListRelationFilter
+  viewedIdeas?: Prisma.ViewedIdeaListRelationFilter
 }
 
 export type IdeaOrderByWithRelationInput = {
@@ -266,6 +275,7 @@ export type IdeaOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   takeaway?: Prisma.SortOrder
+  saviezVous?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   orderIndex?: Prisma.SortOrder
@@ -275,6 +285,7 @@ export type IdeaOrderByWithRelationInput = {
   source?: Prisma.SourceOrderByWithRelationInput
   bookmarks?: Prisma.BookmarkOrderByRelationAggregateInput
   ideaTopics?: Prisma.IdeaTopicOrderByRelationAggregateInput
+  viewedIdeas?: Prisma.ViewedIdeaOrderByRelationAggregateInput
 }
 
 export type IdeaWhereUniqueInput = Prisma.AtLeast<{
@@ -286,6 +297,7 @@ export type IdeaWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Idea"> | string
   content?: Prisma.StringFilter<"Idea"> | string
   takeaway?: Prisma.StringFilter<"Idea"> | string
+  saviezVous?: Prisma.StringNullableFilter<"Idea"> | string | null
   sourceId?: Prisma.StringFilter<"Idea"> | string
   orderIndex?: Prisma.IntFilter<"Idea"> | number
   isPublished?: Prisma.BoolFilter<"Idea"> | boolean
@@ -294,6 +306,7 @@ export type IdeaWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.XOR<Prisma.SourceScalarRelationFilter, Prisma.SourceWhereInput>
   bookmarks?: Prisma.BookmarkListRelationFilter
   ideaTopics?: Prisma.IdeaTopicListRelationFilter
+  viewedIdeas?: Prisma.ViewedIdeaListRelationFilter
 }, "id" | "slug">
 
 export type IdeaOrderByWithAggregationInput = {
@@ -301,6 +314,7 @@ export type IdeaOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   takeaway?: Prisma.SortOrder
+  saviezVous?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   orderIndex?: Prisma.SortOrder
@@ -322,6 +336,7 @@ export type IdeaScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Idea"> | string
   content?: Prisma.StringWithAggregatesFilter<"Idea"> | string
   takeaway?: Prisma.StringWithAggregatesFilter<"Idea"> | string
+  saviezVous?: Prisma.StringNullableWithAggregatesFilter<"Idea"> | string | null
   slug?: Prisma.StringWithAggregatesFilter<"Idea"> | string
   sourceId?: Prisma.StringWithAggregatesFilter<"Idea"> | string
   orderIndex?: Prisma.IntWithAggregatesFilter<"Idea"> | number
@@ -335,6 +350,7 @@ export type IdeaCreateInput = {
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   orderIndex?: number
   isPublished?: boolean
@@ -343,6 +359,7 @@ export type IdeaCreateInput = {
   source: Prisma.SourceCreateNestedOneWithoutIdeasInput
   bookmarks?: Prisma.BookmarkCreateNestedManyWithoutIdeaInput
   ideaTopics?: Prisma.IdeaTopicCreateNestedManyWithoutIdeaInput
+  viewedIdeas?: Prisma.ViewedIdeaCreateNestedManyWithoutIdeaInput
 }
 
 export type IdeaUncheckedCreateInput = {
@@ -350,6 +367,7 @@ export type IdeaUncheckedCreateInput = {
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   sourceId: string
   orderIndex?: number
@@ -358,6 +376,7 @@ export type IdeaUncheckedCreateInput = {
   updatedAt?: Date | string
   bookmarks?: Prisma.BookmarkUncheckedCreateNestedManyWithoutIdeaInput
   ideaTopics?: Prisma.IdeaTopicUncheckedCreateNestedManyWithoutIdeaInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedCreateNestedManyWithoutIdeaInput
 }
 
 export type IdeaUpdateInput = {
@@ -365,6 +384,7 @@ export type IdeaUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -373,6 +393,7 @@ export type IdeaUpdateInput = {
   source?: Prisma.SourceUpdateOneRequiredWithoutIdeasNestedInput
   bookmarks?: Prisma.BookmarkUpdateManyWithoutIdeaNestedInput
   ideaTopics?: Prisma.IdeaTopicUpdateManyWithoutIdeaNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUpdateManyWithoutIdeaNestedInput
 }
 
 export type IdeaUncheckedUpdateInput = {
@@ -380,6 +401,7 @@ export type IdeaUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
@@ -388,6 +410,7 @@ export type IdeaUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookmarks?: Prisma.BookmarkUncheckedUpdateManyWithoutIdeaNestedInput
   ideaTopics?: Prisma.IdeaTopicUncheckedUpdateManyWithoutIdeaNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedUpdateManyWithoutIdeaNestedInput
 }
 
 export type IdeaCreateManyInput = {
@@ -395,6 +418,7 @@ export type IdeaCreateManyInput = {
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   sourceId: string
   orderIndex?: number
@@ -408,6 +432,7 @@ export type IdeaUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -420,6 +445,7 @@ export type IdeaUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
@@ -443,6 +469,7 @@ export type IdeaCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   takeaway?: Prisma.SortOrder
+  saviezVous?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   orderIndex?: Prisma.SortOrder
@@ -460,6 +487,7 @@ export type IdeaMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   takeaway?: Prisma.SortOrder
+  saviezVous?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   orderIndex?: Prisma.SortOrder
@@ -473,6 +501,7 @@ export type IdeaMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   takeaway?: Prisma.SortOrder
+  saviezVous?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   orderIndex?: Prisma.SortOrder
@@ -572,11 +601,26 @@ export type IdeaUpdateOneRequiredWithoutBookmarksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.IdeaUpdateToOneWithWhereWithoutBookmarksInput, Prisma.IdeaUpdateWithoutBookmarksInput>, Prisma.IdeaUncheckedUpdateWithoutBookmarksInput>
 }
 
+export type IdeaCreateNestedOneWithoutViewedIdeasInput = {
+  create?: Prisma.XOR<Prisma.IdeaCreateWithoutViewedIdeasInput, Prisma.IdeaUncheckedCreateWithoutViewedIdeasInput>
+  connectOrCreate?: Prisma.IdeaCreateOrConnectWithoutViewedIdeasInput
+  connect?: Prisma.IdeaWhereUniqueInput
+}
+
+export type IdeaUpdateOneRequiredWithoutViewedIdeasNestedInput = {
+  create?: Prisma.XOR<Prisma.IdeaCreateWithoutViewedIdeasInput, Prisma.IdeaUncheckedCreateWithoutViewedIdeasInput>
+  connectOrCreate?: Prisma.IdeaCreateOrConnectWithoutViewedIdeasInput
+  upsert?: Prisma.IdeaUpsertWithoutViewedIdeasInput
+  connect?: Prisma.IdeaWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.IdeaUpdateToOneWithWhereWithoutViewedIdeasInput, Prisma.IdeaUpdateWithoutViewedIdeasInput>, Prisma.IdeaUncheckedUpdateWithoutViewedIdeasInput>
+}
+
 export type IdeaCreateWithoutSourceInput = {
   id?: string
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   orderIndex?: number
   isPublished?: boolean
@@ -584,6 +628,7 @@ export type IdeaCreateWithoutSourceInput = {
   updatedAt?: Date | string
   bookmarks?: Prisma.BookmarkCreateNestedManyWithoutIdeaInput
   ideaTopics?: Prisma.IdeaTopicCreateNestedManyWithoutIdeaInput
+  viewedIdeas?: Prisma.ViewedIdeaCreateNestedManyWithoutIdeaInput
 }
 
 export type IdeaUncheckedCreateWithoutSourceInput = {
@@ -591,6 +636,7 @@ export type IdeaUncheckedCreateWithoutSourceInput = {
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   orderIndex?: number
   isPublished?: boolean
@@ -598,6 +644,7 @@ export type IdeaUncheckedCreateWithoutSourceInput = {
   updatedAt?: Date | string
   bookmarks?: Prisma.BookmarkUncheckedCreateNestedManyWithoutIdeaInput
   ideaTopics?: Prisma.IdeaTopicUncheckedCreateNestedManyWithoutIdeaInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedCreateNestedManyWithoutIdeaInput
 }
 
 export type IdeaCreateOrConnectWithoutSourceInput = {
@@ -633,6 +680,7 @@ export type IdeaScalarWhereInput = {
   title?: Prisma.StringFilter<"Idea"> | string
   content?: Prisma.StringFilter<"Idea"> | string
   takeaway?: Prisma.StringFilter<"Idea"> | string
+  saviezVous?: Prisma.StringNullableFilter<"Idea"> | string | null
   slug?: Prisma.StringFilter<"Idea"> | string
   sourceId?: Prisma.StringFilter<"Idea"> | string
   orderIndex?: Prisma.IntFilter<"Idea"> | number
@@ -646,6 +694,7 @@ export type IdeaCreateWithoutIdeaTopicsInput = {
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   orderIndex?: number
   isPublished?: boolean
@@ -653,6 +702,7 @@ export type IdeaCreateWithoutIdeaTopicsInput = {
   updatedAt?: Date | string
   source: Prisma.SourceCreateNestedOneWithoutIdeasInput
   bookmarks?: Prisma.BookmarkCreateNestedManyWithoutIdeaInput
+  viewedIdeas?: Prisma.ViewedIdeaCreateNestedManyWithoutIdeaInput
 }
 
 export type IdeaUncheckedCreateWithoutIdeaTopicsInput = {
@@ -660,6 +710,7 @@ export type IdeaUncheckedCreateWithoutIdeaTopicsInput = {
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   sourceId: string
   orderIndex?: number
@@ -667,6 +718,7 @@ export type IdeaUncheckedCreateWithoutIdeaTopicsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   bookmarks?: Prisma.BookmarkUncheckedCreateNestedManyWithoutIdeaInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedCreateNestedManyWithoutIdeaInput
 }
 
 export type IdeaCreateOrConnectWithoutIdeaTopicsInput = {
@@ -690,6 +742,7 @@ export type IdeaUpdateWithoutIdeaTopicsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -697,6 +750,7 @@ export type IdeaUpdateWithoutIdeaTopicsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   source?: Prisma.SourceUpdateOneRequiredWithoutIdeasNestedInput
   bookmarks?: Prisma.BookmarkUpdateManyWithoutIdeaNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUpdateManyWithoutIdeaNestedInput
 }
 
 export type IdeaUncheckedUpdateWithoutIdeaTopicsInput = {
@@ -704,6 +758,7 @@ export type IdeaUncheckedUpdateWithoutIdeaTopicsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
@@ -711,6 +766,7 @@ export type IdeaUncheckedUpdateWithoutIdeaTopicsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookmarks?: Prisma.BookmarkUncheckedUpdateManyWithoutIdeaNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedUpdateManyWithoutIdeaNestedInput
 }
 
 export type IdeaCreateWithoutBookmarksInput = {
@@ -718,6 +774,7 @@ export type IdeaCreateWithoutBookmarksInput = {
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   orderIndex?: number
   isPublished?: boolean
@@ -725,6 +782,7 @@ export type IdeaCreateWithoutBookmarksInput = {
   updatedAt?: Date | string
   source: Prisma.SourceCreateNestedOneWithoutIdeasInput
   ideaTopics?: Prisma.IdeaTopicCreateNestedManyWithoutIdeaInput
+  viewedIdeas?: Prisma.ViewedIdeaCreateNestedManyWithoutIdeaInput
 }
 
 export type IdeaUncheckedCreateWithoutBookmarksInput = {
@@ -732,6 +790,7 @@ export type IdeaUncheckedCreateWithoutBookmarksInput = {
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   sourceId: string
   orderIndex?: number
@@ -739,6 +798,7 @@ export type IdeaUncheckedCreateWithoutBookmarksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   ideaTopics?: Prisma.IdeaTopicUncheckedCreateNestedManyWithoutIdeaInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedCreateNestedManyWithoutIdeaInput
 }
 
 export type IdeaCreateOrConnectWithoutBookmarksInput = {
@@ -762,6 +822,7 @@ export type IdeaUpdateWithoutBookmarksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -769,6 +830,7 @@ export type IdeaUpdateWithoutBookmarksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   source?: Prisma.SourceUpdateOneRequiredWithoutIdeasNestedInput
   ideaTopics?: Prisma.IdeaTopicUpdateManyWithoutIdeaNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUpdateManyWithoutIdeaNestedInput
 }
 
 export type IdeaUncheckedUpdateWithoutBookmarksInput = {
@@ -776,12 +838,94 @@ export type IdeaUncheckedUpdateWithoutBookmarksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ideaTopics?: Prisma.IdeaTopicUncheckedUpdateManyWithoutIdeaNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedUpdateManyWithoutIdeaNestedInput
+}
+
+export type IdeaCreateWithoutViewedIdeasInput = {
+  id?: string
+  title: string
+  content: string
+  takeaway: string
+  saviezVous?: string | null
+  slug: string
+  orderIndex?: number
+  isPublished?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  source: Prisma.SourceCreateNestedOneWithoutIdeasInput
+  bookmarks?: Prisma.BookmarkCreateNestedManyWithoutIdeaInput
+  ideaTopics?: Prisma.IdeaTopicCreateNestedManyWithoutIdeaInput
+}
+
+export type IdeaUncheckedCreateWithoutViewedIdeasInput = {
+  id?: string
+  title: string
+  content: string
+  takeaway: string
+  saviezVous?: string | null
+  slug: string
+  sourceId: string
+  orderIndex?: number
+  isPublished?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bookmarks?: Prisma.BookmarkUncheckedCreateNestedManyWithoutIdeaInput
+  ideaTopics?: Prisma.IdeaTopicUncheckedCreateNestedManyWithoutIdeaInput
+}
+
+export type IdeaCreateOrConnectWithoutViewedIdeasInput = {
+  where: Prisma.IdeaWhereUniqueInput
+  create: Prisma.XOR<Prisma.IdeaCreateWithoutViewedIdeasInput, Prisma.IdeaUncheckedCreateWithoutViewedIdeasInput>
+}
+
+export type IdeaUpsertWithoutViewedIdeasInput = {
+  update: Prisma.XOR<Prisma.IdeaUpdateWithoutViewedIdeasInput, Prisma.IdeaUncheckedUpdateWithoutViewedIdeasInput>
+  create: Prisma.XOR<Prisma.IdeaCreateWithoutViewedIdeasInput, Prisma.IdeaUncheckedCreateWithoutViewedIdeasInput>
+  where?: Prisma.IdeaWhereInput
+}
+
+export type IdeaUpdateToOneWithWhereWithoutViewedIdeasInput = {
+  where?: Prisma.IdeaWhereInput
+  data: Prisma.XOR<Prisma.IdeaUpdateWithoutViewedIdeasInput, Prisma.IdeaUncheckedUpdateWithoutViewedIdeasInput>
+}
+
+export type IdeaUpdateWithoutViewedIdeasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  source?: Prisma.SourceUpdateOneRequiredWithoutIdeasNestedInput
+  bookmarks?: Prisma.BookmarkUpdateManyWithoutIdeaNestedInput
+  ideaTopics?: Prisma.IdeaTopicUpdateManyWithoutIdeaNestedInput
+}
+
+export type IdeaUncheckedUpdateWithoutViewedIdeasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookmarks?: Prisma.BookmarkUncheckedUpdateManyWithoutIdeaNestedInput
   ideaTopics?: Prisma.IdeaTopicUncheckedUpdateManyWithoutIdeaNestedInput
 }
 
@@ -790,6 +934,7 @@ export type IdeaCreateManySourceInput = {
   title: string
   content: string
   takeaway: string
+  saviezVous?: string | null
   slug: string
   orderIndex?: number
   isPublished?: boolean
@@ -802,6 +947,7 @@ export type IdeaUpdateWithoutSourceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -809,6 +955,7 @@ export type IdeaUpdateWithoutSourceInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookmarks?: Prisma.BookmarkUpdateManyWithoutIdeaNestedInput
   ideaTopics?: Prisma.IdeaTopicUpdateManyWithoutIdeaNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUpdateManyWithoutIdeaNestedInput
 }
 
 export type IdeaUncheckedUpdateWithoutSourceInput = {
@@ -816,6 +963,7 @@ export type IdeaUncheckedUpdateWithoutSourceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -823,6 +971,7 @@ export type IdeaUncheckedUpdateWithoutSourceInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookmarks?: Prisma.BookmarkUncheckedUpdateManyWithoutIdeaNestedInput
   ideaTopics?: Prisma.IdeaTopicUncheckedUpdateManyWithoutIdeaNestedInput
+  viewedIdeas?: Prisma.ViewedIdeaUncheckedUpdateManyWithoutIdeaNestedInput
 }
 
 export type IdeaUncheckedUpdateManyWithoutSourceInput = {
@@ -830,6 +979,7 @@ export type IdeaUncheckedUpdateManyWithoutSourceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   takeaway?: Prisma.StringFieldUpdateOperationsInput | string
+  saviezVous?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   orderIndex?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -845,11 +995,13 @@ export type IdeaUncheckedUpdateManyWithoutSourceInput = {
 export type IdeaCountOutputType = {
   bookmarks: number
   ideaTopics: number
+  viewedIdeas: number
 }
 
 export type IdeaCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bookmarks?: boolean | IdeaCountOutputTypeCountBookmarksArgs
   ideaTopics?: boolean | IdeaCountOutputTypeCountIdeaTopicsArgs
+  viewedIdeas?: boolean | IdeaCountOutputTypeCountViewedIdeasArgs
 }
 
 /**
@@ -876,12 +1028,20 @@ export type IdeaCountOutputTypeCountIdeaTopicsArgs<ExtArgs extends runtime.Types
   where?: Prisma.IdeaTopicWhereInput
 }
 
+/**
+ * IdeaCountOutputType without action
+ */
+export type IdeaCountOutputTypeCountViewedIdeasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ViewedIdeaWhereInput
+}
+
 
 export type IdeaSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
   content?: boolean
   takeaway?: boolean
+  saviezVous?: boolean
   slug?: boolean
   sourceId?: boolean
   orderIndex?: boolean
@@ -891,6 +1051,7 @@ export type IdeaSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
   bookmarks?: boolean | Prisma.Idea$bookmarksArgs<ExtArgs>
   ideaTopics?: boolean | Prisma.Idea$ideaTopicsArgs<ExtArgs>
+  viewedIdeas?: boolean | Prisma.Idea$viewedIdeasArgs<ExtArgs>
   _count?: boolean | Prisma.IdeaCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["idea"]>
 
@@ -899,6 +1060,7 @@ export type IdeaSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   title?: boolean
   content?: boolean
   takeaway?: boolean
+  saviezVous?: boolean
   slug?: boolean
   sourceId?: boolean
   orderIndex?: boolean
@@ -913,6 +1075,7 @@ export type IdeaSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   title?: boolean
   content?: boolean
   takeaway?: boolean
+  saviezVous?: boolean
   slug?: boolean
   sourceId?: boolean
   orderIndex?: boolean
@@ -927,6 +1090,7 @@ export type IdeaSelectScalar = {
   title?: boolean
   content?: boolean
   takeaway?: boolean
+  saviezVous?: boolean
   slug?: boolean
   sourceId?: boolean
   orderIndex?: boolean
@@ -935,11 +1099,12 @@ export type IdeaSelectScalar = {
   updatedAt?: boolean
 }
 
-export type IdeaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "content" | "takeaway" | "slug" | "sourceId" | "orderIndex" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["idea"]>
+export type IdeaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "content" | "takeaway" | "saviezVous" | "slug" | "sourceId" | "orderIndex" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["idea"]>
 export type IdeaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
   bookmarks?: boolean | Prisma.Idea$bookmarksArgs<ExtArgs>
   ideaTopics?: boolean | Prisma.Idea$ideaTopicsArgs<ExtArgs>
+  viewedIdeas?: boolean | Prisma.Idea$viewedIdeasArgs<ExtArgs>
   _count?: boolean | Prisma.IdeaCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type IdeaIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -955,12 +1120,14 @@ export type $IdeaPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     source: Prisma.$SourcePayload<ExtArgs>
     bookmarks: Prisma.$BookmarkPayload<ExtArgs>[]
     ideaTopics: Prisma.$IdeaTopicPayload<ExtArgs>[]
+    viewedIdeas: Prisma.$ViewedIdeaPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     title: string
     content: string
     takeaway: string
+    saviezVous: string | null
     slug: string
     sourceId: string
     orderIndex: number
@@ -1364,6 +1531,7 @@ export interface Prisma__IdeaClient<T, Null = never, ExtArgs extends runtime.Typ
   source<T extends Prisma.SourceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SourceDefaultArgs<ExtArgs>>): Prisma.Prisma__SourceClient<runtime.Types.Result.GetResult<Prisma.$SourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   bookmarks<T extends Prisma.Idea$bookmarksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Idea$bookmarksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookmarkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ideaTopics<T extends Prisma.Idea$ideaTopicsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Idea$ideaTopicsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IdeaTopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  viewedIdeas<T extends Prisma.Idea$viewedIdeasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Idea$viewedIdeasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ViewedIdeaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1397,6 +1565,7 @@ export interface IdeaFieldRefs {
   readonly title: Prisma.FieldRef<"Idea", 'String'>
   readonly content: Prisma.FieldRef<"Idea", 'String'>
   readonly takeaway: Prisma.FieldRef<"Idea", 'String'>
+  readonly saviezVous: Prisma.FieldRef<"Idea", 'String'>
   readonly slug: Prisma.FieldRef<"Idea", 'String'>
   readonly sourceId: Prisma.FieldRef<"Idea", 'String'>
   readonly orderIndex: Prisma.FieldRef<"Idea", 'Int'>
@@ -1842,6 +2011,30 @@ export type Idea$ideaTopicsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.IdeaTopicScalarFieldEnum | Prisma.IdeaTopicScalarFieldEnum[]
+}
+
+/**
+ * Idea.viewedIdeas
+ */
+export type Idea$viewedIdeasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ViewedIdea
+   */
+  select?: Prisma.ViewedIdeaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ViewedIdea
+   */
+  omit?: Prisma.ViewedIdeaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ViewedIdeaInclude<ExtArgs> | null
+  where?: Prisma.ViewedIdeaWhereInput
+  orderBy?: Prisma.ViewedIdeaOrderByWithRelationInput | Prisma.ViewedIdeaOrderByWithRelationInput[]
+  cursor?: Prisma.ViewedIdeaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ViewedIdeaScalarFieldEnum | Prisma.ViewedIdeaScalarFieldEnum[]
 }
 
 /**

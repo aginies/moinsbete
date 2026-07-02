@@ -21,11 +21,6 @@ export function TopicCard({ topic }: TopicCardProps) {
           <h3 className="font-heading font-semibold text-foreground group-hover:text-primary">
             {topic.name}
           </h3>
-          {topic._count && (
-            <p className="text-xs text-muted-foreground">
-              {topic._count.ideas} idée{topic._count.ideas !== 1 ? 's' : ''}
-            </p>
-          )}
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 'use server'
 
-import { auth } from '@/lib/auth'
+
+import { getSession, authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { slugify } from '@/lib/utils'
 
@@ -11,7 +12,7 @@ export async function createTopicAction(data: {
   color?: string
   parentId?: string
 }) {
-  const session = await auth()
+  const session = await getSession()
   if (!session) {
     return { error: 'Non autorisé' }
   }
@@ -45,7 +46,7 @@ export async function updateTopicAction(id: string, data: {
   color?: string
   parentId?: string | null
 }) {
-  const session = await auth()
+  const session = await getSession()
   if (!session) {
     return { error: 'Non autorisé' }
   }
@@ -66,7 +67,7 @@ export async function updateTopicAction(id: string, data: {
 }
 
 export async function deleteTopicAction(id: string) {
-  const session = await auth()
+  const session = await getSession()
   if (!session) {
     return { error: 'Non autorisé' }
   }

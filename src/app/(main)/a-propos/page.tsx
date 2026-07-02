@@ -77,6 +77,35 @@ export default function AproposPage() {
             Juste de l'apprentissage de qualité, sans friction.
           </p>
         </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
+          <p className="text-muted-foreground">
+            StashFru a été créé par <strong>Antoine Giniès</strong>.
+            Le projet s'inspire de la philosophie Deep Stash, popularisée par
+            <a
+              href="https://fr.wikipedia.org/wiki/Deep_Stash"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Deep Stash
+            </a>
+            , une méthode d'apprentissage rapide qui consiste à collecter et
+            retenir les idées clés issues de livres, d'articles et d'autres
+            sources de connaissance.
+          </p>
+          <p className="mt-3 text-muted-foreground">
+            L'objectif est de remplacer le scroll infini des réseaux sociaux par
+            un apprentissage actif et intentionnel. Chaque idée est conçue pour
+            être digérée en quelques minutes, tout en restant mémorable et
+            actionnable.
+          </p>
+        </section>
+      </div>
+
+      <div className="mt-12 pt-6 border-t text-center text-sm text-muted-foreground">
+        <Link href="/" className="hover:underline">← Retour à l&apos;accueil</Link>
       </div>
     </div>
   )

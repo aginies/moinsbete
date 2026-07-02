@@ -1,12 +1,13 @@
 import { prisma } from '@/lib/db'
-import { auth } from '@/lib/auth'
+
+import { getSession, authOptions } from '@/lib/auth'
 import { Feed } from '@/components/feed/feed'
 import Link from 'next/link'
 import { ArrowLeft, Target, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default async function MonPlanPage() {
-  const session = await auth()
+  const session = await getSession()
 
   if (!session?.user) {
     return (

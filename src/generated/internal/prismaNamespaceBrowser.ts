@@ -59,7 +59,10 @@ export const ModelName = {
   Bookmark: 'Bookmark',
   GrowthPlan: 'GrowthPlan',
   TopicSuggestion: 'TopicSuggestion',
-  CommunityArticle: 'CommunityArticle'
+  CommunityArticle: 'CommunityArticle',
+  ViewedIdea: 'ViewedIdea',
+  PasswordResetToken: 'PasswordResetToken',
+  SaviezVousFact: 'SaviezVousFact'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -131,6 +134,7 @@ export const IdeaScalarFieldEnum = {
   title: 'title',
   content: 'content',
   takeaway: 'takeaway',
+  saviezVous: 'saviezVous',
   slug: 'slug',
   sourceId: 'sourceId',
   orderIndex: 'orderIndex',
@@ -215,6 +219,38 @@ export const CommunityArticleScalarFieldEnum = {
 } as const
 
 export type CommunityArticleScalarFieldEnum = (typeof CommunityArticleScalarFieldEnum)[keyof typeof CommunityArticleScalarFieldEnum]
+
+
+export const ViewedIdeaScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  ideaId: 'ideaId',
+  viewedAt: 'viewedAt'
+} as const
+
+export type ViewedIdeaScalarFieldEnum = (typeof ViewedIdeaScalarFieldEnum)[keyof typeof ViewedIdeaScalarFieldEnum]
+
+
+export const PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  email: 'email',
+  userId: 'userId',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const SaviezVousFactScalarFieldEnum = {
+  id: 'id',
+  text: 'text',
+  sourceUrl: 'sourceUrl',
+  createdAt: 'createdAt'
+} as const
+
+export type SaviezVousFactScalarFieldEnum = (typeof SaviezVousFactScalarFieldEnum)[keyof typeof SaviezVousFactScalarFieldEnum]
 
 
 export const SortOrder = {

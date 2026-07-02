@@ -3,12 +3,16 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, BookOpen, ExternalLink } from 'lucide-react'
 
+import { getSession, authOptions } from '@/lib/auth'
+import { markIdeaViewed } from '@/actions/view-actions'
+
 export default async function IdeaDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  const session = await getSession()
 
   const idea = await prisma.idea.findUnique({
     where: { slug },
@@ -36,6 +40,10 @@ export default async function IdeaDetailPage({
   }
 
   const topics = idea.ideaTopics.map(it => it.topic)
+
+  if (session?.user?.id) {
+    await markIdeaViewed(idea.id, session.user.id).catch(() => {})
+  }
 
   return (
     <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">

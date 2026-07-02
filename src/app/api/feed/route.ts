@@ -5,12 +5,17 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const topic = searchParams.get('topic')
+    const userId = searchParams.get('userId')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
 
     const skip = (page - 1) * limit
 
     let where: any = { isPublished: true }
+
+    if (userId) {
+      where.viewedIdeas = { none: { userId } }
+    }
 
     if (topic) {
       const topicRecord = await prisma.topic.findUnique({
@@ -50,6 +55,7 @@ export async function GET(request: NextRequest) {
     const formattedIdeas = ideas.map(idea => ({
       ...idea,
       topics: idea.ideaTopics.map(it => it.topic),
+      saviezVous: idea.saviezVous,
     }))
 
     return NextResponse.json({

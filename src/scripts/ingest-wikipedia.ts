@@ -248,7 +248,7 @@ async function ingestArticle(title: string, index: number) {
         sourceId: source.id,
         orderIndex: i,
         ideaTopics: {
-          create: topicIds.map(topicId => ({ topic: { connect: { id: topicId } } })),
+          create: [{ topic: { connect: { id: topicIds[0] } } }],
         },
       },
     })
