@@ -420,164 +420,173 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 | `./scripts/update all` | Pipeline complet (scrape + ideas + ingest) |
 | `npm run lint` | ESLint |
 
-## Déploiement
+## Déploiement sur un serveur Apache
 
-### Option 0: Déploiement avec une base de données existante
+### Prérequis serveur
 
-Si vous avez déjà une base de données `dev.db` (backup, export d'un autre serveur, etc.):
+- **Ubuntu/Debian** avec Apache, Node.js ≥ 20, npm ≥ 10
+- **SQLite** (généralement préinstallé)
+- Port 3000 libre pour le serveur Next.js
+
+### Étape 1 : Préparer le serveur
 
 ```bash
-# 1. Cloner le repo
-git clone <repo-url>
-cd stashfru
+# Installer Node.js 20+ (via NodeSource)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs apache2 sqlite3
 
-# 2. Installer les dépendances
+# Activer les modules Apache nécessaires
+sudo a2enmod proxy proxy_http proxy_wstunnel rewrite
+sudo systemctl restart apache2
+```
+
+### Étape 2 : Cloner et préparer l'application
+
+```bash
+# Créer le répertoire d'installation
+sudo mkdir -p /srv/http/stashfru
+cd /srv/http/stashfru
+
+# Cloner le repo
+git clone https://github.com/aginies/deepstash/stashfru .
+
+# Installer les dépendances (production uniquement)
 npm ci --production
 
-# 3. Placer la base de données existante
-cp /chemin/vers/dev.db ./dev.db
+# Générer le client Prisma
+npx prisma generate
 
-# 4. Vérifier l'intégrité
+# Appliquer les migrations
+npx prisma migrate deploy
+```
+
+### Étape 3 : Base de données
+
+**Nouvelle installation :**
+```bash
+# Seed initial (20 topics + 146 idées manuelles)
+npx tsx prisma/seed.ts
+npx tsx src/scripts/seed-ideas.ts
+
+# Scraper les faits "Le saviez-vous" (optionnel mais recommandé)
+npx tsx scripts/scrape-saviez-vous.ts
+```
+
+**Avec une base de données existante :**
+```bash
+# Placer le fichier dev.db dans le répertoire d'installation
+sudo cp /chemin/vers/dev.db /srv/http/stashfru/dev.db
+
+# Vérifier l'intégrité
 sqlite3 dev.db "PRAGMA integrity_check;"
 
-# 5. Générer Prisma (doit correspondre au schéma)
-npx prisma generate
-
-# 6. S'assurer que le schéma est à jour
-npx prisma db push
-
-# 7. Build
-npm run build
-
-# 8. Démarrer avec PM2
-npm install -g pm2
-pm2 start npm --name "stashfru" -- start
-pm2 save
-pm2 startup
-```
-
-**Vérifier le contenu de la base:**
-```bash
-# Compter les idées
-sqlite3 dev.db "SELECT COUNT(*) FROM Idea;"
-
-# Vérifier les topics
-sqlite3 dev.db "SELECT COUNT(*) FROM Topic;"
-
-# Vérifier les utilisateurs
-sqlite3 dev.db "SELECT COUNT(*) FROM User;"
-```
-
-**Si le schéma a changé depuis la création de la DB**, appliquer les migrations manuellement:
-```bash
-# Voir les migrations disponibles
-ls prisma/migrations/
-
-# Appliquer une migration spécifique
-npx prisma migrate resolve --applied 20260702070107_init
-```
-
-### Option 1: Serveur VPS (recommandé pour SQLite)
-
-```bash
-# 1. Configurer un serveur Node.js
-# 2. Cloner le repo
-git clone <repo-url>
-cd stashfru
-
-# 3. Installer les dépendances
-npm ci --production
-
-# 4. Générer Prisma
-npx prisma generate
-
-# 5. Appliquer les migrations
+# Appliquer les migrations si le schéma a changé
 npx prisma migrate deploy
 
-# 6. Seed (si nouvelle installation)
-npm run db:seed
+# Vérifier les données
+sqlite3 dev.db "SELECT COUNT(*) FROM Idea;"
+sqlite3 dev.db "SELECT COUNT(*) FROM SaviezVousFact;"
+```
 
-# 7. Build
+**Permissions :**
+```bash
+# Le fichier dev.db doit être lisible et modifiable par le processus Node.js
+sudo chmod 664 dev.db
+sudo chown www-data:www-data dev.db
+```
+
+### Étape 4 : Configuration (.env)
+
+Créer `/srv/http/stashfru/.env` :
+
+```env
+# Base de données SQLite (chemin absolu recommandé en production)
+DATABASE_URL="file:/srv/http/stashfru/dev.db"
+
+# Authentification — générer avec: openssl rand -base64 32
+NEXTAUTH_SECRET="votre-clé-secrète-aléatoire"
+
+# URL de production (HTTPS)
+NEXTAUTH_URL="https://stashfru.example.com"
+
+# LLM (optionnel, pour génération d'idées)
+LLM_BASE_URL="https://votre-api-llm:port/v1"
+LLM_MODEL="qwen3.6"
+LLM_API_KEY="votre-cle-api"
+
+# TLS (si le LLM utilise un certificat auto-signé)
+# NODE_TLS_REJECT_UNAUTHORIZED=0
+```
+
+**Points de sécurité :**
+- `NEXTAUTH_SECRET` doit être une chaîne aléatoire de 32+ caractères
+- `NEXTAUTH_URL` doit correspondre au domaine réel (HTTPS en production)
+- `dev.db` est dans `.gitignore` — le fichier de production ne sera pas versionné
+- Les clés API (`LLM_API_KEY`, `NEXTAUTH_SECRET`) ne sont pas exposées via le navigateur
+
+### Étape 5 : Build et démarrage
+
+```bash
+# Build de production
 npm run build
 
-# 8. Démarrer avec PM2
-npm install -g pm2
+# Démarrer avec PM2 (gestionnaire de processus)
+sudo npm install -g pm2
+
+# Démarrer l'application
 pm2 start npm --name "stashfru" -- start
+
+# Configurer le démarrage automatique
 pm2 save
 pm2 startup
+
+# Vérifier que l'application tourne
+pm2 status
+pm2 logs stashfru
 ```
 
-**Nginx reverse proxy:**
-```nginx
-server {
-    listen 80;
-    server_name stashfru.example.com;
+**L'application écoute sur `http://localhost:3000`.**
 
-    # Next.js app
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
+### Étape 6 : Configuration Apache
 
-    # Static assets
-    location /public/ {
-        alias /srv/http/stashfru/public/;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
+Créer le fichier de virtual host :
 
-    location /_next/static/ {
-        alias /srv/http/stashfru/.next/static/;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    location /favicon.ico {
-        alias /srv/http/stashfru/public/favicon.ico;
-    }
-
-    # Restrict sensitive files
-    location ~ \.db$ {
-        deny all;
-    }
-
-    location ~ /\.env {
-        deny all;
-    }
-
-    location ~ ^/prisma/migrations/ {
-        deny all;
-    }
-
-    location ~ ^/node_modules/ {
-        deny all;
-    }
-
-    location ~ ^/src/ {
-        deny all;
-    }
-
-    location ~ /\.git/ {
-        deny all;
-    }
-}
+```bash
+sudo nano /etc/apache2/sites-available/stashfru.conf
 ```
 
-**Apache reverse proxy:**
+Contenu :
+
 ```apache
 <VirtualHost *:80>
     ServerName stashfru.example.com
 
-    # Proxy Next.js app
+    # Rediriger HTTP vers HTTPS
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName stashfru.example.com
+
+    # SSL (avec Let's Encrypt recommandé)
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/stashfru.example.com/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/stashfru.example.com/privkey.pem
+
+    # Proxy vers Next.js
     ProxyPreserveHost On
     ProxyPass / http://localhost:3000/
     ProxyPassReverse / http://localhost:3000/
 
-    # Static assets
+    # WebSocket support (Next.js App Router)
+    RewriteEngine On
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} upgrade [NC]
+    RewriteRule ^/?(.*) "ws://localhost:3000/$1" [P,L]
+
+    # Fichiers statiques (optimisation)
     Alias /public /srv/http/stashfru/public
     <Directory /srv/http/stashfru/public>
         Require all granted
@@ -595,7 +604,7 @@ server {
         Require all granted
     </Location>
 
-    # Restrict sensitive files
+    # Restriction des fichiers sensibles
     <LocationMatch "\.db$">
         Require all denied
     </LocationMatch>
@@ -622,82 +631,85 @@ server {
 </VirtualHost>
 ```
 
-**Fichiers à copier dans `/srv/http/stashfru/` :**
-- Tout le contenu du repo (sauf `.git/` et `node_modules/`)
-- `.env` avec les variables de production
-- `dev.db` (base de données existante)
-- `.next/` (après `npm run build`)
-- `node_modules/` (après `npm ci --production`)
-
-**Fichiers sensibles à protéger (ne pas copier dans `/srv/http/` ou restreindre) :**
-| Fichier | Pourquoi |
-|---------|----------|
-| `dev.db` | Contient les mots de passe hashés et toutes les données |
-| `.env` | Clés API, NEXTAUTH_SECRET, LLM_API_KEY |
-| `prisma/migrations/*.sql` | Migrations SQL brutes |
-| `src/` | Code source TypeScript |
-| `node_modules/` | Dépendances (gros, source code) |
-| `.git/` | Historique complet du projet |
-
-**Recommandation :** Copier tout dans `/srv/http/stashfru/` et utiliser le proxy inverse pour servir l'app, tout en restreignant l'accès public aux fichiers sensibles via Nginx ou Apache (configurations ci-dessus).
-
-### Option 2: Vercel (nécessite migration DB)
-
-Vercel ne supporte pas SQLite nativement. Migrer vers Turso (libSQL Cloud):
-
-```env
-# Remplacer DATABASE_URL par:
-DATABASE_URL="libsql://your-db.turso.io"
-```
-
-Puis déployer:
+**Activer le virtual host :**
 ```bash
-# Via CLI Vercel
-npx vercel
-
-# Ou via GitHub integration
+sudo a2ensite stashfru.conf
+sudo systemctl reload apache2
 ```
 
-Variables d'environnement à configurer dans Vercel Dashboard:
-- `DATABASE_URL`
-- `NEXTAUTH_SECRET`
-- `NEXTAUTH_URL` (https://your-app.vercel.app)
-- `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` (optionnel)
-
-### Option 3: Docker
-
-```dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npx prisma generate
-RUN npm run build
-
-FROM node:20-alpine
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/public ./public
-
-EXPOSE 3000
-CMD ["npm", "start"]
+**Certificat SSL (Let's Encrypt) :**
+```bash
+sudo apt-get install certbot python3-certbot-apache
+sudo certbot --apache -d stashfru.example.com
 ```
+
+### Structure des fichiers sur le serveur
+
+```
+/srv/http/stashfru/
+├── .env                    # Variables d'environnement (secret)
+├── dev.db                  # Base de données SQLite (secret)
+├── node_modules/           # Dépendances (après npm ci)
+├── .next/                  # Build de production (après npm run build)
+├── public/                 # Fichiers statiques (images, favicon)
+├── prisma/                 # Schéma et migrations
+├── src/                    # Code source (restreint par Apache)
+├── scripts/                # Scripts utilitaires
+├── package.json
+└── tsconfig.json
+```
+
+### Fichiers sensibles et leur protection
+
+| Fichier | Emplacement | Protection Apache | Pourquoi |
+|---------|-------------|-------------------|----------|
+| `dev.db` | Racine | `LocationMatch "\.db$" deny` | Mots de passe hashés + toutes les données |
+| `.env` | Racine | `LocationMatch "^/\.env" deny` | Clés API, NEXTAUTH_SECRET, LLM_API_KEY |
+| `src/` | Racine | `LocationMatch "^/src/" deny` | Code source TypeScript |
+| `node_modules/` | Racine | `LocationMatch "^/node_modules/" deny` | Dépendances (gros) |
+| `.git/` | Racine | `LocationMatch "^/\.git/" deny` | Historique complet du projet |
+| `prisma/migrations/` | Racine | `LocationMatch "^/prisma/migrations/" deny` | Migrations SQL brutes |
+
+### Fichiers publics (accessibles via HTTP)
+
+| Fichier | Emplacement | Cache |
+|---------|-------------|-------|
+| `public/*` | `/public/` | 1 an (immutable) |
+| `._next/static/*` | `/_next/static/` | 1 an (immutable) |
+| `favicon.ico` | Racine | Cache navigateur |
+
+### Maintenance
 
 ```bash
-docker build -t stashfru .
-docker run -d -p 3000:3000 \
-  -e DATABASE_URL="file:/data/dev.db" \
-  -e NEXTAUTH_SECRET="secret" \
-  -e NEXTAUTH_URL="http://localhost:3000" \
-  -v stashfru-data:/data \
-  stashfru
+# Redémarrer l'application
+pm2 restart stashfru
 
-docker volume create stashfru-data
+# Voir les logs
+pm2 logs stashfru --lines 100
+
+# Mettre à jour (git pull + rebuild)
+cd /srv/http/stashfru
+git pull
+npm ci --production
+npx prisma generate
+npx prisma migrate deploy
+npm run build
+pm2 restart stashfru
+
+# Backup de la base de données
+cp /srv/http/stashfru/dev.db "/srv/http/stashfru/dev.db.backup.$(date +%Y%m%d)"
+
+# Restaurer
+cp "/srv/http/stashfru/dev.db.backup.20260702" /srv/http/stashfru/dev.db
 ```
+
+### Vérification
+
+1. Ouvrir `https://stashfru.example.com` dans un navigateur
+2. Vérifier que l'application charge correctement
+3. Tester la connexion avec `curl -I https://stashfru.example.com`
+4. Vérifier les logs PM2 : `pm2 logs stashfru`
+5. Vérifier les logs Apache : `sudo tail -f /var/log/apache2/error.log`
 
 ## Développement
 
