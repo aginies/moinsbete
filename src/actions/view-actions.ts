@@ -5,6 +5,11 @@ import { prisma } from '@/lib/db'
 export async function markIdeaViewed(ideaId: string, userId: string) {
   console.log('[markIdeaViewed] ideaId:', ideaId, 'userId:', userId)
   try {
+    await prisma.user.upsert({
+      where: { id: userId },
+      create: { id: userId, email: 'view-only@local', passwordHash: 'view' },
+      update: {},
+    })
     const result = await prisma.viewedIdea.upsert({
       where: {
         userId_ideaId: {

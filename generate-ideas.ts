@@ -222,6 +222,8 @@ async function main() {
   });
   
   if (voituresTopic) {
+    const voituresIdeaCount = await prisma.ideaTopic.count({ where: { topicId: voituresTopic.id } });
+    if (voituresIdeaCount < 20) {
     const f1Sources = [
       { title: 'Formule 1', url: 'https://fr.wikipedia.org/wiki/Formule_1' },
       { title: '24 Heures du Mans', url: 'https://fr.wikipedia.org/wiki/24_Heures_du_Mans' },
@@ -304,6 +306,7 @@ async function main() {
       }
       
       await new Promise(r => setTimeout(r, 500));
+      }
     }
   } else {
     console.log('  Voitures topic not found');
@@ -321,8 +324,8 @@ async function main() {
   
   for (const topic of topicsWithCounts) {
     const ideaCount = topic.ideaTopics.length;
-    if (ideaCount >= 50) {
-      console.log(`  ⏭️ Skipping "${topic.name}" (${ideaCount} ideas, >= 50)`);
+    if (ideaCount >= 20) {
+      console.log(`  ⏭️ "${topic.name}" (${ideaCount} ideas, >= 20)`);
       continue;
     }
     
