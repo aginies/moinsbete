@@ -28,8 +28,14 @@ interface Idea {
 }
 
 async function fetchRandomIdea(): Promise<Idea | null> {
-  const res = await fetch('/api/ideas/random')
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const res = await fetch(`${baseUrl}/api/ideas/random`)
+  if (!res.ok) {
+    console.error('[au-hasard] fetch failed:', res.status, res.statusText)
+    return null
+  }
   const data = await res.json()
+  console.log('[au-hasard] API response:', data)
   return data.idea
 }
 
@@ -39,7 +45,13 @@ export default function RandomIdeaClient() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchRandomIdea().then(setIdea).catch(() => setError('Erreur de chargement'))
+    fetchRandomIdea().then((result) => {
+      console.log('[au-hasard] fetch result:', result)
+      setIdea(result)
+    }).catch((err) => {
+      console.error('[au-hasard] fetch error:', err)
+      setError('Erreur de chargement')
+    })
   }, [])
 
   const handleRefresh = async () => {
@@ -78,7 +90,16 @@ export default function RandomIdeaClient() {
     )
   }
 
-  if (!idea) return null
+  if (!idea) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-2xl items-center justify-center px-4 pb-20 md:p-6">
+        <div className="text-center">
+          <RefreshCw className="mx-auto mb-4 h-10 w-10 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Chargement d&apos;une idée...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">

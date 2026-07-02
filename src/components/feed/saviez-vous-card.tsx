@@ -41,6 +41,7 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
   const handleClick = async () => {
     if (loading) return
     setLoading(true)
+    setImageError(false)
     const newFact = await fetchRandomFact()
     if (newFact) {
       setFact({ text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename })
