@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { IdeaCard } from './idea-card'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
+import { IdeaCard, CompactIdeaCard } from './idea-card'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface Idea {
@@ -23,6 +23,7 @@ interface Idea {
     icon: string
     color: string
   }>
+  viewedAt?: string
 }
 
 interface FeedProps {
@@ -34,6 +35,8 @@ interface FeedProps {
   initialTotal?: number
   onBookmark?: (ideaId: string) => void
   savedIdeaIds?: Set<string>
+  userId?: string
+  isHistory?: boolean
 }
 
 export function Feed({
@@ -45,6 +48,8 @@ export function Feed({
   initialTotal = 0,
   onBookmark,
   savedIdeaIds = new Set(),
+  userId,
+  isHistory = false,
 }: FeedProps) {
   const [ideas, setIdeas] = useState<Idea[]>(initialIdeas)
   const [page, setPage] = useState(initialPage)
@@ -54,20 +59,33 @@ export function Feed({
 
   const loaderRef = useRef<HTMLDivElement>(null)
 
-  const fetchIdeas = async (pageNum: number) => {
+  const fetchIdeas = useCallback(async (pageNum: number) => {
     setLoading(true)
     setError(null)
 
     try {
-      const params = new URLSearchParams({
-        page: String(pageNum),
-        limit: '10',
-      })
+      let response: Response
 
-      if (topic) params.set('topic', topic)
-      if (collection) params.set('collection', collection)
+      if (isHistory && userId) {
+        const params = new URLSearchParams({
+          userId,
+          page: String(pageNum),
+          limit: '10',
+        })
+        response = await fetch(`/api/history?${params}`)
+      } else {
+        const params = new URLSearchParams({
+          page: String(pageNum),
+          limit: '10',
+        })
 
-      const response = await fetch(`/api/feed?${params}`)
+        if (topic) params.set('topic', topic)
+        if (collection) params.set('collection', collection)
+        if (userId) params.set('userId', userId)
+
+        response = await fetch(`/api/feed?${params}`)
+      }
+
       const data = await response.json()
 
       if (pageNum === 1) {
@@ -83,11 +101,11 @@ export function Feed({
     } finally {
       setLoading(false)
     }
-  }
+  }, [topic, collection, userId, isHistory])
 
   useEffect(() => {
     fetchIdeas(1)
-  }, [topic, collection])
+  }, [fetchIdeas])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -104,7 +122,7 @@ export function Feed({
     }
 
     return () => observer.disconnect()
-  }, [hasMore, loading, page])
+  }, [hasMore, loading, page, fetchIdeas])
 
   if (ideas.length === 0 && !loading) {
     return (
@@ -117,12 +135,18 @@ export function Feed({
   return (
     <div className="space-y-4">
       {ideas.map((idea) => (
-        <IdeaCard
-          key={idea.id}
-          idea={idea}
-          isBookmarked={savedIdeaIds.has(idea.id)}
-          onBookmark={onBookmark}
-        />
+        <React.Fragment key={idea.id}>
+          {isHistory ? (
+            <CompactIdeaCard key={`card-${idea.id}`} idea={idea as typeof idea & { viewedAt: string }} />
+          ) : (
+            <IdeaCard
+              key={idea.id}
+              idea={idea}
+              isBookmarked={savedIdeaIds.has(idea.id)}
+              onBookmark={onBookmark}
+            />
+          )}
+        </React.Fragment>
       ))}
 
       {loading && (

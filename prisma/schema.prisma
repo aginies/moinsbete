@@ -20,6 +20,8 @@ model User {
   bookmarks     Bookmark[]
   following     Topic[]   @relation("UserFollowing")
   growthPlan    GrowthPlan?
+  viewedIdeas   ViewedIdea[]
+  resetTokens   PasswordResetToken[]
 }
 
 model Topic {
@@ -77,6 +79,7 @@ model Idea {
   title       String
   content     String
   takeaway    String
+  saviezVous  String?
   slug        String   @unique
   sourceId    String
   source      Source   @relation(fields: [sourceId], references: [id])
@@ -86,6 +89,7 @@ model Idea {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   ideaTopics  IdeaTopic[]
+  viewedIdeas ViewedIdea[]
 
   @@index([slug])
   @@index([isPublished])
@@ -167,6 +171,40 @@ model CommunityArticle {
 
   @@index([slug])
   @@index([isPublished])
+}
+
+model ViewedIdea {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ideaId    String
+  idea      Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  viewedAt  DateTime @default(now())
+
+  @@unique([userId, ideaId])
+  @@index([userId, viewedAt])
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid())
+  token      String   @unique
+  email      String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([token])
+  @@index([email])
+}
+
+model SaviezVousFact {
+  id        String   @id @default(cuid())
+  text      String
+  sourceUrl String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 enum SourceType {

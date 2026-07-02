@@ -99,3 +99,18 @@ export type TopicSuggestion = Prisma.TopicSuggestionModel
  * 
  */
 export type CommunityArticle = Prisma.CommunityArticleModel
+/**
+ * Model ViewedIdea
+ * 
+ */
+export type ViewedIdea = Prisma.ViewedIdeaModel
+/**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
+ * Model SaviezVousFact
+ * 
+ */
+export type SaviezVousFact = Prisma.SaviezVousFactModel

@@ -1,11 +1,10 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { PrismaAdapter } from '@auth/prisma-adapter'
+import { getServerSession } from 'next-auth/next'
 import { prisma } from './db'
 import bcrypt from 'bcryptjs'
 
-export const { handlers, auth, signIn, signOut, authMiddleware } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -14,22 +13,26 @@ export const { handlers, auth, signIn, signOut, authMiddleware } = NextAuth({
         password: { label: 'Mot de passe', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        let email: string, password: string
+
+        if (typeof credentials === 'object' && !Array.isArray(credentials)) {
+          email = credentials.email as string
+          password = credentials.password as string
+        }
+
+        if (!email || !password) {
           return null
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email },
         })
 
         if (!user) {
           return null
         }
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password as string,
-          user.passwordHash
-        )
+        const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
 
         if (!isPasswordValid) {
           return null
@@ -64,4 +67,18 @@ export const { handlers, auth, signIn, signOut, authMiddleware } = NextAuth({
       return session
     },
   },
-})
+}
+
+export const { handlers } = NextAuth(authOptions)
+
+export async function getSession() {
+  return await getServerSession(authOptions)
+}
+
+export async function authenticateUser(email: string, password: string) {
+  const user = await prisma.user.findUnique({ where: { email } })
+  if (!user) return null
+  const valid = await bcrypt.compare(password, user.passwordHash)
+  if (!valid) return null
+  return { id: user.id, email: user.email, name: user.displayName }
+}

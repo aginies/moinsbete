@@ -1,9 +1,13 @@
 import Link from 'next/link'
-import { BookOpen, Search, Menu } from 'lucide-react'
+import { BookOpen, Search, Menu, LogOut, User, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
+import { getSession } from '@/lib/auth'
+import { logoutAction } from '@/actions/auth-actions'
 
-export function Navbar() {
+export async function Navbar() {
+  const session = await getSession()
+
   return (
     <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
@@ -20,11 +24,38 @@ export function Navbar() {
               Sujets
             </Button>
           </Link>
-          <Link href="/a-propos">
-            <Button variant="ghost" size="sm">
-              À propos
-            </Button>
-          </Link>
+          {session?.user ? (
+            <>
+              <Link href="/ma-histoire">
+                <Button variant="ghost" size="sm">
+                  <Clock className="h-4 w-4 mr-1" />
+                  Historique
+                </Button>
+              </Link>
+              <Link href="/mon-compte" className="flex items-center gap-2 mr-2 hover:opacity-80 transition-opacity">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">{session.user.name || session.user.email}</span>
+              </Link>
+              <form action={logoutAction}>
+                <Button variant="ghost" size="sm" type="submit">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </form>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" size="sm">
+                  Connexion
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button variant="ghost" size="sm">
+                  S'inscrire
+                </Button>
+              </Link>
+            </>
+          )}
           <ThemeToggle />
         </div>
       </div>

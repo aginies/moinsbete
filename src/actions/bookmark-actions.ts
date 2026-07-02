@@ -1,10 +1,11 @@
 'use server'
 
-import { auth } from '@/lib/auth'
+
+import { getSession, authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 
 export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user) {
     return { error: 'Non authentifié' }
   }
@@ -35,7 +36,7 @@ export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
 }
 
 export async function getSavedIdeas() {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user) {
     return { ideas: [] }
   }
@@ -60,7 +61,7 @@ export async function getSavedIdeas() {
 }
 
 export async function followTopic(topicId: string) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user) {
     return { error: 'Non authentifié' }
   }
@@ -78,7 +79,7 @@ export async function followTopic(topicId: string) {
 }
 
 export async function getFollowedTopics() {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user) {
     return { topics: [] }
   }

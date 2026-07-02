@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Bookmark, User } from 'lucide-react'
+import { Home, BookOpen, Bookmark, User, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/sujets', label: 'Accueil', icon: Home },
+  { href: '/ma-histoire', label: 'Historique', icon: Clock },
   { href: '/ma-bibliotheque', label: 'Bibliothèque', icon: Bookmark },
   { href: '/mon-plan', label: 'Mon plan', icon: User },
 ]
