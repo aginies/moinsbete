@@ -32,13 +32,6 @@ export default async function SujetsPage() {
 
   return (
     <div className="mx-auto max-w-4xl p-4 pb-20 md:p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-heading font-bold">Explorer les sujets</h1>
-        <p className="text-sm text-muted-foreground">
-          {topics.length} sujets à découvrir
-        </p>
-      </div>
-
       {saviezVousFact && (
         <div className="mb-6">
           <SaviezVousCard text={saviezVousFact} />

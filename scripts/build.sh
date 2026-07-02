@@ -1,9 +1,9 @@
 #!/bin/bash
-# Build StashFru locally
+# Build MoinsBête locally
 
 set -e
 
-echo "=== StashFru Build ==="
+echo "=== MoinsBête Build ==="
 
 # 1. Install dependencies
 echo "[1/6] Installing dependencies..."

@@ -43,7 +43,7 @@ export default function RegisterPage() {
           <BookOpen className="mx-auto mb-3 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-heading font-bold">Créer un compte</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Rejoignez StashFru et commencez à apprendre
+            Rejoignez MoinsBête et commencez à apprendre
           </p>
         </div>
 

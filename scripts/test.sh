@@ -1,9 +1,9 @@
 #!/bin/bash
-# Test StashFru
+# Test MoinsBête
 
 set -e
 
-echo "=== StashFru Test Suite ==="
+echo "=== MoinsBête Test Suite ==="
 
 # 1. Lint
 echo "[1/4] Running linter..."

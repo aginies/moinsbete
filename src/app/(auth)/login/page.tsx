@@ -42,7 +42,7 @@ export default function LoginPage() {
           <BookOpen className="mx-auto mb-3 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-heading font-bold">Connexion</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Connectez-vous à votre compte StashFru
+            Connectez-vous à votre compte MoinsBête
           </p>
         </div>
 
