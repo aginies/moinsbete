@@ -65,8 +65,9 @@ export default function AproposPage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">Source des contenus</h2>
           <p className="text-muted-foreground">
-            Nos idées sont extraites de sources francophones, principalement Wikipédia en français,
-            et distillées par intelligence artificielle pour vous offrir le meilleur de chaque source.
+            Toutes les informations de MoinsBête proviennent de Wikipédia.
+            Le contenu est extrait de Wikipédia en français et enrichi par intelligence artificielle
+            pour offrir des idées claires et digestibles.
           </p>
         </section>
 
