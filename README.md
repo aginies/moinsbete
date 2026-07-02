@@ -19,7 +19,7 @@ Application de découverte de connaissances bite-sized : idées, sujets, sources
 | **Source** | Sources (Wikipédia articles) | 183 |
 | **Topic** | Sujets de connaissance | 20 |
 | **IdeaTopic** | Association Idea ↔ Topic (1 par idée) | 736 |
-| **SaviezVousFact** | Faits "Le saviez-vous" | 352 |
+| **SaviezVousFact** | Faits "Le saviez-vous" | 4 118 |
 | **Collection** | Collections d'idées | 6 |
 | **User** | Utilisateurs | variable |
 | **Bookmark** | Bookmarks utilisateur | variable |
@@ -103,7 +103,23 @@ Puis exécuter:
 npx tsx src/scripts/seed-ideas.ts
 ```
 
-#### 5. Ajouter un nouveau topic
+#### 5. Scraper "Le saviez-vous ?" depuis Wikipédia
+
+Le script `scripts/scrape-saviez-vous.ts` scrap automatiquement les archives de Wikipédia:
+- Fetch les pages d'archives (2021-2026)
+- Parse le wikitext brut pour extraire chaque fait
+- Insère incrémentalement (skip duplicates)
+- Extrait le lien article pour la source URL
+
+```bash
+# Scraper les archives Wikipédia
+./scripts/update scrape
+
+# Ou directement
+npx tsx scripts/scrape-saviez-vous.ts
+```
+
+#### 6. Ajouter un nouveau topic
 
 1. Éditer `prisma/seed.ts` → tableau `ROOT_TOPICS`:
 ```ts
@@ -118,7 +134,7 @@ npx tsx prisma/seed.ts
 npx tsx src/scripts/seed-ideas.ts
 ```
 
-#### 6. Explorer la base de données
+#### 7. Explorer la base de données
 
 ```bash
 # Interface graphique (recommandé)
@@ -130,7 +146,7 @@ sqlite3 dev.db "SELECT COUNT(*) FROM Idea;"
 sqlite3 dev.db "SELECT idea.title, topic.name FROM IdeaTopic JOIN Idea ON IdeaTopic.ideaId = Idea.id JOIN Topic ON IdeaTopic.topicId = Topic.id LIMIT 10;"
 ```
 
-#### 7. Backup
+#### 8. Backup
 
 ```bash
 # Backup simple (copie du fichier)
@@ -150,7 +166,7 @@ gunzip -c dev.db.20260702.backup.gz > dev.db
 
 **Recommandation**: Backup avant chaque ingestion LLM majeure.
 
-#### 8. Nettoyage / Reset
+#### 9. Nettoyage / Reset
 
 ```bash
 # Supprimer TOUTES les données (garde la structure)
@@ -163,7 +179,7 @@ npx tsx prisma/seed.ts
 npx tsx src/scripts/seed-ideas.ts
 ```
 
-#### 9. Diagnostic
+#### 10. Diagnostic
 
 ```bash
 # Vérifier l'intégrité
@@ -179,7 +195,7 @@ sqlite3 dev.db "SELECT t.name, COUNT(it.id) as ideaCount FROM Topic t LEFT JOIN 
 sqlite3 dev.db "SELECT t.name, COUNT(it.id) FROM Topic t JOIN IdeaTopic it ON t.id = it.topicId GROUP BY t.name ORDER BY COUNT(it.id) DESC;"
 ```
 
-#### 10. Workflow typique d'enrichissement
+#### 11. Workflow typique d'enrichissement
 
 ```bash
 # 1. Backup
@@ -399,6 +415,9 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 | `npx tsx src/scripts/seed-ideas.ts` | 146 idées manuelles |
 | `npx tsx src/scripts/generate-ideas.ts` | Génération LLM par topic |
 | `npx tsx src/scripts/ingest-wikipedia.ts` | Ingestion massive Wikipédia |
+| `npx tsx scripts/scrape-saviez-vous.ts` | Scraper LS depuis archives Wikipédia |
+| `./scripts/update scrape` | Commande raccourcie pour scraper |
+| `./scripts/update all` | Pipeline complet (scrape + ideas + ingest) |
 | `npm run lint` | ESLint |
 
 ## Déploiement
