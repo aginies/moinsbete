@@ -13,14 +13,15 @@ export const authOptions = {
         password: { label: 'Mot de passe', type: 'password' },
       },
       async authorize(credentials) {
-        let email: string, password: string
+        let email = ''
+        let password = ''
 
-        if (typeof credentials === 'object' && !Array.isArray(credentials)) {
-          email = credentials.email as string
-          password = credentials.password as string
+        if (typeof credentials === 'object' && !Array.isArray(credentials) && credentials !== null) {
+          email = (credentials as { email?: unknown }).email as string || ''
+          password = (credentials as { password?: unknown }).password as string || ''
         }
 
-        if (!email || !password) {
+        if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
           return null
         }
 
