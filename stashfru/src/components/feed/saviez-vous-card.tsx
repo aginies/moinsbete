@@ -47,7 +47,7 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
     setLoading(false)
   }
 
-  const hasImage = isImageUrl(fact.imageFilename) && !imageError
+  const hasImage = isValidUrl(fact.imageFilename) && !imageError
 
   return (
     <>
