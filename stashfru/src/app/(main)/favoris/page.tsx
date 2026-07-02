@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export default async function MaBibliothequePage() {
+export default async function FavorisPage() {
   const session = await getSession()
 
   if (!session?.user) {
@@ -14,7 +14,7 @@ export default async function MaBibliothequePage() {
       <div className="flex min-h-[80vh] items-center justify-center px-4">
         <div className="text-center">
           <Bookmark className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <h1 className="mb-2 text-2xl font-bold">Ma Bibliothèque</h1>
+          <h1 className="mb-2 text-2xl font-bold">Favoris</h1>
           <p className="mb-4 text-sm text-muted-foreground">
             Connectez-vous pour sauvegarder vos idées préférées
           </p>
@@ -33,7 +33,7 @@ export default async function MaBibliothequePage() {
         include: {
           ideaTopics: {
             include: {
-              topic: { select: { name: true, slug: true, icon: true, color: true } },
+              topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
             },
           },
           source: { select: { title: true, type: true, url: true } },
@@ -60,9 +60,9 @@ export default async function MaBibliothequePage() {
             <ArrowLeft className="h-4 w-4" />
             Accueil
           </Link>
-          <h1 className="text-2xl font-heading font-bold">Ma Bibliothèque</h1>
+          <h1 className="text-2xl font-heading font-bold">Favoris</h1>
           <p className="text-sm text-muted-foreground">
-            {ideas.length} idée{ideas.length !== 1 ? 's' : ''} sauvegardée{ideas.length !== 1 ? 's' : ''}
+            {ideas.length} id{ideas.length !== 1 ? 'ée' : 'ée'} sauvegardé{ideas.length !== 1 ? 'e' : ''}
           </p>
         </div>
       </div>
@@ -70,7 +70,7 @@ export default async function MaBibliothequePage() {
       {ideas.length === 0 ? (
         <div className="rounded-xl border border-border/60 bg-card p-12 text-center">
           <Bookmark className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-semibold">Votre bibliothèque est vide</h3>
+          <h3 className="mb-2 text-lg font-semibold">Vos favoris sont vides</h3>
           <p className="text-sm text-muted-foreground">
             Cliquez sur le bookmark d&apos;une idée pour la sauvegarder ici.
           </p>
