@@ -26,6 +26,11 @@ function isImageUrl(url: string | null | undefined): boolean {
   return url.startsWith('http')
 }
 
+function isValidUrl(url: string | null | undefined): boolean {
+  if (!url) return false
+  return url.startsWith('http://') || url.startsWith('https://')
+}
+
 export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCardProps) {
   const [fact, setFact] = useState({ text, sourceUrl, imageFilename })
   const [loading, setLoading] = useState(false)
@@ -71,7 +76,7 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
             }}
           >
             <img
-              src={fact.imageFilename!}
+              src={isValidUrl(fact.imageFilename) ? fact.imageFilename! : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt="Illustration"
               className="w-full h-48 object-cover transition-opacity hover:opacity-90"
               onError={() => setImageError(true)}
@@ -115,7 +120,7 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
               <X className="h-5 w-5" />
             </button>
             <img
-              src={fact.imageFilename!}
+              src={isValidUrl(fact.imageFilename) ? fact.imageFilename! : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt="Illustration"
               className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl"
             />

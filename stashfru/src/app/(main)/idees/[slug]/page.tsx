@@ -104,7 +104,7 @@ export default async function IdeaDetailPage({
             <p className="font-medium">{idea.source.title}</p>
             {idea.source.url && (
               <a
-                href={idea.source.url}
+                href={idea.source.url.startsWith('http') ? idea.source.url : `https://${idea.source.url}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"

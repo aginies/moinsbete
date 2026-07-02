@@ -71,7 +71,7 @@ export async function loginAction(formData: {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     expires: cookieExpires,
   })
 
@@ -91,8 +91,8 @@ export async function changePasswordAction(formData: FormData) {
   const currentPassword = formData.get('currentPassword') as string
   const newPassword = formData.get('newPassword') as string
 
-  if (newPassword.length < 6) {
-    return { error: 'Le mot de passe doit contenir au moins 6 caractères' }
+  if (newPassword.length < 8) {
+    return { error: 'Le mot de passe doit contenir au moins 8 caractères' }
   }
 
   const session = await getServerSession(authOptions)
