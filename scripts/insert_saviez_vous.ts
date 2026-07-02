@@ -325,28 +325,41 @@ const FACTS = [
 ]
 
 async function main() {
-  // Delete existing facts
-  const deleted = await prisma.saviezVousFact.deleteMany()
-  console.log(`Deleted ${deleted.count} existing facts`)
-  
-  // Insert new facts
-  const data = FACTS.map(f => ({
-    text: f.text,
-    sourceUrl: f.url,
-  }))
-  
-  const inserted = await prisma.saviezVousFact.createMany({
-    data,
+  // Get all existing fact texts
+  const existingFacts = await prisma.saviezVousFact.findMany({
+    select: { text: true },
   })
-  
-  console.log(`Inserted ${inserted.count} new facts`)
-  
+  const existingTexts = new Set(existingFacts.map(f => f.text))
+
+  console.log(`Found ${existingTexts.size} existing facts`)
+
+  let inserted = 0
+  let skipped = 0
+
+  for (const fact of FACTS) {
+    if (existingTexts.has(fact.text)) {
+      skipped++
+      continue
+    }
+
+    await prisma.saviezVousFact.create({
+      data: {
+        text: fact.text,
+        sourceUrl: fact.url,
+      },
+    })
+    inserted++
+  }
+
+  console.log(`Inserted ${inserted} new facts`)
+  console.log(`Skipped ${skipped} duplicates`)
+
   // Verify
   const count = await prisma.saviezVousFact.count()
   console.log(`Total facts in DB: ${count}`)
-  
-  const sample = await prisma.saviezVousFact.findMany({ take: 5, orderBy: { id: 'asc' } })
-  console.log('\n--- Sample ---')
+
+  const sample = await prisma.saviezVousFact.findMany({ take: 5, orderBy: { createdAt: 'desc' } })
+  console.log('\n--- Recent facts ---')
   for (const f of sample) {
     console.log(f.text.substring(0, 70))
     console.log(`  URL: ${f.sourceUrl}`)
