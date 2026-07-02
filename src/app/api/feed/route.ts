@@ -52,11 +52,20 @@ export async function GET(request: NextRequest) {
       prisma.idea.count({ where }),
     ])
 
-    const formattedIdeas = ideas.map(idea => ({
-      ...idea,
-      topics: idea.ideaTopics.map(it => it.topic),
-      saviezVous: idea.saviezVous,
-    }))
+    const formattedMap = new Map()
+    const seenTitles = new Set()
+    for (const idea of ideas) {
+      if (seenTitles.has(idea.title)) continue
+      seenTitles.add(idea.title)
+      if (!formattedMap.has(idea.id)) {
+        formattedMap.set(idea.id, {
+          ...idea,
+          topics: idea.ideaTopics.map(it => it.topic),
+          saviezVous: idea.saviezVous,
+        })
+      }
+    }
+    const formattedIdeas = Array.from(formattedMap.values())
 
     return NextResponse.json({
       ideas: formattedIdeas,
