@@ -21,9 +21,9 @@ async function fetchRandomFact() {
   return null
 }
 
-function getImageUrl(filename: string): string {
-  const encoded = encodeURIComponent(filename)
-  return `https://upload.wikimedia.org/wikipedia/commons/thumb/${encoded}/${encoded}/220px-${encoded}`
+function isImageUrl(url: string | null | undefined): boolean {
+  if (!url) return false
+  return url.startsWith('http')
 }
 
 export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCardProps) {
@@ -41,7 +41,7 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
     setLoading(false)
   }
 
-  const hasImage = fact.imageFilename && !imageError
+  const hasImage = isImageUrl(fact.imageFilename) && !imageError
 
   return (
     <div
@@ -63,7 +63,7 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
       {hasImage && (
         <div className="mb-3 rounded-lg overflow-hidden border border-amber-200 dark:border-amber-800">
           <img
-            src={getImageUrl(fact.imageFilename)}
+            src={fact.imageFilename!}
             alt="Illustration"
             className="w-full h-40 object-cover"
             onError={() => setImageError(true)}
