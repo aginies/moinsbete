@@ -49,11 +49,8 @@ export default async function MonPlanPage() {
   const topicIds = followedTopics?.following.map(t => t.id) || []
 
   let planIdeas: any[] = []
-  if (growthPlan && growthPlan.currentIdeas.length > 0) {
-    planIdeas = growthPlan.currentIdeas.map((idea: any) => ({
-      ...idea,
-      topics: idea.ideaTopics.map((it: any) => it.topic),
-    }))
+  if (growthPlan) {
+    planIdeas = planIdeas
   }
 
   if (planIdeas.length === 0 && topicIds.length > 0) {
