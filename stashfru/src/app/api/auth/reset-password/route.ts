@@ -2,7 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
+function isCsrfValid(request: NextRequest): boolean {
+  const origin = request.headers.get('origin')
+  const host = request.headers.get('host')
+  if (!origin || !host) return false
+  const expectedOrigin = `${request.nextUrl.protocol}${host}`
+  return origin.toLowerCase() === expectedOrigin.toLowerCase()
+}
+
 export async function POST(request: NextRequest) {
+  if (!isCsrfValid(request)) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
   try {
     const { token, newPassword } = await request.json()
 

@@ -2,10 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 
+function isCsrfValid(request: NextRequest): boolean {
+  const origin = request.headers.get('origin')
+  const host = request.headers.get('host')
+  if (!origin || !host) return false
+  const expectedOrigin = `${request.nextUrl.protocol}${host}`
+  return origin.toLowerCase() === expectedOrigin.toLowerCase()
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!isCsrfValid(request)) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
+
   const session = await getSession()
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })

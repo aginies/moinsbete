@@ -3,10 +3,21 @@ import { prisma } from '@/lib/db'
 
 import { getSession, authOptions } from '@/lib/auth'
 
+function isCsrfValid(request: NextRequest): boolean {
+  const origin = request.headers.get('origin')
+  const host = request.headers.get('host')
+  if (!origin || !host) return false
+  const expectedOrigin = `${request.nextUrl.protocol}${host}`
+  return origin.toLowerCase() === expectedOrigin.toLowerCase()
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  if (!isCsrfValid(request)) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
   try {
     const session = await getSession()
     if (!session?.user) {
