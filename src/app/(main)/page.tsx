@@ -119,7 +119,7 @@ export default async function HomePage() {
                 Carte aléatoire
               </h3>
               <p className="text-xs text-blue-600 dark:text-blue-300">
-                Découvrez une idée au hasard
+                Découvrir au Hasard
               </p>
             </div>
           </div>
