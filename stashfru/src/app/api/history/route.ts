@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { getSession } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
+  const session = await getSession()
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const userId = searchParams.get('userId') || session.user.id
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
+  const skip = (page - 1) * limit
+
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
-
-    if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 })
-    }
-
-    const skip = (page - 1) * limit
-
     const [viewedIdeas, total] = await Promise.all([
       prisma.viewedIdea.findMany({
         where: { userId },

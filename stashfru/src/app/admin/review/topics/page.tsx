@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { getSession } from '@/lib/auth'
 import { TopicSuggestion } from '@/generated/prisma'
 import { ReviewQueue } from '@/components/admin/review-queue'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,21 @@ async function handleMerge(id: string, mergedIntoId: string) {
 }
 
 export default async function AdminReviewPage() {
+  const session = await getSession()
+  if (!session?.user) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Suggestions</h1>
+          <p className="mt-2 text-muted-foreground">Non authentifié</p>
+          <Link href="/login">
+            <Button className="mt-4">Se connecter</Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   const suggestions: TopicSuggestion[] = await prisma.topicSuggestion.findMany({
     where: { status: 'PENDING' },
     include: {

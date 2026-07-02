@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { getSession } from '@/lib/auth'
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const session = await getSession()
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  }
+
   try {
     const { slug } = await params
-    const { userId } = await request.json()
-
-    if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 })
-    }
+    const ideaId = await request.json().then(json => json.userId)
+    const userIdToUse = ideaId || session.user.id
 
     // Vérifier que l'idée existe
     const idea = await prisma.idea.findUnique({ where: { slug } })
@@ -23,12 +26,12 @@ export async function POST(
     await prisma.viewedIdea.upsert({
       where: {
         userId_ideaId: {
-          userId,
+          userId: userIdToUse,
           ideaId: idea.id,
         },
       },
       create: {
-        userId,
+        userId: userIdToUse,
         ideaId: idea.id,
       },
       update: {},
