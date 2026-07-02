@@ -513,6 +513,7 @@ server {
     listen 80;
     server_name stashfru.example.com;
 
+    # Next.js app
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -521,8 +522,124 @@ server {
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
     }
+
+    # Static assets
+    location /public/ {
+        alias /srv/http/stashfru/public/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location /_next/static/ {
+        alias /srv/http/stashfru/.next/static/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location /favicon.ico {
+        alias /srv/http/stashfru/public/favicon.ico;
+    }
+
+    # Restrict sensitive files
+    location ~ \.db$ {
+        deny all;
+    }
+
+    location ~ /\.env {
+        deny all;
+    }
+
+    location ~ ^/prisma/migrations/ {
+        deny all;
+    }
+
+    location ~ ^/node_modules/ {
+        deny all;
+    }
+
+    location ~ ^/src/ {
+        deny all;
+    }
+
+    location ~ /\.git/ {
+        deny all;
+    }
 }
 ```
+
+**Apache reverse proxy:**
+```apache
+<VirtualHost *:80>
+    ServerName stashfru.example.com
+
+    # Proxy Next.js app
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:3000/
+    ProxyPassReverse / http://localhost:3000/
+
+    # Static assets
+    Alias /public /srv/http/stashfru/public
+    <Directory /srv/http/stashfru/public>
+        Require all granted
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </Directory>
+
+    Alias /_next/static /srv/http/stashfru/.next/static
+    <Directory /srv/http/stashfru/.next/static>
+        Require all granted
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </Directory>
+
+    Alias /favicon.ico /srv/http/stashfru/public/favicon.ico
+    <Location /favicon.ico>
+        Require all granted
+    </Location>
+
+    # Restrict sensitive files
+    <LocationMatch "\.db$">
+        Require all denied
+    </LocationMatch>
+
+    <LocationMatch "^/\.env">
+        Require all denied
+    </LocationMatch>
+
+    <LocationMatch "^/prisma/migrations/">
+        Require all denied
+    </LocationMatch>
+
+    <LocationMatch "^/node_modules/">
+        Require all denied
+    </LocationMatch>
+
+    <LocationMatch "^/src/">
+        Require all denied
+    </LocationMatch>
+
+    <LocationMatch "^/\.git/">
+        Require all denied
+    </LocationMatch>
+</VirtualHost>
+```
+
+**Fichiers à copier dans `/srv/http/stashfru/` :**
+- Tout le contenu du repo (sauf `.git/` et `node_modules/`)
+- `.env` avec les variables de production
+- `dev.db` (base de données existante)
+- `.next/` (après `npm run build`)
+- `node_modules/` (après `npm ci --production`)
+
+**Fichiers sensibles à protéger (ne pas copier dans `/srv/http/` ou restreindre) :**
+| Fichier | Pourquoi |
+|---------|----------|
+| `dev.db` | Contient les mots de passe hashés et toutes les données |
+| `.env` | Clés API, NEXTAUTH_SECRET, LLM_API_KEY |
+| `prisma/migrations/*.sql` | Migrations SQL brutes |
+| `src/` | Code source TypeScript |
+| `node_modules/` | Dépendances (gros, source code) |
+| `.git/` | Historique complet du projet |
+
+**Recommandation :** Copier tout dans `/srv/http/stashfru/` et utiliser le proxy inverse pour servir l'app, tout en restreignant l'accès public aux fichiers sensibles via Nginx ou Apache (configurations ci-dessus).
 
 ### Option 2: Vercel (nécessite migration DB)
 
