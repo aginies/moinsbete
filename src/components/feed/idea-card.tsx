@@ -177,10 +177,6 @@ export function CompactIdeaCard({ idea }: CompactIdeaCardProps) {
         <h3 className="text-sm font-semibold leading-tight text-foreground hover:text-primary">
           {idea.title}
         </h3>
-
-        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{new Date(idea.viewedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span>
-        </div>
       </article>
     </Link>
   )
