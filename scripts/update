@@ -8,10 +8,11 @@ usage() {
 Usage: $0 <command>
 
 Commands:
-  le-saviez-vous    Re-insert all Le saviez-vous facts
+  le-saviez-vous    Re-insert hardcoded Le saviez-vous facts
+  scrape            Scrape Wikipedia archives (auto, incremental)
   ideas             Generate ideas via LLM (generate-ideas.ts)
   ingest            Ingest Wikipedia articles (ingest-wikipedia.ts)
-  all               Run le-saviez-vous + ideas + ingest
+  all               Run scrape + ideas + ingest
   seed              Run seed (topics + manual ideas)
   help              Show this help
 
@@ -31,9 +32,15 @@ export NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED:-0}
 
 case "$1" in
   le-saviez-vous)
-    echo "📚 Inserting Le saviez-vous facts..."
+    echo "📚 Inserting hardcoded Le saviez-vous facts..."
     npx tsx scripts/insert_saviez_vous.ts
     ;;
+
+  scrape)
+    echo "🌐 Scraping Wikipedia Le saviez-vous archives..."
+    npx tsx scripts/scrape-saviez-vous.ts
+    ;;
+
 
   ideas)
     echo "🚀 Generating ideas via LLM..."
@@ -48,8 +55,8 @@ case "$1" in
   all)
     echo "🔄 Running full content update pipeline..."
     echo ""
-    echo "=== Step 1: Le saviez-vous ==="
-    npx tsx scripts/insert_saviez_vous.ts
+    echo "=== Step 1: Scrape Wikipedia ==="
+    npx tsx scripts/scrape-saviez-vous.ts
     echo ""
     echo "=== Step 2: Generate ideas ==="
     npx tsx src/scripts/generate-ideas.ts
