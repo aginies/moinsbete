@@ -2,6 +2,204 @@
 
 Application de découverte de connaissances bite-sized : idées, sujets, sources Wikipédia, bookmarks et plan d'apprentissage.
 
+## Base de données
+
+### Vue d'ensemble
+
+- **Type**: SQLite (fichier unique `dev.db`)
+- **ORM**: Prisma v6
+- **Fichier**: `dev.db` à la racine du projet (dans `.gitignore`)
+- **Emplacement**: `/stashfru/dev.db`
+
+### Statistiques actuelles
+
+| Modèle | Description | Compteur |
+|--------|-------------|----------|
+| **Idea** | Idées bite-sized (titre + contenu + takeaway) | 736 |
+| **Source** | Sources (Wikipédia articles) | 183 |
+| **Topic** | Sujets de connaissance | 20 |
+| **IdeaTopic** | Association Idea ↔ Topic (1 par idée) | 736 |
+| **SaviezVousFact** | Faits "Le saviez-vous" | 352 |
+| **Collection** | Collections d'idées | 6 |
+| **User** | Utilisateurs | variable |
+| **Bookmark** | Bookmarks utilisateur | variable |
+| **ViewedIdea** | Historique de consultation | variable |
+
+### Gestion de la base de données
+
+#### 1. Initialisation (nouvelle installation)
+
+```bash
+# Appliquer les migrations (crée les tables)
+npx prisma db push
+
+# Seed initial (20 topics racine)
+npx tsx prisma/seed.ts
+
+# Idées manuelles (146 idées pré-écrites)
+npx tsx src/scripts/seed-ideas.ts
+```
+
+#### 2. Générer du contenu avec le LLM
+
+**Prérequis**: Variable `OPENROUTER_API_KEY` définie dans `.env`
+
+```bash
+# Pipeline 1: Génération LLM par topic
+# Utilise le résumé Wikipédia + LLM pour créer des idées
+npx tsx src/scripts/generate-ideas.ts
+# Résultat: ~490 idées supplémentaires (20 par topic)
+
+# Pipeline 2: Ingestion Wikipédia à grande échelle
+# Inscrit 295 articles Wikipédia, distille 3 idées/article
+npx tsx src/scripts/ingest-wikipedia.ts
+# Résultat: ~890 idées + 183 sources
+```
+
+**Configuration LLM**:
+```env
+OPENROUTER_API_KEY=votre-cle-openrouter
+# ou
+LLM_API_KEY=secret
+LLM_BASE_URL=https://votre-api-llm:port/v1
+LLM_MODEL=qwen3.6
+```
+
+#### 3. Ajouter de nouveaux articles Wikipédia
+
+Éditer `src/scripts/ingest-wikipedia.ts` → `ARTICLES_TO_INGEST`:
+
+```ts
+const ARTICLES_TO_INGEST = [
+  'Article1',
+  'Article2',
+  // ... ajouter des articles français de Wikipédia
+]
+```
+
+Chaque article sera traité ainsi:
+1. Fetch résumé depuis Wikipédia API
+2. Extraction des catégories (ignore métadonnées)
+3. Classification LLM pour assigner au bon topic
+4. Distillation de 3 idées par article
+5. Création d'une Source Wikipédia
+
+#### 4. Ajouter des idées manuelles
+
+Éditer `src/scripts/seed-ideas.ts` → tableau `IDEAS`:
+
+```ts
+{
+  title: "Titre de l'idée",
+  content: "Explication détaillée...",
+  takeaway: "Actionnable: faire ceci...",
+  sourceTitle: "Source Wikipédia",
+  topicNames: ['Psychologie']
+}
+```
+
+Puis exécuter:
+```bash
+npx tsx src/scripts/seed-ideas.ts
+```
+
+#### 5. Ajouter un nouveau topic
+
+1. Éditer `prisma/seed.ts` → tableau `ROOT_TOPICS`:
+```ts
+{ name: 'Nouveau Sujet', icon: '🎯', color: '#ff6b35', description: '...' }
+```
+
+2. Ajouter au moins 10 idées dans `seed-ideas.ts` ou `generate-ideas.ts`
+
+3. Exécuter:
+```bash
+npx tsx prisma/seed.ts
+npx tsx src/scripts/seed-ideas.ts
+```
+
+#### 6. Explorer la base de données
+
+```bash
+# Interface graphique (recommandé)
+npx prisma studio
+
+# Commandes SQLite directes
+sqlite3 dev.db ".tables"
+sqlite3 dev.db "SELECT COUNT(*) FROM Idea;"
+sqlite3 dev.db "SELECT idea.title, topic.name FROM IdeaTopic JOIN Idea ON IdeaTopic.ideaId = Idea.id JOIN Topic ON IdeaTopic.topicId = Topic.id LIMIT 10;"
+```
+
+#### 7. Backup
+
+```bash
+# Backup simple (copie du fichier)
+cp dev.db dev.db.backup
+
+# Backup avec timestamp
+cp dev.db "dev.db.$(date +%Y%m%d-%H%M%S).backup"
+
+# Backup compressé
+gzip -c dev.db > "dev.db.$(date +%Y%m%d).backup.gz"
+
+# Restaurer
+cp dev.db.backup dev.db
+# ou
+gunzip -c dev.db.20260702.backup.gz > dev.db
+```
+
+**Recommandation**: Backup avant chaque ingestion LLM majeure.
+
+#### 8. Nettoyage / Reset
+
+```bash
+# Supprimer TOUTES les données (garde la structure)
+sqlite3 dev.db "DELETE FROM IdeaTopic; DELETE FROM Idea; DELETE FROM Source; DELETE FROM SaviezVousFact; DELETE FROM Bookmark; DELETE FROM ViewedIdea; DELETE FROM Collection; DELETE FROM CommunityArticle; DELETE FROM GrowthPlan; DELETE FROM PasswordResetToken; DELETE FROM TopicSuggestion; DELETE FROM _CollectionToTopic; DELETE FROM _UserFollowing; DELETE FROM User;"
+
+# Recréer depuis zéro
+rm dev.db
+npx prisma db push
+npx tsx prisma/seed.ts
+npx tsx src/scripts/seed-ideas.ts
+```
+
+#### 9. Diagnostic
+
+```bash
+# Vérifier l'intégrité
+sqlite3 dev.db "PRAGMA integrity_check;"
+
+# Voir les idées sans topic
+sqlite3 dev.db "SELECT id FROM Idea WHERE id NOT IN (SELECT ideaId FROM IdeaTopic);"
+
+# Voir les topics sans idées
+sqlite3 dev.db "SELECT t.name, COUNT(it.id) as ideaCount FROM Topic t LEFT JOIN IdeaTopic it ON t.id = it.topicId GROUP BY t.id HAVING ideaCount = 0;"
+
+# Compteur par topic
+sqlite3 dev.db "SELECT t.name, COUNT(it.id) FROM Topic t JOIN IdeaTopic it ON t.id = it.topicId GROUP BY t.name ORDER BY COUNT(it.id) DESC;"
+```
+
+#### 10. Workflow typique d'enrichissement
+
+```bash
+# 1. Backup
+cp dev.db dev.db.backup
+
+# 2. Vérifier les topics avec peu d'idées
+sqlite3 dev.db "SELECT t.name, COUNT(it.id) FROM Topic t JOIN IdeaTopic it ON t.id = it.topicId GROUP BY t.name ORDER BY COUNT(it.id) ASC;"
+
+# 3. Ajouter des articles ciblés dans ingest-wikipedia.ts
+
+# 4. Lancer l'ingestion
+OPENROUTER_API_KEY=secret npx tsx src/scripts/ingest-wikipedia.ts
+
+# 5. Vérifier les résultats
+sqlite3 dev.db "SELECT t.name, COUNT(it.id) FROM Topic t JOIN IdeaTopic it ON t.id = it.topicId GROUP BY t.name ORDER BY COUNT(it.id) DESC;"
+
+# 6. Commit
+git add -A && git commit -m "feat: enrich topics with new Wikipedia articles"
+```
+
 ## Architecture
 
 - **Framework**: Next.js 16 (App Router) + React 19
@@ -70,40 +268,46 @@ stashfru/
 | **User** | Utilisateurs (email, hash mot de passe, bookmarks) |
 | **Topic** | Sujets de connaissance (23 topics, hiérarchie parent/enfant) |
 | **Source** | Sources (Wikipédia, livres, articles, podcasts) |
-| **Idea** | Idées bite-sized (titre, contenu, takeaway, image source) |
-| **IdeaTopic** | Junction Idea ↔ Topic |
+| **Idea** | Idées bite-sized (titre, contenu, takeaway, image source) | 736 |
+| **IdeaTopic** | Junction Idea ↔ Topic (1 par idée) | 736 |
 | **Bookmark** | Bookmarks utilisateur |
 | **Collection** | Collections d'idées |
 | **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) |
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) |
 | **CommunityArticle** | Articles communautaires |
 
-### Topics disponibles (23)
+### Topics disponibles (20)
 
-**Thèmes généraux:**
-- 🧠 Psychologie, 🏛️ Philosophie, 🔬 Sciences cognitives
-- 💰 Économie, 🗣️ Communication, ⚡ Productivité
-- 🧘 Santé & Bien-être, 💡 Créativité, 👑 Leadership, 📜 Histoire
-
-**Nouveaux topics:**
-- 💰 Finance & Argent (10 manuelles + 10 LLM)
-- 💻 Technologie & Innovation (10 manuelles + 10 LLM)
-- 👥 Sociologie (10 manuelles + 10 LLM)
-- ⚛️ Physique (10 manuelles + 10 LLM)
-- 🍳 Cuisine & Alimentation (10 manuelles + 10 LLM)
-- 🧬 Biologie & Évolution (10 manuelles + 10 LLM)
-- 🔢 Mathématiques (10 manuelles + 10 LLM)
-- 🎨 Art & Design (10 manuelles + 10 LLM)
-- 🎤 Débat & Rhétorique (10 manuelles + 14 LLM)
-- 🚗 Voitures (10 manuelles)
+- 🧠 Psychologie (20+), 🏛️ Philosophie (15+), 🔬 Sciences cognitives (15+)
+- 💰 Économie (15+), 🗣️ Communication (15+), ⚡ Productivité (15+)
+- 🧘 Santé & Bien-être (15+), 💡 Créativité (15+), 👑 Leadership (15+)
+- 📜 Histoire (20+), 🚗 Voitures (10)
+- 💰 Finance & Argent (20+), 💻 Technologie & Innovation (20+)
+- 👥 Sociologie (20+), ⚛️ Physique (20+)
+- 🍳 Cuisine & Alimentation (20+), 🧬 Biologie & Évolution (20+)
+- 🔢 Mathématiques (20+), 🎨 Art & Design (20+), 🎤 Débat & Rhétorique (20+)
 
 ### Génération de contenu
 
 **3 pipelines de contenu:**
 
-1. **Seed manuel** (`src/scripts/seed-ideas.ts`): 460+ idées écrites à la main, format bite-sized (titre + contenu + takeaway)
-2. **Génération LLM** (`src/scripts/generate-ideas.ts`): Fetch Wikipédia → LLM distille 5 idées/article → création automatique
-3. **Ingestion Wikipédia** (`src/scripts/ingest-wikipedia.ts`): Articles Wikipédia → catégories → LLM classification → création de sources + idées
+1. **Seed manuel** (`src/scripts/seed-ideas.ts`): 146 idées écrites à la main, format bite-sized (titre + contenu + takeaway)
+2. **Génération LLM** (`src/scripts/generate-ideas.ts`): Fetch Wikipédia → LLM distille 5 idées/article → création automatique (~490 idées)
+3. **Ingestion Wikipédia** (`src/scripts/ingest-wikipedia.ts`): 295 articles → LLM classification → création de sources + 3 idées/article (~890 idées)
+
+**Commandes:**
+
+```bash
+# Seed initial (topics + 146 idées manuelles)
+npx tsx prisma/seed.ts
+npx tsx src/scripts/seed-ideas.ts
+
+# Génération LLM par topic (nécessite OPENROUTER_API_KEY)
+OPENROUTER_API_KEY=secret npx tsx src/scripts/generate-ideas.ts
+
+# Ingestion Wikipédia à grande échelle (nécessite LLM_API_KEY)
+LLM_API_KEY=secret npx tsx src/scripts/ingest-wikipedia.ts
+```
 
 ## Installation
 
@@ -188,10 +392,13 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 | `npm run dev` | Serveur de développement (localhost:3000) |
 | `npm run build` | Build de production |
 | `npm start` | Serveur de production |
-| `npm run db:migrate` | Créer une migration de développement |
-| `npm run db:seed` | Seed initial (topics + idées) |
-| `npm run db:ingest` | Ingestion Wikipédia |
-| `npm run db:studio` | Ouvrir Prisma Studio (interface DB) |
+| `npx prisma db push` | Appliquer les migrations sans créer de fichier |
+| `npx prisma migrate dev` | Créer une migration de développement |
+| `npx prisma studio` | Ouvrir Prisma Studio (interface DB) |
+| `npx tsx prisma/seed.ts` | Seed initial (20 topics racine) |
+| `npx tsx src/scripts/seed-ideas.ts` | 146 idées manuelles |
+| `npx tsx src/scripts/generate-ideas.ts` | Génération LLM par topic |
+| `npx tsx src/scripts/ingest-wikipedia.ts` | Ingestion massive Wikipédia |
 | `npm run lint` | ESLint |
 
 ## Déploiement
@@ -366,6 +573,35 @@ NODE_TLS_REJECT_UNAUTHORIZED=0 npx tsx src/scripts/generate-ideas.ts
 - **TLS**: Pour LLM auto-signé, `NODE_TLS_REJECT_UNAUTHORIZED=0` (production: utiliser un certificat valide)
 
 ## Dépannage
+
+### Base de données corrompue
+
+```bash
+# Supprimer et recréer
+rm dev.db
+npx prisma db push
+npx tsx prisma/seed.ts
+npx tsx src/scripts/seed-ideas.ts
+```
+
+### Idées sans topic
+
+```bash
+# Vérifier
+sqlite3 dev.db "SELECT id FROM Idea WHERE id NOT IN (SELECT ideaId FROM IdeaTopic);"
+
+# Recréer les associations (assigne le premier topic trouvé)
+sqlite3 dev.db "INSERT INTO IdeaTopic (id, ideaId, topicId) SELECT 'fix_' || id, id, (SELECT id FROM Topic LIMIT 1) FROM Idea WHERE id NOT IN (SELECT ideaId FROM IdeaTopic);"
+```
+
+### Topic sans idées
+
+```bash
+# Vérifier
+sqlite3 dev.db "SELECT t.name, COUNT(it.id) FROM Topic t LEFT JOIN IdeaTopic it ON t.id = it.topicId GROUP BY t.name HAVING COUNT(it.id) = 0;"
+
+# Solution: lancer generate-ideas.ts ou ingest-wikipedia.ts
+```
 
 ### LLM ne répond pas
 
