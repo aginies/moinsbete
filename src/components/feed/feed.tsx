@@ -37,6 +37,7 @@ interface FeedProps {
   savedIdeaIds?: Set<string>
   userId?: string
   isHistory?: boolean
+  compact?: boolean
 }
 
 export function Feed({
@@ -50,6 +51,7 @@ export function Feed({
   savedIdeaIds = new Set(),
   userId,
   isHistory = false,
+  compact = false,
 }: FeedProps) {
   const [ideas, setIdeas] = useState<Idea[]>(initialIdeas)
   const [page, setPage] = useState(initialPage)
@@ -145,7 +147,7 @@ export function Feed({
     <div className="space-y-4">
       {ideas.map((idea) => (
         <React.Fragment key={idea.id}>
-          {isHistory ? (
+          {isHistory || compact ? (
             <CompactIdeaCard key={`card-${idea.id}`} idea={idea as typeof idea & { viewedAt: string }} />
           ) : (
             <IdeaCard

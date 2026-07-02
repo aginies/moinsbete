@@ -51,7 +51,15 @@ export default async function SujetDetailPage({
         Tous les sujets
       </Link>
 
-      <TopicCard topic={{ ...topic, children: topic.children || [], _count: { ideas: topic._count?.ideaTopics || 0 } }} />
+      <div className="mb-6 flex items-center gap-3 rounded-xl border border-border/60 bg-card p-5">
+        <span className="text-3xl">{topic.icon}</span>
+        <div>
+          <h1 className="text-2xl font-heading font-bold text-foreground">{topic.name}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {topic._count?.ideaTopics || 0} idées
+          </p>
+        </div>
+      </div>
 
       {topic.children && topic.children.length > 0 && (
         <div className="mt-6">
@@ -81,6 +89,7 @@ export default async function SujetDetailPage({
           initialHasMore={hasMore}
           userId={userId}
           savedIdeaIds={new Set()}
+          compact
         />
       </div>
     </div>
