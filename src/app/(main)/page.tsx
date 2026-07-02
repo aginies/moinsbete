@@ -105,6 +105,27 @@ export default async function HomePage() {
         </div>
       )}
 
+      <div className="mb-6">
+        <Link
+          href="/idees/au-hasard"
+          className="block rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-600 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
+              <span className="text-lg">🎲</span>
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-blue-800 dark:text-blue-200">
+                Carte aléatoire
+              </h3>
+              <p className="text-xs text-blue-600 dark:text-blue-300">
+                Découvrez une idée au hasard
+              </p>
+            </div>
+          </div>
+        </Link>
+      </div>
+
       <SearchBar />
 
       <HomePageClient
