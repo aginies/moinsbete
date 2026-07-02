@@ -25,6 +25,11 @@ async function resolveImageUrls(facts: Array<{ id: string; text: string; sourceU
         const idx = filenames.find(f => f.filename === page.title)?.index
         if (idx !== undefined) {
           facts[idx].imageFilename = url
+          // Persist resolved URL to DB
+          await prisma.saviezVousFact.update({
+            where: { id: facts[idx].id },
+            data: { imageFilename: url },
+          })
         }
       }
     }
@@ -64,7 +69,7 @@ export async function GET(request: NextRequest) {
     const shuffled = [...rawFacts].sort(() => Math.random() - 0.5)
     const facts = shuffled.slice(0, count)
 
-    // Resolve image filenames to URLs
+    // Resolve image filenames to URLs and persist
     const resolvedFacts = await resolveImageUrls(facts)
 
     console.log('[saviez-vous] returning:', resolvedFacts.length, 'facts')

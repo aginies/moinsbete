@@ -1,8 +1,31 @@
 'use server'
 
 
-import { getSession, authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { decode } from 'next-auth/jwt'
+import { cookies } from 'next/headers'
+
+async function getSession() {
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get('next-auth.session-token')
+  if (!sessionCookie) return null
+
+  const secret = process.env.NEXTAUTH_SECRET || 'stashfru-secret-change-in-production'
+  const token = await decode({
+    token: sessionCookie.value,
+    secret,
+  })
+
+  if (!token?.sub) return null
+
+  return {
+    user: {
+      id: token.sub,
+      email: token.email as string,
+      name: token.name as string,
+    },
+  }
+}
 
 export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
   const session = await getSession()
@@ -35,6 +58,46 @@ export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
   }
 }
 
+export async function toggleBookmarkAction(ideaId: string) {
+  const session = await getSession()
+  if (!session?.user) {
+    return { error: 'Non authentifié' }
+  }
+
+  try {
+    const existing = await prisma.bookmark.findUnique({
+      where: {
+        userId_ideaId: {
+          userId: session.user.id,
+          ideaId,
+        },
+      },
+    })
+
+    if (existing) {
+      await prisma.bookmark.delete({
+        where: {
+          userId_ideaId: {
+            userId: session.user.id,
+            ideaId,
+          },
+        },
+      })
+      return { success: true, wasBookmarked: true }
+    } else {
+      await prisma.bookmark.create({
+        data: {
+          userId: session.user.id,
+          ideaId,
+        },
+      })
+      return { success: true, wasBookmarked: false }
+    }
+  } catch {
+    return { error: 'Erreur lors de la sauvegarde' }
+  }
+}
+
 export async function getSavedIdeas() {
   const session = await getSession()
   if (!session?.user) {
@@ -46,7 +109,9 @@ export async function getSavedIdeas() {
     include: {
       idea: {
         include: {
-          topics: { select: { name: true, slug: true, icon: true, color: true } },
+          ideaTopics: {
+            select: { topic: { select: { name: true, slug: true, icon: true, color: true, id: true } } },
+          },
           source: { select: { title: true, type: true } },
         },
       },
@@ -55,7 +120,10 @@ export async function getSavedIdeas() {
   })
 
   return {
-    ideas: bookmarks.map(b => b.idea),
+    ideas: bookmarks.map(b => ({
+      ...b.idea,
+      topics: b.idea.ideaTopics.map(it => it.topic),
+    })),
     count: bookmarks.length,
   }
 }

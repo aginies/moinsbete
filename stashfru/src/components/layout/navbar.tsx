@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BookOpen, Search, Menu, LogOut, User, Clock } from 'lucide-react'
+import { BookOpen, Search, Menu, LogOut, User, Clock, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
 import { getSession } from '@/lib/auth'
@@ -30,6 +30,12 @@ export async function Navbar() {
                 <Button variant="ghost" size="sm">
                   <Clock className="h-4 w-4 mr-1" />
                   Historique
+                </Button>
+              </Link>
+              <Link href="/favoris">
+                <Button variant="ghost" size="sm">
+                  <Bookmark className="h-4 w-4 mr-1" />
+                  Favoris
                 </Button>
               </Link>
               <Link href="/mon-compte" className="flex items-center gap-2 mr-2 hover:opacity-80 transition-opacity">
