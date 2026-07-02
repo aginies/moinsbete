@@ -17,8 +17,12 @@ const PAGES = [
 ]
 
 function cleanText(wikiText: string): string {
+  let text = wikiText
+  // Remove images/files FIRST (before other replacements)
+  text = text.replace(/\[\[Fichier:[^\]]*\]\]/g, '')
+  text = text.replace(/\[\[Image:[^\]]*\]\]/g, '')
   // Remove wiki links [[...]]
-  let text = wikiText.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
+  text = text.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
   // Remove bold/italic
   text = text.replace(/'''([^']*)'''/g, '$1')
   text = text.replace(/''([^']*)''/g, '$1')
@@ -34,7 +38,7 @@ function cleanText(wikiText: string): string {
   text = text.replace(/\{\{XV\}\}/g, '15')
   text = text.replace(/\{\{VII\}\}/g, '7')
   // Remove references <ref>
-  text = text.replace(/<ref[^>]*>.*?<\/ref>/gs, '')
+  text = text.replace(/<ref[^>]*>[\s\S]*?<\/ref>/g, '')
   // Clean whitespace
   text = text.replace(/\n/g, ' ')
   text = text.replace(/\s+/g, ' ')
@@ -74,7 +78,7 @@ async function fetchPage(url: string): Promise<string> {
   return res.text()
 }
 
-async function parseFacts(wikitext: string): Array<{ text: string; image: string | null; article: string }> {
+async function parseFacts(wikitext: string): Promise<Array<{ text: string; image: string | null; article: string }>> {
   const facts: Array<{ text: string; image: string | null; article: string }> = []
 
   const lines = wikitext.split('\n')
