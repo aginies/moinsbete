@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
         id: true,
         text: true,
         sourceUrl: true,
+        imageFilename: true,
         createdAt: true,
       },
     })

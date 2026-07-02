@@ -28,6 +28,7 @@ export type SaviezVousFactMinAggregateOutputType = {
   id: string | null
   text: string | null
   sourceUrl: string | null
+  imageFilename: string | null
   createdAt: Date | null
 }
 
@@ -35,6 +36,7 @@ export type SaviezVousFactMaxAggregateOutputType = {
   id: string | null
   text: string | null
   sourceUrl: string | null
+  imageFilename: string | null
   createdAt: Date | null
 }
 
@@ -42,6 +44,7 @@ export type SaviezVousFactCountAggregateOutputType = {
   id: number
   text: number
   sourceUrl: number
+  imageFilename: number
   createdAt: number
   _all: number
 }
@@ -51,6 +54,7 @@ export type SaviezVousFactMinAggregateInputType = {
   id?: true
   text?: true
   sourceUrl?: true
+  imageFilename?: true
   createdAt?: true
 }
 
@@ -58,6 +62,7 @@ export type SaviezVousFactMaxAggregateInputType = {
   id?: true
   text?: true
   sourceUrl?: true
+  imageFilename?: true
   createdAt?: true
 }
 
@@ -65,6 +70,7 @@ export type SaviezVousFactCountAggregateInputType = {
   id?: true
   text?: true
   sourceUrl?: true
+  imageFilename?: true
   createdAt?: true
   _all?: true
 }
@@ -145,6 +151,7 @@ export type SaviezVousFactGroupByOutputType = {
   id: string
   text: string
   sourceUrl: string | null
+  imageFilename: string | null
   createdAt: Date
   _count: SaviezVousFactCountAggregateOutputType | null
   _min: SaviezVousFactMinAggregateOutputType | null
@@ -173,6 +180,7 @@ export type SaviezVousFactWhereInput = {
   id?: Prisma.StringFilter<"SaviezVousFact"> | string
   text?: Prisma.StringFilter<"SaviezVousFact"> | string
   sourceUrl?: Prisma.StringNullableFilter<"SaviezVousFact"> | string | null
+  imageFilename?: Prisma.StringNullableFilter<"SaviezVousFact"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SaviezVousFact"> | Date | string
 }
 
@@ -180,6 +188,7 @@ export type SaviezVousFactOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   text?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageFilename?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -190,6 +199,7 @@ export type SaviezVousFactWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SaviezVousFactWhereInput | Prisma.SaviezVousFactWhereInput[]
   text?: Prisma.StringFilter<"SaviezVousFact"> | string
   sourceUrl?: Prisma.StringNullableFilter<"SaviezVousFact"> | string | null
+  imageFilename?: Prisma.StringNullableFilter<"SaviezVousFact"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SaviezVousFact"> | Date | string
 }, "id">
 
@@ -197,6 +207,7 @@ export type SaviezVousFactOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   text?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageFilename?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.SaviezVousFactCountOrderByAggregateInput
   _max?: Prisma.SaviezVousFactMaxOrderByAggregateInput
@@ -210,6 +221,7 @@ export type SaviezVousFactScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"SaviezVousFact"> | string
   text?: Prisma.StringWithAggregatesFilter<"SaviezVousFact"> | string
   sourceUrl?: Prisma.StringNullableWithAggregatesFilter<"SaviezVousFact"> | string | null
+  imageFilename?: Prisma.StringNullableWithAggregatesFilter<"SaviezVousFact"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SaviezVousFact"> | Date | string
 }
 
@@ -217,6 +229,7 @@ export type SaviezVousFactCreateInput = {
   id?: string
   text: string
   sourceUrl?: string | null
+  imageFilename?: string | null
   createdAt?: Date | string
 }
 
@@ -224,6 +237,7 @@ export type SaviezVousFactUncheckedCreateInput = {
   id?: string
   text: string
   sourceUrl?: string | null
+  imageFilename?: string | null
   createdAt?: Date | string
 }
 
@@ -231,6 +245,7 @@ export type SaviezVousFactUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -238,6 +253,7 @@ export type SaviezVousFactUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -245,6 +261,7 @@ export type SaviezVousFactCreateManyInput = {
   id?: string
   text: string
   sourceUrl?: string | null
+  imageFilename?: string | null
   createdAt?: Date | string
 }
 
@@ -252,6 +269,7 @@ export type SaviezVousFactUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -259,6 +277,7 @@ export type SaviezVousFactUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -266,6 +285,7 @@ export type SaviezVousFactCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   text?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
+  imageFilename?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -273,6 +293,7 @@ export type SaviezVousFactMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   text?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
+  imageFilename?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -280,6 +301,7 @@ export type SaviezVousFactMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   text?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
+  imageFilename?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -289,6 +311,7 @@ export type SaviezVousFactSelect<ExtArgs extends runtime.Types.Extensions.Intern
   id?: boolean
   text?: boolean
   sourceUrl?: boolean
+  imageFilename?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["saviezVousFact"]>
 
@@ -296,6 +319,7 @@ export type SaviezVousFactSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   text?: boolean
   sourceUrl?: boolean
+  imageFilename?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["saviezVousFact"]>
 
@@ -303,6 +327,7 @@ export type SaviezVousFactSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   text?: boolean
   sourceUrl?: boolean
+  imageFilename?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["saviezVousFact"]>
 
@@ -310,10 +335,11 @@ export type SaviezVousFactSelectScalar = {
   id?: boolean
   text?: boolean
   sourceUrl?: boolean
+  imageFilename?: boolean
   createdAt?: boolean
 }
 
-export type SaviezVousFactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "text" | "sourceUrl" | "createdAt", ExtArgs["result"]["saviezVousFact"]>
+export type SaviezVousFactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "text" | "sourceUrl" | "imageFilename" | "createdAt", ExtArgs["result"]["saviezVousFact"]>
 
 export type $SaviezVousFactPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SaviezVousFact"
@@ -322,6 +348,7 @@ export type $SaviezVousFactPayload<ExtArgs extends runtime.Types.Extensions.Inte
     id: string
     text: string
     sourceUrl: string | null
+    imageFilename: string | null
     createdAt: Date
   }, ExtArgs["result"]["saviezVousFact"]>
   composites: {}
@@ -749,6 +776,7 @@ export interface SaviezVousFactFieldRefs {
   readonly id: Prisma.FieldRef<"SaviezVousFact", 'String'>
   readonly text: Prisma.FieldRef<"SaviezVousFact", 'String'>
   readonly sourceUrl: Prisma.FieldRef<"SaviezVousFact", 'String'>
+  readonly imageFilename: Prisma.FieldRef<"SaviezVousFact", 'String'>
   readonly createdAt: Prisma.FieldRef<"SaviezVousFact", 'DateTime'>
 }
     

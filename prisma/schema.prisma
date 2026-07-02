@@ -199,10 +199,11 @@ model PasswordResetToken {
 }
 
 model SaviezVousFact {
-  id        String   @id @default(cuid())
-  text      String
-  sourceUrl String?
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  text          String
+  sourceUrl     String?
+  imageFilename String?
+  createdAt     DateTime @default(now())
 
   @@index([createdAt])
 }

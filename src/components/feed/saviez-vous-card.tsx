@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { Lightbulb, ExternalLink, RefreshCw } from 'lucide-react'
+import { Lightbulb, ExternalLink, RefreshCw, ImageIcon } from 'lucide-react'
 import Link from 'next/link'
 
 interface SaviezVousCardProps {
   text: string
   sourceUrl?: string | null
+  imageFilename?: string | null
 }
 
 async function fetchRandomFact() {
@@ -20,19 +21,27 @@ async function fetchRandomFact() {
   return null
 }
 
-export function SaviezVousCard({ text, sourceUrl }: SaviezVousCardProps) {
-  const [fact, setFact] = useState({ text, sourceUrl })
+function getImageUrl(filename: string): string {
+  const encoded = encodeURIComponent(filename)
+  return `https://upload.wikimedia.org/wikipedia/commons/thumb/${encoded}/${encoded}/220px-${encoded}`
+}
+
+export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCardProps) {
+  const [fact, setFact] = useState({ text, sourceUrl, imageFilename })
   const [loading, setLoading] = useState(false)
+  const [imageError, setImageError] = useState(false)
 
   const handleClick = async () => {
     if (loading) return
     setLoading(true)
     const newFact = await fetchRandomFact()
     if (newFact) {
-      setFact({ text: newFact.text, sourceUrl: newFact.sourceUrl })
+      setFact({ text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename })
     }
     setLoading(false)
   }
+
+  const hasImage = fact.imageFilename && !imageError
 
   return (
     <div
@@ -50,6 +59,18 @@ export function SaviezVousCard({ text, sourceUrl }: SaviezVousCardProps) {
         </div>
         <RefreshCw className={`h-4 w-4 text-amber-600 dark:text-amber-400 ${loading ? 'animate-spin' : ''}`} />
       </div>
+
+      {hasImage && (
+        <div className="mb-3 rounded-lg overflow-hidden border border-amber-200 dark:border-amber-800">
+          <img
+            src={getImageUrl(fact.imageFilename)}
+            alt="Illustration"
+            className="w-full h-40 object-cover"
+            onError={() => setImageError(true)}
+          />
+        </div>
+      )}
+
       <p className="text-sm leading-relaxed text-amber-900 dark:text-amber-100">
         {fact.text}
       </p>
