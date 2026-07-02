@@ -422,6 +422,61 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 
 ## Déploiement
 
+### Option 0: Déploiement avec une base de données existante
+
+Si vous avez déjà une base de données `dev.db` (backup, export d'un autre serveur, etc.):
+
+```bash
+# 1. Cloner le repo
+git clone <repo-url>
+cd stashfru
+
+# 2. Installer les dépendances
+npm ci --production
+
+# 3. Placer la base de données existante
+cp /chemin/vers/dev.db ./dev.db
+
+# 4. Vérifier l'intégrité
+sqlite3 dev.db "PRAGMA integrity_check;"
+
+# 5. Générer Prisma (doit correspondre au schéma)
+npx prisma generate
+
+# 6. S'assurer que le schéma est à jour
+npx prisma db push
+
+# 7. Build
+npm run build
+
+# 8. Démarrer avec PM2
+npm install -g pm2
+pm2 start npm --name "stashfru" -- start
+pm2 save
+pm2 startup
+```
+
+**Vérifier le contenu de la base:**
+```bash
+# Compter les idées
+sqlite3 dev.db "SELECT COUNT(*) FROM Idea;"
+
+# Vérifier les topics
+sqlite3 dev.db "SELECT COUNT(*) FROM Topic;"
+
+# Vérifier les utilisateurs
+sqlite3 dev.db "SELECT COUNT(*) FROM User;"
+```
+
+**Si le schéma a changé depuis la création de la DB**, appliquer les migrations manuellement:
+```bash
+# Voir les migrations disponibles
+ls prisma/migrations/
+
+# Appliquer une migration spécifique
+npx prisma migrate resolve --applied 20260702070107_init
+```
+
 ### Option 1: Serveur VPS (recommandé pour SQLite)
 
 ```bash
