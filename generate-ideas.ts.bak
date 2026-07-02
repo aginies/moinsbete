@@ -29,7 +29,7 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, '');
 }
 
-async function callLLM(prompt: string, temperature?: number): Promise<string> {
+async function callLLM(prompt: string): Promise<string> {
   const res = await fetch(LLM_BASE_URL + '/chat/completions', {
     method: 'POST',
     headers: {
@@ -39,11 +39,11 @@ async function callLLM(prompt: string, temperature?: number): Promise<string> {
     body: JSON.stringify({
       model: LLM_MODEL,
       messages: [
-        { role: 'system', content: 'Tu es un assistant qui répond toujours en JSON. Réponds UNIQUEMENT avec le JSON demandé, sans reasoning, sans explication.' },
+        { role: 'system', content: 'Tu es un assistant qui répond toujours en JSON.' },
         { role: 'user', content: prompt }
       ],
-      max_tokens: 8000,
-      temperature: temperature ?? 0.9,
+      max_tokens: 2000,
+      temperature: 0.7,
       stream: false,
     }),
   });
@@ -52,43 +52,22 @@ async function callLLM(prompt: string, temperature?: number): Promise<string> {
     throw new Error(`LLM error ${res.status}: ${text.substring(0, 200)}`);
   }
   const data = await res.json();
-  let content = data.choices?.[0]?.message?.content || '';
-  // Strip reasoning_content if present (some models include it)
-  if (content.includes('\n\n<reasoning>')) {
-    content = content.split('\n\n<reasoning>')[0].trim();
-  }
-  return content;
+  return data.choices?.[0]?.message?.content || '';
 }
 
-const BATCH_ANGLES = [
-  'Angle historique: exemples concrets du passé, dates, personnages.',
-  'Angle contre-intuitif: idées reçues fausses, paradoxes, surprises.',
-  'Angle pratique: frameworks, méthodes applicables demain, checklist.',
-  'Angle méprises courantes: erreurs de perception, nuances importantes.',
-  'Angle comparatif: comparer 2-3 approches, cultures, époques.',
-  'Angle futur: tendances émergentes, prédictions, ce qui change.',
-  'Angle interdisciplinaire: lien avec un autre domaine, métaphore.',
-  'Angle émotionnel: pourquoi ça marque,Stories mémorables, impact.',
-];
-
-async function generateIdeasForTopic(topicName: string, topicDescription: string, existingSlugs: string[], existingTitles: string[], topicId: string, batchIndex: number): Promise<Array<{ title: string; content: string; takeaway: string; slug: string }>> {
-  const angleHint = BATCH_ANGLES[batchIndex % BATCH_ANGLES.length];
-  const titlesList = existingTitles.length > 0 ? existingTitles.slice(0, 20).join('\n') : 'Aucun';
+async function generateIdeasForTopic(topicName: string, topicDescription: string, existingSlugs: string[], topicId: string): Promise<Array<{ title: string; content: string; takeaway: string; slug: string }>> {
+  const slugsList = existingSlugs.slice(0, 15).join('\n') || 'Aucun';
   const prompt = `Génère 5 nouvelles idées pour "${topicName}". ${topicDescription ? 'Contexte: ' + topicDescription : ''}
-${angleHint}
 
 Format JSON array:
 [
   {"title": "Titre accrocheur", "content": "Faits + explication + exemple, 100-150 mots", "takeaway": "Leçon en 1 phrase", "slug": "slug-minuscules-dash"}
 ]
 
-Règles: style direct éducatif français, pas de doublons, pas de doublons sémantiques. Chaque idée doit apporter un angle différent.
+Règles: style direct éducatif français, pas de doublons.
 
 Slugs existants (${existingSlugs.length}):
-${existingSlugs.slice(0, 20).join('\n') || 'Aucun'}
-
-Titres existants (${existingTitles.length}):
-${titlesList}
+${slugsList}
 
 Réponds UNIQUEMENT avec le JSON array.`;
 
@@ -164,22 +143,16 @@ async function createSourcesForTopic(topicName: string, topicId: string, sourceT
   return createdIds;
 }
 
-async function generateIdeasForSource(sourceTitle: string, sourceUrl: string | null, sourceId: string, topicIds: string[], existingTitles: string[], batchIndex: number): Promise<Array<{ title: string; content: string; takeaway: string; slug: string }>> {
+async function generateIdeasForSource(sourceTitle: string, sourceUrl: string | null, sourceId: string, topicIds: string[]): Promise<Array<{ title: string; content: string; takeaway: string; slug: string }>> {
   const topicNames = topicIds.length > 0 ? topicIds.slice(0, 3).join(', ') : 'général';
-  const angleHint = BATCH_ANGLES[batchIndex % BATCH_ANGLES.length];
-  const titlesList = existingTitles.length > 0 ? existingTitles.slice(0, 20).join('\n') : 'Aucun';
   const prompt = `Génère 5 nouvelles idées basées sur "${sourceTitle}"${sourceUrl ? ' (source: ' + sourceUrl + ')' : ''}. Thèmes: ${topicNames}.
-${angleHint}
 
 Format JSON array:
 [
   {"title": "Titre accrocheur", "content": "Faits + explication + exemple, 100-150 mots", "takeaway": "Leçon en 1 phrase", "slug": "slug-minuscules-dash"}
 ]
 
-Règles: style direct éducatif français, contenu lié à la source, pas de doublons, pas de doublons sémantiques. Chaque idée doit apporter un angle différent.
-
-Titres existants sur cette source (${existingTitles.length}):
-${titlesList}
+Règles: style direct éducatif français, contenu lié à la source.
 
 Réponds UNIQUEMENT avec le JSON array.`;
 
@@ -229,7 +202,7 @@ async function main() {
     
     const sourceIds = await createSourcesForTopic('Voitures', voituresTopic.id, f1Sources);
     
-   // Generate ideas for F1 and Le Mans
+    // Generate ideas for F1 and Le Mans
     for (const sourceId of sourceIds) {
       const source = await prisma.source.findUnique({
         where: { id: sourceId },
@@ -237,33 +210,12 @@ async function main() {
       });
       if (!source) continue;
       
-      const topicIds = source.sourceTopics.map(t => t.topicId);
+     const topicIds = source.sourceTopics.map(t => t.topicId);
+      const ideas = await generateIdeasForSource(source.title, source.url, source.id, topicIds);
       
-      // Get existing titles on this source
-      const existingIdeas = await prisma.idea.findMany({
-        where: { sourceId: source.id },
-        select: { title: true },
-      });
-      const existingTitles = existingIdeas.map(i => i.title);
+console.log(`  Generating ideas for "${source.title}": ${ideas.length} ideas`);
       
-      let allIdeas: Array<{ title: string; content: string; takeaway: string; slug: string }> = [];
-      let batchIdx = 0;
-      let emptyCount = 0;
-      while (allIdeas.length < 10 && batchIdx < 12) {
-        const batchIdeas = await generateIdeasForSource(source.title, source.url, source.id, topicIds, existingTitles, batchIdx);
-        if (batchIdeas.length > 0) {
-          emptyCount = 0;
-          allIdeas = allIdeas.concat(batchIdeas);
-        } else {
-          emptyCount++;
-        }
-        batchIdx++;
-        if (allIdeas.length >= 10 || emptyCount >= 3) break;
-        await new Promise(r => setTimeout(r, 500));
-      }
-      console.log(`  Generating ideas for "${source.title}": ${allIdeas.length} ideas (tried ${batchIdx} batches)`);
-      
-      for (const idea of allIdeas) {
+      for (const idea of ideas) {
         try {
           const finalSlug = idea.slug.replace(/-\d+$/, '');
           const existing = await prisma.idea.findUnique({ where: { slug: finalSlug } });
@@ -328,31 +280,22 @@ async function main() {
     
     console.log(`\n  📝 "${topic.name}" (${ideaCount} existing ideas, generating 20)`);
     
-    // Get existing slugs AND titles for this topic
+    // Get existing slugs for this topic
     const existingIdeas = await prisma.idea.findMany({
       where: { ideaTopics: { some: { topicId: topic.id } } },
-      select: { slug: true, title: true },
+      select: { slug: true },
     });
     const existingSlugs = existingIdeas.map(i => i.slug.replace(/-\d+$/, ''));
-    const existingTitles = existingIdeas.map(i => i.title);
     
-    // Generate ideas with retries until target reached or no new ideas after 3 empty batches
+    // Generate ideas in batches of 5 (LLM limit)
     let allIdeas: Array<{ title: string; content: string; takeaway: string; slug: string }> = [];
-    let batchIdx = 0;
-    let emptyCount = 0;
-    while (allIdeas.length < 20 && batchIdx < 20) {
-      const batchIdeas = await generateIdeasForTopic(topic.name, topic.description || '', existingSlugs, existingTitles, topic.id, batchIdx);
-      if (batchIdeas.length > 0) {
-        emptyCount = 0;
-        allIdeas = allIdeas.concat(batchIdeas);
-      } else {
-        emptyCount++;
-      }
-      batchIdx++;
-      if (allIdeas.length >= 20 || emptyCount >= 3) break;
+    for (let batch = 0; batch < 4; batch++) {
+      const batchIdeas = await generateIdeasForTopic(topic.name, topic.description || '', existingSlugs, topic.id);
+      allIdeas = allIdeas.concat(batchIdeas);
+      if (allIdeas.length >= 20 || batchIdeas.length === 0) break;
       await new Promise(r => setTimeout(r, 500));
     }
-    console.log(`    Total LLM ideas: ${allIdeas.length} (tried ${batchIdx} batches)`);
+    console.log(`    Total LLM ideas: ${allIdeas.length}`);
     
     // Get max orderIndex
     const maxOrder = await prisma.idea.findFirst({
@@ -432,30 +375,15 @@ async function main() {
     const topicIds = source.sourceTopics.map(t => t.topicId);
     console.log(`  📝 "${source.title}" (${source.ideas.length} ideas, generating 10)`);
     
-    // Get existing titles on this source
-    const existingIdeasOnSource = await prisma.idea.findMany({
-      where: { sourceId: source.id },
-      select: { title: true },
-    });
-    const existingTitles = existingIdeasOnSource.map(i => i.title);
-    
-    // Generate ideas with retries
+    // Generate ideas in batches of 5 for sources
     let allIdeas: Array<{ title: string; content: string; takeaway: string; slug: string }> = [];
-    let batchIdx = 0;
-    let emptyCount = 0;
-    while (allIdeas.length < 10 && batchIdx < 12) {
-      const batchIdeas = await generateIdeasForSource(source.title, source.url, source.id, topicIds, existingTitles, batchIdx);
-      if (batchIdeas.length > 0) {
-        emptyCount = 0;
-        allIdeas = allIdeas.concat(batchIdeas);
-      } else {
-        emptyCount++;
-      }
-      batchIdx++;
-      if (allIdeas.length >= 10 || emptyCount >= 3) break;
+    for (let batch = 0; batch < 2; batch++) {
+      const batchIdeas = await generateIdeasForSource(source.title, source.url, source.id, topicIds);
+      allIdeas = allIdeas.concat(batchIdeas);
+      if (allIdeas.length >= 10 || batchIdeas.length === 0) break;
       await new Promise(r => setTimeout(r, 500));
     }
-    console.log(`    Total LLM ideas: ${allIdeas.length} (tried ${batchIdx} batches)`);
+    console.log(`    Total LLM ideas: ${allIdeas.length}`);
     
     const maxOrder = await prisma.idea.findFirst({
       orderBy: { orderIndex: 'desc' },
@@ -513,23 +441,15 @@ async function main() {
     });
     const topicIds = sourceTopicLinks.map(t => t.topicId);
     
-    // Generate ideas with retries
+    // Generate ideas in batches of 5
     let allIdeas: Array<{ title: string; content: string; takeaway: string; slug: string }> = [];
-    let batchIdx = 0;
-    let emptyCount = 0;
-    while (allIdeas.length < 10 && batchIdx < 12) {
-      const batchIdeas = await generateIdeasForSource(source.title, source.url, source.id, topicIds, [], batchIdx);
-      if (batchIdeas.length > 0) {
-        emptyCount = 0;
-        allIdeas = allIdeas.concat(batchIdeas);
-      } else {
-        emptyCount++;
-      }
-      batchIdx++;
-      if (allIdeas.length >= 10 || emptyCount >= 3) break;
+    for (let batch = 0; batch < 2; batch++) {
+      const batchIdeas = await generateIdeasForSource(source.title, source.url, source.id, topicIds);
+      allIdeas = allIdeas.concat(batchIdeas);
+      if (allIdeas.length >= 10 || batchIdeas.length === 0) break;
       await new Promise(r => setTimeout(r, 500));
     }
-    console.log(`    Total LLM ideas: ${allIdeas.length} (tried ${batchIdx} batches)`);
+    console.log(`    Total LLM ideas: ${allIdeas.length}`);
     
     const maxOrder = await prisma.idea.findFirst({
       orderBy: { orderIndex: 'desc' },
