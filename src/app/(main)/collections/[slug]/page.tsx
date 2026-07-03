@@ -4,6 +4,46 @@ import { Feed } from '@/components/feed/feed'
 import Link from 'next/link'
 import { ArrowLeft, BookmarkCheck } from 'lucide-react'
 
+interface TopicIdea {
+  id: string
+  title: string
+  content: string
+  takeaway: string
+  slug: string
+  saviezVous: string | null
+  isPublished: boolean
+  ideaTopics: Array<{
+    topic: {
+      id: string
+      name: string
+      slug: string
+      icon: string
+      color: string
+    }
+  }>
+  source: {
+    title: string
+    type: string
+    url: string | null
+    coverUrl: string | null
+  }
+}
+
+interface IdeaTopic {
+  idea: TopicIdea
+}
+
+interface TopicWithIdeas {
+  ideaTopics: IdeaTopic[]
+}
+
+interface CollectionData {
+  id: string
+  title: string
+  description: string | null
+  topics: TopicWithIdeas[]
+}
+
 export default async function CollectionPage({
   params,
 }: {
@@ -50,8 +90,7 @@ export default async function CollectionPage({
     )
   }
 
-  // Extract and de-duplicate ideas
-  const ideasMap = new Map<string, any>()
+  const ideasMap = new Map<string, TopicIdea>()
   for (const topic of collection.topics) {
     for (const it of topic.ideaTopics) {
       if (it.idea && it.idea.isPublished && !ideasMap.has(it.idea.id)) {
@@ -64,12 +103,12 @@ export default async function CollectionPage({
     ? await prisma.viewedIdea.findMany({
         where: { userId },
         select: { ideaId: true },
-      }).then(v => new Set(v.map(item => item.ideaId)))
+      }).then(v => new Set(v.map((item) => item.ideaId)))
     : new Set<string>()
 
   const ideasWithTopics = Array.from(ideasMap.values()).map(idea => ({
     ...idea,
-    topics: idea.ideaTopics.map((it: any) => it.topic),
+    topics: idea.ideaTopics.map(it => it.topic),
   })).filter(idea => !viewedIdeaIds.has(idea.id))
 
   return (

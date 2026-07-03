@@ -6,6 +6,27 @@ import Link from 'next/link'
 import { ArrowLeft, Target, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
+interface TopicWithCount {
+  id: string
+  name: string
+  slug: string
+  icon: string
+  _count?: Record<string, number>
+}
+
+interface FollowedUser {
+  following: TopicWithCount[]
+}
+
+interface GrowthPlan {
+  streakDays: number | null
+}
+
+interface FeedIdea {
+  id: string
+  [key: string]: unknown
+}
+
 export default async function MonPlanPage() {
   const session = await getSession()
 
@@ -48,10 +69,7 @@ export default async function MonPlanPage() {
 
   const topicIds = followedTopics?.following.map(t => t.id) || []
 
-  let planIdeas: any[] = []
-  if (growthPlan) {
-    planIdeas = planIdeas
-  }
+  let planIdeas: FeedIdea[] = []
 
   if (planIdeas.length === 0 && topicIds.length > 0) {
     const topicsRes = await fetch(
@@ -69,7 +87,7 @@ export default async function MonPlanPage() {
     planIdeas = ideas
   }
 
-  const savedIdeaIds = new Set(planIdeas.map((i: any) => i.id))
+  const savedIdeaIds = new Set(planIdeas.map((i) => i.id))
 
   return (
     <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">
@@ -109,7 +127,7 @@ export default async function MonPlanPage() {
         <div className="mb-6">
           <h2 className="mb-3 text-lg font-semibold">Vos sujets</h2>
           <div className="flex flex-wrap gap-2">
-            {followedTopics.following.map((topic: any) => (
+            {followedTopics.following.map((topic: TopicWithCount & { _count?: { ideaTopics: number } }) => (
               <Link
                 key={topic.id}
                 href={`/sujets/${topic.slug}`}
@@ -118,7 +136,7 @@ export default async function MonPlanPage() {
                 <span>{topic.icon}</span>
                 <span>{topic.name}</span>
                 <span className="text-xs text-muted-foreground">
-                  ({topic._count?.ideaTopics || 0})
+                  ({(topic as any)._count?.ideaTopics || 0})
                 </span>
               </Link>
             ))}
@@ -131,7 +149,7 @@ export default async function MonPlanPage() {
           {growthPlan ? 'Votre parcours' : 'Idées recommandées'}
         </h2>
         <Feed
-          initialIdeas={planIdeas}
+          initialIdeas={planIdeas as any}
           initialHasMore={false}
           userId={session.user.id}
           savedIdeaIds={savedIdeaIds}

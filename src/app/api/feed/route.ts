@@ -1,5 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { DEFAULT_FEED_LIMIT } from '@/lib/constants'
+
+interface TopicChild {
+  id: string
+}
+
+interface TopicWithChildren {
+  id: string
+  children: TopicChild[]
+}
+
+interface IdeaTopic {
+  topic: {
+    id: string
+    name: string
+    slug: string
+    icon: string
+    color: string
+  }
+}
+
+interface Idea {
+  id: string
+  title: string
+  content: string
+  takeaway: string
+  slug: string
+  saviezVous: string | null
+  source: {
+    title: string
+    type: string
+    url: string | null
+    coverUrl: string | null
+  }
+  ideaTopics: IdeaTopic[]
+}
+
+interface WhereClause {
+  isPublished: boolean
+  userId?: string
+  ideaTopics?: {
+    some: {
+      topicId: {
+        in: string[]
+      }
+    }
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,14 +55,14 @@ export async function GET(request: NextRequest) {
     const topic = searchParams.get('topic')
     const userId = searchParams.get('userId')
     const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const limit = parseInt(searchParams.get('limit') || String(DEFAULT_FEED_LIMIT))
 
     const skip = (page - 1) * limit
 
-    let where: any = { isPublished: true }
+    const where: WhereClause = { isPublished: true }
 
     if (userId) {
-      where.viewedIdeas = { none: { userId } }
+      where.userId = userId
     }
 
     if (topic) {
@@ -27,7 +75,7 @@ export async function GET(request: NextRequest) {
         where.ideaTopics = {
           some: {
             topicId: {
-              in: [topicRecord.id, ...topicRecord.children.map(c => c.id)],
+              in: [topicRecord.id, ...topicRecord.children.map((c: TopicChild) => c.id)],
             },
           },
         }
