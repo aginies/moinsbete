@@ -32,9 +32,9 @@ Le LLM doit être compatible avec l'API OpenAI (endpoint `/v1/chat/completions`)
 
 Exemple de configuration :
 ```env
-LLM_BASE_URL="https://100.72.33.21:49222/v1"
+LLM_BASE_URL="https://votre-api-llm:port/v1"
 LLM_MODEL="qwen3.6"
-LLM_API_KEY="secret"
+LLM_API_KEY="votre-cle-api"
 ```
 
 **Note:** Si le LLM utilise un certificat auto-signé, définir :
