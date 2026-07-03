@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import React from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { Lightbulb, ExternalLink, RefreshCw, ImageIcon, X } from 'lucide-react'
 import Link from 'next/link'
+import { isValidUrl as isValidUrlUtil } from '@/lib/utils'
 
 interface SaviezVousCardProps {
   text: string
@@ -21,24 +23,14 @@ async function fetchRandomFact() {
   return null
 }
 
-function isImageUrl(url: string | null | undefined): boolean {
-  if (!url) return false
-  return url.startsWith('http')
-}
-
-function isValidUrl(url: string | null | undefined): boolean {
-  if (!url) return false
-  return url.startsWith('http://') || url.startsWith('https://')
-}
-
-export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCardProps) {
+export const SaviezVousCard = React.memo(function SaviezVousCardInner({ text, sourceUrl, imageFilename }: SaviezVousCardProps) {
   const [fact, setFact] = useState({ text, sourceUrl, imageFilename })
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const resolvedImageFilename = fact.imageFilename || imageFilename
 
-  const handleClick = async () => {
+  const handleClick = useCallback(async () => {
     if (loading) return
     setLoading(true)
     setImageError(false)
@@ -47,9 +39,9 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
       setFact({ text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename })
     }
     setLoading(false)
-  }
+  }, [loading])
 
-  const hasImage = isValidUrl(resolvedImageFilename) && !imageError
+  const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError
 
   return (
     <>
@@ -78,7 +70,7 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
             }}
           >
             <img
-              src={isValidUrl(resolvedImageFilename) ? resolvedImageFilename! : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
+              src={isValidUrlUtil(resolvedImageFilename) ? resolvedImageFilename! : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt="Illustration"
               className="w-full h-48 object-cover transition-opacity hover:opacity-90 pointer-events-none"
               onError={() => setImageError(true)}
@@ -122,7 +114,7 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
               <X className="h-5 w-5" />
             </button>
             <img
-              src={isValidUrl(resolvedImageFilename) ? resolvedImageFilename! : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
+              src={isValidUrlUtil(resolvedImageFilename) ? resolvedImageFilename! : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt="Illustration"
               className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl"
             />
@@ -131,4 +123,4 @@ export function SaviezVousCard({ text, sourceUrl, imageFilename }: SaviezVousCar
       )}
     </>
   )
-}
+})
