@@ -39,7 +39,7 @@ interface Idea {
 
 interface WhereClause {
   isPublished: boolean
-  userId?: string
+  viewedIdeas?: { none: { userId: string } }
   ideaTopics?: {
     some: {
       topicId: {
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     const where: WhereClause = { isPublished: true }
 
     if (userId) {
-      where.userId = userId
+      where.viewedIdeas = { none: { userId } }
     }
 
     if (topic) {
