@@ -6,9 +6,32 @@ import { ArrowLeft, BookOpen, ExternalLink } from 'lucide-react'
 import { getSession, authOptions } from '@/lib/auth'
 import { markIdeaViewed } from '@/actions/view-actions'
 import { SwipeableIdeaDetail } from '@/components/feed/swipeable-idea-detail'
+import { isValidUrl } from '@/lib/utils'
+
+interface TopicChild {
+  id: string
+}
+
+interface TopicRecord {
+  id: string
+  children: TopicChild[]
+}
+
+interface CollectionTopic {
+  id: string
+  children: TopicChild[]
+}
+
+interface CollectionRecord {
+  id: string
+  topics: CollectionTopic[]
+}
 
 async function getPrevNext(slug: string, currentOrderIndex: number, topic?: string, collection?: string) {
-  let where: any = { isPublished: true, orderIndex: { not: currentOrderIndex } }
+  const where: { isPublished: boolean; orderIndex: { not: number }; ideaTopics?: { some: { topicId: { in: string[] } } } } = {
+    isPublished: true,
+    orderIndex: { not: currentOrderIndex },
+  }
 
   if (topic) {
     const topicRecord = await prisma.topic.findUnique({
@@ -19,7 +42,7 @@ async function getPrevNext(slug: string, currentOrderIndex: number, topic?: stri
       where.ideaTopics = {
         some: {
           topicId: {
-            in: [topicRecord.id, ...topicRecord.children.map((c: any) => c.id)],
+            in: [topicRecord.id, ...topicRecord.children.map((c) => c.id)],
           },
         },
       }
@@ -32,7 +55,7 @@ async function getPrevNext(slug: string, currentOrderIndex: number, topic?: stri
       select: { topics: { select: { id: true, children: { select: { id: true } } } } },
     })
     if (collectionRecord) {
-      const topicIds = collectionRecord.topics.flatMap((t: any) => [t.id, ...t.children.map((c: any) => c.id)])
+      const topicIds = collectionRecord.topics.flatMap((t) => [t.id, ...t.children.map((c) => c.id)])
       where.ideaTopics = {
         some: {
           topicId: {
@@ -202,7 +225,7 @@ export default async function IdeaDetailPage({
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">{idea.source.title}</p>
-                {idea.source.url && (
+                {idea.source.url && isValidUrl(idea.source.url) && (
                   <a
                     href={idea.source.url.startsWith('http') ? idea.source.url : `https://${idea.source.url}`}
                     target="_blank"

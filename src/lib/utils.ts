@@ -43,3 +43,25 @@ export function getRandomIcon(): string {
 export function getRandomColor(): string {
   return TOPIC_COLORS[Math.floor(Math.random() * TOPIC_COLORS.length)]
 }
+
+const SAFE_URL_PROTOCOLS = ['http://', 'https://', 'mailto:']
+const MAX_URL_LENGTH = 2048
+
+export function isValidUrl(url: string | null | undefined): boolean {
+  if (typeof url !== 'string' || !url) return false
+  const trimmed = url.trim()
+  if (trimmed.length > MAX_URL_LENGTH) return false
+  if (trimmed.startsWith('javascript:')) return false
+  if (trimmed.startsWith('data:')) return false
+  if (trimmed.startsWith('vbscript:')) return false
+  if (trimmed.startsWith('file:')) return false
+  if (trimmed.includes('\n') || trimmed.includes('\r')) return false
+  return true
+}
+
+export function sanitizeUrl(url: string | null | undefined, fallback: string = '/'): string {
+  if (typeof url === 'string' && url.trim().length > 0 && !url.trim().startsWith('javascript:') && !url.trim().startsWith('data:') && !url.trim().startsWith('vbscript:') && !url.trim().startsWith('file:') && !url.trim().includes('\n') && !url.trim().includes('\r') && url.trim().length <= MAX_URL_LENGTH) {
+    return url.trim()
+  }
+  return fallback
+}

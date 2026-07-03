@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, BookOpen, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { isValidUrl } from '@/lib/utils'
 
 interface Idea {
   id: string
@@ -236,7 +237,7 @@ export function SwipeableIdeaDetail({
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">{idea.source.title}</p>
-                    {idea.source.url && (
+                    {idea.source.url && isValidUrl(idea.source.url) && (
                       <a
                         href={idea.source.url.startsWith('http') ? idea.source.url : `https://${idea.source.url}`}
                         target="_blank"
