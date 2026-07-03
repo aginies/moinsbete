@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import React from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Bookmark, ExternalLink, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -31,14 +32,14 @@ interface IdeaCardProps {
   onBookmark?: (ideaId: string) => void
 }
 
-export function IdeaCard({ idea, isBookmarked: initialBookmarked, onBookmark }: IdeaCardProps) {
+const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: IdeaCardProps) => {
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
 
   useEffect(() => {
     setBookmarked(initialBookmarked || false)
   }, [initialBookmarked])
 
-  const handleBookmark = async (e: React.MouseEvent) => {
+  const handleBookmark = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -49,12 +50,15 @@ export function IdeaCard({ idea, isBookmarked: initialBookmarked, onBookmark }: 
 
     setBookmarked(prev => !prev)
     onBookmark(idea.id)
-  }
+  }, [bookmarked, onBookmark, idea.id])
 
-  const topicColors: Record<string, string> = {}
-  idea.topics.forEach(t => {
-    topicColors[t.id] = t.color
-  })
+  const topicColors = useMemo(() => {
+    const colors: Record<string, string> = {}
+    idea.topics.forEach(t => {
+      colors[t.id] = t.color
+    })
+    return colors
+  }, [idea.topics])
 
   return (
     <Link href={`/idees/${idea.slug}`} className="block">
@@ -132,6 +136,8 @@ export function IdeaCard({ idea, isBookmarked: initialBookmarked, onBookmark }: 
   )
 }
 
+export const IdeaCard = React.memo(IdeaCardInner)
+
 interface CompactIdeaCardProps {
   idea: {
     id: string
@@ -154,7 +160,7 @@ interface CompactIdeaCardProps {
   }
 }
 
-export function CompactIdeaCard({ idea }: CompactIdeaCardProps) {
+const CompactIdeaCardInner = ({ idea }: CompactIdeaCardProps) => {
   return (
     <Link href={`/idees/${idea.slug}`} className="block">
       <article className="rounded-xl border border-border/40 bg-card p-4 transition-all hover:border-border hover:bg-muted/30">
@@ -181,3 +187,5 @@ export function CompactIdeaCard({ idea }: CompactIdeaCardProps) {
     </Link>
   )
 }
+
+export const CompactIdeaCard = React.memo(CompactIdeaCardInner)

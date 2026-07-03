@@ -1,3 +1,4 @@
+import React from 'react'
 import Link from 'next/link'
 import { BookOpen } from 'lucide-react'
 import { Topic } from '@/generated/client'
@@ -9,7 +10,7 @@ interface TopicCardProps {
   }
 }
 
-export function TopicCard({ topic }: TopicCardProps) {
+export const TopicCard = React.memo(function TopicCardInner({ topic }: TopicCardProps) {
   return (
     <Link
       href={`/sujets/${topic.slug}`}
@@ -49,4 +50,4 @@ export function TopicCard({ topic }: TopicCardProps) {
       )}
     </Link>
   )
-}
+})
