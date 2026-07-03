@@ -12,6 +12,20 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'MoinsBête - Apprendre en s\'amusant',
   description: 'Des faits surprenants et des idées pour devenir moins bête tous les jours. Découvrez des faits insolites, des découvertes scientifiques et des anecdotes fascinantes.',
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    siteName: 'MoinsBête',
+    title: 'MoinsBête - Apprendre en s\'amusant',
+    description: 'Des faits surprenants et des idées pour devenir moins bête tous les jours.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@MoinsBete',
+    creator: '@MoinsBete',
+    title: 'MoinsBête - Apprendre en s\'amusant',
+    description: 'Des faits surprenants et des idées pour devenir moins bête tous les jours.',
+  },
 }
 
 export default async function RootLayout({
