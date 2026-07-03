@@ -5,10 +5,8 @@ import { NextRequest } from 'next/server'
 
 function isCsrfValid(request: NextRequest): boolean {
   const origin = request.headers.get('origin')
-  const host = request.headers.get('host')
-  if (!origin || !host) return false
-  const expectedOrigin = `${request.nextUrl.protocol}${host}`
-  return origin.toLowerCase() === expectedOrigin.toLowerCase()
+  if (!origin) return false
+  return origin.toLowerCase() === request.nextUrl.origin.toLowerCase()
 }
 
 export async function POST(
@@ -22,6 +20,9 @@ export async function POST(
   const session = await getSession()
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  }
+  if (session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
   }
 
   try {

@@ -9,20 +9,9 @@ import { prisma } from '@/lib/db'
 
 const inter = Inter({ subsets: ['latin'] })
 
-const securityHeaders = {
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block',
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';",
-}
-
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: 'MoinsBête - Apprendre en s\'amusant',
-    description: 'Des faits surprenants et des idées pour devenir moins bête tous les jours. Découvrez des faits insolites, des découvertes scientifiques et des anecdotes fascinantes.',
-    other: securityHeaders,
-  }
+export const metadata: Metadata = {
+  title: 'MoinsBête - Apprendre en s\'amusant',
+  description: 'Des faits surprenants et des idées pour devenir moins bête tous les jours. Découvrez des faits insolites, des découvertes scientifiques et des anecdotes fascinantes.',
 }
 
 export default async function RootLayout({

@@ -22,6 +22,16 @@ export default async function AdminPage() {
       </div>
     )
   }
+  if (session.user.role !== 'ADMIN') {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Admin</h1>
+          <p className="mt-2 text-muted-foreground">Accès réservé aux administrateurs</p>
+        </div>
+      </div>
+    )
+  }
   const topics = await prisma.topic.findMany({
     include: {
       _count: { select: { ideaTopics: true } },

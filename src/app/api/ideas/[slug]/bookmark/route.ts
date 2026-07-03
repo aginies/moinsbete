@@ -5,10 +5,8 @@ import { getSession, authOptions } from '@/lib/auth'
 
 function isCsrfValid(request: NextRequest): boolean {
   const origin = request.headers.get('origin')
-  const host = request.headers.get('host')
-  if (!origin || !host) return false
-  const expectedOrigin = `${request.nextUrl.protocol}${host}`
-  return origin.toLowerCase() === expectedOrigin.toLowerCase()
+  if (!origin) return false
+  return origin.toLowerCase() === request.nextUrl.origin.toLowerCase()
 }
 
 export async function POST(

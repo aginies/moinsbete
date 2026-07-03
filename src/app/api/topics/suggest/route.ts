@@ -19,6 +19,18 @@ const RATE_LIMIT_WINDOW = 60 * 1000
 const RATE_LIMIT_MAX = 10
 const rateLimitStore = new Map<string, number[]>()
 
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, timestamps] of rateLimitStore.entries()) {
+    const recent = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW)
+    if (recent.length === 0) {
+      rateLimitStore.delete(key)
+    } else {
+      rateLimitStore.set(key, recent)
+    }
+  }
+}, 5 * 60 * 1000)
+
 function checkRateLimit(clientId: string): boolean {
   const now = Date.now()
   const timestamps = rateLimitStore.get(clientId) || []

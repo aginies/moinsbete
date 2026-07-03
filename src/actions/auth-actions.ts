@@ -6,6 +6,8 @@ import { cookies } from 'next/headers'
 import { encode, decode } from 'next-auth/jwt'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rate-limiter'
+import { headers } from 'next/headers'
 
 export async function registerAction(formData: {
   email: string
@@ -13,6 +15,12 @@ export async function registerAction(formData: {
   displayName: string
 }) {
   const { email, password, displayName } = formData
+
+  const headersList = await headers()
+  const clientId = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  if (!checkRateLimit(`register:${clientId}`, 3, 60_000)) {
+    return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
+  }
 
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) {
@@ -36,6 +44,12 @@ export async function loginAction(formData: {
   email: string
   password: string
 }) {
+  const headersList = await headers()
+  const clientId = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  if (!checkRateLimit(`login:${clientId}`, 5, 60_000)) {
+    return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
+  }
+
   const user = await prisma.user.findUnique({ where: { email: formData.email } })
 
   if (!user) {
@@ -57,13 +71,13 @@ export async function loginAction(formData: {
       picture: undefined,
       sub: user.id,
     },
-    secret: process.env.NEXTAUTH_SECRET || 'stashfru-secret-change-in-production',
+    secret: process.env.NEXTAUTH_SECRET || 'k9sF2mNpQ7xR4wL8vB3jH6tY0cA5dE1gI9oU2iP7aS4fG',
     maxAge: 30 * 24 * 60 * 60,
   })
 
   // Set session cookie
   const cookieStore = await cookies()
-  const cookieName = 'next-auth.session-token'
+  const cookieName = process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
   const cookieExpires = new Date()
   cookieExpires.setTime(cookieExpires.getTime() + 30 * 24 * 60 * 60 * 1000)
 

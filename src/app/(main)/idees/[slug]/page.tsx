@@ -41,7 +41,7 @@ export default async function IdeaDetailPage({
 
   const topics = idea.ideaTopics.map(it => it.topic)
 
-  console.log('[IdeaDetail] session:', session ? { userId: session.user?.id, email: session.user?.email } : 'null')
+  console.log('[IdeaDetail] session:', session ? { userId: session.user?.id } : 'null')
 
   if (session?.user?.id) {
     await markIdeaViewed(idea.id, session.user.id).catch((err) => {

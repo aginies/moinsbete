@@ -4,10 +4,8 @@ import { getSession } from '@/lib/auth'
 
 function isCsrfValid(request: NextRequest): boolean {
   const origin = request.headers.get('origin')
-  const host = request.headers.get('host')
-  if (!origin || !host) return false
-  const expectedOrigin = `${request.nextUrl.protocol}${host}`
-  return origin.toLowerCase() === expectedOrigin.toLowerCase()
+  if (!origin) return false
+  return origin.toLowerCase() === request.nextUrl.origin.toLowerCase()
 }
 
 export async function POST(
@@ -24,8 +22,7 @@ export async function POST(
 
   try {
     const { slug } = await params
-    const ideaId = await request.json().then(json => json.userId)
-    const userIdToUse = ideaId || session.user.id
+    const userIdToUse = session.user.id
 
     // Vérifier que l'idée existe
     const idea = await prisma.idea.findUnique({ where: { slug } })
