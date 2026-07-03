@@ -19,22 +19,6 @@ const PAGES = [
   'Wikipédia:Le_saviez-vous_?/Archives/2018',
   'Wikipédia:Le_saviez-vous_?/Archives/2017',
   'Wikipédia:Le_saviez-vous_?/Archives/2016',
-  'Wikipédia:Le_saviez-vous_?/Archives/2015',
-  'Wikipédia:Le_saviez-vous_?/Archives/2014',
-  'Wikipédia:Le_saviez-vous_?/Archives/2013',
-  'Wikipédia:Le_saviez-vous_?/Archives/2012',
-  'Wikipédia:Le_saviez-vous_?/Archives/2011',
-  'Wikipédia:Le_saviez-vous_?/Archives/2010',
-  'Wikipédia:Le_saviez-vous_?/Archives/2009',
-  'Wikipédia:Le_saviez-vous_?/Archives/2008',
-  'Wikipédia:Le_saviez-vous_?/Archives/2007',
-  'Wikipédia:Le_saviez-vous_?/Archives/2006',
-  'Wikipédia:Le_saviez-vous_?/Archives/2005',
-  'Wikipédia:Le_saviez-vous_?/Archives/2004',
-  'Wikipédia:Le_saviez-vous_?/Archives/2003',
-  'Wikipédia:Le_saviez-vous_?/Archives/2002',
-  'Wikipédia:Le_saviez-vous_?/Archives/2001',
-  'Wikipédia:Le_saviez-vous_?/Archives/2000',
 ]
 
 function cleanText(wikiText: string): string {
