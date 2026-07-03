@@ -4,10 +4,8 @@ import crypto from 'crypto'
 
 function isCsrfValid(request: NextRequest): boolean {
   const origin = request.headers.get('origin')
-  const host = request.headers.get('host')
-  if (!origin || !host) return false
-  const expectedOrigin = `${request.nextUrl.protocol}${host}`
-  return origin.toLowerCase() === expectedOrigin.toLowerCase()
+  if (!origin) return false
+  return origin.toLowerCase() === request.nextUrl.origin.toLowerCase()
 }
 
 export async function POST(request: NextRequest) {
@@ -45,12 +43,13 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
     const resetLink = `${baseUrl}/reset-password/${token}`
 
     return NextResponse.json({
       success: true,
-      resetLink,
+      ...(isDev && { resetLink }),
     })
   } catch (error) {
     console.error('Reset token error:', error)

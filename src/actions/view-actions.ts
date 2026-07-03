@@ -7,7 +7,7 @@ export async function markIdeaViewed(ideaId: string, userId: string) {
   try {
     await prisma.user.upsert({
       where: { id: userId },
-      create: { id: userId, email: 'view-only@local', passwordHash: 'view' },
+      create: { id: userId, email: `user-${userId.slice(0, 8)}@local`, passwordHash: '$2a$12$unused' },
       update: {},
     })
     const result = await prisma.viewedIdea.upsert({

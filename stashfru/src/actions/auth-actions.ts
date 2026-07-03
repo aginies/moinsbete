@@ -57,7 +57,7 @@ export async function loginAction(formData: {
       picture: undefined,
       sub: user.id,
     },
-    secret: process.env.NEXTAUTH_SECRET || 'stashfru-secret-change-in-production',
+    secret: process.env.NEXTAUTH_SECRET || 'k9sF2mNpQ7xR4wL8vB3jH6tY0cA5dE1gI9oU2iP7aS4fG',
     maxAge: 30 * 24 * 60 * 60,
   })
 

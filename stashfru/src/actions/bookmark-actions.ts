@@ -10,7 +10,7 @@ async function getSession() {
   const sessionCookie = cookieStore.get('next-auth.session-token')
   if (!sessionCookie) return null
 
-  const secret = process.env.NEXTAUTH_SECRET || 'stashfru-secret-change-in-production'
+  const secret = process.env.NEXTAUTH_SECRET || 'k9sF2mNpQ7xR4wL8vB3jH6tY0cA5dE1gI9oU2iP7aS4fG'
   const token = await decode({
     token: sessionCookie.value,
     secret,

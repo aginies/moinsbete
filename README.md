@@ -21,7 +21,7 @@ Application de découverte de connaissances bite-sized : idées, sujets, sources
 | **IdeaTopic** | Association Idea ↔ Topic (1 par idée) | 736 |
 | **SaviezVousFact** | Faits "Le saviez-vous" | 4 118 |
 | **Collection** | Collections d'idées | 6 |
-| **User** | Utilisateurs | variable |
+| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN) | variable |
 | **Bookmark** | Bookmarks utilisateur | variable |
 | **ViewedIdea** | Historique de consultation | variable |
 
@@ -220,7 +220,9 @@ git add -A && git commit -m "feat: enrich topics with new Wikipedia articles"
 
 - **Framework**: Next.js 16 (App Router) + React 19
 - **Base de données**: SQLite (fichier local) via Prisma ORM
-- **Authentification**: NextAuth v4 (credentials, bcrypt)
+- **Authentification**: NextAuth v4 (credentials, JWT, bcrypt)
+- **Rôles**: USER (default), ADMIN — JWT + DB field
+- **CSRF**: origin validation on all POST endpoints
 - **LLM**: OpenAI-compatible API (pour génération d'idées et ingestion Wikipédia)
 - **Styling**: Tailwind CSS v4 + shadcn/ui
 - **Icônes**: Lucide React
@@ -241,7 +243,7 @@ git add -A && git commit -m "feat: enrich topics with new Wikipedia articles"
 ```
 stashfru/
 ├── prisma/
-│   ├── schema.prisma          # Modèle de données (9 modèles)
+│   ├── schema.prisma          # Modèle de données (9 modèles + 2 enums)
 │   ├── migrations/            # Migrations Prisma
 │   └── seed.ts                # Création des 23 topics racine
 ├── src/
@@ -249,7 +251,8 @@ stashfru/
 │   │   ├── db.ts              # Client Prisma
 │   │   ├── auth.ts            # Configuration NextAuth
 │   │   ├── llm.ts             # Client LLM + extraction JSON
-│   │   └── utils.ts           # Helpers (slugify, cn)
+│   │   ├── utils.ts           # Helpers (slugify, cn)
+│   │   └── rate-limiter.ts    # Rate limiting (login, register, suggest)
 │   ├── app/
 │   │   ├── (main)/            # Pages principales
 │   │   │   ├── page.tsx       # Feed d'idées
@@ -281,7 +284,7 @@ stashfru/
 
 | Modèle | Description |
 |--------|-------------|
-| **User** | Utilisateurs (email, hash mot de passe, bookmarks) |
+| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN) |
 | **Topic** | Sujets de connaissance (23 topics, hiérarchie parent/enfant) |
 | **Source** | Sources (Wikipédia, livres, articles, podcasts) |
 | **Idea** | Idées bite-sized (titre, contenu, takeaway, image source) | 736 |
@@ -385,6 +388,8 @@ LLM_API_KEY="votre-cle-api"
 openssl rand -base64 32
 ```
 
+Fallback fort dans le code: `k9sF2mNpQ7xR4wL8vB3jH6tY0cA5dE1gI9oU2iP7aS4fG` (à remplacer en production).
+
 ### Configuration LLM
 
 Le LLM doit être compatible avec l'API OpenAI (endpoint `/v1/chat/completions`).
@@ -419,6 +424,7 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 | `./scripts/update scrape` | Commande raccourcie pour scraper |
 | `./scripts/update all` | Pipeline complet (scrape + ideas + ingest) |
 | `npm run lint` | ESLint |
+| `src/lib/rate-limiter.ts` | Rate limiter partagé (login, register, suggest) |
 
 ## Déploiement sur un serveur Apache
 
@@ -490,8 +496,8 @@ sqlite3 dev.db "SELECT COUNT(*) FROM SaviezVousFact;"
 
 **Permissions :**
 ```bash
-# Le fichier dev.db doit être lisible et modifiable par le processus Node.js
-sudo chmod 664 dev.db
+# 600 pour sécurité (contient emails + bcrypt hashes)
+sudo chmod 600 dev.db
 sudo chown www-data:www-data dev.db
 ```
 
@@ -523,6 +529,7 @@ LLM_API_KEY="votre-cle-api"
 - `NEXTAUTH_URL` doit correspondre au domaine réel (HTTPS en production)
 - `dev.db` est dans `.gitignore` — le fichier de production ne sera pas versionné
 - Les clés API (`LLM_API_KEY`, `NEXTAUTH_SECRET`) ne sont pas exposées via le navigateur
+- Migration de rôle: `prisma/migrations/20260703151606_add_role` — ajoute `role` au modèle User
 
 ### Étape 5 : Build et démarrage
 
@@ -768,12 +775,70 @@ NODE_TLS_REJECT_UNAUTHORIZED=0 npx tsx src/scripts/generate-ideas.ts
 | `/api/ideas/[slug]/bookmark` | POST | Toggle bookmark |
 | `/api/topics/suggest` | POST | Suggestion de topic (admin) |
 
+### Admin
+
+Rôle `ADMIN` requis pour accéder à `/admin` et aux routes API admin.
+
+Définir un admin:
+```bash
+echo "UPDATE \"User\" SET role = 'ADMIN' WHERE email = 'your@email.com';" | npx prisma db execute --url "file:./dev.db" --stdin
+```
+
+Vérifier les rôles:
+```bash
+sqlite3 dev.db "SELECT email, role FROM \"User\";"
+```
+
 ## Sécurité
 
-- **Mots de passe**: hashés avec bcrypt (10 rounds)
-- **Session**: JWT (NextAuth)
-- **Variables sensibles**: `.env` et `dev.db` dans `.gitignore`
-- **TLS**: Pour LLM auto-signé, `NODE_TLS_REJECT_UNAUTHORIZED=0` (production: utiliser un certificat valide)
+### Authentification & Rôles
+
+- **Mots de passe**: hashés avec bcrypt (12 rounds)
+- **Session**: JWT (NextAuth v4), cookie `next-auth.session-token`
+- **Rôles**: `USER` (default), `ADMIN` — stocké dans JWT + DB
+- **Admin RBAC**: page `/admin` et routes API vérifient `session.user.role === 'ADMIN'`
+- **CSRF**: validation par `origin` vs `request.nextUrl.origin` sur tous les endpoints POST
+- **Rate limiting**: login (5/min), register (3/min), topic suggest (10/min) — `src/lib/rate-limiter.ts`
+- **Secret**: `NEXTAUTH_SECRET` avec fallback fort généré par `openssl rand -base64 32`
+
+### Audit de sécurité (dernière mise à jour)
+
+| Severity | Issue | Status |
+|----------|-------|--------|
+| HIGH | CSRF broken — `protocol + host` concat produced `http:http://host` | **FIXED** — use `request.nextUrl.origin` |
+| HIGH | Admin accessible to all authenticated users | **FIXED** — role check added |
+| HIGH | Default NextAuth secret forgeable | **FIXED** — strong random fallback |
+| MEDIUM | User ID tampering on view/history endpoints | **FIXED** — use session.user.id only |
+| MEDIUM | Rate limiting in-memory per-instance | **FIXED** — periodic cleanup added |
+| MEDIUM | Auth endpoints no rate limiting | **FIXED** — login(5/min), register(3/min) |
+| MEDIUM | Reset token exposed in API response | **FIXED** — link dev-only fallback |
+| MEDIUM | Phantom user creation on view | **FIXED** — removed user upsert |
+| LOW | CSP in `generateMetadata` (deprecated) | **FIXED** — moved to `generateResponseHeaders()` |
+| LOW | PII logged (user email, ID) | **FIXED** — removed email from logs |
+| LOW | Password length inconsistent (6 vs 8) | **FIXED** — register now requires 8 |
+| LOW | Cookie missing `__Secure-` prefix | **FIXED** — conditional prefix in prod |
+| LOW | DB file 644 world-readable | Documented — use `chmod 600` in production |
+
+### Admin setup
+
+Après la première inscription, définir un admin:
+
+```bash
+echo "UPDATE \"User\" SET role = 'ADMIN' WHERE email = 'your@email.com';" | npx prisma db execute --url "file:./dev.db" --stdin
+```
+
+### Variables de sécurité
+
+| Variable | Description |
+|----------|-------------|
+| `NEXTAUTH_SECRET` | Clé de signature JWT — générer avec `openssl rand -base64 32` |
+| `NEXTAUTH_URL` | URL de l'app (HTTPS en production) |
+
+### Migration de rôle
+
+Dernière migration: `prisma/migrations/20260703151606_add_role/migration.sql`
+
+Ajoute `role` (ENUM: USER, ADMIN) au modèle User.
 
 ## Dépannage
 
