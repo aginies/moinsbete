@@ -8,6 +8,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { headers } from 'next/headers'
+import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_LOGIN_MAX, SESSION_COOKIE_MAX_AGE_MS, SESSION_MAX_AGE_SECONDS } from '@/lib/constants'
 
 export async function registerAction(formData: {
   email: string
@@ -18,7 +19,7 @@ export async function registerAction(formData: {
 
   const headersList = await headers()
   const clientId = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-  if (!checkRateLimit(`register:${clientId}`, 3, 60_000)) {
+  if (!checkRateLimit(`register:${clientId}`, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_WINDOW_MS)) {
     return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
   }
 
@@ -46,7 +47,7 @@ export async function loginAction(formData: {
 }) {
   const headersList = await headers()
   const clientId = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-  if (!checkRateLimit(`login:${clientId}`, 5, 60_000)) {
+  if (!checkRateLimit(`login:${clientId}`, RATE_LIMIT_LOGIN_MAX, RATE_LIMIT_WINDOW_MS)) {
     return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
   }
 
@@ -72,14 +73,14 @@ export async function loginAction(formData: {
       sub: user.id,
     },
     secret: process.env.NEXTAUTH_SECRET || 'k9sF2mNpQ7xR4wL8vB3jH6tY0cA5dE1gI9oU2iP7aS4fG',
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: SESSION_MAX_AGE_SECONDS,
   })
 
   // Set session cookie
   const cookieStore = await cookies()
   const cookieName = process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
   const cookieExpires = new Date()
-  cookieExpires.setTime(cookieExpires.getTime() + 30 * 24 * 60 * 60 * 1000)
+  cookieExpires.setTime(cookieExpires.getTime() + SESSION_COOKIE_MAX_AGE_MS)
 
   cookieStore.set(cookieName, token, {
     httpOnly: true,

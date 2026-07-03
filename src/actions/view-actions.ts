@@ -5,11 +5,10 @@ import { prisma } from '@/lib/db'
 export async function markIdeaViewed(ideaId: string, userId: string) {
   console.log('[markIdeaViewed] ideaId:', ideaId, 'userId:', userId)
   try {
-    await prisma.user.upsert({
-      where: { id: userId },
-      create: { id: userId, email: `user-${userId.slice(0, 8)}@local`, passwordHash: '$2a$12$unused' },
-      update: {},
-    })
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user) {
+      throw new Error(`User not found: ${userId}`)
+    }
     const result = await prisma.viewedIdea.upsert({
       where: {
         userId_ideaId: {

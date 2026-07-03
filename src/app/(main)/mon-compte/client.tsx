@@ -124,7 +124,7 @@ export default function MonCompteClient({ session }: { session: Session }) {
                   className="pl-10"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">Minimum 6 caractères</p>
+              <p className="text-xs text-muted-foreground">Minimum 8 caractères</p>
             </div>
 
             <Button type="submit" className="w-full" disabled={isPending}>
