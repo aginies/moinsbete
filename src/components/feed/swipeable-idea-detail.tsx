@@ -112,11 +112,12 @@ export function SwipeableIdeaDetail({
           setHint(null)
         }
       },
-      options: {
-        threshold: 10,
-        direction: [-1, 1] as [number, number],
-        rubberband: true,
-      },
+    },
+    {
+      enabled: true,
+      threshold: 10,
+      direction: [-1, 1] as [number, number],
+      rubberband: true,
     }
   )
 
