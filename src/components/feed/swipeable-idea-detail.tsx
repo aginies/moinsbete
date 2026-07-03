@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
@@ -125,6 +125,24 @@ export function SwipeableIdeaDetail({
     setBookmarked(initialBookmarked || false)
   }, [initialBookmarked])
 
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'ArrowLeft' && prev) {
+      router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
+    } else if (e.key === 'ArrowRight' && next) {
+      router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
+    }
+  }, [prev, next, topic, collection, router])
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown])
+
+  const prefersReducedMotion = useMemo(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  }, [])
+
   const effectiveX = dragX
   const absX = Math.abs(effectiveX)
   const rotation = effectiveX * 0.04
@@ -165,7 +183,7 @@ export function SwipeableIdeaDetail({
         )}
 
         <div
-          className="transition-all duration-200 ease-out"
+          className={prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}
           style={{
             transform: `translateX(${effectiveX}px) rotate(${rotation}deg) scale(${scale})`,
           }}
@@ -258,12 +276,13 @@ export function SwipeableIdeaDetail({
             <div className="flex items-center justify-between border-t border-border/40 px-5 py-3">
               <div className="flex items-center gap-2">
                 {prev ? (
-                  <button
-                    onClick={() => router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    ← Précédent
-                  </button>
+             <button
+                onClick={() => router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
+                className="text-xs text-muted-foreground hover:text-foreground"
+                aria-label="Voir l'idée précédente"
+              >
+                ← Précédent
+              </button>
                 ) : (
                   <span className="text-xs text-muted-foreground/30">← Précédent</span>
                 )}
@@ -275,6 +294,7 @@ export function SwipeableIdeaDetail({
                   'rounded-full p-2 transition-all',
                   bookmarkAnimating && 'scale-125',
                 )}
+                aria-label={bookmarked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               >
                 <svg
                   className={cn(
@@ -295,6 +315,7 @@ export function SwipeableIdeaDetail({
                   <button
                     onClick={() => router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
                     className="text-xs text-muted-foreground hover:text-foreground"
+                    aria-label="Voir l'idée suivante"
                   >
                     Suivant →
                   </button>

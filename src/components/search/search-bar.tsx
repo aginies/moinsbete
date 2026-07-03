@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,22 @@ export function SearchBar() {
   const [results, setResults] = useState<SearchResult | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [searching, setSearching] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  const closeSearch = useCallback(() => {
+    setIsOpen(false)
+  }, [])
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     if (query.length < 2) {
@@ -45,7 +61,7 @@ export function SearchBar() {
   const hasResults = results && (results.ideas.length > 0 || results.sources.length > 0 || results.topics.length > 0)
 
   return (
-    <div className="relative">
+    <div className="relative" ref={searchRef}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
