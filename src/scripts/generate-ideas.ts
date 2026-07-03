@@ -23,6 +23,7 @@ const TOPICS_TO_GENERATE = [
   { name: 'Mathématiques', count: 20 },
   { name: 'Art & Design', count: 20 },
   { name: 'Débat & Rhétorique', count: 20 },
+  { name: 'Chats et chiens', count: 15 },
 ]
 
 const TOPIC_ARTICLES: Record<string, string[]> = {
@@ -45,6 +46,7 @@ const TOPIC_ARTICLES: Record<string, string[]> = {
   'Mathématiques': ['Théorème de Bayes', 'Nombres premiers', 'Fibonacci', 'Fractales', 'Probabilités', 'Statistiques', 'Logique', 'Topologie', 'Algèbre', 'Zéro'],
   'Art & Design': ['Renaissance', 'Impressionnisme', 'Bauhaus', 'Minimalisme', 'Photographie', 'Architecture', 'Design graphique', 'Couleur', 'Typographie', 'Perspective (arts plastiques)'],
   'Débat & Rhétorique': ['Logique', 'Argumentation', 'Propagande', 'Dialectique', 'Pensée critique', 'Rhétorique', 'Méthode socratique', 'Fallacieux', 'Éthique', 'Éloquence'],
+  'Chats et chiens': ['Chat domestique', 'Chien', 'Comportement du chat', 'Comportement du chien', 'Socialisation du chaton', 'Socialisation du chiot', 'Éducation du chien', 'Langage corporel du chat', 'Langage corporel du chien', 'Intelligence du chien', 'Anxiété de séparation', 'Jeu chez les animaux domestiques', 'Alimentation du chat', 'Alimentation du chien', 'Race de chat', 'Race de chien', 'Domestication du chat', 'Domestication du chien', 'Comportement alimentaire félin', 'Comportement alimentaire canin'],
 }
 
 async function main() {

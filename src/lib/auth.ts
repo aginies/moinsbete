@@ -45,6 +45,7 @@ export const authOptions: AuthOptions = {
           id: user.id,
           email: user.email,
           name: user.displayName,
+          role: user.role,
         }
       },
     }),
@@ -59,12 +60,14 @@ export const authOptions: AuthOptions = {
     jwt({ token, user }: { token: any; user?: any }) {
       if (user) {
         token.sub = user.id
+        token.role = (user as any).role
       }
       return token
     },
     session({ session, token }: { session: any; token: any }) {
       if (session.user) {
         session.user.id = token.sub as string
+        session.user.role = token.role as string
       }
       return session
     },
@@ -81,7 +84,7 @@ export async function getSession() {
     return null
   }
 
-  const secret = process.env.NEXTAUTH_SECRET || 'stashfru-secret-change-in-production'
+  const secret = process.env.NEXTAUTH_SECRET || 'k9sF2mNpQ7xR4wL8vB3jH6tY0cA5dE1gI9oU2iP7aS4fG'
   try {
     const token = await decode({
       token: sessionCookie.value,
@@ -93,11 +96,17 @@ export async function getSession() {
       return null
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id: token.sub },
+      select: { role: true },
+    })
+
     return {
       user: {
         id: token.sub,
         email: token.email as string,
         name: token.name as string,
+        role: user?.role ?? 'USER',
       },
       expires: token.exp ? new Date((token.exp as number) * 1000).toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     }
