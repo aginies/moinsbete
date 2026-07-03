@@ -165,11 +165,6 @@ export default function RandomIdeaClient() {
           <h3 className="mb-2 font-semibold text-primary">À retenir</h3>
           <p className="text-sm leading-relaxed text-foreground">{idea.takeaway}</p>
         </div>
-
-        <div className="flex items-center gap-2 rounded-lg bg-blue-50/50 px-3 py-2 text-xs text-blue-600 dark:bg-blue-950/30 dark:text-blue-300">
-          <RefreshCw className="h-3.5 w-3.5" />
-          <span>Cliquez pour une autre idée</span>
-        </div>
       </div>
 
       <div className="mt-4 rounded-xl border border-border/60 bg-card p-4">
