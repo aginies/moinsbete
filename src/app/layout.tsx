@@ -35,6 +35,7 @@ export default async function RootLayout({
             {' · '}
             {ideaCount} idées · {factCount} faits
           </footer>
+          <BottomNav />
         </div>
         <Toaster />
       </body>
