@@ -1500,6 +1500,7 @@ export const UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   displayName: 'displayName',
+  role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1697,6 +1698,13 @@ export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
  * Reference to a field of type 'String'
  */
 export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+    
+
+
+/**
+ * Reference to a field of type 'UserRole'
+ */
+export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
     
 
 
