@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
+interface TopicWithChildren {
+  id: string
+  children: Array<{ id: string }>
+}
+
+interface CollectionWithTopics {
+  id: string
+  topics: Array<{
+    id: string
+    children: Array<{ id: string }>
+  }>
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -20,7 +33,10 @@ export async function GET(
       return NextResponse.json({ prev: null, next: null })
     }
 
-    let where: any = { isPublished: true, orderIndex: { not: currentIdea.orderIndex } }
+    const where: { isPublished: boolean; orderIndex: { not: number }; ideaTopics?: { some: { topicId: { in: string[] } } } } = {
+      isPublished: true,
+      orderIndex: { not: currentIdea.orderIndex },
+    }
 
     if (topic) {
       const topicRecord = await prisma.topic.findUnique({
@@ -32,7 +48,7 @@ export async function GET(
         where.ideaTopics = {
           some: {
             topicId: {
-              in: [topicRecord.id, ...topicRecord.children.map((c: any) => c.id)],
+              in: [topicRecord.id, ...topicRecord.children.map((c) => c.id)],
             },
           },
         }
@@ -46,7 +62,7 @@ export async function GET(
       })
 
       if (collectionRecord) {
-        const topicIds = collectionRecord.topics.flatMap((t: any) => [t.id, ...t.children.map((c: any) => c.id)])
+        const topicIds = collectionRecord.topics.flatMap((t) => [t.id, ...t.children.map((c) => c.id)])
         where.ideaTopics = {
           some: {
             topicId: {
