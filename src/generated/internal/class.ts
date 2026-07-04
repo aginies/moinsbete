@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "/home/aginies/devel/github/aginies/deepstash/stashfru/src/generated",
+      "value": "/home/aginies/devel/github/aginies/moinsbete/src/generated",
       "fromEnvVar": null
     },
     "config": {
@@ -39,7 +39,7 @@ const config: runtime.GetPrismaClientConfig = {
     "previewFeatures": [
       "relationJoins"
     ],
-    "sourceFilePath": "/home/aginies/devel/github/aginies/deepstash/stashfru/prisma/schema.prisma",
+    "sourceFilePath": "/home/aginies/devel/github/aginies/moinsbete/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "../../prisma",
