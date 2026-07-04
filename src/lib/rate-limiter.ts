@@ -1,4 +1,4 @@
-const stores = new Map<string, { timestamps: number[]; expiresAt: number }>()
+export const stores = new Map<string, { timestamps: number[]; expiresAt: number }>()
 const CLEANUP_INTERVAL = 5 * 60 * 1000
 
 let cleanupTimer: ReturnType<typeof setInterval> | null = null
