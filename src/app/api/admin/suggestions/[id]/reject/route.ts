@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { getSession } from '@/lib/auth'
+import { getSessionWithCookies } from '@/lib/auth'
 import { isCsrfValid } from '@/lib/csrf'
+import { cookies } from 'next/headers'
 
 export async function POST(
   request: NextRequest,
@@ -11,7 +12,7 @@ export async function POST(
     return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
   }
 
-  const session = await getSession()
+  const session = await getSessionWithCookies(await cookies())
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
   }

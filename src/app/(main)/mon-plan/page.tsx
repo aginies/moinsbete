@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db'
 
-import { getSession, authOptions } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { Feed } from '@/components/feed/feed'
 import Link from 'next/link'
 import { ArrowLeft, Target, TrendingUp } from 'lucide-react'

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, BookOpen, ExternalLink } from 'lucide-react'
 
-import { getSession, authOptions } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { markIdeaViewedAction } from '@/actions/view-actions'
 import { SwipeableIdeaDetail } from '@/components/feed/swipeable-idea-detail'
 import { isValidUrl } from '@/lib/utils'

@@ -3,7 +3,6 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { getServerSession } from 'next-auth/next'
 import { prisma } from './db'
 import bcrypt from 'bcryptjs'
-import { decode } from 'next-auth/jwt'
 import { cookies } from 'next/headers'
 
 export const authOptions: AuthOptions = {
@@ -77,45 +76,12 @@ export const authOptions: AuthOptions = {
 export const { handlers } = NextAuth(authOptions)
 
 export async function getSession() {
-  const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get('__Secure-next-auth.session-token') || cookieStore.get('next-auth.session-token')
-  if (!sessionCookie) {
-    console.log('[getSession] No session cookie found')
-    return null
-  }
+  const session = await getServerSession(authOptions)
+  return session
+}
 
-  const secret = process.env.NEXTAUTH_SECRET
-  if (!secret) {
-    throw new Error('NEXTAUTH_SECRET environment variable is missing!')
-  }
-  try {
-    const token = await decode({
-      token: sessionCookie.value,
-      secret,
-    })
-
-    if (!token?.sub) {
-      console.log('[getSession] Token has no sub:', token)
-      return null
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: token.sub },
-      select: { role: true },
-    })
-
-    return {
-      user: {
-        id: token.sub,
-        email: token.email as string,
-        name: token.name as string,
-        role: user?.role ?? 'USER',
-      },
-      expires: token.exp ? new Date((token.exp as number) * 1000).toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    }
-  } catch (err) {
-    console.error('[getSession] decode error:', err instanceof Error ? err.message : String(err))
-    return null
-  }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getSessionWithCookies(cookieStore: any) {
+  return await (getServerSession as any)(authOptions, { cookies: cookieStore })
 }
 
