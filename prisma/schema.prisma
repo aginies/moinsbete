@@ -100,6 +100,8 @@ model Idea {
   @@index([slug])
   @@index([isPublished])
   @@index([sourceId])
+  @@index([isPublished, orderIndex])
+  @@index([orderIndex])
 }
 
 model IdeaTopic {
