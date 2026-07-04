@@ -2,6 +2,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { resolveWikimediaImageUrls } from '@/lib/utils'
 
+interface ImageCacheEntry {
+  url: string
+  expiresAt: number
+}
+
+const imageCache = new Map<string, ImageCacheEntry>()
+const IMAGE_CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
+
+function getCachedImageUrl(imageFilename: string): string | null {
+  const cached = imageCache.get(imageFilename)
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.url
+  }
+  if (cached) {
+    imageCache.delete(imageFilename)
+  }
+  return null
+}
+
+function setCachedImageUrl(imageFilename: string, url: string) {
+  imageCache.set(imageFilename, {
+    url,
+    expiresAt: Date.now() + IMAGE_CACHE_TTL,
+  })
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -29,9 +55,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ facts: [] })
     }
 
-    // Resolve image URLs directly on facts to avoid object duplication
+    // Check cache for already resolved URLs
+    for (const fact of facts) {
+      if (fact.imageFilename?.startsWith('http')) {
+        continue
+      }
+      const cachedUrl = getCachedImageUrl(fact.imageFilename!)
+      if (cachedUrl) {
+        fact.imageFilename = cachedUrl
+      }
+    }
+
+    // Resolve only facts without cached URLs
     const pending = facts
-      .filter(f => f.imageFilename && !f.imageFilename.startsWith('http'))
+      .filter(f => !f.imageFilename?.startsWith('http'))
       .map(f => ({ id: f.id, imageFilename: f.imageFilename }))
 
     if (pending.length > 0) {
@@ -53,6 +90,7 @@ export async function GET(request: NextRequest) {
               const original = facts.find(f => f.id === pendingFact.id)
               if (original && original.imageFilename !== url) {
                 original.imageFilename = url
+                setCachedImageUrl(pendingFact.imageFilename!, url)
                 await prisma.saviezVousFact.update({
                   where: { id: original.id },
                   data: { imageFilename: url },
