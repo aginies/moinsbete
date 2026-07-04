@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        orderBy: { orderIndex: 'asc' },
+        orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
         skip,
         take: limit,
       }),
