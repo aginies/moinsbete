@@ -1,7 +1,6 @@
 'use client'
 
 import { useTransition, useMemo, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { Feed } from '@/components/feed/feed'
 import { toggleBookmarkAction } from '@/actions/bookmark-actions'
 
@@ -15,13 +14,13 @@ interface HomePageClientProps {
 
 export default function HomePageClient({ initialIdeas, initialHasMore, initialTotal, userId, savedIdeaIds }: HomePageClientProps) {
   const [isPending, startTransition] = useTransition()
-  const router = useRouter()
   const [optimisticBookmarks, setOptimisticBookmarks] = useState<Record<string, boolean>>({})
+  const [savedIdeaIdsState, setSavedIdeaIdsState] = useState<Set<string>>(new Set(savedIdeaIds))
 
-  const bookmarkSet = useMemo(() => new Set(savedIdeaIds), [savedIdeaIds])
+  const bookmarkSet = useMemo(() => new Set(savedIdeaIdsState), [savedIdeaIdsState])
 
   const combinedSavedIds = useMemo(() => {
-    const set = new Set(savedIdeaIds)
+    const set = new Set(savedIdeaIdsState)
     for (const [ideaId, isBookmarked] of Object.entries(optimisticBookmarks)) {
       if (isBookmarked) {
         set.add(ideaId)
@@ -30,7 +29,7 @@ export default function HomePageClient({ initialIdeas, initialHasMore, initialTo
       }
     }
     return set
-  }, [savedIdeaIds, optimisticBookmarks])
+  }, [savedIdeaIdsState, optimisticBookmarks])
 
   const handleBookmark = useCallback(async (ideaId: string) => {
     if (isPending) return
@@ -51,12 +50,15 @@ export default function HomePageClient({ initialIdeas, initialHasMore, initialTo
             return next
           })
         } else {
-          setOptimisticBookmarks(prev => {
-            const next = { ...prev }
-            delete next[ideaId]
+          setSavedIdeaIdsState(prev => {
+            const next = new Set(prev)
+            if (optimisticState) {
+              next.add(ideaId)
+            } else {
+              next.delete(ideaId)
+            }
             return next
           })
-          router.refresh()
         }
       } catch (err) {
         console.error('Bookmark failed:', err)
@@ -67,7 +69,7 @@ export default function HomePageClient({ initialIdeas, initialHasMore, initialTo
         })
       }
     })
-  }, [isPending, bookmarkSet, router])
+  }, [isPending, bookmarkSet])
 
   return (
     <Feed

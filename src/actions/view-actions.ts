@@ -1,13 +1,8 @@
 'use server'
 
 import { prisma } from '@/lib/db'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { markIdeaViewed } from '@/lib/view'
-
-async function getSession() {
-  return await getServerSession(authOptions)
-}
 
 export async function markIdeaViewedAction(ideaId: string, userId: string) {
   const session = await getSession()

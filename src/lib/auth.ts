@@ -75,13 +75,8 @@ export const authOptions: AuthOptions = {
 
 export const { handlers } = NextAuth(authOptions)
 
-export async function getSession() {
-  const session = await getServerSession(authOptions)
-  return session
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getSessionWithCookies(cookieStore: any) {
-  return await (getServerSession as any)(authOptions, { cookies: cookieStore })
+export async function getSession(cookieStore?: any) {
+  const store = cookieStore ?? await cookies()
+  return await (getServerSession as any)(authOptions, { cookies: store })
 }
 
