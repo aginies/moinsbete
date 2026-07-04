@@ -119,10 +119,3 @@ export async function getSession() {
   }
 }
 
-export async function authenticateUser(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } })
-  if (!user) return null
-  const valid = await bcrypt.compare(password, user.passwordHash)
-  if (!valid) return null
-  return { id: user.id, email: user.email, name: user.displayName }
-}

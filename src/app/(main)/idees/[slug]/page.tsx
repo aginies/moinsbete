@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { ArrowLeft, BookOpen, ExternalLink } from 'lucide-react'
 
 import { getSession, authOptions } from '@/lib/auth'
-import { markIdeaViewed } from '@/actions/view-actions'
+import { markIdeaViewedAction } from '@/actions/view-actions'
 import { SwipeableIdeaDetail } from '@/components/feed/swipeable-idea-detail'
 import { isValidUrl } from '@/lib/utils'
 
@@ -121,7 +121,7 @@ export default async function IdeaDetailPage({
   const topics = idea.ideaTopics.map(it => it.topic)
 
   if (session?.user?.id) {
-    await markIdeaViewed(idea.id, session.user.id).catch((err) => {
+    await markIdeaViewedAction(idea.id, session.user.id).catch((err) => {
       console.error('[IdeaDetail] markIdeaViewed error:', err)
     })
   }

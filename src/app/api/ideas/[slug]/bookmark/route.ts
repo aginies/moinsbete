@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-
-import { getSession, authOptions } from '@/lib/auth'
-
-function isCsrfValid(request: NextRequest): boolean {
-  const origin = request.headers.get('origin')
-  if (!origin) return false
-  return origin.toLowerCase() === request.nextUrl.origin.toLowerCase()
-}
+import { getSession } from '@/lib/auth'
+import { isCsrfValid } from '@/lib/csrf'
+import { toggleBookmark } from '@/lib/bookmark'
 
 export async function POST(
   request: NextRequest,
@@ -34,30 +29,8 @@ export async function POST(
     }
 
     if (action === 'bookmark') {
-      const existing = await prisma.bookmark.findUnique({
-        where: {
-          userId_ideaId: {
-            userId: session.user.id,
-            ideaId: idea.id,
-          },
-        },
-      })
-
-      if (existing) {
-        await prisma.bookmark.delete({
-          where: { id: existing.id },
-        })
-        return NextResponse.json({ bookmarked: false })
-      }
-
-      await prisma.bookmark.create({
-        data: {
-          userId: session.user.id,
-          ideaId: idea.id,
-        },
-      })
-
-      return NextResponse.json({ bookmarked: true })
+      const result = await toggleBookmark(session.user.id, idea.id)
+      return NextResponse.json(result)
     }
 
     return NextResponse.json({ error: 'Action invalide' }, { status: 400 })

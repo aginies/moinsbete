@@ -1,8 +1,8 @@
 'use server'
 
-
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
+import { toggleBookmark } from '@/lib/bookmark'
 
 export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
   const session = await getSession()
@@ -38,46 +38,11 @@ export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
 export async function toggleBookmarkAction(ideaId: string) {
   const session = await getSession()
   if (!session?.user) {
-    console.error('[toggleBookmark] No session, user:', session)
     return { error: 'Non authentifié' }
   }
 
-  console.log('[toggleBookmark] userId:', session.user.id, 'ideaId:', ideaId)
-
-  try {
-    const existing = await prisma.bookmark.findUnique({
-      where: {
-        userId_ideaId: {
-          userId: session.user.id,
-          ideaId,
-        },
-      },
-    })
-
-    console.log('[toggleBookmark] existing bookmark:', existing ? 'YES' : 'NO')
-
-    if (existing) {
-      await prisma.bookmark.delete({
-        where: {
-          id: existing.id,
-        },
-      })
-      console.log('[toggleBookmark] deleted bookmark id:', existing.id)
-      return { success: true, wasBookmarked: true }
-    } else {
-      const newBookmark = await prisma.bookmark.create({
-        data: {
-          userId: session.user.id,
-          ideaId,
-        },
-      })
-      console.log('[toggleBookmark] created bookmark id:', newBookmark.id)
-      return { success: true, wasBookmarked: false }
-    }
-  } catch (err) {
-    console.error('[toggleBookmark] error:', err)
-    return { error: 'Erreur lors de la sauvegarde' }
-  }
+  const result = await toggleBookmark(session.user.id, ideaId)
+  return { success: true, ...result }
 }
 
 export async function getSavedIdeas() {
