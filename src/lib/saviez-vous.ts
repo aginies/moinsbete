@@ -1,7 +1,24 @@
 import { prisma } from '@/lib/db'
 import { resolveWikimediaImageUrls } from '@/lib/utils'
 
-export async function getRandomFact() {
+interface SaviezVousFact {
+  text: string
+  sourceUrl: string | null
+  imageFilename: string | null
+}
+
+const factCache = new Map<string, { fact: SaviezVousFact; expiresAt: number }>()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+export async function getRandomFact(): Promise<SaviezVousFact | null> {
+  const today = new Date().toDateString()
+  const cachedKey = `random:${today}`
+  const cached = factCache.get(cachedKey)
+  
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.fact
+  }
+
   try {
     const total = await prisma.saviezVousFact.count()
     if (total === 0) return null
@@ -21,11 +38,15 @@ export async function getRandomFact() {
         data: { imageFilename: resolved[0].imageFilename },
       })
     }
-    return {
+    
+    const factResult = {
       text: fact.text,
       sourceUrl: fact.sourceUrl,
       imageFilename: resolved[0]?.imageFilename ?? null,
     }
+    
+    factCache.set(cachedKey, { fact: factResult, expiresAt: Date.now() + CACHE_TTL })
+    return factResult
   } catch {
     return null
   }

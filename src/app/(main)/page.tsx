@@ -9,20 +9,22 @@ import Link from 'next/link'
 import HomePageClient from './page-client'
 
 export default async function HomePage() {
-  const session = await getSession()
-  const userId = session?.user?.id
+  const [session, ideasRes, saviezVousFact, savedIdeaIds] = await Promise.all([
+    getSession(),
+    fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/feed?page=1&limit=10`, {
+      next: { revalidate: 60 },
+    }),
+    getRandomFact(),
+    Promise.resolve([] as string[]),
+  ])
 
+  const userId = session?.user?.id
   const params = new URLSearchParams({ page: '1', limit: '10' })
   if (userId) params.set('userId', userId)
 
-  const ideasRes = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/feed?${params}`, {
-    next: { revalidate: 60 },
-  })
   const { ideas, hasMore, total } = await ideasRes.json()
 
-  const saviezVousFact = await getRandomFact()
-
-  const savedIdeaIds: string[] = userId
+  const savedIdeaList = userId
     ? await prisma.bookmark.findMany({
         where: { userId },
         select: { ideaId: true },
@@ -76,7 +78,7 @@ export default async function HomePage() {
         initialHasMore={hasMore}
         initialTotal={total}
         userId={userId}
-        savedIdeaIds={savedIdeaIds}
+        savedIdeaIds={savedIdeaList}
       />
     </div>
   )

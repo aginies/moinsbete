@@ -8,21 +8,34 @@ export async function GET() {
       return NextResponse.json({ idea: null })
     }
 
-    const randomOffset = Math.floor(Math.random() * total)
-    const ideas = await prisma.idea.findMany({
+    // Use indexed approach instead of offset for better performance
+    const randomSeed = Math.floor(Math.random() * total)
+    
+    // Find a seed idea using index
+    const seedIdea = await prisma.idea.findFirst({
       where: { isPublished: true },
       select: { id: true },
       orderBy: { id: 'asc' },
-      skip: randomOffset,
+      skip: randomSeed,
       take: 1,
     })
 
-    if (!ideas.length) {
+    if (!seedIdea) {
       return NextResponse.json({ idea: null })
     }
 
+    // Find next idea after seed (uses index)
+    const nextIdea = await prisma.idea.findFirst({
+      where: { isPublished: true, id: { gt: seedIdea.id } },
+      select: { id: true },
+      orderBy: { id: 'asc' },
+    })
+
+    // Wrap around to beginning if we reached the end
+    const finalId = nextIdea?.id ?? seedIdea.id
+    
     const idea = await prisma.idea.findUnique({
-      where: { id: ideas[0].id },
+      where: { id: finalId },
       include: {
         source: { select: { title: true, type: true, url: true, coverUrl: true } },
         ideaTopics: {
