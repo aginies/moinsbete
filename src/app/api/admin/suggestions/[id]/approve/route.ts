@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { slugify, getRandomIcon, getRandomColor } from '@/lib/utils'
 import { getSession } from '@/lib/auth'
-
-function isCsrfValid(request: NextRequest): boolean {
-  const origin = request.headers.get('origin')
-  if (!origin) return false
-  return origin.toLowerCase() === request.nextUrl.origin.toLowerCase()
-}
+import { isCsrfValid } from '@/lib/csrf'
 
 export async function POST(
   request: NextRequest,

@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
-
-function isCsrfValid(request: NextRequest): boolean {
-  const origin = request.headers.get('origin')
-  if (!origin) return false
-  return origin.toLowerCase() === request.nextUrl.origin.toLowerCase()
-}
+import { isCsrfValid } from '@/lib/csrf'
+import { markIdeaViewed } from '@/lib/view'
 
 export async function POST(
   request: NextRequest,
@@ -22,28 +18,13 @@ export async function POST(
 
   try {
     const { slug } = await params
-    const userIdToUse = session.user.id
 
-    // Vérifier que l'idée existe
     const idea = await prisma.idea.findUnique({ where: { slug } })
     if (!idea) {
       return NextResponse.json({ error: 'Idée introuvable' }, { status: 404 })
     }
 
-    // Créer ou mettre à jour la vue (upsert)
-    await prisma.viewedIdea.upsert({
-      where: {
-        userId_ideaId: {
-          userId: userIdToUse,
-          ideaId: idea.id,
-        },
-      },
-      create: {
-        userId: userIdToUse,
-        ideaId: idea.id,
-      },
-      update: {},
-    })
+    await markIdeaViewed(session.user.id, idea.id)
 
     return NextResponse.json({ success: true })
   } catch (error) {

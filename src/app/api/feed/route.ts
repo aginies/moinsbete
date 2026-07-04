@@ -49,6 +49,24 @@ interface WhereClause {
   }
 }
 
+const topicCache = new Map<string, { children: string[]; expiresAt: number }>()
+const COLLECTION_CACHE_TTL = 5 * 60 * 1000
+
+function getTopicChildren(topicId: string): string[] | null {
+  const cached = topicCache.get(topicId)
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.children
+  }
+  return null
+}
+
+function setTopicChildren(topicId: string, children: string[]) {
+  topicCache.set(topicId, {
+    children,
+    expiresAt: Date.now() + COLLECTION_CACHE_TTL,
+  })
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -56,7 +74,7 @@ export async function GET(request: NextRequest) {
     const collection = searchParams.get('collection')
     const userId = searchParams.get('userId')
     const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || String(DEFAULT_FEED_LIMIT))
+    const limit = Math.min(parseInt(searchParams.get('limit') || String(DEFAULT_FEED_LIMIT)), 50)
 
     const skip = (page - 1) * limit
 
@@ -67,16 +85,24 @@ export async function GET(request: NextRequest) {
     }
 
     if (topic) {
-      const topicRecord = await prisma.topic.findUnique({
-        where: { slug: topic },
-        select: { id: true, children: { select: { id: true } } },
-      })
+      let topicChildren = getTopicChildren(topic)
+      if (!topicChildren) {
+        const topicRecord = await prisma.topic.findUnique({
+          where: { slug: topic },
+          select: { id: true, children: { select: { id: true } } },
+        })
 
-      if (topicRecord) {
+        if (topicRecord) {
+          topicChildren = [topicRecord.id, ...topicRecord.children.map((c: TopicChild) => c.id)]
+          setTopicChildren(topic, topicChildren)
+        }
+      }
+
+      if (topicChildren) {
         where.ideaTopics = {
           some: {
             topicId: {
-              in: [topicRecord.id, ...topicRecord.children.map((c: TopicChild) => c.id)],
+              in: topicChildren,
             },
           },
         }
@@ -84,17 +110,29 @@ export async function GET(request: NextRequest) {
     }
 
     if (collection) {
-      const collectionRecord = await prisma.collection.findUnique({
-        where: { slug: collection },
-        select: { topics: { select: { id: true, children: { select: { id: true } } } } },
-      })
+      let collectionTopicIds: string[] | null = null
+      const cached = topicCache.get(`collection:${collection}`)
+      if (cached && cached.expiresAt > Date.now()) {
+        collectionTopicIds = cached.children
+      }
 
-      if (collectionRecord) {
-        const topicIds = collectionRecord.topics.flatMap((t: { id: string; children: { id: string }[] }) => [t.id, ...t.children.map((c: { id: string }) => c.id)])
+      if (!collectionTopicIds) {
+        const collectionRecord = await prisma.collection.findUnique({
+          where: { slug: collection },
+          select: { topics: { select: { id: true, children: { select: { id: true } } } } },
+        })
+
+        if (collectionRecord) {
+          collectionTopicIds = collectionRecord.topics.flatMap((t: { id: string; children: { id: string }[] }) => [t.id, ...t.children.map((c: { id: string }) => c.id)])
+          setTopicChildren(`collection:${collection}`, collectionTopicIds)
+        }
+      }
+
+      if (collectionTopicIds) {
         where.ideaTopics = {
           some: {
             topicId: {
-              in: topicIds,
+              in: collectionTopicIds,
             },
           },
         }

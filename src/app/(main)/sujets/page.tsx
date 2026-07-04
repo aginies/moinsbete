@@ -2,35 +2,8 @@ import { prisma } from '@/lib/db'
 import { TopicGrid } from '@/components/topics/topic-grid'
 import { SearchBar } from '@/components/search/search-bar'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { resolveWikimediaImageUrls } from '@/lib/utils'
+import { getRandomFact } from '@/lib/saviez-vous'
 import Link from 'next/link'
-
-async function getRandomFact() {
-  try {
-    const total = await prisma.saviezVousFact.count()
-    if (total === 0) return null
-    
-    const randomOffset = Math.floor(Math.random() * total)
-    const [fact] = await prisma.saviezVousFact.findMany({
-      skip: randomOffset,
-      take: 1,
-      select: { id: true, text: true, sourceUrl: true, imageFilename: true },
-    })
-    if (!fact) return null
-
-    const resolved = await resolveWikimediaImageUrls([{ id: fact.id, imageFilename: fact.imageFilename }])
-    const resolvedFact = resolved[0]
-    if (resolvedFact.imageFilename && !resolvedFact.imageFilename.startsWith('http')) {
-      await prisma.saviezVousFact.update({
-        where: { id: fact.id },
-        data: { imageFilename: resolvedFact.imageFilename },
-      })
-    }
-    return { text: fact.text, sourceUrl: fact.sourceUrl, imageFilename: resolvedFact.imageFilename }
-  } catch {
-    return null
-  }
-}
 
 export default async function SujetsPage() {
   const topics = await prisma.topic.findMany({

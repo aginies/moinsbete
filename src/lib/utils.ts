@@ -28,7 +28,7 @@ export function truncate(str: string, length: number): string {
 
 export const TOPIC_ICONS = [
   '🧠', '📚', '💡', '🎯', '🔬', '💰', '🏛️', '🗣️',
-  '💡', '🧘', '🌱', '⚡', '📜', '🤝', '🎨', '🏃',
+  '🧘', '🌱', '⚡', '📜', '🤝', '🎨', '🏃',
   '👑', '🔑', '🌟', '📈', '🤖', '🌍', '💎', '🔥',
 ]
 
@@ -46,23 +46,42 @@ export function getRandomColor(): string {
   return TOPIC_COLORS[Math.floor(Math.random() * TOPIC_COLORS.length)]
 }
 
-const SAFE_URL_PROTOCOLS = ['http://', 'https://', 'mailto:']
 const MAX_URL_LENGTH = 2048
 
 export function isValidUrl(url: string | null | undefined): boolean {
   if (typeof url !== 'string' || !url) return false
   const trimmed = url.trim()
   if (trimmed.length > MAX_URL_LENGTH) return false
+  
+  // Check valid protocol
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('mailto:')) {
+    return false
+  }
+  
+  // Reject dangerous protocols
   if (trimmed.startsWith('javascript:')) return false
   if (trimmed.startsWith('data:')) return false
   if (trimmed.startsWith('vbscript:')) return false
   if (trimmed.startsWith('file:')) return false
+  
+  // Reject newlines
   if (trimmed.includes('\n') || trimmed.includes('\r')) return false
+  
+  // Validate URL structure for http/https
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    try {
+      new URL(trimmed)
+      return true
+    } catch {
+      return false
+    }
+  }
+  
   return true
 }
 
 export function sanitizeUrl(url: string | null | undefined, fallback: string = '/'): string {
-  if (typeof url === 'string' && url.trim().length > 0 && !url.trim().startsWith('javascript:') && !url.trim().startsWith('data:') && !url.trim().startsWith('vbscript:') && !url.trim().startsWith('file:') && !url.trim().includes('\n') && !url.trim().includes('\r') && url.trim().length <= MAX_URL_LENGTH) {
+  if (url && isValidUrl(url)) {
     return url.trim()
   }
   return fallback
