@@ -115,12 +115,14 @@ async function getAllDescendantTopicIds(topicSlug: string): Promise<string[]> {
 
   if (!topicRecord) return []
 
-  const allIds: string[] = [topicRecord.id]
+  const allIds = new Set<string>()
+  allIds.add(topicRecord.id)
   const queue = topicRecord.children.map((c: { id: string }) => c.id)
 
   while (queue.length > 0) {
     const currentId = queue.shift()!
-    allIds.push(currentId)
+    if (allIds.has(currentId)) continue
+    allIds.add(currentId)
     const children = await prisma.topic.findMany({
       where: { parentId: currentId },
       select: { id: true },
@@ -128,8 +130,8 @@ async function getAllDescendantTopicIds(topicSlug: string): Promise<string[]> {
     queue.push(...children.map((c: { id: string }) => c.id))
   }
 
-  setTopicChildren(topicSlug, allIds)
-  return allIds
+  setTopicChildren(topicSlug, Array.from(allIds))
+  return Array.from(allIds)
 }
 
 async function getAllDescendantCollectionTopicIds(collectionSlug: string): Promise<string[]> {
@@ -146,12 +148,13 @@ async function getAllDescendantCollectionTopicIds(collectionSlug: string): Promi
 
   if (!collectionRecord) return []
 
-  const allIds: string[] = []
+  const allIds = new Set<string>()
   const queue = collectionRecord.topics.map((t: { id: string }) => t.id)
 
   while (queue.length > 0) {
     const currentId = queue.shift()!
-    allIds.push(currentId)
+    if (allIds.has(currentId)) continue
+    allIds.add(currentId)
     const children = await prisma.topic.findMany({
       where: { parentId: currentId },
       select: { id: true },
@@ -159,6 +162,6 @@ async function getAllDescendantCollectionTopicIds(collectionSlug: string): Promi
     queue.push(...children.map((c: { id: string }) => c.id))
   }
 
-  setTopicChildren(cachedKey, allIds)
-  return allIds
+  setTopicChildren(cachedKey, Array.from(allIds))
+  return Array.from(allIds)
 }
