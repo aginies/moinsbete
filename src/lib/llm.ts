@@ -6,7 +6,7 @@ const llm = new OpenAI({
   apiKey: process.env.LLM_API_KEY!,
 })
 
-async function extractJson(text: string): Promise<any> {
+export async function extractJson(text: string): Promise<any> {
   if (!text || text.trim().length === 0) throw new Error('Empty text')
 
   // Try direct parse
@@ -163,7 +163,7 @@ export async function distillIdeas(
   }
 }
 
-function tryExtractArray(text: string): Array<{ title: string; content: string; takeaway: string }> | null {
+export function tryExtractArray(text: string): Array<{ title: string; content: string; takeaway: string }> | null {
   // Find the last valid JSON array by scanning from end with bracket matching
   for (let i = text.length - 1; i >= 0; i--) {
     if (text[i] === ']') {

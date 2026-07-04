@@ -12,7 +12,8 @@
     "db:ingest": "tsx src/scripts/ingest-wikipedia.ts",
     "db:studio": "prisma studio",
     "build:app": "bash scripts/build.sh",
-    "test:app": "bash scripts/test.sh"
+    "test:app": "bash scripts/test.sh",
+    "test": "vitest run"
   },
   "prisma": {
     "seed": "tsx src/scripts/seed-ideas.ts"
@@ -51,6 +52,7 @@
     "prisma": "^6.19.3",
     "tailwindcss": "^4",
     "tsx": "^4.19.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   }
 }

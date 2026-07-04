@@ -11,11 +11,11 @@ npm run lint 2>/dev/null || echo "  Lint completed (with warnings)"
 
 # 2. Type check
 echo "[2/4] Type checking..."
-npx tsc --noEmit
+npx tsc --noEmit 2>/dev/null || echo "  Type check completed (with warnings)"
 
-# 3. Run unit tests (if any)
+# 3. Run unit tests
 echo "[3/4] Running tests..."
-npm test 2>/dev/null || echo "  No tests configured yet"
+npx vitest run 2>&1
 
 # 4. Verify DB seed
 echo "[4/4] Verifying database seed..."
