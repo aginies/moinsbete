@@ -3,19 +3,18 @@ import { Feed } from '@/components/feed/feed'
 import { SearchBar } from '@/components/search/search-bar'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 
-import { getSession, authOptions } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { getRandomFact } from '@/lib/saviez-vous'
 import Link from 'next/link'
 import HomePageClient from './page-client'
 
 export default async function HomePage() {
-  const [session, ideasRes, saviezVousFact, savedIdeaIds] = await Promise.all([
+  const [session, ideasRes, saviezVousFact] = await Promise.all([
     getSession(),
     fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/feed?page=1&limit=10`, {
       next: { revalidate: 60 },
     }),
     getRandomFact(),
-    Promise.resolve([] as string[]),
   ])
 
   const userId = session?.user?.id

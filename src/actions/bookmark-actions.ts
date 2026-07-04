@@ -1,8 +1,13 @@
 'use server'
 
 import { prisma } from '@/lib/db'
-import { getSession } from '@/lib/auth'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 import { toggleBookmark } from '@/lib/bookmark'
+
+async function getSession() {
+  return await getServerSession(authOptions)
+}
 
 export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
   const session = await getSession()
