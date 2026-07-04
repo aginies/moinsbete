@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const topic = searchParams.get('topic')
+    const collection = searchParams.get('collection')
     const userId = searchParams.get('userId')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || String(DEFAULT_FEED_LIMIT))
@@ -76,6 +77,24 @@ export async function GET(request: NextRequest) {
           some: {
             topicId: {
               in: [topicRecord.id, ...topicRecord.children.map((c: TopicChild) => c.id)],
+            },
+          },
+        }
+      }
+    }
+
+    if (collection) {
+      const collectionRecord = await prisma.collection.findUnique({
+        where: { slug: collection },
+        select: { topics: { select: { id: true, children: { select: { id: true } } } } },
+      })
+
+      if (collectionRecord) {
+        const topicIds = collectionRecord.topics.flatMap((t: { id: string; children: { id: string }[] }) => [t.id, ...t.children.map((c: { id: string }) => c.id)])
+        where.ideaTopics = {
+          some: {
+            topicId: {
+              in: topicIds,
             },
           },
         }

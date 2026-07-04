@@ -26,7 +26,7 @@ async function extractJson(text: string): Promise<any> {
         return JSON.parse(cleaned)
       } catch {
         const lastBracket = text.lastIndexOf(']')
-        const firstBracket = text.lastIndexOf('[')
+        const firstBracket = text.indexOf('[')
         if (firstBracket !== -1 && lastBracket > firstBracket) {
           for (let i = lastBracket; i >= firstBracket; i--) {
             const sub = text.substring(firstBracket, i + 1)
@@ -180,7 +180,7 @@ function tryExtractArray(text: string): Array<{ title: string; content: string; 
         // Remove leading/trailing backticks and whitespace, but NOT brackets
         jsonStr = jsonStr.replace(/^[`]+/, '').replace(/[`]+$/, '').trim()
         // Unescape quotes that were escaped in the model output
-        jsonStr = jsonStr.replace(/\\"/g, '"')
+        jsonStr = jsonStr.replace(/\\\\"/g, '\\"')
         try {
           const parsed = JSON.parse(jsonStr)
           if (Array.isArray(parsed) && parsed.length > 0) {

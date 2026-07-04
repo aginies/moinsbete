@@ -146,18 +146,17 @@ export function Feed({
   return (
     <div className="space-y-4">
       {ideas.map((idea) => (
-        <React.Fragment key={idea.id}>
+        <div key={idea.id}>
           {isHistory || compact ? (
-            <CompactIdeaCard key={`card-${idea.id}`} idea={idea as typeof idea & { viewedAt: string }} />
+            <CompactIdeaCard idea={idea as Idea & { viewedAt: string }} />
           ) : (
             <IdeaCard
-              key={idea.id}
               idea={idea}
               isBookmarked={savedIdeaIds.has(idea.id)}
               onBookmark={onBookmark}
             />
           )}
-        </React.Fragment>
+        </div>
       ))}
 
       {loading && (

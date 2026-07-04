@@ -9,7 +9,7 @@ export async function GET() {
     }
 
     const randomOffset = Math.floor(Math.random() * total)
-    const [idea] = await prisma.idea.findMany({
+    const idea = await prisma.idea.findMany({
       where: { isPublished: true },
       skip: randomOffset,
       take: 1,
@@ -23,19 +23,21 @@ export async function GET() {
       },
     })
 
-    if (!idea) {
+    if (!idea || idea.length === 0) {
       return NextResponse.json({ idea: null })
     }
 
+    const first = idea[0]
+
     return NextResponse.json({
       idea: {
-        id: idea.id,
-        title: idea.title,
-        content: idea.content,
-        takeaway: idea.takeaway,
-        slug: idea.slug,
-        source: idea.source,
-        topics: idea.ideaTopics.map(it => it.topic),
+        id: first.id,
+        title: first.title,
+        content: first.content,
+        takeaway: first.takeaway,
+        slug: first.slug,
+        source: first.source,
+        topics: first.ideaTopics.map(it => it.topic),
       },
     })
   } catch (error) {
