@@ -1,44 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-
-async function resolveImageUrls(facts: Array<{ id: string; text: string; sourceUrl: string | null; imageFilename: string | null; createdAt: Date }>) {
-  const filenames = facts
-    .map((f, i) => ({ filename: f.imageFilename, index: i }))
-    .filter(f => f.filename)
-
-  if (filenames.length === 0) return facts
-
-  // Batch resolve using MediaWiki API
-  const titles = filenames.map(f => `File:${f.filename}`).join('|')
-  try {
-    const res = await fetch(
-      `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url&format=json&origin=*`,
-      { headers: { 'User-Agent': 'MoinsBête/1.0' } }
-    )
-    const data = await res.json()
-    const pages = data?.query?.pages || {}
-
-    for (const pageId of Object.keys(pages)) {
-      const page = pages[pageId]
-      const url = page?.imageinfo?.[0]?.url
-      if (url) {
-        const idx = filenames.find(f => f.filename === page.title.replace(/^File:/, ''))?.index
-        if (idx !== undefined) {
-          facts[idx].imageFilename = url
-          // Persist resolved URL to DB
-          await prisma.saviezVousFact.update({
-            where: { id: facts[idx].id },
-            data: { imageFilename: url },
-          })
-        }
-      }
-    }
-  } catch {
-    // If API fails, keep original filenames
-  }
-
-  return facts
-}
+import { resolveWikimediaImageUrls } from '@/lib/utils'
 
 export async function GET(request: NextRequest) {
   try {
@@ -65,12 +27,25 @@ export async function GET(request: NextRequest) {
 
     console.log('[saviez-vous] found:', rawFacts.length, 'facts')
 
-    // Pick random facts
-    const shuffled = [...rawFacts].sort(() => Math.random() - 0.5)
+    // Pick random facts using Fisher-Yates shuffle
+    const shuffled = [...rawFacts]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
     const facts = shuffled.slice(0, count)
 
     // Resolve image filenames to URLs and persist
-    const resolvedFacts = await resolveImageUrls(facts)
+    const resolvedFacts = await resolveWikimediaImageUrls(facts.map(f => ({ id: f.id, imageFilename: f.imageFilename })))
+    for (const resolved of resolvedFacts) {
+      const original = facts.find(f => f.id === resolved.id)
+      if (original && original.imageFilename !== resolved.imageFilename) {
+        await prisma.saviezVousFact.update({
+          where: { id: resolved.id },
+          data: { imageFilename: resolved.imageFilename },
+        })
+      }
+    }
 
     console.log('[saviez-vous] returning:', resolvedFacts.length, 'facts')
 

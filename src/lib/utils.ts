@@ -7,6 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 
 export function slugify(text: string): string {
   return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_]+/g, '-')
@@ -64,4 +66,36 @@ export function sanitizeUrl(url: string | null | undefined, fallback: string = '
     return url.trim()
   }
   return fallback
+}
+
+export async function resolveWikimediaImageUrls(facts: Array<{ id: string; imageFilename: string | null }>) {
+  const pending = facts
+    .filter(f => f.imageFilename && !f.imageFilename.startsWith('http'))
+
+  if (pending.length === 0) return facts
+
+  const titles = pending.map(f => `File:${f.imageFilename}`).join('|')
+  try {
+    const res = await fetch(
+      `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url&format=json&origin=*`,
+      { headers: { 'User-Agent': 'MoinsBete/1.0' } }
+    )
+    const data = await res.json()
+    const pages = data?.query?.pages || {}
+
+    for (const pageId of Object.keys(pages)) {
+      const page = pages[pageId]
+      const url = page?.imageinfo?.[0]?.url
+      if (url) {
+        const fact = pending.find(f => f.imageFilename === page.title.replace(/^File:/, ''))
+        if (fact) {
+          fact.imageFilename = url
+        }
+      }
+    }
+  } catch {
+    // If API fails, keep original filenames
+  }
+
+  return facts
 }

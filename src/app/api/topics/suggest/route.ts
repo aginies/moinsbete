@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { suggestTopic } from '@/lib/llm'
 import { slugify } from '@/lib/utils'
+import { checkRateLimit } from '@/lib/rate-limiter'
 
 const META_PATTERNS = [
   'Portail:',
@@ -15,37 +16,6 @@ const META_PATTERNS = [
   'protection demande',
 ]
 
-const RATE_LIMIT_WINDOW = 60 * 1000
-const RATE_LIMIT_MAX = 10
-const rateLimitStore = new Map<string, number[]>()
-
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, timestamps] of rateLimitStore.entries()) {
-    const recent = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW)
-    if (recent.length === 0) {
-      rateLimitStore.delete(key)
-    } else {
-      rateLimitStore.set(key, recent)
-    }
-  }
-}, 5 * 60 * 1000)
-
-function checkRateLimit(clientId: string): boolean {
-  const now = Date.now()
-  const timestamps = rateLimitStore.get(clientId) || []
-  const recent = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW)
-  
-  if (recent.length >= RATE_LIMIT_MAX) {
-    rateLimitStore.set(clientId, recent)
-    return false
-  }
-  
-  recent.push(now)
-  rateLimitStore.set(clientId, recent)
-  return true
-}
-
 function isMetaCategory(category: string): boolean {
   return META_PATTERNS.some(pattern => category.includes(pattern))
 }
@@ -53,8 +23,9 @@ function isMetaCategory(category: string): boolean {
 export async function POST(request: NextRequest) {
   let category: string | undefined
   try {
-    const clientId = request.headers.get('x-forwarded-for') || 'unknown'
-    if (!checkRateLimit(clientId)) {
+    const rawIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const clientId = rawIp.split(',')[0].trim()
+    if (!checkRateLimit(`suggest:${clientId}`, 10, 60_000)) {
       return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
     }
 
