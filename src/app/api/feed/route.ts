@@ -85,7 +85,14 @@ export async function GET(request: NextRequest) {
       prisma.idea.count({ where }),
     ])
 
-    const formattedIdeas = ideas.map(idea => ({
+    const uniqueIdeas = new Map<string, typeof ideas[number]>()
+    for (const idea of ideas) {
+      if (!uniqueIdeas.has(idea.id)) {
+        uniqueIdeas.set(idea.id, idea)
+      }
+    }
+
+    const formattedIdeas = Array.from(uniqueIdeas.values()).map(idea => ({
       ...idea,
       topics: idea.ideaTopics.map(it => it.topic),
     }))
