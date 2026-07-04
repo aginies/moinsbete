@@ -84,7 +84,10 @@ export async function getSession() {
     return null
   }
 
-  const secret = process.env.NEXTAUTH_SECRET || 'k9sF2mNpQ7xR4wL8vB3jH6tY0cA5dE1gI9oU2iP7aS4fG'
+  const secret = process.env.NEXTAUTH_SECRET
+  if (!secret) {
+    throw new Error('NEXTAUTH_SECRET environment variable is missing!')
+  }
   try {
     const token = await decode({
       token: sessionCookie.value,
@@ -111,7 +114,7 @@ export async function getSession() {
       expires: token.exp ? new Date((token.exp as number) * 1000).toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     }
   } catch (err) {
-    console.error('[getSession] decode error:', err.message)
+    console.error('[getSession] decode error:', err instanceof Error ? err.message : String(err))
     return null
   }
 }

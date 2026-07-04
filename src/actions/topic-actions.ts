@@ -13,7 +13,7 @@ export async function createTopicAction(data: {
   parentId?: string
 }) {
   const session = await getSession()
-  if (!session) {
+  if (!session?.user || session.user.role !== 'ADMIN') {
     return { error: 'Non autorisé' }
   }
 
@@ -47,7 +47,7 @@ export async function updateTopicAction(id: string, data: {
   parentId?: string | null
 }) {
   const session = await getSession()
-  if (!session) {
+  if (!session?.user || session.user.role !== 'ADMIN') {
     return { error: 'Non autorisé' }
   }
 
@@ -68,7 +68,7 @@ export async function updateTopicAction(id: string, data: {
 
 export async function deleteTopicAction(id: string) {
   const session = await getSession()
-  if (!session) {
+  if (!session?.user || session.user.role !== 'ADMIN') {
     return { error: 'Non autorisé' }
   }
 

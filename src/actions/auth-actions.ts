@@ -18,7 +18,8 @@ export async function registerAction(formData: {
   const { email, password, displayName } = formData
 
   const headersList = await headers()
-  const clientId = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  const rawIp = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  const clientId = rawIp.split(',')[0].trim()
   if (!checkRateLimit(`register:${clientId}`, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_WINDOW_MS)) {
     return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
   }
@@ -46,7 +47,8 @@ export async function loginAction(formData: {
   password: string
 }) {
   const headersList = await headers()
-  const clientId = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  const rawIp = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  const clientId = rawIp.split(',')[0].trim()
   if (!checkRateLimit(`login:${clientId}`, RATE_LIMIT_LOGIN_MAX, RATE_LIMIT_WINDOW_MS)) {
     return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
   }
@@ -63,6 +65,11 @@ export async function loginAction(formData: {
     return { error: 'Email ou mot de passe incorrect' }
   }
 
+  const secret = process.env.NEXTAUTH_SECRET
+  if (!secret) {
+    throw new Error('NEXTAUTH_SECRET environment variable is missing!')
+  }
+
   // Create JWT token
   const token = await encode({
     token: {
@@ -72,7 +79,7 @@ export async function loginAction(formData: {
       picture: undefined,
       sub: user.id,
     },
-    secret: process.env.NEXTAUTH_SECRET || 'k9sF2mNpQ7xR4wL8vB3jH6tY0cA5dE1gI9oU2iP7aS4fG',
+    secret,
     maxAge: SESSION_MAX_AGE_SECONDS,
   })
 
@@ -95,7 +102,7 @@ export async function loginAction(formData: {
 
 export async function logoutAction(formData?: FormData) {
   const cookieStore = await cookies()
-  const cookieName = 'next-auth.session-token'
+  const cookieName = process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
   
   cookieStore.delete(cookieName)
   
