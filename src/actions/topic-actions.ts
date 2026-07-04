@@ -1,7 +1,7 @@
 'use server'
 
-
-import { getSession } from '@/lib/auth'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { slugify } from '@/lib/utils'
 
@@ -12,7 +12,7 @@ export async function createTopicAction(data: {
   color?: string
   parentId?: string
 }) {
-  const session = await getSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user || session.user.role !== 'ADMIN') {
     return { error: 'Non autorisé' }
   }
@@ -46,7 +46,7 @@ export async function updateTopicAction(id: string, data: {
   color?: string
   parentId?: string | null
 }) {
-  const session = await getSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user || session.user.role !== 'ADMIN') {
     return { error: 'Non autorisé' }
   }
@@ -67,7 +67,7 @@ export async function updateTopicAction(id: string, data: {
 }
 
 export async function deleteTopicAction(id: string) {
-  const session = await getSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user || session.user.role !== 'ADMIN') {
     return { error: 'Non autorisé' }
   }

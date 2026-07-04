@@ -93,8 +93,12 @@ Retourne UNIQUEMENT du JSON valide.`
       max_tokens: 500,
     })
 
-    const rawContent = response.choices[0]?.message?.content || ''
-    const reasoningContent = (response.choices[0]?.message as any)?.reasoning_content || ''
+    const choice = response.choices?.[0]
+    if (!choice) {
+      throw new Error('LLM returned no choices')
+    }
+    const rawContent = choice.message?.content || ''
+    const reasoningContent = (choice.message as any)?.reasoning_content || ''
     const content = rawContent || reasoningContent || '{}'
 
     const parsed = await extractJson(content)
@@ -133,8 +137,12 @@ export async function distillIdeas(
       max_tokens: 2000,
     })
 
-    const rawContent = response.choices[0]?.message?.content || ''
-    const reasoningContent = (response.choices[0]?.message as any)?.reasoning_content || ''
+    const choice = response.choices?.[0]
+    if (!choice) {
+      throw new Error('LLM returned no choices')
+    }
+    const rawContent = choice.message?.content || ''
+    const reasoningContent = (choice.message as any)?.reasoning_content || ''
     
     // Try rawContent first (model often puts JSON directly there)
     if (rawContent && rawContent.trim().length > 0) {
