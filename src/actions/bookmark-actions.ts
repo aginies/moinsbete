@@ -1,11 +1,12 @@
 'use server'
 
 import { prisma } from '@/lib/db'
-import { getSession } from '@/lib/auth'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 import { toggleBookmark } from '@/lib/bookmark'
 
 export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
-  const session = await getSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user) {
     return { error: 'Non authentifié' }
   }
@@ -36,7 +37,7 @@ export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
 }
 
 export async function toggleBookmarkAction(ideaId: string) {
-  const session = await getSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user) {
     return { error: 'Non authentifié' }
   }
@@ -46,7 +47,7 @@ export async function toggleBookmarkAction(ideaId: string) {
 }
 
 export async function getSavedIdeas() {
-  const session = await getSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user) {
     return { ideas: [] }
   }
@@ -76,7 +77,7 @@ export async function getSavedIdeas() {
 }
 
 export async function followTopic(topicId: string) {
-  const session = await getSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user) {
     return { error: 'Non authentifié' }
   }
@@ -94,7 +95,7 @@ export async function followTopic(topicId: string) {
 }
 
 export async function getFollowedTopics() {
-  const session = await getSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user) {
     return { topics: [] }
   }

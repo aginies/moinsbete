@@ -1,4 +1,3 @@
-import { Feed } from '@/components/feed/feed'
 import { getSession } from '@/lib/auth'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
@@ -32,10 +31,10 @@ export default async function HistoryPage() {
     headers['cookie'] = `${sessionCookie.name}=${sessionCookie.value}`
   }
 
-  const historyRes = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/history?userId=${userId}&page=1&limit=10`, {
+  const historyRes = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/history?page=1&limit=50`, {
     headers,
   })
-  const { ideas, hasMore, total } = await historyRes.json()
+  const { ideas, total } = await historyRes.json()
 
-  return <HistoryPageClient initialIdeas={ideas} initialHasMore={hasMore} initialTotal={total} userId={userId} />
+  return <HistoryPageClient initialIdeas={ideas} total={total} userId={userId} />
 }

@@ -1,20 +1,95 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { Feed } from '@/components/feed/feed'
+import { useState, useCallback, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Trash2 } from 'lucide-react'
+import { Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { clearHistoryAction } from '@/actions/view-actions'
+import { CompactIdeaCard } from '@/components/feed/idea-card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface HistoryPageClientProps {
-  initialIdeas: any[]
-  initialHasMore: boolean
-  initialTotal: number
+  initialIdeas: Array<{
+    id: string
+    title: string
+    slug: string
+    content: string
+    takeaway: string
+    source: { title: string; type: string; url?: string | null; coverUrl?: string | null }
+    topics: Array<{ id: string; name: string; slug: string; icon: string; color: string }>
+    viewedAt: string
+  }>
+  total: number
   userId: string
 }
 
-export default function HistoryPageClient({ initialIdeas, initialHasMore, initialTotal, userId }: HistoryPageClientProps) {
+const PAGE_SIZE = 50
+
+function generatePageNumbers(currentPage: number, totalPages: number) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1)
+  }
+
+  const pages: (number | 'ellipsis')[] = [1]
+
+  if (currentPage > 3) {
+    pages.push('ellipsis')
+  }
+
+  const start = Math.max(2, currentPage - 1)
+  const end = Math.min(totalPages - 1, currentPage + 1)
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+
+  if (currentPage < totalPages - 2) {
+    pages.push('ellipsis')
+  }
+
+  pages.push(totalPages)
+  return pages
+}
+
+export default function HistoryPageClient({ initialIdeas, total, userId }: HistoryPageClientProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [ideas, setIdeas] = useState(initialIdeas)
+  const [loading, setLoading] = useState(false)
   const [clearing, setClearing] = useState(false)
+
+  const currentPage = parseInt(searchParams.get('page') || '1') || 1
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const fetchHistory = useCallback(async (page: number) => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/history?page=${page}&limit=${PAGE_SIZE}`)
+      const data = await res.json()
+      setIdeas(data.ideas)
+    } catch (err) {
+      console.error('History fetch error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (currentPage === 1) return
+    fetchHistory(currentPage)
+  }, [currentPage, fetchHistory])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const goToPage = useCallback((page: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (page > 1) {
+      params.set('page', String(page))
+    } else {
+      params.delete('page')
+    }
+    router.push(`/ma-histoire?${params.toString()}`)
+  }, [router, searchParams])
 
   const handleClearHistory = useCallback(async () => {
     if (!window.confirm('Vider tout l\'historique ?')) {
@@ -31,35 +106,94 @@ export default function HistoryPageClient({ initialIdeas, initialHasMore, initia
     }
   }, [userId])
 
+  const pageNumbers = generatePageNumbers(currentPage, totalPages)
+
   return (
     <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-bold">Mon historique</h1>
           <p className="text-sm text-muted-foreground">
-            {initialTotal} idées vues
+            {total} idées vues
           </p>
         </div>
         <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClearHistory}
-            disabled={clearing}
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-          >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Vider l&apos;historique
-          </Button>
+          variant="ghost"
+          size="sm"
+          onClick={handleClearHistory}
+          disabled={clearing}
+          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+        >
+          <Trash2 className="h-4 w-4 mr-1" />
+          Vider l&apos;historique
+        </Button>
       </div>
 
-      <Feed
-        initialIdeas={initialIdeas}
-        initialHasMore={initialHasMore}
-        initialTotal={initialTotal}
-        initialPage={1}
-        userId={userId}
-        isHistory={true}
-      />
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : ideas.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <p className="text-muted-foreground">Aucun historique</p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {ideas.map((idea) => (
+              <CompactIdeaCard key={idea.id} idea={idea as typeof idea & { viewedAt: string }} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage <= 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+
+              <span className="px-3 py-1 text-sm text-muted-foreground">
+                Page {currentPage}/{totalPages}
+              </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+
+              <div className="ml-4 flex items-center gap-1">
+                {pageNumbers.map((page, index) =>
+                  page === 'ellipsis' ? (
+                    <span key={`ellipsis-${index}`} className="px-1 text-muted-foreground">
+                      ...
+                    </span>
+                  ) : (
+                    <Button
+                      key={page}
+                      variant={page === currentPage ? 'default' : 'outline'}
+                      size="sm"
+                      className="min-w-[2rem]"
+                      onClick={() => goToPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  )
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }

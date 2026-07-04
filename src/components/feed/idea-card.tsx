@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import React from 'react'
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { Bookmark, ExternalLink, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -35,22 +35,18 @@ interface IdeaCardProps {
 const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: IdeaCardProps) => {
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
 
-  useEffect(() => {
-    setBookmarked(initialBookmarked || false)
-  }, [initialBookmarked])
-
   const handleBookmark = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
     if (!onBookmark) {
-      setBookmarked(!bookmarked)
+      setBookmarked(prev => !prev)
       return
     }
 
     setBookmarked(prev => !prev)
     onBookmark(idea.id)
-  }, [bookmarked, onBookmark, idea.id])
+  }, [onBookmark, idea.id])
 
   const topicColors = useMemo(() => {
     const colors: Record<string, string> = {}

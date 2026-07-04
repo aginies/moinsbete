@@ -121,9 +121,9 @@ export default async function IdeaDetailPage({
   const topics = idea.ideaTopics.map(it => it.topic)
 
   if (session?.user?.id) {
-    await markIdeaViewedAction(idea.id, session.user.id).catch((err) => {
+    queueMicrotask(() => markIdeaViewedAction(idea.id, session.user.id).catch((err) => {
       console.error('[IdeaDetail] markIdeaViewed error:', err)
-    })
+    }))
   }
 
   const { prev, next } = await getPrevNext(slug, idea.orderIndex, topic, collection)

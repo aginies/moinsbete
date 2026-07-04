@@ -53,22 +53,23 @@ export function isValidUrl(url: string | null | undefined): boolean {
   const trimmed = url.trim()
   if (trimmed.length > MAX_URL_LENGTH) return false
   
+  const lower = trimmed.toLowerCase()
   // Check valid protocol
-  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('mailto:')) {
+  if (!lower.startsWith('http://') && !lower.startsWith('https://') && !lower.startsWith('mailto:')) {
     return false
   }
   
   // Reject dangerous protocols
-  if (trimmed.startsWith('javascript:')) return false
-  if (trimmed.startsWith('data:')) return false
-  if (trimmed.startsWith('vbscript:')) return false
-  if (trimmed.startsWith('file:')) return false
+  if (lower.startsWith('javascript:')) return false
+  if (lower.startsWith('data:')) return false
+  if (lower.startsWith('vbscript:')) return false
+  if (lower.startsWith('file:')) return false
   
   // Reject newlines
   if (trimmed.includes('\n') || trimmed.includes('\r')) return false
   
   // Validate URL structure for http/https
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+  if (lower.startsWith('http://') || lower.startsWith('https://')) {
     try {
       new URL(trimmed)
       return true
