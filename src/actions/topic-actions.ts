@@ -1,14 +1,9 @@
 'use server'
 
 
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { slugify } from '@/lib/utils'
-
-async function getSession() {
-  return await getServerSession(authOptions)
-}
 
 export async function createTopicAction(data: {
   name: string

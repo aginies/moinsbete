@@ -2,41 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { DEFAULT_FEED_LIMIT } from '@/lib/constants'
 
-interface TopicChild {
-  id: string
-}
-
-interface TopicWithChildren {
-  id: string
-  children: TopicChild[]
-}
-
-interface IdeaTopic {
-  topic: {
-    id: string
-    name: string
-    slug: string
-    icon: string
-    color: string
-  }
-}
-
-interface Idea {
-  id: string
-  title: string
-  content: string
-  takeaway: string
-  slug: string
-  saviezVous: string | null
-  source: {
-    title: string
-    type: string
-    url: string | null
-    coverUrl: string | null
-  }
-  ideaTopics: IdeaTopic[]
-}
-
 interface WhereClause {
   isPublished: boolean
   viewedIdeas?: { none: { userId: string } }
@@ -51,14 +16,6 @@ interface WhereClause {
 
 const topicCache = new Map<string, { children: string[]; expiresAt: number }>()
 const COLLECTION_CACHE_TTL = 5 * 60 * 1000
-
-function getTopicChildren(topicId: string): string[] | null {
-  const cached = topicCache.get(topicId)
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached.children
-  }
-  return null
-}
 
 function setTopicChildren(topicId: string, children: string[]) {
   topicCache.set(topicId, {
@@ -85,24 +42,12 @@ export async function GET(request: NextRequest) {
     }
 
     if (topic) {
-      let topicChildren = getTopicChildren(topic)
-      if (!topicChildren) {
-        const topicRecord = await prisma.topic.findUnique({
-          where: { slug: topic },
-          select: { id: true, children: { select: { id: true } } },
-        })
-
-        if (topicRecord) {
-          topicChildren = [topicRecord.id, ...topicRecord.children.map((c: TopicChild) => c.id)]
-          setTopicChildren(topic, topicChildren)
-        }
-      }
-
-      if (topicChildren) {
+      const topicIds = await getAllDescendantTopicIds(topic)
+      if (topicIds.length > 0) {
         where.ideaTopics = {
           some: {
             topicId: {
-              in: topicChildren,
+              in: topicIds,
             },
           },
         }
@@ -110,25 +55,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (collection) {
-      let collectionTopicIds: string[] | null = null
-      const cached = topicCache.get(`collection:${collection}`)
-      if (cached && cached.expiresAt > Date.now()) {
-        collectionTopicIds = cached.children
-      }
-
-      if (!collectionTopicIds) {
-        const collectionRecord = await prisma.collection.findUnique({
-          where: { slug: collection },
-          select: { topics: { select: { id: true, children: { select: { id: true } } } } },
-        })
-
-        if (collectionRecord) {
-          collectionTopicIds = collectionRecord.topics.flatMap((t: { id: string; children: { id: string }[] }) => [t.id, ...t.children.map((c: { id: string }) => c.id)])
-          setTopicChildren(`collection:${collection}`, collectionTopicIds)
-        }
-      }
-
-      if (collectionTopicIds) {
+      const collectionTopicIds = await getAllDescendantCollectionTopicIds(collection)
+      if (collectionTopicIds.length > 0) {
         where.ideaTopics = {
           some: {
             topicId: {
@@ -157,20 +85,10 @@ export async function GET(request: NextRequest) {
       prisma.idea.count({ where }),
     ])
 
-    const formattedMap = new Map()
-    const seenTitles = new Set()
-    for (const idea of ideas) {
-      if (seenTitles.has(idea.title)) continue
-      seenTitles.add(idea.title)
-      if (!formattedMap.has(idea.id)) {
-        formattedMap.set(idea.id, {
-          ...idea,
-          topics: idea.ideaTopics.map(it => it.topic),
-          saviezVous: idea.saviezVous,
-        })
-      }
-    }
-    const formattedIdeas = Array.from(formattedMap.values())
+    const formattedIdeas = ideas.map(idea => ({
+      ...idea,
+      topics: idea.ideaTopics.map(it => it.topic),
+    }))
 
     return NextResponse.json({
       ideas: formattedIdeas,
@@ -182,4 +100,65 @@ export async function GET(request: NextRequest) {
     console.error('Feed error:', error)
     return NextResponse.json({ ideas: [], hasMore: false, total: 0, page: 1 })
   }
+}
+
+async function getAllDescendantTopicIds(topicSlug: string): Promise<string[]> {
+  const cached = topicCache.get(topicSlug)
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.children
+  }
+
+  const topicRecord = await prisma.topic.findUnique({
+    where: { slug: topicSlug },
+    select: { id: true, children: { select: { id: true } } },
+  })
+
+  if (!topicRecord) return []
+
+  const allIds: string[] = [topicRecord.id]
+  const queue = topicRecord.children.map((c: { id: string }) => c.id)
+
+  while (queue.length > 0) {
+    const currentId = queue.shift()!
+    allIds.push(currentId)
+    const children = await prisma.topic.findMany({
+      where: { parentId: currentId },
+      select: { id: true },
+    })
+    queue.push(...children.map((c: { id: string }) => c.id))
+  }
+
+  setTopicChildren(topicSlug, allIds)
+  return allIds
+}
+
+async function getAllDescendantCollectionTopicIds(collectionSlug: string): Promise<string[]> {
+  const cachedKey = `collection:${collectionSlug}`
+  const cached = topicCache.get(cachedKey)
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.children
+  }
+
+  const collectionRecord = await prisma.collection.findUnique({
+    where: { slug: collectionSlug },
+    select: { topics: { select: { id: true, children: { select: { id: true } } } } },
+  })
+
+  if (!collectionRecord) return []
+
+  const allIds: string[] = []
+  const queue = collectionRecord.topics.map((t: { id: string }) => t.id)
+
+  while (queue.length > 0) {
+    const currentId = queue.shift()!
+    allIds.push(currentId)
+    const children = await prisma.topic.findMany({
+      where: { parentId: currentId },
+      select: { id: true },
+    })
+    queue.push(...children.map((c: { id: string }) => c.id))
+  }
+
+  setTopicChildren(cachedKey, allIds)
+  return allIds
 }
