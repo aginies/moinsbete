@@ -69,7 +69,7 @@ async function main() {
 
       const afterComment = line.replace(/^\*\s*<!--@ID_\d+-->\s*/, '')
       const image = extractImageFilename(afterComment)
-      const article = extractArticleLink(afterComment)
+      const article = extractArticleLink(afterComment) || ''
 
       if (!image) continue
 
