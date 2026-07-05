@@ -240,6 +240,39 @@ export default async function IdeaDetailPage({
               <BookOpen className="h-5 w-5 text-muted-foreground" />
             </div>
           </div>
+
+          {/* Desktop Navigation */}
+          <div className="mt-8 flex items-center justify-between border-t border-border/40 pt-6">
+            <div>
+              {prev ? (
+                <Link
+                  href={`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`}
+                  className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors shadow-sm"
+                >
+                  ← Précédent
+                </Link>
+              ) : (
+                <span className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card/40 px-4 py-2.5 text-sm font-medium text-muted-foreground/40 cursor-not-allowed">
+                  ← Précédent
+                </span>
+              )}
+            </div>
+
+            <div>
+              {next ? (
+                <Link
+                  href={`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`}
+                  className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors shadow-sm"
+                >
+                  Suivant →
+                </Link>
+              ) : (
+                <span className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card/40 px-4 py-2.5 text-sm font-medium text-muted-foreground/40 cursor-not-allowed">
+                  Suivant →
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>
