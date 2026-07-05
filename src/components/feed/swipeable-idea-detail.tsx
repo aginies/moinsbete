@@ -152,14 +152,16 @@ export function SwipeableIdeaDetail({
   const nextHintOpacity = hint === 'next' ? Math.min(absX / 100, 1) : 0
 
   return (
-    <div className="mx-auto max-w-2xl p-4 pb-24 md:hidden">
-      <Link
-        href="/"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Accueil
-      </Link>
+    <div className="mx-auto w-full px-0 py-4 pb-24 md:hidden">
+      <div className="px-4">
+        <Link
+          href="/"
+          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Accueil
+        </Link>
+      </div>
 
       <div className="relative touch-pan-y" ref={containerRef} {...bind()}>
         {/* Prev hint overlay */}
