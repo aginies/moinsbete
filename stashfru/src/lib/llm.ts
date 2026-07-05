@@ -2,8 +2,8 @@ import 'dotenv/config'
 import OpenAI from 'openai'
 
 const llm = new OpenAI({
-  baseURL: process.env.LLM_BASE_URL!,
-  apiKey: process.env.LLM_API_KEY!,
+  baseURL: process.env.LLM_BASE_URL || 'https://api.openai.com/v1',
+  apiKey: process.env.LLM_API_KEY || 'mock-key-for-build',
 })
 
 async function extractJson(text: string): Promise<any> {
