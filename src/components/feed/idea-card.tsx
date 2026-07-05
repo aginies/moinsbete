@@ -112,18 +112,6 @@ const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: Id
           )}
 
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={handleBookmark}
-            >
-              <Bookmark
-                className={`h-4 w-4 ${
-                  bookmarked ? 'fill-current text-primary' : 'text-muted-foreground'
-                }`}
-              />
-            </Button>
             <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
         </div>

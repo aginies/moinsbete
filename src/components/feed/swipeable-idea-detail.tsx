@@ -79,7 +79,7 @@ export function SwipeableIdeaDetail({
         const el = containerRef.current
         if (el) {
           el.style.userSelect = 'none'
-          el.style.touchAction = 'none'
+          el.style.touchAction = 'pan-y'
         }
         dragStartRef.current = { x: 0, y: 0 }
       },
@@ -112,6 +112,12 @@ export function SwipeableIdeaDetail({
           setHint(null)
         }
       },
+    },
+    {
+      drag: {
+        axis: 'x',
+        filterTaps: true,
+      }
     }
   )
 
@@ -155,7 +161,7 @@ export function SwipeableIdeaDetail({
         Accueil
       </Link>
 
-      <div className="relative" ref={containerRef} {...bind()}>
+      <div className="relative touch-pan-y" ref={containerRef} {...bind()}>
         {/* Prev hint overlay */}
         {prevHintOpacity > 0 && (
           <div
@@ -270,39 +276,17 @@ export function SwipeableIdeaDetail({
             <div className="flex items-center justify-between border-t border-border/40 px-5 py-3">
               <div className="flex items-center gap-2">
                 {prev ? (
-             <button
-                onClick={() => router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
-                className="text-xs text-muted-foreground hover:text-foreground"
-                aria-label="Voir l'idée précédente"
-              >
-                ← Précédent
-              </button>
+                  <button
+                    onClick={() => router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                    aria-label="Voir l'idée précédente"
+                  >
+                    ← Précédent
+                  </button>
                 ) : (
                   <span className="text-xs text-muted-foreground/30">← Précédent</span>
                 )}
               </div>
-
-              <button
-                onClick={handleBookmark}
-                className={cn(
-                  'rounded-full p-2 transition-all',
-                  bookmarkAnimating && 'scale-125',
-                )}
-                aria-label={bookmarked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-              >
-                <svg
-                  className={cn(
-                    'h-5 w-5',
-                    bookmarked ? 'fill-current text-amber-500' : 'text-muted-foreground',
-                  )}
-                  viewBox="0 0 24 24"
-                  fill={bookmarked ? 'currentColor' : 'none'}
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                </svg>
-              </button>
 
               <div className="flex items-center gap-2">
                 {next ? (
@@ -320,24 +304,6 @@ export function SwipeableIdeaDetail({
             </div>
           </div>
         </div>
-
-        {/* Swipe hint when not dragging */}
-        {!isDragging && absX === 0 && (
-          <div className="pointer-events-none absolute bottom-2 left-0 right-0 flex items-center justify-center gap-4 opacity-20">
-            {prev && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <ArrowLeft className="h-3 w-3" />
-                <span>Précédent</span>
-              </div>
-            )}
-            {next && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <span>Suivant</span>
-                <ArrowLeft className="h-3 w-3 rotate-180" />
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   )
