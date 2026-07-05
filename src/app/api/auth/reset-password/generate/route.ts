@@ -38,13 +38,12 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
     const resetLink = `${baseUrl}/reset-password/${token}`
 
     return NextResponse.json({
       success: true,
-      ...(isDev && { resetLink }),
+      resetLink,
     })
   } catch (error) {
     console.error('Reset token error:', error)
