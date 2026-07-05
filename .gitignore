@@ -44,5 +44,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/src/generated/prisma
+# generated prisma client and binaries
+/src/generated/
+/stashfru/src/generated/
+*.so.node
+*.node
+*.dylib
+*.dll
+
 dev.db.bck
