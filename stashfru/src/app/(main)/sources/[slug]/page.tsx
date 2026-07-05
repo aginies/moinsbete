@@ -38,7 +38,7 @@ export default async function SourceDetailPage({
             },
           },
         },
-        orderBy: { orderIndex: 'asc' },
+        orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
       },
     },
   })

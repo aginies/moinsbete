@@ -124,7 +124,23 @@ export function Feed({
     return () => observer.disconnect()
   }, [hasMore, loading, page, fetchIdeas])
 
-  if (ideas.length === 0 && !loading) {
+  // Deduplicate ideas by ID and title before rendering to prevent any duplicate rendering
+  const uniqueIdeas = React.useMemo(() => {
+    const seenIds = new Set<string>()
+    const seenTitles = new Set<string>()
+    return ideas.filter((idea) => {
+      if (!idea?.id || !idea?.title) return false
+      const normTitle = idea.title.trim().toLowerCase()
+      if (seenIds.has(idea.id) || seenTitles.has(normTitle)) {
+        return false
+      }
+      seenIds.add(idea.id)
+      seenTitles.add(normTitle)
+      return true
+    })
+  }, [ideas])
+
+  if (uniqueIdeas.length === 0 && !loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <p className="text-muted-foreground">Aucune idée trouvée</p>
@@ -134,7 +150,7 @@ export function Feed({
 
   return (
     <div className="space-y-4">
-      {ideas.map((idea) => (
+      {uniqueIdeas.map((idea) => (
         <React.Fragment key={idea.id}>
           {isHistory ? (
             <CompactIdeaCard key={`card-${idea.id}`} idea={idea as typeof idea & { viewedAt: string }} />
@@ -165,7 +181,7 @@ export function Feed({
         </div>
       )}
 
-      {!hasMore && !loading && ideas.length > 0 && (
+      {!hasMore && !loading && uniqueIdeas.length > 0 && (
         <p className="py-6 text-center text-sm text-muted-foreground">
           Fin du feed 🎉
         </p>
