@@ -153,6 +153,7 @@ export default async function MonPlanPage() {
           initialHasMore={false}
           userId={session.user.id}
           savedIdeaIds={savedIdeaIds}
+          compact
         />
       </div>
     </div>
