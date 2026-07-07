@@ -1,12 +1,17 @@
 import { prisma } from '@/lib/db'
 import { Feed } from '@/components/feed/feed'
-import { SearchBar } from '@/components/search/search-bar'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 
 import { getSession } from '@/lib/auth'
 import { getRandomFact } from '@/lib/saviez-vous'
 import Link from 'next/link'
 import HomePageClient from './page-client'
+import dynamic from 'next/dynamic'
+
+const SearchBar = dynamic(() => import('@/components/search/search-bar').then(m => ({ default: m.SearchBar })), {
+  ssr: true,
+  loading: () => <div className="h-10 w-full rounded-md border border-border/60 bg-card" />
+})
 
 export default async function HomePage() {
   const [session, ideasRes, saviezVousFact] = await Promise.all([

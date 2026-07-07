@@ -12,7 +12,9 @@ interface SearchResult {
   topics: Array<{ id: string; name: string; slug: string; icon: string }>
 }
 
-export function SearchBar() {
+import React from 'react'
+
+export const SearchBar = React.memo(function SearchBar() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult | null>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -160,4 +162,4 @@ export function SearchBar() {
       )}
     </div>
   )
-}
+})

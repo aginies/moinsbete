@@ -7,6 +7,8 @@ import { Toaster } from '@/components/ui/sonner'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 
+export const revalidate = 3600
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -67,9 +69,11 @@ export default async function RootLayout({
       </head>
       <body className={`${inter.className} min-h-screen bg-background antialiased`}>
         <div className="flex min-h-screen flex-col">
-          <div className="bg-amber-500 text-center text-xs font-semibold text-amber-900 py-1.5 px-4">
-            AMÉLIORATION EN COURS DE LA DB des SUJETS
-          </div>
+          {process.env.REGISTRATION_LOCKED !== 'false' && (
+            <div className="bg-amber-500 text-center text-xs font-semibold text-amber-900 py-1.5 px-4">
+              AMÉLIORATION EN COURS DE LA DB des SUJETS
+            </div>
+          )}
           <Navbar />
           <main className="flex-1">{children}</main>
           <footer className="py-6 text-center text-xs text-muted-foreground">
