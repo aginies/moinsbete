@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SRC="/home/aginies/devel/github/aginies/moinsbete"
-DEST="/srv/httpd/moinsbete"
+SRC="/home/aginies/moinsbete"
+DEST="/srv/http/moinsbete"
 
 mkdir -p "$DEST"
 
@@ -23,6 +23,9 @@ rsync -a --delete \
   --exclude='.env' \
   "$SRC/" "$DEST/"
 
-cd "$DEST" && npm ci && npx prisma generate
+cd "$DEST"
+npx prisma generate
+npm run build
+pm2 restart moinsbete
 
 echo "Deployed to $DEST"
