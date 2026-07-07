@@ -37,7 +37,7 @@ export default function AproposPage() {
               'Scrollez votre feed d\'idées quotidiennes',
               'Consultez votre historique de lecture',
               'Suivez des sujets qui vous passionnent',
-              'Découvrez vos idées recommandées',
+              'Découvrez vos idées aléatoires',
             ].map((step, i) => (
               <div key={i} className="flex items-start gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
