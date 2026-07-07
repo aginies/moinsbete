@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { registerAction } from '@/actions/auth-actions'
+import { useState, useEffect } from 'react'
+import { registerAction, isRegistrationLocked } from '@/actions/auth-actions'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { BookOpen, Mail, Lock, User, CheckCircle } from 'lucide-react'
@@ -10,6 +10,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export default function RegisterPage() {
+  const [registrationLocked, setRegistrationLocked] = useState(false)
+
+  useEffect(() => {
+    isRegistrationLocked().then(setRegistrationLocked)
+  }, [])
+
+  return <RegisterForm registrationLocked={registrationLocked} />
+}
+
+function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -48,6 +58,15 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {registrationLocked && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+              <div className="flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                <span>Inscriptions fermées pendant la mise à jour de la base de données.</span>
+              </div>
+            </div>
+          )}
+
           {success && (
             <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300">
               <div className="flex items-center gap-2">
@@ -73,6 +92,7 @@ export default function RegisterPage() {
                 type="text"
                 placeholder="Votre nom"
                 required
+                disabled={registrationLocked}
                 className="pl-10"
               />
             </div>
@@ -88,6 +108,7 @@ export default function RegisterPage() {
                 type="email"
                 placeholder="vous@exemple.com"
                 required
+                disabled={registrationLocked}
                 className="pl-10"
               />
             </div>
@@ -104,12 +125,13 @@ export default function RegisterPage() {
                 placeholder="Min. 8 caractères"
                 required
                 minLength={8}
+                disabled={registrationLocked}
                 className="pl-10"
               />
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || registrationLocked}>
             {loading ? 'Création...' : 'Créer mon compte'}
           </Button>
         </form>
