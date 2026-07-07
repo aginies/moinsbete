@@ -11,4 +11,7 @@ export default defineConfig({
   datasource: {
     url: process.env["DATABASE_URL"] || "",
   },
+  seed: {
+    pre: "tsx src/scripts/seed-ideas.ts",
+  },
 });
