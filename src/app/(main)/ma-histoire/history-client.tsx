@@ -3,8 +3,8 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
-import { clearHistoryAction } from '@/actions/view-actions'
+import { Trash2, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { clearHistoryAction, removeFromHistoryAction } from '@/actions/view-actions'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -51,12 +51,14 @@ function generatePageNumbers(currentPage: number, totalPages: number) {
   return pages
 }
 
-export default function HistoryPageClient({ initialIdeas, total, userId }: HistoryPageClientProps) {
+export default function HistoryPageClient({ initialIdeas, total: initialTotal, userId }: HistoryPageClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [ideas, setIdeas] = useState(initialIdeas)
   const [loading, setLoading] = useState(false)
   const [clearing, setClearing] = useState(false)
+  const [removing, setRemoving] = useState<string | null>(null)
+  const [total, setTotal] = useState(initialTotal)
 
   const currentPage = parseInt(searchParams.get('page') || '1') || 1
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -106,6 +108,20 @@ export default function HistoryPageClient({ initialIdeas, total, userId }: Histo
     }
   }, [userId])
 
+  const handleRemove = useCallback(async (viewedIdeaId: string) => {
+    setRemoving(viewedIdeaId)
+    setIdeas(prev => prev.filter(idea => idea.id !== viewedIdeaId))
+    try {
+      await removeFromHistoryAction(viewedIdeaId, userId)
+      setTotal(prev => prev - 1)
+    } catch (err) {
+      console.error('Error removing from history:', err)
+      fetchHistory(currentPage)
+    } finally {
+      setRemoving(null)
+    }
+  }, [userId, currentPage, fetchHistory])
+
   const pageNumbers = generatePageNumbers(currentPage, totalPages)
 
   return (
@@ -143,7 +159,20 @@ export default function HistoryPageClient({ initialIdeas, total, userId }: Histo
         <>
           <div className="space-y-3">
             {ideas.map((idea) => (
-              <CompactIdeaCard key={idea.id} idea={idea as typeof idea & { viewedAt: string }} />
+              <div key={idea.id} className="group relative">
+                <CompactIdeaCard idea={idea as typeof idea & { viewedAt: string }} />
+                <button
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleRemove(idea.id)
+                  }}
+                  disabled={removing === idea.id}
+                  className="absolute right-2 top-2 rounded-full p-1 text-muted-foreground opacity-30 transition-opacity hover:opacity-100 hover:bg-muted hover:text-destructive disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             ))}
           </div>
 

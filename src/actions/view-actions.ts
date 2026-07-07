@@ -24,3 +24,14 @@ export async function clearHistoryAction(userId: string) {
     where: { userId },
   })
 }
+
+export async function removeFromHistoryAction(viewedIdeaId: string, userId: string) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user || session.user.id !== userId) {
+    throw new Error('Non autorisé')
+  }
+
+  await prisma.viewedIdea.delete({
+    where: { id: viewedIdeaId, userId },
+  })
+}
