@@ -62,7 +62,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
               <Camera className="h-4 w-4 text-amber-950" />
             </div>
             <h3 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">
-              Image du jour (archives)
+              Image du jour
             </h3>
           </div>
           <RefreshCw className={`h-4 w-4 text-amber-600 dark:text-amber-400 ${loading ? 'animate-spin' : ''}`} />
