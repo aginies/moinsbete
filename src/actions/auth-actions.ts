@@ -10,6 +10,10 @@ import { checkRateLimit } from '@/lib/rate-limiter'
 import { headers } from 'next/headers'
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_LOGIN_MAX, SESSION_COOKIE_MAX_AGE_MS, SESSION_MAX_AGE_SECONDS } from '@/lib/constants'
 
+export async function isRegistrationLocked() {
+  return process.env.REGISTRATION_LOCKED === 'true'
+}
+
 export async function registerAction(formData: {
   email: string
   password: string
@@ -22,6 +26,10 @@ export async function registerAction(formData: {
   const clientId = rawIp.split(',')[0].trim()
   if (!checkRateLimit(`register:${clientId}`, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_WINDOW_MS)) {
     return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
+  }
+
+  if (process.env.REGISTRATION_LOCKED === 'true') {
+    return { error: 'Inscriptions temporairement fermées pendant la mise à jour de la base de données.' }
   }
 
   const existing = await prisma.user.findUnique({ where: { email } })
