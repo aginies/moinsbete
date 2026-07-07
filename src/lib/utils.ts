@@ -10,7 +10,8 @@ export function slugify(text: string): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\w\s()-]/g, '')
+    .replace(/\s*\(\s*([^)]+)\s*\)/g, ' $1')
     .replace(/[\s_]+/g, '-')
     .replace(/^-+|-+$/g, '')
 }
