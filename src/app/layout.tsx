@@ -55,7 +55,8 @@ export default async function RootLayout({
           {(function() {
             var updateThemeColor = function() {
               var isDark = document.documentElement.classList.contains('dark');
-              document.querySelector('meta[name="theme-color"]').content = isDark ? '#372773' : '#7C6CF6';
+              var meta = document.querySelector('meta[name="theme-color"]');
+              if (meta) meta.content = isDark ? '#372773' : '#7C6CF6';
             };
             updateThemeColor();
             var observer = new MutationObserver(updateThemeColor);
