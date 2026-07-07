@@ -19,13 +19,14 @@ export async function Navbar() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link href="/sujets">
-            <Button variant="ghost" size="sm">
-              Sujets
-            </Button>
-          </Link>
           {session?.user ? (
             <>
+              <Link href="/favoris">
+                <Button variant="ghost" size="sm">
+                  <Bookmark className="h-4 w-4 mr-1" />
+                  Favoris
+                </Button>
+              </Link>
               <Link href="/ma-histoire">
                 <Button variant="ghost" size="sm">
                   <Clock className="h-4 w-4 mr-1" />
