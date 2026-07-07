@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import React from 'react'
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 import { Bookmark, ExternalLink, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -52,14 +52,6 @@ const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: Id
     setBookmarked(prev => !prev)
     onBookmark(idea.id)
   }, [onBookmark, idea.id])
-
-  const topicColors = useMemo(() => {
-    const colors: Record<string, string> = {}
-    idea.topics.forEach(t => {
-      colors[t.id] = t.color
-    })
-    return colors
-  }, [idea.topics])
 
   return (
     <div

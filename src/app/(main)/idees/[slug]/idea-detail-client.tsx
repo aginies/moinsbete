@@ -40,7 +40,6 @@ const SHARE_URL = (slug: string) => {
   if (typeof window === 'undefined') return `/idees/${slug}`
   return `${window.location.origin}/idees/${slug}`
 }
-const SHARE_PATH = (slug: string) => `/idees/${slug}`
 
 export function IdeaDetailClient({
   idea,
