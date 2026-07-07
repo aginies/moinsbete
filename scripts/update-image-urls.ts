@@ -31,6 +31,7 @@ function cleanText(wikiText: string): string {
   text = text.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
   text = text.replace(/'''([^']*)'''/g, '$1')
   text = text.replace(/''([^']*)''/g, '$1')
+  text = text.replace(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g, '$1 $2')
   text = text.replace(/\{\{[^}]*\}\}/g, '')
   text = text.replace(/<[^>]+>/g, '')
   text = text.replace(/<ref[^>]*>[\s\S]*?<\/ref>/g, '')
