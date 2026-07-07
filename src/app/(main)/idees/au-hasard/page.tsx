@@ -102,7 +102,7 @@ export default function RandomIdeaClient() {
 
   if (error && !idea) {
     return (
-      <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">
+      <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
         <Link href="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />
           Accueil
@@ -121,7 +121,7 @@ export default function RandomIdeaClient() {
 
   if (!idea) {
     return (
-      <div className="mx-auto flex min-h-[60vh] max-w-2xl items-center justify-center px-4 pb-20 md:p-6">
+      <div className="mx-auto flex min-h-[60vh] w-full items-center justify-center px-0 pb-20 md:max-w-2xl md:p-6">
         <div className="text-center">
           <RefreshCw className="mx-auto mb-4 h-10 w-10 animate-spin text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Chargement d&apos;une idée...</p>

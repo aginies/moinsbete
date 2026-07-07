@@ -125,7 +125,7 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
   const pageNumbers = generatePageNumbers(currentPage, totalPages)
 
   return (
-    <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">
+    <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-bold">Mon historique</h1>

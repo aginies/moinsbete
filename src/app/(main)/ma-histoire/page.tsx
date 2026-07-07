@@ -9,7 +9,7 @@ export default async function HistoryPage() {
 
   if (!session?.user?.id) {
     return (
-      <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">
+      <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-heading font-bold">Mon historique</h1>
           <p className="mt-2 text-sm text-muted-foreground">

@@ -70,7 +70,7 @@ export default async function FavorisPage({
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
-    <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">
+    <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <Link
