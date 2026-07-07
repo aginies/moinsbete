@@ -22,6 +22,7 @@ const ROOT_TOPICS = [
   { name: 'Mathématiques', icon: '🔢', color: '#ec4899', description: 'Paradoxes, théorèmes, probabilités et logique' },
   { name: 'Art & Design', icon: '🎨', color: '#ef4444', description: 'Mouvements artistiques, principes visuels et créativité' },
   { name: 'Débat & Rhétorique', icon: '🎤', color: '#a855f7', description: 'Art de convaincre, logique et argumentation structurée' },
+  { name: 'En forme 40+', icon: '💪', color: '#f97316', description: "Rester physiquement et cognitivement actif après 40 et 50 ans" },
 ]
 
 async function main() {

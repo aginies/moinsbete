@@ -26,6 +26,7 @@ const TOPICS_TO_GENERATE = [
   { name: 'Chats et chiens', count: 50 },
   { name: 'Golf', count: 50 },
   { name: 'Voitures', count: 50 },
+  { name: 'En forme 40+', count: 50 },
 ]
 
 const TOPIC_ARTICLES: Record<string, string[]> = {
@@ -51,6 +52,7 @@ const TOPIC_ARTICLES: Record<string, string[]> = {
   'Chats et chiens': ['Chat domestique', 'Chien', 'Comportement du chat', 'Comportement du chien', 'Socialisation du chaton', 'Socialisation du chiot', 'Éducation du chien', 'Langage corporel du chat', 'Langage corporel du chien', 'Intelligence du chien', 'Anxiété de séparation', 'Jeu chez les animaux domestiques', 'Alimentation du chat', 'Alimentation du chien', 'Race de chat', 'Race de chien', 'Domestication du chat', 'Domestication du chien', 'Comportement alimentaire félin', 'Comportement alimentaire canin'],
   'Golf': ['Golf', 'Vocabulaire_du_golf', 'Swing_de_golf', 'Matériel_de_golf', 'Règles_de_golf', 'Par_(golf)', 'Compétition_de_golf', 'Balle_de_golf', 'Terrain_de_golf', 'Histoire_du_golf', 'Étiquette_(golf)', 'Driving_range', 'Tee_(golf)', 'Fairway', 'Green_(golf)', 'Putter', 'Bunker_(sport)', 'Caddie', 'Handicap_(golf)', 'Jeu_de_golf'],
   'Voitures': ['Automobile', 'Sécurité_automobile', 'Toyota', 'Tesla,_Inc.', 'Voiture_électrique', 'Moteur_électrique', 'Carrosserie', 'Batterie_rechargeable', 'Conduite_autonome', 'Formule_1', 'Industrie_automobile', 'Crédit_à_la_consommation', 'Assurance_automobile', 'Permis_de_conduire', 'Hybride_(automobile)', 'Tuning', 'Motorisation', 'Transmission_(automobile)', 'Pneu', 'Climatisation'],
+  'En forme 40+': ['Vieillissement', 'Sarcopénie', 'Activité_physique', 'Exercice_physique', 'Neuroplasticité', 'Ostéoporose', 'Sommeil', 'Ménopause', 'Andropausie', 'Alzheimer', 'Maladie_cardiovasculaire', 'Hypertension_artérielle', 'Diabète_de_type_2', 'Obésité', 'Méditation', 'Pleine_conscience', 'Yoga', 'Équilibre_(biologie)', 'Souplesse', 'Nutrition', 'Protéine', 'Vitamine_D', 'Oméga_3', 'Inflammation', 'Stress_oxydatif', 'Hormone', 'Testostérone', 'Mémoire', 'Déclin_cognitif', 'Santé_mentale', 'Isolement_social'],
 }
 
 async function main() {
