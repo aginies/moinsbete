@@ -1,0 +1,59 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C6CF6"/>
+      <stop offset="100%" stop-color="#372773"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background squircle -->
+  <rect width="512" height="512" rx="118" fill="url(#bg)"/>
+  <rect width="512" height="230" rx="118" fill="url(#glow)"/>
+
+  <!-- Open book mark -->
+  <g transform="translate(76,42)">
+    <!-- left page -->
+    <path d="M180 34
+             C 130 14, 70 14, 20 34
+             L 20 210
+             C 70 190, 130 190, 180 210
+             Z"
+          fill="none" stroke="#EDEAFF" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- right page -->
+    <path d="M180 34
+             C 230 14, 290 14, 340 34
+             L 340 210
+             C 290 190, 230 190, 180 210
+             Z"
+          fill="none" stroke="#EDEAFF" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- spine -->
+    <path d="M180 34 L180 210" fill="none" stroke="#EDEAFF" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- left page lines -->
+    <path d="M46 66c34-10 68-10 100 2" fill="none" stroke="#EDEAFF" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+    <path d="M46 96c34-10 68-10 100 2" fill="none" stroke="#EDEAFF" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+    <path d="M46 126c34-10 68-10 100 2" fill="none" stroke="#EDEAFF" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+
+    <!-- right page lines -->
+    <path d="M314 66c-34-10-68-10-100 2" fill="none" stroke="#EDEAFF" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+    <path d="M314 96c-34-10-68-10-100 2" fill="none" stroke="#EDEAFF" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+    <path d="M314 126c-34-10-68-10-100 2" fill="none" stroke="#EDEAFF" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+
+    <!-- spark rising from the book, red -->
+    <path d="M186 20 l17 32 h-14 l11 48 -37-56 h16 z" fill="#E4362E"/>
+  </g>
+
+  <!-- Divider -->
+  <rect x="126" y="322" width="260" height="3" rx="1.5" fill="#EDEAFF" opacity="0.35"/>
+
+  <!-- Wordmark, larger -->
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="800" text-anchor="middle">
+    <text x="256" y="390" font-size="72" letter-spacing="-1" fill="#F4F2FF">Moins</text>
+    <text x="256" y="460" font-size="72" letter-spacing="-1" fill="#C9BBFF">Bête</text>
+  </g>
+</svg>
