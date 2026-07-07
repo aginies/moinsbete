@@ -54,6 +54,7 @@ export function SwipeableIdeaDetail({
   const [hint, setHint] = useState<'prev' | 'next' | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
+  const [copied, setCopied] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ x: number; y: number } | null>(null)
 
@@ -226,9 +227,15 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
                 className="rounded-full bg-card/90 p-1.5 backdrop-blur-sm transition-colors hover:bg-muted hover:text-foreground"
                 onClick={handleShare}
               >
-                <Share2 className="h-5 w-5 text-muted-foreground" />
+                <Share2 className={`h-5 w-5 transition-colors ${copied ? 'text-green-500' : 'text-muted-foreground'}`} />
               </button>
             </div>
+
+            {copied && (
+              <div className="pointer-events-none absolute left-1/2 top-16 z-20 -translate-x-1/2 rounded-full bg-green-500/90 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm">
+                Copié !
+              </div>
+            )}
 
             {/* Topics */}
             <div className="mb-4 flex flex-wrap gap-2 px-5 pt-5">
