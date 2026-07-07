@@ -35,7 +35,7 @@ export default function AproposPage() {
           <div className="space-y-3">
             {[
               'Scrollez votre feed d\'idées quotidiennes',
-              'Sauvegardez les idées qui vous inspirent',
+              'Consultez votre historique de lecture',
               'Suivez des sujets qui vous passionnent',
               'Suivez votre plan d\'apprentissage personnalisé',
             ].map((step, i) => (
@@ -97,7 +97,7 @@ export default function AproposPage() {
           MoinsBête a été créé par <strong>Antoine Giniès</strong>.
             Le projet s'inspire de la philosophie Deep Stash, popularisée par
             <a
-              href="https://fr.wikipedia.org/wiki/Deep_Stash"
+              href="https://deepstash.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
