@@ -91,6 +91,25 @@ export default function AproposPage() {
         </section>
 
         <section>
+          <h2 className="mb-3 text-xl font-semibold">Licence</h2>
+          <p className="text-muted-foreground">
+            Ce programme est un logiciel libre: vous pouvez le redistribuer et/ou le modifier conformément aux clauses de la Licence Publique Générale GNU telle que publiée par la Free Software Foundation; soit la version 3 de la Licence, soit (à votre choix) toute version ultérieure.
+          </p>
+          <p className="mt-2 text-muted-foreground">
+            Consultez la licence complète sur{' '}
+            <a
+              href="https://www.gnu.org/licenses/gpl-3.0.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              gnu.org/licenses/gpl-3.0.html
+            </a>
+            .
+          </p>
+        </section>
+
+        <section>
           <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
     <p className="text-muted-foreground">
           MoinsBête a été créé par <strong>Antoine Giniès</strong>.
