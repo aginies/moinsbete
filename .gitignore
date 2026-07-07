@@ -46,7 +46,6 @@ next-env.d.ts
 
 # generated prisma client and binaries
 /src/generated/
-/stashfru/src/generated/
 *.so.node
 *.node
 *.dylib
