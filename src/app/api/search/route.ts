@@ -11,13 +11,18 @@ interface SearchCacheEntry {
 const searchCache = new Map<string, SearchCacheEntry>()
 const SEARCH_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
+function normalizeAccents(str: string): string {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+
 function getCachedSearch(q: string) {
-  const cached = searchCache.get(q)
+  const normalized = normalizeAccents(q).toLowerCase()
+  const cached = searchCache.get(normalized)
   if (cached && cached.expiresAt > Date.now()) {
     return cached
   }
   if (cached) {
-    searchCache.delete(q)
+    searchCache.delete(normalized)
   }
   return null
 }
@@ -51,14 +56,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ideas: cached.ideas, sources: cached.sources, topics: cached.topics })
     }
 
+    const normalizedQ = normalizeAccents(q).toLowerCase()
     const [ideas, sources, topics] = await Promise.all([
       prisma.idea.findMany({
         where: {
           isPublished: true,
           OR: [
-            { title: { contains: q } },
-            { content: { contains: q } },
-            { takeaway: { contains: q } },
+            { title: { contains: q, mode: 'insensitive' } },
+            { content: { contains: q, mode: 'insensitive' } },
+            { takeaway: { contains: q, mode: 'insensitive' } },
           ],
         },
         select: {
@@ -80,8 +86,8 @@ export async function GET(request: NextRequest) {
       prisma.source.findMany({
         where: {
           OR: [
-            { title: { contains: q } },
-            { description: { contains: q } },
+            { title: { contains: q, mode: 'insensitive' } },
+            { description: { contains: q, mode: 'insensitive' } },
           ],
         },
         select: {
@@ -95,7 +101,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.topic.findMany({
         where: {
-          name: { contains: q },
+          name: { contains: q, mode: 'insensitive' },
         },
         select: {
           id: true,
@@ -108,13 +114,28 @@ export async function GET(request: NextRequest) {
       }),
     ])
 
-    const formattedIdeas = ideas.map(idea => ({
+    const filteredIdeas = ideas.filter(idea =>
+      normalizeAccents(idea.title).toLowerCase().includes(normalizedQ) ||
+      normalizeAccents(idea.content).toLowerCase().includes(normalizedQ) ||
+      normalizeAccents(idea.takeaway || '').toLowerCase().includes(normalizedQ)
+    )
+
+    const filteredSources = sources.filter(source =>
+      normalizeAccents(source.title).toLowerCase().includes(normalizedQ) ||
+      normalizeAccents(source.description || '').toLowerCase().includes(normalizedQ)
+    )
+
+    const filteredTopics = topics.filter(topic =>
+      normalizeAccents(topic.name).toLowerCase().includes(normalizedQ)
+    )
+
+    const formattedIdeas = filteredIdeas.map(idea => ({
       ...idea,
       topics: idea.ideaTopics.map(it => it.topic),
     }))
 
     // Cache results
-    setCachedSearch(q, formattedIdeas, sources, topics)
+    setCachedSearch(normalizedQ, formattedIdeas, filteredSources, filteredTopics)
 
     return NextResponse.json({ ideas: formattedIdeas, sources, topics })
   } catch (error) {
