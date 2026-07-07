@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { TopicGrid } from '@/components/topics/topic-grid'
 import { SearchBar } from '@/components/search/search-bar'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
+import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
 import { getRandomFact } from '@/lib/saviez-vous'
 import Link from 'next/link'
 
@@ -23,6 +24,10 @@ export default async function SujetsPage() {
           <SaviezVousCard text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} />
         </div>
       )}
+
+      <div className="mb-6">
+        <WikipediaImageCard />
+      </div>
 
       <div className="mb-6">
         <Link
