@@ -3,7 +3,7 @@
 import { useState, useTransition, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, BookOpen, ExternalLink, Bookmark } from 'lucide-react'
+import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2 } from 'lucide-react'
 import { toggleBookmarkAction } from '@/actions/bookmark-actions'
 import { isValidUrl } from '@/lib/utils'
 
@@ -36,6 +36,12 @@ interface IdeaDetailClientProps {
   initialBookmarked: boolean
 }
 
+const SHARE_URL = (slug: string) => {
+  if (typeof window === 'undefined') return `/idees/${slug}`
+  return `${window.location.origin}/idees/${slug}`
+}
+const SHARE_PATH = (slug: string) => `/idees/${slug}`
+
 export function IdeaDetailClient({
   idea,
   prev,
@@ -61,6 +67,25 @@ export function IdeaDetailClient({
       }
     })
   }, [isPending, bookmarked, idea.id])
+
+  const handleShare = useCallback(async () => {
+    const url = SHARE_URL(idea.slug)
+    const shareData = {
+      title: idea.title,
+      text: idea.takeaway,
+      url,
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+      } catch {
+        // User cancelled or share failed
+      }
+    } else {
+      await navigator.clipboard.writeText(url)
+    }
+  }, [idea.slug, idea.title, idea.takeaway])
 
   const navigationUrl = (slug: string) => {
     const params = new URLSearchParams()
@@ -124,6 +149,13 @@ export function IdeaDetailClient({
             onClick={handleBookmark}
           >
             <Bookmark className={`h-5 w-5 transition-colors ${bookmarked ? 'fill-current text-primary' : 'text-muted-foreground'}`} />
+          </button>
+          <button
+            type="button"
+            className="shrink-0 rounded-full bg-card p-1.5 shadow-sm transition-colors hover:bg-muted hover:text-foreground"
+            onClick={handleShare}
+          >
+            <Share2 className="h-5 w-5 text-muted-foreground" />
           </button>
         </h1>
 

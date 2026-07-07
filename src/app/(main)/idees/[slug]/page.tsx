@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
 import { getSession } from '@/lib/auth'
 import { markIdeaViewedAction } from '@/actions/view-actions'
@@ -78,6 +79,66 @@ async function getPrevNext(slug: string, currentOrderIndex: number, topic?: stri
   ])
 
   return { prev, next }
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const idea = await prisma.idea.findUnique({
+    where: { slug },
+    include: {
+      source: true,
+      ideaTopics: {
+        include: {
+          topic: { select: { name: true, icon: true } },
+        },
+      },
+    },
+  })
+
+  if (!idea) {
+    return { title: 'Idée introuvable | MoinsBête' }
+  }
+
+  const isValidUrl = (url: string) => {
+    try {
+      const parsed = new URL(url)
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+    } catch {
+      return false
+    }
+  }
+
+  const topics = idea.ideaTopics.map(it => it.topic.name).join(', ')
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moinsbete.com'
+  const pageUrl = new URL(idea.slug, `${baseUrl}/idees/`).href
+  const coverUrl = idea.source.coverUrl && isValidUrl(idea.source.coverUrl) ? idea.source.coverUrl : null
+
+  return {
+    title: `${idea.title} | MoinsBête`,
+    description: idea.takeaway,
+    authors: [{ name: 'MoinsBête' }],
+    openGraph: {
+      title: idea.title,
+      description: idea.takeaway,
+      type: 'article',
+      url: pageUrl,
+      siteName: 'MoinsBête',
+      locale: 'fr_FR',
+      images: coverUrl ? [{ url: coverUrl, width: 1200, height: 630, alt: idea.title }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@MoinsBete',
+      creator: '@MoinsBete',
+      title: idea.title,
+      description: idea.takeaway,
+      images: coverUrl ? [coverUrl] : [],
+    },
+    metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical: pageUrl,
+    },
+  }
 }
 
 export default async function IdeaDetailPage({
