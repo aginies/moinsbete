@@ -12,6 +12,7 @@ Commands:
   scrape            Scrape Wikipedia archives (auto, incremental)
   ideas             Generate ideas via LLM (generate-ideas.ts)
   ingest            Ingest Wikipedia articles (ingest-wikipedia.ts)
+  enhance           Expand short idea content to 500+ chars
   all               Run scrape + ideas + ingest
   seed              Run seed (topics + manual ideas)
   help              Show this help
@@ -50,6 +51,11 @@ case "$1" in
   ingest)
     echo "📖 Ingesting Wikipedia articles..."
     npx tsx src/scripts/ingest-wikipedia.ts
+    ;;
+
+  enhance)
+    echo "📝 Enhancing short idea content..."
+    npx tsx src/scripts/enhance-ideas.ts
     ;;
 
   all)

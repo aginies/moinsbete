@@ -208,3 +208,100 @@ export function tryExtractArray(text: string): Array<{ title: string; content: s
   }
   return null
 }
+
+export async function expandIdeas(
+  title: string,
+  content: string,
+  takeaway: string
+): Promise<string | null> {
+  const systemPrompt = `Tu es un rédacteur pédagogique francophone. Tu enrichis le contenu d'une idée pour le rendre plus complet et instructif.
+
+Règles:
+- Le contenu final doit faire au moins 500 caractères
+- Garde le sens et le ton original
+- Ajoute du contexte, des exemples concrets, des explications supplémentaires
+- Ne répète pas le takeaway
+- Retourne UNIQUEMENT du JSON valide: {"content":"..."}
+- Retourne le contenu ENTIÈREMENT en français`
+
+  const userMessage = `Titre: ${title}
+
+Contenu actuel (${content.length} caractères):
+${content}
+
+Takeaway: ${takeaway}`
+
+  try {
+    const response = await llm.chat.completions.create({
+      model: process.env.LLM_MODEL!,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
+      ],
+      temperature: 0.5,
+      max_tokens: 4000,
+      response_format: { type: 'json_object' },
+    })
+
+    const choice = response.choices?.[0]
+    if (!choice) {
+      console.error('LLM returned no choices')
+      return null
+    }
+    
+    const rawContent = choice.message?.content || ''
+    const reasoningContent = (choice.message as any)?.reasoning_content || ''
+    
+    // Try rawContent first
+    if (rawContent && rawContent.trim().length > 0) {
+      const result = tryExpandJson(rawContent)
+      if (result) return result
+    }
+    
+    // Fall back to reasoningContent
+    if (reasoningContent && reasoningContent.trim().length > 0) {
+      const result = tryExpandJson(reasoningContent)
+      if (result) return result
+    }
+    
+    console.error('No valid JSON found in response')
+    return null
+  } catch (error) {
+    console.error('LLM expand error:', error)
+    return null
+  }
+}
+
+function tryExpandJson(text: string): string | null {
+  // Try direct parse
+  try {
+    const parsed = JSON.parse(text.trim())
+    if (parsed && typeof parsed.content === 'string' && parsed.content.length >= 500) {
+      return parsed.content
+    }
+  } catch { }
+
+  // Try extracting JSON object
+  const objMatch = text.match(/\{[\s\S]*\}/)
+  if (objMatch) {
+    try {
+      let jsonStr = objMatch[0]
+      jsonStr = jsonStr.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
+      jsonStr = jsonStr.replace(/^[`]+/, '').replace(/[`]+$/, '').trim()
+      jsonStr = jsonStr.replace(/\\\\"/g, '\\"')
+      const parsed = JSON.parse(jsonStr)
+      if (parsed && typeof parsed.content === 'string') {
+        return parsed.content
+      }
+    } catch { }
+  }
+
+  // Try extracting "content" value from text
+  const contentMatch = text.match(/"content"\s*:\s*"((?:[^"\\]|\\.)*)"/)
+  if (contentMatch) {
+    const expanded = contentMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
+    if (expanded.length >= 500) return expanded
+  }
+
+  return null
+}
