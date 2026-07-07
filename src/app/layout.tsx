@@ -60,6 +60,7 @@ export default async function RootLayout({
             updateThemeColor();
             var observer = new MutationObserver(updateThemeColor);
             observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            return '';
           })()}
         </script>
       </head>
