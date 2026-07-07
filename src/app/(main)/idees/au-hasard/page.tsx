@@ -28,9 +28,13 @@ interface Idea {
   }>
 }
 
-async function fetchRandomIdea(): Promise<Idea | null> {
+async function fetchRandomIdea(userId?: string, followed?: boolean): Promise<Idea | null> {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-  const res = await fetch(`${baseUrl}/api/ideas/random`)
+  const params = new URLSearchParams()
+  if (userId) params.set('userId', userId)
+  if (followed) params.set('followed', '1')
+  
+  const res = await fetch(`${baseUrl}/api/ideas/random?${params.toString()}`)
   if (!res.ok) {
     console.error('[au-hasard] fetch failed:', res.status, res.statusText)
     return null
@@ -46,23 +50,45 @@ export default function RandomIdeaClient() {
   const [error, setError] = useState<string | null>(null)
   const [dragX, setDragX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  const [userId, setUserId] = useState<string | undefined>()
+  const [followed, setFollowed] = useState(false)
 
   useEffect(() => {
-    fetchRandomIdea().then((result) => {
+    const params = new URLSearchParams(window.location.search)
+    setFollowed(params.get('followed') === '1')
+    
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/session')
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.user?.id) {
+            setUserId(data.user.id)
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    checkSession()
+  }, [])
+
+  useEffect(() => {
+    fetchRandomIdea(userId, followed).then((result) => {
       console.log('[au-hasard] fetch result:', result)
       setIdea(result)
     }).catch((err) => {
       console.error('[au-hasard] fetch error:', err)
       setError('Erreur de chargement')
     })
-  }, [])
+  }, [userId, followed])
 
   const handleRefresh = useCallback(async () => {
     if (loading) return
     setLoading(true)
     setError(null)
     try {
-      const newIdea = await fetchRandomIdea()
+      const newIdea = await fetchRandomIdea(userId, followed)
       if (newIdea) {
         setIdea(newIdea)
       } else {
@@ -72,7 +98,7 @@ export default function RandomIdeaClient() {
       setError('Erreur de chargement')
     }
     setLoading(false)
-  }, [loading])
+  }, [loading, userId, followed])
 
   const bind = useGesture(
     {

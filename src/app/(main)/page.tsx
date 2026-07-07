@@ -30,6 +30,15 @@ export default async function HomePage() {
       }).then(bookmarks => bookmarks.map(b => b.ideaId))
     : []
 
+  const followedTopics = userId
+    ? await prisma.user.findUnique({
+        where: { id: userId },
+        select: { following: { select: { id: true } } },
+      })
+    : null
+
+  const hasFollowedTopics = followedTopics && followedTopics.following && followedTopics.following.length > 0
+
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6 md:pb-6">
       {!userId && (
@@ -51,7 +60,7 @@ export default async function HomePage() {
 
       <div className="mb-6">
         <Link
-          href="/idees/au-hasard"
+          href={hasFollowedTopics ? '/idees/au-hasard?followed=1' : '/mon-plan'}
           className="block rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-600 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow"
         >
           <div className="flex items-center gap-3">
@@ -60,10 +69,10 @@ export default async function HomePage() {
             </div>
             <div>
               <h3 className="text-base font-bold text-blue-800 dark:text-blue-200">
-                Carte aléatoire
+                {hasFollowedTopics ? 'Carte aléatoire' : 'Choisissez vos sujets'}
               </h3>
               <p className="text-xs text-blue-600 dark:text-blue-300">
-                Découvrir au Hasard
+                {hasFollowedTopics ? 'Découvrir au Hasard' : 'Sélectionnez des sujets dans Mon Plan'}
               </p>
             </div>
           </div>

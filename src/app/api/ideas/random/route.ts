@@ -1,19 +1,34 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const total = await prisma.idea.count({ where: { isPublished: true } })
+    const { searchParams } = request.nextUrl
+    const userId = searchParams.get('userId')
+
+    let whereClause: any = { isPublished: true }
+
+    if (userId) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { following: { select: { id: true } } },
+      })
+
+      if (user && user.following.length > 0) {
+        const topicIds = user.following.map((t: { id: string }) => t.id)
+        whereClause.ideaTopics = { some: { topicId: { in: topicIds } } }
+      }
+    }
+
+    const total = await prisma.idea.count({ where: whereClause })
     if (total === 0) {
       return NextResponse.json({ idea: null })
     }
 
-    // Use indexed approach instead of offset for better performance
     const randomSeed = Math.floor(Math.random() * total)
     
-    // Find a seed idea using index
     const seedIdea = await prisma.idea.findFirst({
-      where: { isPublished: true },
+      where: whereClause,
       select: { id: true },
       orderBy: { id: 'asc' },
       skip: randomSeed,
@@ -24,14 +39,12 @@ export async function GET() {
       return NextResponse.json({ idea: null })
     }
 
-    // Find next idea after seed (uses index)
     const nextIdea = await prisma.idea.findFirst({
-      where: { isPublished: true, id: { gt: seedIdea.id } },
+      where: { ...whereClause, id: { gt: seedIdea.id } },
       select: { id: true },
       orderBy: { id: 'asc' },
     })
 
-    // Wrap around to beginning if we reached the end
     const finalId = nextIdea?.id ?? seedIdea.id
     
     const idea = await prisma.idea.findUnique({
