@@ -52,7 +52,7 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <script>
-          {(function() {
+          {typeof document !== 'undefined' && (function() {
             var updateThemeColor = function() {
               var isDark = document.documentElement.classList.contains('dark');
               var meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
