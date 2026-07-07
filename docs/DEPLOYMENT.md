@@ -22,11 +22,11 @@ sudo systemctl restart apache2
 
 ```bash
 # Créer le répertoire d'installation
-sudo mkdir -p /srv/http/stashfru
-cd /srv/http/stashfru
+sudo mkdir -p /srv/http/moinsbete
+cd /srv/http/moinsbete
 
 # Cloner le repo
-git clone https://github.com/aginies/deepstash/stashfru .
+git clone https://github.com/aginies/moinsbete/moinsbete .
 
 # Installer les dépendances (production uniquement)
 npm ci --production
@@ -43,7 +43,7 @@ npx prisma migrate deploy
 ### Nouvelle installation :
 
 ```bash
-# Seed initial (20 topics + 146 idées manuelles)
+# Seed initial (20 topics + idées manuelles)
 npx tsx prisma/seed.ts
 npx tsx src/scripts/seed-ideas.ts
 
@@ -55,7 +55,7 @@ npx tsx scripts/scrape-saviez-vous.ts
 
 ```bash
 # Placer le fichier dev.db dans le répertoire d'installation
-sudo cp /chemin/vers/dev.db /srv/http/stashfru/dev.db
+sudo cp /chemin/vers/dev.db /srv/http/moinsbete/dev.db
 
 # Vérifier l'intégrité
 sqlite3 dev.db "PRAGMA integrity_check;"
@@ -77,17 +77,17 @@ sudo chown www-data:www-data dev.db
 
 ## Étape 4 : Configuration (.env)
 
-Créer `/srv/http/stashfru/.env` :
+Créer `/srv/http/moinsbete/.env` :
 
 ```env
 # Base de données SQLite (chemin absolu recommandé en production)
-DATABASE_URL="file:/srv/http/stashfru/dev.db"
+DATABASE_URL="file:/srv/http/moinsbete/dev.db"
 
 # Authentification — générer avec: openssl rand -base64 32
 NEXTAUTH_SECRET="votre-clé-secrète-aléatoire"
 
 # URL de production (HTTPS)
-NEXTAUTH_URL="https://stashfru.example.com"
+NEXTAUTH_URL="https://moinsbete.example.com"
 
 # LLM (optionnel, pour génération d'idées)
 LLM_BASE_URL="https://votre-api-llm:port/v1"
@@ -114,7 +114,7 @@ npm run build
 sudo npm install -g pm2
 
 # Démarrer l'application
-pm2 start npm --name "stashfru" -- start
+pm2 start npm --name "moinsbete" -- start
 
 # Configurer le démarrage automatique
 pm2 save
@@ -122,7 +122,7 @@ pm2 startup
 
 # Vérifier que l'application tourne
 pm2 status
-pm2 logs stashfru
+pm2 logs moinsbete
 ```
 
 L'application écoute sur `http://localhost:3000`.
@@ -132,14 +132,14 @@ L'application écoute sur `http://localhost:3000`.
 Créer le fichier de virtual host :
 
 ```bash
-sudo nano /etc/apache2/sites-available/stashfru.conf
+sudo nano /etc/apache2/sites-available/moinsbete.conf
 ```
 
 Contenu :
 
 ```apache
 <VirtualHost *:80>
-    ServerName stashfru.example.com
+    ServerName moinsbete.example.com
 
     # Rediriger HTTP vers HTTPS
     RewriteEngine On
@@ -148,12 +148,12 @@ Contenu :
 </VirtualHost>
 
 <VirtualHost *:443>
-    ServerName stashfru.example.com
+    ServerName moinsbete.example.com
 
     # SSL (avec Let's Encrypt recommandé)
     SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/stashfru.example.com/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/stashfru.example.com/privkey.pem
+    SSLCertificateFile /etc/letsencrypt/live/moinsbete.example.com/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/moinsbete.example.com/privkey.pem
 
     # Proxy vers Next.js
     ProxyPreserveHost On
@@ -167,19 +167,19 @@ Contenu :
     RewriteRule ^/?(.*) "ws://localhost:3000/$1" [P,L]
 
     # Fichiers statiques (optimisation)
-    Alias /public /srv/http/stashfru/public
-    <Directory /srv/http/stashfru/public>
+    Alias /public /srv/http/moinsbete/public
+    <Directory /srv/http/moinsbete/public>
         Require all granted
         Header set Cache-Control "public, max-age=31536000, immutable"
     </Directory>
 
-    Alias /_next/static /srv/http/stashfru/.next/static
-    <Directory /srv/http/stashfru/.next/static>
+    Alias /_next/static /srv/http/moinsbete/.next/static
+    <Directory /srv/http/moinsbete/.next/static>
         Require all granted
         Header set Cache-Control "public, max-age=31536000, immutable"
     </Directory>
 
-    Alias /favicon.ico /srv/http/stashfru/public/favicon.ico
+    Alias /favicon.ico /srv/http/moinsbete/public/favicon.ico
     <Location /favicon.ico>
         Require all granted
     </Location>
@@ -213,25 +213,61 @@ Contenu :
 
 **Activer le virtual host :**
 ```bash
-sudo a2ensite stashfru.conf
+sudo a2ensite moinsbete.conf
 sudo systemctl reload apache2
 ```
 
 **Certificat SSL (Let's Encrypt) :**
 ```bash
 sudo apt-get install certbot python3-certbot-apache
-sudo certbot --apache -d stashfru.example.com
+sudo certbot --apache -d moinsbete.example.com
+```
+
+## PWA (Progressive Web App)
+
+L'application supporte l'installation sur mobile comme une app native.
+
+**Fichiers PWA dans `public/` :**
+
+| Fichier | Description |
+|---------|-------------|
+| `manifest.json` | Manifeste web app (nom, icônes, thème) |
+| `icon-192.svg` | Icône 192x192 pour écran d'accueil |
+| `icon-512.svg` | Icône 512x512 pour écrans haute résolution |
+
+**Fonctionnalités PWA :**
+- Installation sur écran d'accueil iOS/Android
+- Lancement plein écran sans barre d'adresse
+- Thème dynamique (light/dark)
+- Service worker pour cache offline des favoris
+- Support Web Share API
+
+**Vérification PWA :**
+```bash
+# Tester avec Lighthouse
+npx lighthouse https://moinsbete.example.com --view --categories=pwa
+
+# Vérifier le manifeste
+curl -I https://moinsbete.example.com/manifest.json
+
+# Vérifier les icons
+curl -I https://moinsbete.example.com/icon-192.svg
+curl -I https://moinsbete.example.com/icon-512.svg
 ```
 
 ## Structure des fichiers sur le serveur
 
 ```
-/srv/http/stashfru/
+/srv/http/moinsbete/
 ├── .env                    # Variables d'environnement (secret)
 ├── dev.db                  # Base de données SQLite (secret)
 ├── node_modules/           # Dépendances (après npm ci)
 ├── .next/                  # Build de production (après npm run build)
-├── public/                 # Fichiers statiques (images, favicon)
+├── public/                 # Fichiers statiques (images, PWA)
+│   ├── manifest.json       # Manifeste web app
+│   ├── icon-192.svg        # Icône PWA 192x192
+│   ├── icon-512.svg        # Icône PWA 512x512
+│   └── ...                 # Autres assets
 ├── prisma/                 # Schéma et migrations
 ├── src/                    # Code source (restreint par Apache)
 ├── scripts/                # Scripts utilitaires
@@ -262,31 +298,32 @@ sudo certbot --apache -d stashfru.example.com
 
 ```bash
 # Redémarrer l'application
-pm2 restart stashfru
+pm2 restart moinsbete
 
 # Voir les logs
-pm2 logs stashfru --lines 100
+pm2 logs moinsbete --lines 100
 
 # Mettre à jour (git pull + rebuild)
-cd /srv/http/stashfru
+cd /srv/http/moinsbete
 git pull
 npm ci --production
 npx prisma generate
 npx prisma migrate deploy
 npm run build
-pm2 restart stashfru
+pm2 restart moinsbete
 
 # Backup de la base de données
-cp /srv/http/stashfru/dev.db "/srv/http/stashfru/dev.db.backup.$(date +%Y%m%d)"
+cp /srv/http/moinsbete/dev.db "/srv/http/moinsbete/dev.db.backup.$(date +%Y%m%d)"
 
 # Restaurer
-cp "/srv/http/stashfru/dev.db.backup.20260702" /srv/http/stashfru/dev.db
+cp "/srv/http/moinsbete/dev.db.backup.20260707" /srv/http/moinsbete/dev.db
 ```
 
 ## Vérification
 
-1. Ouvrir `https://stashfru.example.com` dans un navigateur
+1. Ouvrir `https://moinsbete.example.com` dans un navigateur
 2. Vérifier que l'application charge correctement
-3. Tester la connexion avec `curl -I https://stashfru.example.com`
-4. Vérifier les logs PM2 : `pm2 logs stashfru`
+3. Tester la connexion avec `curl -I https://moinsbete.example.com`
+4. Vérifier les logs PM2 : `pm2 logs moinsbete`
 5. Vérifier les logs Apache : `sudo tail -f /var/log/apache2/error.log`
+6. Tester PWA sur mobile : ajouter à l'écran d'accueil
