@@ -64,11 +64,10 @@ export default function AproposPage() {
 
         <section>
           <h2 className="mb-3 text-xl font-semibold">Source des contenus</h2>
-          <p className="text-muted-foreground">
-            Toutes les informations de MoinsBête proviennent de Wikipédia.
-            Le contenu est extrait de Wikipédia en français et enrichi par intelligence artificielle
-            pour offrir des idées claires et digestibles.
-          </p>
+     <p className="text-muted-foreground">
+        Toutes les informations de MoinsBête proviennent de Wikipédia.
+        L'IA résume l'idée principale pour offrir un contenu clair et digeste.
+      </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Découvrez nos sources sur{' '}
             <a
