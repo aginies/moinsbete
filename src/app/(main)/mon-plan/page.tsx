@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db'
 
 import { getSession } from '@/lib/auth'
-import { Feed } from '@/components/feed/feed'
+import { MonPlanFeed } from './mon-plan-feed'
 import Link from 'next/link'
 import { ArrowLeft, Target, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -87,8 +87,6 @@ export default async function MonPlanPage() {
     planIdeas = ideas
   }
 
-  const savedIdeaIds = new Set(planIdeas.map((i) => i.id))
-
   return (
     <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">
       <div className="mb-6">
@@ -148,13 +146,7 @@ export default async function MonPlanPage() {
         <h2 className="mb-3 text-lg font-semibold">
           {growthPlan ? 'Votre parcours' : 'Idées recommandées'}
         </h2>
-        <Feed
-          initialIdeas={planIdeas as any}
-          initialHasMore={false}
-          userId={session.user.id}
-          savedIdeaIds={savedIdeaIds}
-          compact
-        />
+        <MonPlanFeed initialIdeas={planIdeas} userId={session.user.id} />
       </div>
     </div>
   )
