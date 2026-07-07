@@ -31,7 +31,7 @@ export default async function HomePage() {
     : []
 
   return (
-    <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6 md:pb-6">
+    <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6 md:pb-6">
       {!userId && (
         <div className="mb-6 rounded-lg border border-border/60 bg-card p-4 text-center">
           <p className="text-sm text-muted-foreground">

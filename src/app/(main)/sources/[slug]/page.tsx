@@ -78,7 +78,7 @@ export default async function SourceDetailPage({
   })).filter(idea => !viewedIdeaIds.has(idea.id))
 
   return (
-    <div className="mx-auto max-w-2xl p-4 pb-20 md:p-6">
+    <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
       <Link
         href="/"
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
