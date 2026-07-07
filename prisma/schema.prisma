@@ -14,7 +14,7 @@ model User {
   email        String               @unique
   passwordHash String
   displayName  String?
-  role         UserRole             @default("USER")
+  role         UserRole @default(USER)
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
   bookmarks    Bookmark[]
@@ -51,7 +51,7 @@ model Source {
   title        String
   slug         String        @unique
   author       String?
-  type         SourceType    @default("WIKIPEDIA")
+  type         SourceType @default(WIKIPEDIA)
   url          String?
   coverUrl     String?
   description  String?
@@ -151,7 +151,7 @@ model TopicSuggestion {
   icon         String           @default("🤖")
   confidence   Float
   articleCount Int              @default(0)
-  status       SuggestionStatus @default("PENDING")
+  status       SuggestionStatus @default(PENDING)
   mergedIntoId String?
   createdAt    DateTime         @default(now())
   mergedInto   Topic?           @relation("MergeRelation", fields: [mergedIntoId], references: [id])
