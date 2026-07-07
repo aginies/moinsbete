@@ -5,7 +5,7 @@ import Image from 'next/image'
 import React from 'react'
 import { useState, useCallback, useMemo } from 'react'
 import { Bookmark, ExternalLink, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 interface IdeaCardProps {
   idea: {
@@ -33,7 +33,12 @@ interface IdeaCardProps {
 }
 
 const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: IdeaCardProps) => {
+  const router = useRouter()
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
+
+  const handleCardClick = useCallback(() => {
+    router.push(`/idees/${idea.slug}`)
+  }, [router, idea.slug])
 
   const handleBookmark = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -57,8 +62,27 @@ const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: Id
   }, [idea.topics])
 
   return (
-    <Link href={`/idees/${idea.slug}`} className="block">
+    <div
+      className="block cursor-pointer"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          handleCardClick()
+        }
+      }}
+    >
       <article className="group relative rounded-2xl border border-border/60 bg-card p-5 shadow-sm transition-all hover:border-border hover:shadow-md">
+        <button
+          type="button"
+          className="absolute right-3 top-3 z-10 rounded-full bg-card/90 p-1.5 backdrop-blur-sm transition-colors hover:bg-muted hover:text-foreground"
+          onClick={handleBookmark}
+        >
+          <Bookmark className={`h-5 w-5 transition-colors ${bookmarked ? 'fill-current text-primary' : 'text-muted-foreground'}`} />
+        </button>
+
         {idea.source.coverUrl && (
           <div className="mb-3 overflow-hidden rounded-xl">
             <Image
@@ -102,7 +126,7 @@ const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: Id
 
         <div className="flex items-center justify-between">
           {idea.source.url && (
-            <a
+            <Link
               href={idea.source.url}
               target="_blank"
               rel="noopener noreferrer"
@@ -111,7 +135,7 @@ const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: Id
             >
               <ExternalLink className="h-3 w-3" />
               <span className="hidden sm:inline">Source</span>
-            </a>
+            </Link>
           )}
 
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
@@ -119,7 +143,7 @@ const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: Id
           </div>
         </div>
       </article>
-    </Link>
+    </div>
   )
 }
 

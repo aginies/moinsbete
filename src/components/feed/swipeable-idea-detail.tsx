@@ -5,7 +5,7 @@ import { useGesture } from '@use-gesture/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ExternalLink } from 'lucide-react'
+import { ArrowLeft, BookOpen, ExternalLink, Bookmark } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { isValidUrl } from '@/lib/utils'
 
@@ -190,7 +190,15 @@ export function SwipeableIdeaDetail({
             transform: `translateX(${effectiveX}px) rotate(${rotation}deg) scale(${scale})`,
           }}
         >
-          <div className="rounded-2xl border border-border/60 bg-card shadow-sm">
+          <div className="relative rounded-2xl border border-border/60 bg-card shadow-sm">
+            <button
+              type="button"
+              className="absolute right-3 top-3 z-10 rounded-full bg-card/90 p-1.5 backdrop-blur-sm transition-colors hover:bg-muted hover:text-foreground"
+              onClick={handleBookmark}
+            >
+              <Bookmark className={`h-5 w-5 transition-colors ${bookmarked ? 'fill-current text-primary' : 'text-muted-foreground'}`} />
+            </button>
+
             {/* Topics */}
             <div className="mb-4 flex flex-wrap gap-2 px-5 pt-5">
               {idea.topics.map((topicItem) => (
