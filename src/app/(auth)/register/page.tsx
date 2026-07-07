@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { registerAction } from '@/actions/auth-actions'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { BookOpen, Mail, Lock, User } from 'lucide-react'
+import { BookOpen, Mail, Lock, User, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -29,8 +30,7 @@ export default function RegisterPage() {
     if (result.error) {
       setError(result.error)
     } else {
-      router.push('/')
-      router.refresh()
+      setSuccess(true)
     }
 
     setLoading(false)
@@ -48,6 +48,15 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {success && (
+            <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4" />
+                <span>Compte créé avec succès!</span>
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
               {error}
