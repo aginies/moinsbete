@@ -76,22 +76,44 @@ export async function getSavedIdeas() {
   }
 }
 
-export async function followTopic(topicId: string) {
+export async function toggleTopic(topicId: string) {
   const session = await getServerSession(authOptions)
   if (!session?.user) {
     return { error: 'Non authentifié' }
   }
 
-  await prisma.user.update({
+  const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    data: {
-      following: {
-        connect: { id: topicId },
-      },
-    },
+    include: { following: { where: { id: topicId } } },
   })
 
-  return { success: true }
+  if (!user) {
+    return { error: 'Utilisateur non trouvé' }
+  }
+
+  const isFollowing = user.following.length > 0
+
+  if (isFollowing) {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        following: {
+          disconnect: { id: topicId },
+        },
+      },
+    })
+    return { success: true, followed: false }
+  } else {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        following: {
+          connect: { id: topicId },
+        },
+      },
+    })
+    return { success: true, followed: true }
+  }
 }
 
 export async function getFollowedTopics() {

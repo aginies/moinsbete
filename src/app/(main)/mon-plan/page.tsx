@@ -5,26 +5,18 @@ import { MonPlanFeed } from './mon-plan-feed'
 import Link from 'next/link'
 import { ArrowLeft, Target, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { TopicCard } from '@/components/topics/topic-card'
 
 interface TopicWithCount {
   id: string
   name: string
   slug: string
   icon: string
+  description?: string | null
+  color?: string
+  createdAt?: Date
+  parentId?: string | null
   _count?: Record<string, number>
-}
-
-interface FollowedUser {
-  following: TopicWithCount[]
-}
-
-interface GrowthPlan {
-  streakDays: number | null
-}
-
-interface FeedIdea {
-  id: string
-  [key: string]: unknown
 }
 
 export default async function MonPlanPage() {
@@ -67,11 +59,19 @@ export default async function MonPlanPage() {
       })
     : null
 
-  const topicIds = followedTopics?.following.map(t => t.id) || []
+  const topicIds = followedTopics?.following.map((t: { id: string }) => t.id) || []
 
-  let planIdeas: FeedIdea[] = []
+  const allTopics = await prisma.topic.findMany({
+    where: {
+      parentId: null,
+      id: { notIn: topicIds.length > 0 ? topicIds : undefined },
+    },
+    orderBy: { name: 'asc' },
+  })
 
-  if (planIdeas.length === 0 && topicIds.length > 0) {
+  let planIdeas: Array<{ id: string; [key: string]: unknown }> = []
+
+  if (topicIds.length > 0) {
     const topicsRes = await fetch(
       `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/feed?topic=${topicIds[0]}&page=1&limit=10&userId=${session.user.id}`,
     )
@@ -121,33 +121,40 @@ export default async function MonPlanPage() {
         </div>
       </div>
 
-      {followedTopics && followedTopics.following.length > 0 && (
-        <div className="mb-6">
-          <h2 className="mb-3 text-lg font-semibold">Vos sujets</h2>
-          <div className="flex flex-wrap gap-2">
-            {followedTopics.following.map((topic: TopicWithCount & { _count?: { ideaTopics: number } }) => (
-              <Link
-                key={topic.id}
-                href={`/sujets/${topic.slug}`}
-                className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-card px-3 py-1.5 text-sm transition-colors hover:border-border"
-              >
-                <span>{topic.icon}</span>
-                <span>{topic.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  ({(topic as any)._count?.ideaTopics || 0})
-                </span>
-              </Link>
+      <div className="mb-6">
+        <h2 className="mb-3 text-lg font-semibold">Vos sujets suivis</h2>
+        {followedTopics && followedTopics.following.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {followedTopics.following.map((topic: any) => (
+              <TopicCard key={topic.id} topic={topic} isFollowing={true} />
             ))}
           </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Aucun sujet suivi. Choisissez des sujets ci-dessous !</p>
+        )}
+      </div>
+
+      <div className="mb-6">
+        <h2 className="mb-3 text-lg font-semibold">Découvrir des sujets</h2>
+        {allTopics.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {allTopics.map((topic: any) => (
+              <TopicCard key={topic.id} topic={topic} isFollowing={false} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Aucun sujet disponible.</p>
+        )}
+      </div>
+
+      {planIdeas.length > 0 && (
+        <div>
+          <h2 className="mb-3 text-lg font-semibold">
+            {growthPlan ? 'Votre parcours' : 'Idées recommandées'}
+          </h2>
+          <MonPlanFeed initialIdeas={planIdeas} userId={session.user.id} />
         </div>
       )}
-
-      <div>
-        <h2 className="mb-3 text-lg font-semibold">
-          {growthPlan ? 'Votre parcours' : 'Idées recommandées'}
-        </h2>
-        <MonPlanFeed initialIdeas={planIdeas} userId={session.user.id} />
-      </div>
     </div>
   )
 }
