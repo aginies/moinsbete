@@ -126,7 +126,7 @@ export default async function MonPlanPage() {
         {followedTopics && followedTopics.following.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
             {followedTopics.following.map((topic: any) => (
-              <TopicCard key={topic.id} topic={topic} isFollowing={true} />
+              <TopicCard key={topic.id} topic={topic} isFollowing={true} isAuthenticated={true} />
             ))}
           </div>
         ) : (
@@ -139,7 +139,7 @@ export default async function MonPlanPage() {
         {allTopics.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
             {allTopics.map((topic: any) => (
-              <TopicCard key={topic.id} topic={topic} isFollowing={false} />
+              <TopicCard key={topic.id} topic={topic} isFollowing={false} isAuthenticated={true} />
             ))}
           </div>
         ) : (

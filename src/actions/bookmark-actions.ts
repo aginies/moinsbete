@@ -79,6 +79,7 @@ export async function getSavedIdeas() {
 export async function toggleTopic(topicId: string) {
   const session = await getServerSession(authOptions)
   if (!session?.user) {
+    console.error('[toggleTopic] No session')
     return { error: 'Non authentifié' }
   }
 
@@ -88,10 +89,12 @@ export async function toggleTopic(topicId: string) {
   })
 
   if (!user) {
+    console.error('[toggleTopic] User not found:', session.user.id)
     return { error: 'Utilisateur non trouvé' }
   }
 
-  const isFollowing = user.following.length > 0
+  const isFollowing = user.following.some(t => t.id === topicId)
+  console.log('[toggleTopic] User:', session.user.id, 'Topic:', topicId, 'isFollowing:', isFollowing)
 
   if (isFollowing) {
     await prisma.user.update({
@@ -102,6 +105,7 @@ export async function toggleTopic(topicId: string) {
         },
       },
     })
+    console.log('[toggleTopic] Disconnected topic', topicId)
     return { success: true, followed: false }
   } else {
     await prisma.user.update({
@@ -112,6 +116,7 @@ export async function toggleTopic(topicId: string) {
         },
       },
     })
+    console.log('[toggleTopic] Connected topic', topicId)
     return { success: true, followed: true }
   }
 }

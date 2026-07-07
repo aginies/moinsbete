@@ -1,17 +1,28 @@
-import Link from 'next/link'
 import { Topic } from '@/generated/client'
 import { TopicCard } from './topic-card'
 
 interface TopicGridProps {
-  topics: Topic[]
+  topics: Array<{ id: string } & Topic>
+  followedIds?: string[]
+  onToggle?: (topicId: string, isFollowing: boolean) => void
+  isAuthenticated?: boolean
 }
 
-export function TopicGrid({ topics }: TopicGridProps) {
+export function TopicGrid({ topics, followedIds = [], onToggle, isAuthenticated }: TopicGridProps) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {topics.map((topic) => (
-        <TopicCard key={topic.id} topic={topic} />
-      ))}
+      {topics.map((topic) => {
+        const isFollowing = followedIds.includes(topic.id)
+        return (
+          <TopicCard
+            key={topic.id}
+            topic={topic}
+            isFollowing={isFollowing}
+            onToggle={() => onToggle?.(topic.id, isFollowing)}
+            isAuthenticated={isAuthenticated}
+          />
+        )
+      })}
     </div>
   )
 }

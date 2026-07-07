@@ -5,7 +5,7 @@ import { useGesture } from '@use-gesture/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, MessageCircle } from 'lucide-react'
+import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2 } from 'lucide-react'
 import { isValidUrl } from '@/lib/utils'
 
 interface Idea {
@@ -38,6 +38,8 @@ interface SwipeableIdeaDetailProps {
   collection?: string
   onBookmark?: (ideaId: string) => void
   isBookmarked?: boolean
+  showNav?: boolean
+  mobileOnly?: boolean
 }
 
 export function SwipeableIdeaDetail({
@@ -48,6 +50,8 @@ export function SwipeableIdeaDetail({
   collection,
   onBookmark,
   isBookmarked: initialBookmarked,
+  showNav = true,
+  mobileOnly = false,
 }: SwipeableIdeaDetailProps) {
   const router = useRouter()
   const [dragX, setDragX] = useState(0)
@@ -175,7 +179,7 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
   const nextHintOpacity = hint === 'next' ? Math.min(absX / 100, 1) : 0
 
   return (
-    <div className="mx-auto w-full px-0 py-4 pb-24 md:hidden">
+    <div className={`mx-auto w-full px-0 py-4 pb-24 ${mobileOnly ? 'md:hidden' : ''}`}>
       <div className="px-4">
         <Link
           href="/"
@@ -320,49 +324,37 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
               </div>
             </div>
 
-            {/* Social share buttons */}
-            <div className="px-5 pb-4">
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent(`${idea.title} — ${idea.takeaway}`)}%20${encodeURIComponent(getSharePath(idea.slug))}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              >
-                <MessageCircle className="h-3.5 w-3.5" />
-                WhatsApp
-              </a>
-            </div>
+            {showNav && (
+              <div className="flex items-center justify-between border-t border-border/40 px-5 py-3">
+                <div className="flex items-center gap-2">
+                  {prev ? (
+                    <button
+                      onClick={() => router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                      aria-label="Voir l'idée précédente"
+                    >
+                      ← Précédent
+                    </button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground/30">← Précédent</span>
+                  )}
+                </div>
 
-            {/* Bottom bar */}
-            <div className="flex items-center justify-between border-t border-border/40 px-5 py-3">
-              <div className="flex items-center gap-2">
-                {prev ? (
-                  <button
-                    onClick={() => router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                    aria-label="Voir l'idée précédente"
-                  >
-                    ← Précédent
-                  </button>
-                ) : (
-                  <span className="text-xs text-muted-foreground/30">← Précédent</span>
-                )}
+                <div className="flex items-center gap-2">
+                  {next ? (
+                    <button
+                      onClick={() => router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                      aria-label="Voir l'idée suivante"
+                    >
+                      Suivant →
+                    </button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground/30">Suivant →</span>
+                  )}
+                </div>
               </div>
-
-              <div className="flex items-center gap-2">
-                {next ? (
-                  <button
-                    onClick={() => router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                    aria-label="Voir l'idée suivante"
-                  >
-                    Suivant →
-                  </button>
-                ) : (
-                  <span className="text-xs text-muted-foreground/30">Suivant →</span>
-                )}
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

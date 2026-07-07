@@ -217,7 +217,7 @@ export async function expandIdeas(
   const systemPrompt = `Tu es un rédacteur pédagogique francophone. Tu enrichis le contenu d'une idée pour le rendre plus complet et instructif.
 
 Règles:
-- Le contenu final doit faire au moins 500 caractères
+- Le contenu final doit faire au moins 700 caractères
 - Garde le sens et le ton original
 - Ajoute du contexte, des exemples concrets, des explications supplémentaires
 - Ne répète pas le takeaway

@@ -24,7 +24,11 @@ async function main() {
 
   console.log(`Found ${ideas.length} ideas with short content\n`)
 
-  if (ideas.length === 0) {
+  // Filter by content length < 700
+  const shortIdeas = ideas.filter(i => i.content.length < 700)
+  console.log(`Filtered to ${shortIdeas.length} ideas with < 700 chars\n`)
+
+  if (shortIdeas.length === 0) {
     console.log('✅ All ideas already have sufficient content!')
     return
   }
@@ -34,13 +38,13 @@ async function main() {
   let failed = 0
   let skipped = 0
 
-  for (let i = 0; i < ideas.length; i += BATCH_SIZE) {
-    const batch = ideas.slice(i, i + BATCH_SIZE)
-    console.log(`\n📦 Batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(ideas.length / BATCH_SIZE)} (${batch.length} ideas)`)
+  for (let i = 0; i < shortIdeas.length; i += BATCH_SIZE) {
+    const batch = shortIdeas.slice(i, i + BATCH_SIZE)
+    console.log(`\n📦 Batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(shortIdeas.length / BATCH_SIZE)} (${batch.length} ideas)`)
 
     for (const idea of batch) {
       processed++
-      console.log(`  [${processed}/${ideas.length}] ${idea.title} (${idea.content.length} chars)`)
+      console.log(`  [${processed}/${shortIdeas.length}] ${idea.title} (${idea.content.length} chars)`)
 
       const expandedContent = await expandIdeas(idea.title, idea.content, idea.takeaway)
 
@@ -50,7 +54,7 @@ async function main() {
         continue
       }
 
-      if (expandedContent.length < 500) {
+      if (expandedContent.length < 700) {
         console.log(`    ⚠️ Expanded content too short: ${expandedContent.length} chars`)
         console.log(`    Content: ${expandedContent.substring(0, 100)}...`)
         failed++
@@ -83,7 +87,7 @@ async function main() {
       }
     }
 
-    if (i + BATCH_SIZE < ideas.length) {
+    if (i + BATCH_SIZE < shortIdeas.length) {
       console.log(`  ⏳ Waiting ${DELAY_MS}ms...`)
       await new Promise(resolve => setTimeout(resolve, DELAY_MS))
     }

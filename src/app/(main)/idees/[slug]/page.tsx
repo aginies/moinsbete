@@ -206,6 +206,7 @@ export default async function IdeaDetailPage({
         topic={topic}
         collection={collection}
         isBookmarked={isBookmarked}
+        mobileOnly
       />
 
       {/* Desktop static version */}
