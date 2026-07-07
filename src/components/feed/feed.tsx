@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { IdeaCard, CompactIdeaCard } from './idea-card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 interface Idea {
   id: string
@@ -38,6 +40,7 @@ interface FeedProps {
   userId?: string
   isHistory?: boolean
   compact?: boolean
+  onRemove?: (ideaId: string) => void
 }
 
 export function Feed({
@@ -52,6 +55,7 @@ export function Feed({
   userId,
   isHistory = false,
   compact = false,
+  onRemove,
 }: FeedProps) {
   const [ideas, setIdeas] = useState<Idea[]>(initialIdeas)
   const [page, setPage] = useState(initialPage)
@@ -162,8 +166,24 @@ export function Feed({
   return (
     <div className="space-y-4">
       {uniqueIdeas.map((idea) => (
-        <div key={idea.id}>
-          {isHistory || compact ? (
+        <div key={idea.id} className="group relative">
+          {(isHistory || compact) && onRemove ? (
+            <div className="pr-8">
+              <CompactIdeaCard idea={idea as Idea & { viewedAt: string }} />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onRemove(idea.id)
+                }}
+                className="absolute right-1 top-1 h-7 w-7 p-0 text-muted-foreground opacity-30 hover:text-destructive group-hover:opacity-100"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : isHistory || compact ? (
             <CompactIdeaCard idea={idea as Idea & { viewedAt: string }} />
           ) : (
             <IdeaCard
