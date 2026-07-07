@@ -55,7 +55,7 @@ export default async function RootLayout({
           {(function() {
             var updateThemeColor = function() {
               var isDark = document.documentElement.classList.contains('dark');
-              var meta = document.querySelector('meta[name="theme-color"]');
+              var meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
               if (meta) meta.content = isDark ? '#372773' : '#7C6CF6';
             };
             updateThemeColor();
