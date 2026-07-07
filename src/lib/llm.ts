@@ -276,7 +276,7 @@ function tryExpandJson(text: string): string | null {
   // Try direct parse
   try {
     const parsed = JSON.parse(text.trim())
-    if (parsed && typeof parsed.content === 'string' && parsed.content.length >= 500) {
+    if (parsed && typeof parsed.content === 'string' && parsed.content.length >= 700) {
       return parsed.content
     }
   } catch { }
@@ -300,7 +300,7 @@ function tryExpandJson(text: string): string | null {
   const contentMatch = text.match(/"content"\s*:\s*"((?:[^"\\]|\\.)*)"/)
   if (contentMatch) {
     const expanded = contentMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
-    if (expanded.length >= 500) return expanded
+    if (expanded.length >= 700) return expanded
   }
 
   return null

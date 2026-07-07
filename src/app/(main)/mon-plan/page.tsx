@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/db'
 
 import { getSession } from '@/lib/auth'
-import { MonPlanFeed } from './mon-plan-feed'
 import Link from 'next/link'
 import { ArrowLeft, Target, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -39,55 +38,21 @@ export default async function MonPlanPage() {
     )
   }
 
-  const growthPlan = await prisma.growthPlan.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: {
-        include: {
-          following: {
-            include: { _count: { select: { ideaTopics: true } } },
-          },
-        },
-      },
-    },
-  })
-
-  const followedTopics = session.user.id
+ const followedTopics = session.user.id
     ? await prisma.user.findUnique({
         where: { id: session.user.id },
         include: { following: true },
       })
     : null
 
-  const topicIds = followedTopics?.following.map((t: { id: string }) => t.id) || []
-
   const allTopics = await prisma.topic.findMany({
     where: {
       parentId: null,
-      id: { notIn: topicIds.length > 0 ? topicIds : undefined },
     },
     orderBy: { name: 'asc' },
   })
 
-  let planIdeas: Array<{ id: string; [key: string]: unknown }> = []
-
-  if (topicIds.length > 0) {
-    const topicsRes = await fetch(
-      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/feed?topic=${topicIds[0]}&page=1&limit=10&userId=${session.user.id}`,
-    )
-    const { ideas } = await topicsRes.json()
-    planIdeas = ideas
-  }
-
-  if (planIdeas.length === 0) {
-    const feedRes = await fetch(
-      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/feed?page=1&limit=10&userId=${session.user.id}`,
-    )
-    const { ideas } = await feedRes.json()
-    planIdeas = ideas
-  }
-
-  return (
+   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
       <div className="mb-6">
         <Link
@@ -147,14 +112,6 @@ export default async function MonPlanPage() {
         )}
       </div>
 
-      {planIdeas.length > 0 && (
-        <div>
-          <h2 className="mb-3 text-lg font-semibold">
-            {growthPlan ? 'Votre parcours' : 'Idées recommandées'}
-          </h2>
-          <MonPlanFeed initialIdeas={planIdeas} userId={session.user.id} />
-        </div>
-      )}
     </div>
   )
 }
