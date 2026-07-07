@@ -5,7 +5,7 @@ import { useGesture } from '@use-gesture/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ExternalLink, Bookmark } from 'lucide-react'
+import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, X, MessageCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { isValidUrl } from '@/lib/utils'
 
@@ -58,6 +58,32 @@ export function SwipeableIdeaDetail({
   const [bookmarkAnimating, setBookmarkAnimating] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ x: number; y: number } | null>(null)
+
+  const getShareUrl = (slug: string) => `${window.location.origin}/idees/${slug}`
+const getSharePath = (slug: string) => `/idees/${slug}`
+
+const handleShare = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const shareData = {
+      title: idea.title,
+      text: idea.takeaway,
+      url: getShareUrl(idea.slug),
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+      } catch {
+        // User cancelled or share failed
+      }
+    } else {
+      await navigator.clipboard.writeText(getShareUrl(idea.slug))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }, [idea.title, idea.slug])
 
   const handleBookmark = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -191,13 +217,22 @@ export function SwipeableIdeaDetail({
           }}
         >
           <div className="relative rounded-2xl border border-border/60 bg-card shadow-sm">
-            <button
-              type="button"
-              className="absolute right-3 top-3 z-10 rounded-full bg-card/90 p-1.5 backdrop-blur-sm transition-colors hover:bg-muted hover:text-foreground"
-              onClick={handleBookmark}
-            >
-              <Bookmark className={`h-5 w-5 transition-colors ${bookmarked ? 'fill-current text-primary' : 'text-muted-foreground'}`} />
-            </button>
+            <div className="absolute right-3 top-3 z-10 flex gap-2">
+              <button
+                type="button"
+                className="rounded-full bg-card/90 p-1.5 backdrop-blur-sm transition-colors hover:bg-muted hover:text-foreground"
+                onClick={handleBookmark}
+              >
+                <Bookmark className={`h-5 w-5 transition-colors ${bookmarked ? 'fill-current text-primary' : 'text-muted-foreground'}`} />
+              </button>
+              <button
+                type="button"
+                className="rounded-full bg-card/90 p-1.5 backdrop-blur-sm transition-colors hover:bg-muted hover:text-foreground"
+                onClick={handleShare}
+              >
+                <Share2 className="h-5 w-5 text-muted-foreground" />
+              </button>
+            </div>
 
             {/* Topics */}
             <div className="mb-4 flex flex-wrap gap-2 px-5 pt-5">
@@ -280,6 +315,19 @@ export function SwipeableIdeaDetail({
                   <BookOpen className="h-5 w-5 text-muted-foreground" />
                 </div>
               </div>
+            </div>
+
+            {/* Social share buttons */}
+            <div className="px-5 pb-4">
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`${idea.title} — ${idea.takeaway}`)}%20${encodeURIComponent(getSharePath(idea.slug))}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                WhatsApp
+              </a>
             </div>
 
             {/* Bottom bar */}
