@@ -5,8 +5,7 @@ import { useGesture } from '@use-gesture/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, X, MessageCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, MessageCircle } from 'lucide-react'
 import { isValidUrl } from '@/lib/utils'
 
 interface Idea {
@@ -55,7 +54,6 @@ export function SwipeableIdeaDetail({
   const [hint, setHint] = useState<'prev' | 'next' | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
-  const [bookmarkAnimating, setBookmarkAnimating] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ x: number; y: number } | null>(null)
 
@@ -90,12 +88,10 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation()
     if (isDragging) return
 
-    setBookmarkAnimating(true)
     setBookmarked(prev => !prev)
     if (onBookmark) {
       onBookmark(idea.id)
     }
-    setTimeout(() => setBookmarkAnimating(false), 300)
   }, [isDragging, onBookmark, idea.id])
 
   const bind = useGesture(

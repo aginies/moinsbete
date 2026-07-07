@@ -7,25 +7,6 @@ import { markIdeaViewedAction } from '@/actions/view-actions'
 import { SwipeableIdeaDetail } from '@/components/feed/swipeable-idea-detail'
 import { IdeaDetailClient } from './idea-detail-client'
 
-interface TopicChild {
-  id: string
-}
-
-interface TopicRecord {
-  id: string
-  children: TopicChild[]
-}
-
-interface CollectionTopic {
-  id: string
-  children: TopicChild[]
-}
-
-interface CollectionRecord {
-  id: string
-  topics: CollectionTopic[]
-}
-
 async function getPrevNext(slug: string, currentOrderIndex: number, topic?: string, collection?: string) {
   const where: { isPublished: boolean; orderIndex: { not: number }; ideaTopics?: { some: { topicId: { in: string[] } } } } = {
     isPublished: true,
@@ -108,7 +89,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
 
-  const topics = idea.ideaTopics.map(it => it.topic.name).join(', ')
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moinsbete.com'
   const pageUrl = new URL(idea.slug, `${baseUrl}/idees/`).href
   const coverUrl = idea.source.coverUrl && isValidUrl(idea.source.coverUrl) ? idea.source.coverUrl : null
