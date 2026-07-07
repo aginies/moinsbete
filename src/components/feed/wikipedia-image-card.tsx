@@ -91,9 +91,6 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
               className="w-full h-48 object-contain transition-opacity hover:opacity-90 pointer-events-none bg-neutral-100 dark:bg-neutral-800"
               onError={() => setImageError(true)}
             />
-            <div className="flex items-center justify-center gap-1 bg-amber-100/80 px-3 py-1.5 dark:bg-amber-900/40">
-              <span className="text-xs text-amber-700 dark:text-amber-300">{image?.date}</span>
-            </div>
           </div>
         )}
 
