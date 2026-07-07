@@ -742,6 +742,286 @@ export const IDEAS = [
     sourceTitle: "Argument ad populum",
     topicNames: ['Débat & Rhétorique']
   },
+  {
+    title: "La routine pré-shot — le secret mental des pros",
+    content: "Avant chaque coup, les professionnels exécutent une routine identique : 3 à 5 secondes de visualisation, un swing d'essai, puis l'exécution sans hésitation. Cette routine n'est pas superstitieuse : elle est neurologiquement puissante. La routine active le 'zone of automacity' — un état où le cerveau transfère le mouvement du cortex préfrontal (conscient, lent) au cervelet (automatique, rapide). Les études montrent que les golfeurs avec une routine stable ont 40% moins de variations de performance entre les coups. Tiger Woods a une routine de 20 secondes. Phil Mickelson en a une de 40 secondes. La durée importe moins que la constance. Quand la pression monte (18ème trou, tournoi), la routine devient l'ancrage qui empêche le cerveau conscient de saboter le swing automatique.",
+    takeaway: "Créez votre routine pré-shot et répétez-la SANS EXCEPTION, quel que soit le coup. Visualisez, swing d'essai, exécutez. Ne changez rien. Après 21 jours, votre cerveau automatisera le processus et la pression perdra son pouvoir de sabotage.",
+    sourceTitle: "Routine pré-shot",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Le score suivant — l'art de ne jamais se faire doubler par une erreur",
+    content: "L'un des concepts les plus sous-estimés en golf est le 'score suivant' (next score). Après un mauvais coup, le cerveau du golfeur amateur fait deux erreurs : il rumine l'erreur précédente ET joue avec peur, ce qui crée un enchaînement de dégâts. Le golfeur qui fait bogey au 7ème trous va souvent faire double bogey au 8ème et 9ème, non pas à cause de la difficulté mais à cause de la réaction émotionnelle. Le concept de 'score suivant' a été popularisé par le coach mental Bob Rotella : après chaque coup, la question n'est pas 'comment je me suis mal joué' mais 'quel est mon prochain coup ?'. Les pros passent en moyenne 8 secondes sur un mauvais coup, puis passent à autre chose. Les amateurs passent 8 minutes. Cette différence de récupération mentale explique 30% de l'écart de score entre golfeurs de handicap similaire.",
+    takeaway: "Après un mauvais coup, comptez à rebours : 5, 4, 3, 2, 1 — et passez immédiatement au score suivant. La règle des 8 secondes : après 8 secondes de rumination, vous n'avez plus le droit de vous plaindre. Ce qui est fait est fait. Votre prochain coup est votre seul problème.",
+    sourceTitle: "Gestion mentale en golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "L'art de perdre son ego — pourquoi 'je suis nul au golf' est la meilleure phrase",
+    content: "Le golf est le sport le plus cruel pour l'ego : vous pouvez jouer parfait 17 trous et tout détruire en un seul coup au 18ème. Les meilleurs golfeurs du monde partagent une caractéristique commune : ils acceptent d'être mauvais sans se laisser abattre. Le coach Dr. George Mumford l'explique par le concept de 'beginner's mind' (esprit du débutant) : quand vous acceptez de ne pas savoir, votre cerveau reste ouvert à l'apprentissage. Quand vous pensez 'je sais jouer au golf', votre cerveau ferme les circuits d'adaptation. Les études en neuroplasticité montrent que l'humilité cognitive active l'hippocampe (apprentissage) tandis que la confiance excessive active l'amygdale (menace). En golf, le joueur qui dit 'je suis nul' apprend plus vite que celui qui dit 'je suis bon mais今天 passe pas'.",
+    takeaway: "Dites 'je suis nul au golf' avant chaque round. Cette phrase libère votre ego, active votre cerveau d'apprentissage, et vous rend curieux au lieu de frustré. Le golf récompense l'humilité bien plus que la confiance.",
+    sourceTitle: "Psychologie du golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "La visualisation — ce que la neuroscience dit de 'voir avant de frapper'",
+    content: "Quand un pro visualise son coup, son cerveau active les mêmes zones que lors de l'exécution réelle. Les neurosciences fonctionnelles montrent que la visualisation active le cortex moteur primaire, le cervelet, et les neurones miroirs — exactement les mêmes circuits que le swing réel, mais avec une intensité 40% plus faible. C'est suffisant pour renforcer les connexions sans créer de fatigue musculaire. Les golfeurs qui visualisent régulièrement améliorent leur performance de 12 à 18% selon les études. Le protocole efficace : 1) Fermez les yeux. 2) Voyez la trajectoire de la balle en couleurs. 3) Entendez le son du contact. 4) Ressentez l'impact dans vos mains. 5) Ouvrez les yeux et exécutez. La visualisation ne fonctionne que si elle est multisensorielle (vue + ouïe + toucher).",
+    takeaway: "Avant chaque coup, fermez les yeux 10 secondes et visualisez MULTISENSORIELLEMENT : voyez la trajectoire, entendez le contact, sentez l'impact. La visualisation est un entraînement réel pour votre cerveau — utilisez-la.",
+    sourceTitle: "Visualisation sportive",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Pressure putting — pourquoi le putt de 50cm passe en practice et pas en tournoi",
+    content: "Le phénomène est universel : le putt facile qui passe à l'entraînement disparaît sous pression. La science appelle ça 'choking under pressure' (étrangler sous pression). Les études de Sian Beilock montrent que sous stress, le cortex préfrontal (conscient) envahit les zones motrices automatiques. Résultat : le golfeur 'pense' son putt au lieu de le 'ressentir'. En practice, le putt de 50cm est exécuté par le cervelet (automatique). En tournoi, l'amygdale (peur de rater) active le cortex préfrontal (conscient) qui 'micromanage' le geste. Le résultat : un putt raté. La solution validée par la recherche : 'paradigmatic reversal training' — s'entraîner sous pression artificielle (paris, compétition, fatigue) pour habituer le cerveau à exécuter automatiquement même sous stress. Les pros qui s'entraînent sans pression font en moyenne 2,3 coups de plus en tournoi que en practice.",
+    takeaway: "Entraînez-vous sous pression : pariez 1€ par putt, jouez en compétition contre un ami, ou pratiquez après 30 minutes de cardio. Si votre putting ne passe pas sous pression à l'entraînement, il ne passera jamais en tournoi. La pression s'entraîne, elle ne s'attend pas.",
+    sourceTitle: "Putting sous pression",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Entrer en flow entre le 9ème et le 18ème trou",
+    content: "Le 'flow' en golf — cet état de concentration absolue où le temps ralentit et le corps agit sans pensée — n'est pas accessible à volonté. Mihaly Csikszentmihalyi a identifié les conditions du flow : un défi légèrement supérieur à la compétence, un feedback immédiat, et une absence de distractions. Au golf, le flow arrive souvent spontanément entre le 9ème et le 18ème trou, après que le cerveau a 'lâché prise' sur les premiers trous. Les études montrent que le flow en golf dure en moyenne 45 minutes, soit environ 6-8 trous. Pour l'inviter : éliminez toute pensée de score (le flow est impossible quand on compte), concentrez-vous sur un seul signal technique (ex: 'rotation des hanches'), et acceptez les mauvais coups sans jugement. Le flow n'est pas contrôlé : il est cultivé.",
+    takeaway: "Pour entrer en flow : arrêtez de compter votre score après le 9ème trou. Choisissez UN seul signal technique (ex: 'swing lent') et concentrez-vous uniquement dessus. Le flow arrive quand l'ego se tait.",
+    sourceTitle: "Flow en sport",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Angle d'attaque — pourquoi le drive et le wedge demandent des trajectoires opposées",
+    content: "C'est l'un des concepts les plus contre-intuitifs du golf : pour le drive, vous devez frapper la balle avec un angle d'attaque POSITIF (monter), tandis que pour le wedge, vous devez frapper avec un angle NÉGATIF (descendre). La physique est simple : monter sur le drive crée un effet lift (portance) qui fait rouler la balle plus loin. Descendre sur le wedge crée un effet backspin qui fait arrêter la balle sur le green. Les données de TrackMan montrent que les pros ont un angle d'attaque de +3 à +5 degrés avec le driver et de -4 à -6 degrés avec un wedge. Les amateurs frappent souvent le drive en descendant (angle -2), ce qui crée du backspin excessif et perte de distance. L'inverse pour le wedge : monter sur la balle supprime le spin et crée des 'fat shots'.",
+    takeaway: "Drive : placez la balle plus haut sur le pied et penchez-vous légèrement en arrière pour MONTER. Wedge : balle au centre, poids sur le pied gauche, DESCENDEZ. Deux angles, deux effets, deux résultats. Respectez la physique.",
+    sourceTitle: "Angle d'attaque en golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Face club vs chemin — la vérité sur les hooks et slices",
+    content: "90% des slices et hooks viennent d'une mauvaise compréhension de la physique du contact. La règle fondamentale : la direction initiale de la balle est déterminée à 80% par l'angle de la FACE du club au moment du contact. La courbe (slice/hook) est déterminée à 100% par la différence entre la FACE et le CHEMIN (direction du swing). Si la face est ouverte par rapport au chemin = slice. Fermée = hook. Le problème des amateurs : ils essayent de corriger le chemin alors que le problème est la face. Exemple classique : le sliceur ferme les mains (face fermée) et le chemin ouvert crée un 'push slice'. La correction correcte : aligner la face avec le chemin. Pour un sliceur : entraînez-vous à frapper avec une face légèrement fermée. Le drill du 'low hold' (tenir le club plus bas) aide à sentir la face fermée.",
+    takeaway: "Votre balle part dans la direction de la FACE du club. Si vous slicez, ce n'est pas votre chemin le problème — c'est votre face ouverte. Entraînez-vous à fermer la face au contact. Un driver droit commence 80% à gauche de la trajectoire finale.",
+    sourceTitle: "Physique du swing",
+    topicNames: ['Golf']
+  },
+  {
+    title: "La force du sol — le secret des joueurs faibles qui frappent loin",
+    content: "La force de réaction du sol (ground reaction force, GRF) est la force physique la plus importante dans le golf moderne. Quand vos pieds poussent le sol, le sol vous pousse en retour avec une force égale et opposée — c'est la 3ème loi de Newton. Les pros génèrent 80% de la puissance de leur swing depuis le sol, pas depuis leurs bras. Les études de biomecanique montrent que la force maximale au sol atteint 3 à 4 fois le poids du corps lors de la translation. Un golfeur de 70kg peut générer jusqu'à 280kg de force au sol. Cette force se transmet : pieds → chevilles → genoux → hanches → torsade → bras → club → balle. Les joueurs 'faibles' mais efficaces sont ceux qui maîtrisent la chaîne cinétique, pas ceux qui ont les bras les plus musclés. Le secret : la rotation des hanches commence AVANT le mouvement des bras.",
+    takeaway: "Poussez fort du pied gauche (pour les droitiers) au début de la translation vers la cible. Votre puissance vient du SOL, pas de vos bras. Si vos mains sont plus rapides que vos hanches, vous perdez 60% de votre distance. Laissez le sol vous propulser.",
+    sourceTitle: "Biomecanique du swing",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Le release retardé — pourquoi les pros 'attendent' avec leurs mains",
+    content: "Le 'delay release' (ou lag) est l'un des phénomènes les plus fascinants du swing de golf. Les pros gardent leurs mains 'en retard' par rapport aux hanches jusqu'au dernier moment avant le contact. Ce retard crée un effet de fouet : l'énergie s'accumule dans l'arc formé par les bras et le club, puis se libère brutalement au contact. Le résultat : une vitesse de clubhead jusqu'à 2,5x plus rapide que la vitesse des mains. Les données de TrackMan montrent que les pros ont un 'lag angle' (angle entre le club et les bras) de 55 à 65 degrés au point le plus haut, qui se réduit à 0 au moment du contact. Les amateurs 'release' trop tôt (dès le haut du swing), ce qui crée un 'casting' — gaspillage d'énergie et perte de distance. Le secret : les mains arrivent EN DERRIÈRE la balle au contact, pas devant.",
+    takeaway: "Ne 'lâchez' pas le club trop tôt. Laissez vos mains arriver derrière la balle au moment du contact. Imaginez que vous frappez DERRIÈRE vous, pas DEVANT vous. Le lag n'est pas forcé : il est le résultat d'une rotation lente des hanches et d'un release naturel.",
+    sourceTitle: "Lag en golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "La dynamique des 7 segments — le swing n'est pas un mouvement mais une chaîne",
+    content: "Le swing de golf est modélisé comme une chaîne cinétique de 7 segments : pieds-chevilles, genoux, hanches, thorax, épaules, bras, club. Chaque segment s'active dans un ordre précis et à une vitesse croissante : hanches (plus rapide) → thorax (plus rapide) → épaules → bras → club (le plus rapide). C'est l'effet 'whip' (fouet). Si un segment est désynchronisé, toute la chaîne se brise. Les études EMG montrent que les pros activent les hanches 0,15 seconde AVANT les épaules, et les épaules 0,10 seconde AVANT les bras. Les amateurs activent tout en même temps — ou pire, les bras avant les hanches. Le résultat : perte de puissance, inconsistency, et blessures. La séquence parfaite dure 0,3 seconde et génère une accélération de 2000 degrés/seconde pour les épaules.",
+    takeaway: "Le swing se déclenche par les pieds, pas par les mains. Ordre d'activation : hanches → thorax → épaules → bras → club. Si vos bras sont plus rapides que vos hanches, vous 'over-swinge' et perdez tout. Laissez la chaîne se dérouler naturellement.",
+    sourceTitle: "Chaîne cinétique en golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Course management — pourquoi les bons joueurs ratent moins de greens mais font par",
+    content: "Le 'course management' est l'art de choisir le bon coup, pas le meilleur coup. Les professionnels ne visent pas le drapeau : ils visent le 'sweet spot' du green, une zone large de 10-15 mètres au centre. Les amateurs visent le drapeau (parfois à 30 mètres du centre) et ratent le green 40% du temps. Les pros le ratent 15% du temps. La différence n'est pas la technique mais la décision. Les données montrent qu'un golfeur qui joue au centre du green fait en moyenne 3,4 coups pour entrer sur le green, contre 4,2 pour celui qui vise le drapeau. Le course management explique 40% de la différence entre un golfeur à 80 et un golfeur à 100. Les pros jouent 'percentage golf' : ils évitent les zones dangereuses, jouent avec les vents, et choisissent le club qui leur donne le meilleur taux de réussite, pas le plus de distance.",
+    takeaway: "Viser le centre du green, pas le drapeau. Choisissez le club qui vous donne 80% de chance de toucher le green, pas le 100%. Le golf n'est pas un sport de distance : c'est un sport de pourcentages. Jouer intelligent bat jouer fort.",
+    sourceTitle: "Course management en golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Gestion du risque — quand jouer agressif vs prudent (expected strokes model)",
+    content: "L'expected strokes model (modèle des coups attendus) est un outil créé par Dr. Fielding Yee qui quantifie le risque/récompense de chaque décision au golf. Le principe : pour chaque coup, calculez le nombre de coups attendu pour terminer le trou depuis chaque position. Si vous visez agressivement le drapeau et ratez le green (20% de chance), votre coup suivant sera un chip difficile → +0,4 coups attendus. Si vous jouez prudemment au centre du green (90% de chance), votre coup suivant est un putt de 10m → +0,2 coups attendus. La différence : 0,2 coups par trou = 3,6 points par round. L'expected strokes model montre que les décisions 'sures' battent les décisions 'braves' dans 73% des cas. Exception : quand le score nécessite de l'agressivité (ex: par3 pour sauver le par). Le model est utilisé par tous les pros du PGA Tour.",
+    takeaway: "Avant chaque coup, demandez : 'Quel est le nombre de coups attendu depuis cette position ?' Si la réponse prudente est meilleure que la réponse agressive, jouez prudent. L'agressivité ne paie qu'une fois sur quatre. La patience paie toujours.",
+    sourceTitle: "Expected strokes model",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Le 3-putt — le score killer #1 du golf amateur et comment l'éviter",
+    content: "Le 3-putt (trois coups pour entrer la balle dans le trou) est statistiquement le plus grand voleur de pars chez les amateurs. Un golfeur à 18-20 handicaps fait en moyenne 4,2 three-putts par round, ce qui représente 4,2 pars volés. La cause principale : le premier putt est joué pour la position, pas pour le make. Les golfeurs visent le trou au lieu de viser une zone de 1-2 mètres du trou. Le putting moderne repose sur deux phases : le 'up putt' (premier putt pour placer la balle dans un cercle de 1,5m du trou) et le 'make putt' (deuxième putt de moins de 1,5m, qui devrait entrer à 95%). Les pros ratent en moyenne 0,3 three-putts par round. Les amateurs : 4,2. La différence ? Les pros jouent leur premier putt pour la POSITION, pas pour le TROU. Si vous ratez, votre second putt est un putt 'makeable'.",
+    takeaway: "Votre premier putt doit viser une zone de 1,5m du trou, pas le trou lui-même. Si vous ratez, votre second putt est garanti. Arrêtez de viser le drapeau au putting. Visez 2 mètres derrière le trou sur les pentes, et 1,5m du bord sur les平. Position d'abord, make ensuite.",
+    sourceTitle: "Putting strategy",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Club selection — la règle des 80% que les joueurs amateurs ignorent",
+    content: "La règle des 80% est la loi d'or du choix de club : choisissez le club dont votre distance de 80% est supérieure à la distance du trou. Exemple : si votre wedge va à 90m et votre sand wedge à 105m, et que le trou est à 98m — prenez le wedge (90m). Pourquoi ? Parce que vous avez 80% de chance de dépasser 90m avec le wedge, mais seulement 20% de dépasser 105m avec le sand wedge. Mieux vaut être court et avoir un chip facile que dépasser et avoir un putt de 30m avec une pente. Les données du Shotlink (PGA Tour) montrent que les pros choisissent leur club à 80% selon cette règle. Les amateurs choisissent selon l'espoir : 'peut-être que今天 le sand wedge ira assez loin'. L'espoir n'est pas une stratégie.",
+    takeaway: "80% rule : prenez le club dont vous DEPASSEZ la distance 80% du temps, pas celui dont vous ESPÉREZ atteindre la distance. Mieux vaut être court avec un bon chip que long avec un putt difficile. La prudence bat l'espoir.",
+    sourceTitle: "Club selection",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Ce qui compte vraiment dans les clubs — distance vs précision vs confort",
+    content: "Les golfeurs amateurs dépensent en moyenne 3000€ par an en nouveaux clubs, persuadés que la distance vient du matériel. La réalité : pour un golfeur à 15 handicaps, changer de driver augmente la distance moyenne de 2 à 4 mètres — pas 20. Les études de Golf Digest et du MIT montrent que la précision (consistance du contact) est 10x plus importante que la distance brute. Un driver moderne peut aider 10% des golfeurs amateurs (ceux qui ont un swing speed > 105mph). Pour les 90% restants, les améliorations sont marginales. Ce qui compte vraiment : 1) Un fitting personnalisé (la longueur et le weight du club adaptés à votre corps). 2) Des wedges bien choisis (70% des coups se jouent autour du green). 3) Un putting green de qualité (le putting représente 40% des coups). Investissez dans un fitting, pas dans du neuf.",
+    takeaway: "Les nouveaux clubs n'augmentent votre distance que de 2-4m. Un fitting personnalisé : +10m de consistance. Investissez dans un fitting (150-300€) avant d'acheter du neuf. Les wedges et le putter comptent 3x plus que le driver pour le score.",
+    sourceTitle: "Équipement de golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Flexibilité vs force — pourquoi les golfeurs flexibles battent les musclés",
+    content: "Le golf est un sport de mobilité, pas de force brute. La rotation des hanches et du thorax détermine 70% de la puissance du swing. Un golfeur avec une rotation thoracique de 45 degrés génère 2x plus de vitesse de club qu'un golfeur avec 25 degrés, même si ce dernier est 30% plus musclé. Les études du Titleist Performance Institute montrent que les 5 contraintes physiques les plus limitantes pour les golfeurs sont : 1) Rotation thoracique, 2) Rotation des hanches, 3) Mobilité de cheville, 4) Extension de hanche, 5) Rotation de la colonne. Un programme de 15 minutes par jour sur ces 5 mouvements augmente la distance moyenne de 12 yards en 8 semaines — plus qu'un changement de club. Les pros passent en moyenne 30 minutes par jour sur la mobilité.",
+    takeaway: "Travaillez votre mobilité thoracique et de hanche 15 minutes par jour. C'est plus efficace que 1 heure au gymnase. La flexibilité = distance + consistance + moins de blessures. Un golfeur flexible de 60kg bat un golfeur musclé de 90kg.",
+    sourceTitle: "Golf fitness",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Nutrition au parcours — glycémie, hydratation et performance",
+    content: "Un round de golf dure 4 à 5 heures et parcourt 5 à 7 km. Le corps utilise environ 400-600 kcal, principalement via le glucose sanguin. La glycémie fluctue pendant le round : elle chute après 2 heures (le 'mur du golfeur'), ce qui cause une perte de concentration, de précision au putting, et une augmentation des erreurs de jugement. Les études montrent que les golfeurs qui consomment des glucides à index glycémique bas (fruits secs, barres énergétiques) pendant le round maintiennent leur score constant. Ceux qui ne mangent pas voient leur score augmenter de 2 à 3 coups au 18ème trou. L'hydratation est encore plus critique : une déshydratation de seulement 2% réduit la concentration de 15% et la précision motrice de 10%. Un golfeur qui ne boit pas pendant son round fait en moyenne 1,8 putt de plus par trou.",
+    takeaway: "Buvez 500ml d'eau par heure de golf. Mangez des fruits secs ou une barre énergique toutes les 9 trous. La glycémie chute après 2h : sans apport, votre putting et votre concentration s'effondrent. L'hydratation bat le café.",
+    sourceTitle: "Nutrition sportive",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Les origines écossaises — du golf des moines au sport des élites",
+    content: "Le golf est né en Écosse au 15ème siècle, mais ses racines sont plus anciennes. Les premières mentions écrites remontent à 1457, quand le roi James II a INTERDIT le golf car il distrayait les archers nécessaires à la défense du royaume contre l'Angleterre. Le golf était si populaire qu'il fallait l'interdire. Les moines cisterciens jouaient déjà à un jeu de balle et club au 12ème siècle en Flandre (le 'colombier'). Le St Andrews Links, considéré comme le 'home of golf', a pris sa forme actuelle au 18ème siècle avec les 18 trous. Les Rules of Golf ont été codifiées en 1744 par les Gentlemen Golfers of Leith. Le golf est passé d'un jeu populaire écossais à un sport d'élite britannique au 19ème siècle, puis s'est globalisé avec le premier tournoi US Open en 1895 et la création du PGA Tour en 1929.",
+    takeaway: "Le golf a été interdit en Écosse car il distrayait les archers. Un sport interdit par un roi est devenu le sport de millions. L'histoire du golf est celle d'un jeu populaire devenu élitiste — et revenu à ses racines. Jouez avec cette histoire dans les pieds.",
+    sourceTitle: "Histoire du golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "L'évolution technologique — du hollow club au titanium : a-t-on triché ?",
+    content: "En 1979, le persimmon (club en bois massif) a été remplacé par le metal wood (titane). La distance moyenne au PGA Tour a augmenté de 30 yards en 40 ans. En 1990, la balle multilayer (3-4 couches) a remplacé la balata. En 2000, le grooved iron a amélioré le spin. En 2016, la balle 'distance' a encore augmenté les yardages. Les puristes disent que la technologie a 'trahi' le golf. Les données montrent que la précision (fairway hit %) est restée stable depuis 1980 — seule la distance a augmenté. Les joueurs adaptent leur jeu : plus de précision sur les greens, moins d'agressivité sur les drives. L'USGA et la R&A ont tenté de geler la technologie en 2004 (The Rules) et en 2021 (Home of Golf), mais les progrès continuent. Le débat : la technologie rend-elle le golf plus accessible ou moins authentique ?",
+    takeaway: "La technologie a augmenté la distance de 30 yards en 40 ans sans réduire la précision. Le golf moderne est plus facile à jouer qu'en 1970. La technologie n'est pas de la tricherie : c'est de l'innovation. Jouez avec ce que vous avez, pas avec ce qu'avait votre père.",
+    sourceTitle: "Technologie du golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Chipping — le coup le plus sous-estimé du golf",
+    content: "Le chip n'est pas un mini-drive. C'est un coup de rebond où la balle passe 70% du temps dans les airs et 30% en roulant. La plupart des golfeurs amateurs chipent en essayant de faire voler la balle trop loin — résultat : la balle atterrit trop loin, roule trop loin, et sort du green. Le secret du chip parfait : choisissez un club plus long que prévu (un 7-fer ou un hybrid), faites un swing court et contrôlé, et laissez la balle rouler. Les pros utilisent souvent un wedge pour les putts de 10 yards (chip-pitch) mais un 7-fer pour les chips de 20-30 yards. La raison : un fer plus long a moins de spin, donc la balle roule plus après l'atterrissage. Le chip est le coup le plus utilisé au golf (plus que le drive) et le plus négligé à l'entraînement.",
+    takeaway: "Pour chipper, choisissez un club PLUS LONG que votre instinct. Un 7-fer pour 20 yards : swing court, balle atterrit près du trou, roule vers le trou. 70% rouler, 30% voler. C'est l'inverse du drive.",
+    sourceTitle: "Chip (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Bunker play — la science du sable",
+    content: "Le bunker est le coup le plus redouté au golf, mais aussi le plus facile à maîtriser si on comprend la physique du sable. La règle d'or : on ne touche JAMAIS la balle directement avec le club. Le club doit entrer dans le sable 2-5 cm DERRIÈRE la balle et projeter un jet de sable qui porte la balle hors du bunker. Le sable agit comme un intermédiaire : il absorbe l'impact et transmet l'énergie à la balle. La largeur de la face du wedge (bounce) est cruciale : un wedge avec beaucoup de bounce (10-14°) glisse dans le sable dur, un wedge avec peu de bounce (4-8°) coupe le sable humide. Les pros ouvrent la face du club pour augmenter le bounce et viser à côté de la balle. Le secret : frapper le sable, pas la balle. La balle sortira avec le sable.",
+    takeaway: "Visez 3 cm derrière la balle. Frappez le sable, pas la balle. Le sable portera la balle hors du bunker. Ouvrez la face du wedge et laissez le bounce faire son travail. Ne cherchez pas à toucher la balle directement.",
+    sourceTitle: "Bunker (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Wedge game — maîtriser les 50-60 yards",
+    content: "Les 50 derniers yards sont les plus importants au golf : ils représentent 40% des coups joués par un amateur. Le wedge game ne se joue pas avec les mains mais avec la longueur du swing. La règle des 'clock face' : 9h = 50 yards, 10h = 75 yards, 11h = 100 yards, midi = 125 yards. La clé : garder les mains sous la balle et ne pas 'aider' avec les mains. Les pros mesurent leur wedge game en yards, pas en clubs : un 56° va à 70 yards pour eux, pas parce qu'ils frappent plus fort mais parce qu'ils contrôlent la longueur du swing. Le secret du wedge : un seul point de contact avec la balle, un swing fluide et régulier, et surtout — ne pas essayer de sauver le trou. Le meilleur coup au wedge est celui qui ne fait pas de bogey.",
+    takeaway: "Maîtrisez 3 distances avec un seul wedge : 50, 75 et 100 yards. Changez la longueur du swing, pas la technique. Le wedge n'est pas un outil de sauvetage : c'est un outil de contrôle. Mieux vaut un chip de 30 yards qu'un coup de désespoir.",
+    sourceTitle: "Wedge (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Grip au putting — le fondement de tout",
+    content: "Le grip au putting détermine tout : la face du club, la trajectoire du stroke, et la sensation de contact. Il existe 3 grips principaux : le grip conventional (mains ensemble, overlapping), le grip cross-hand (mains croisées, contre-intuitif mais très populaire), et le grip pencil (pinky du putter main sous le thumb de l'autre main). Le grip cross-hand, popularisé par Mike Bender et utilisé par des pros comme Phil Mickelson, empêche les mains de se désynchroniser et stabilise le stroke. Les études EMG montrent que le grip cross-hand réduit l'activité musculaire des avant-bras de 30%, ce qui se traduit par un stroke plus fluide. Le grip conventional reste le plus populaire mais nécessite plus de coordination. Le secret : quel que soit le grip, les mains doivent travailler comme UN SEUL outil. Si les mains bougent indépendamment, le putt rate.",
+    takeaway: "Essayez le grip cross-hand si votre putting est irrégulier : croisez les mains (main gauche sous la droite pour les droitiers). Cela stabilise le stroke et réduit les mouvements parasites. Le grip parfait est celui où les mains ne se désynchronisent JAMAIS.",
+    sourceTitle: "Putting (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Lire un green — la physique des pentes",
+    content: "Lire un green est l'art le plus sous-estimé au golf. Un green n'est pas plat : il a des pentes, des bosses, des dépressions, et des zones de vitesse variable. La première règle : toujours lire le green depuis le TROU, pas depuis la balle. Depuis le trou, vous voyez la 'ligne de regard' — la pente principale. Les pentes mineures se lisent depuis le côté. La vitesse dépend de 3 facteurs : la pente (plus c'est pentu, plus c'est rapide), l'herbe (plus c'est court, plus c'est rapide), et l'humidité (plus c'est humide, plus c'est lent). Les greens de tournoi sont coupés à 0.125 pouces et roulent à 12-14 sur le stimpmeter. Les greens amateurs roulent à 6-8. La règle d'or : un putt de 10m sur un green amateur met 3x plus de temps à arriver au trou que sur un green de tournoi. Lire un green, c'est lire la VITESSE plus que la ligne.",
+    takeaway: "Lisez TOUJOURS le green depuis le trou. La vitesse est plus importante que la ligne. Sur un green amateur, un putt de 10m est 3x plus lent que sur un green de tournoi. Jouez pour la vitesse d'abord, la ligne ensuite.",
+    sourceTitle: "Putting (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Le grip — 80% de tout au golf",
+    content: "Le grip est l'unique contact entre le golfeur et le club. Tout le reste — stance, alignment, swing — dépend du grip. Un grip incorrect cause 70% des problèmes des amateurs : hooks, slices, fat shots, thin shots. Il existe 3 grips de base : weak (mains tournées vers la cible), neutral (mains à 12h), strong (mains tournées vers la droite). Le grip neutral est le plus polyvalent et le plus recommandé pour les amateurs. Le secret du bon grip : la pression. La règle des 3/10 — serrez le club comme si vous teniez un oiseau : assez fort pour qu'il ne s'envole pas, assez doux pour ne pas l'écraser. Les pros serrent à 3/10 en backswing et à 7/10 au contact. Un grip trop serré bloque la rotation des poignets et crée un swing rigide. Un grip trop lâche crée de l'inconsistance.",
+    takeaway: "Serrez le club à 3/10 de votre force maximale. Pas plus, pas moins. Vérifiez : si vous pouvez faire tourner le club dans vos mains pendant le swing, vous serrez trop fort. Le grip fort est un grip qui serre trop — et c'est la cause n°1 des slices.",
+    sourceTitle: "Grip (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Alignment — viser juste sans se tromper",
+    content: "L'alignment (alignement du corps par rapport à la cible) est l'erreur la plus courante au golf. Les études montrent que les amateurs alignent leur corps 2 à 5 degrés à GAUCHE de la cible (pour les droitiers), ce qui crée un pull ou un hook. La raison : notre œil dominant nous fait croire que nous sommes alignés quand nous ne le sommes pas. Le test de l'alignement : placez 2 bâtons au sol, parallèles, l'un derrière l'autre pointant vers la cible. Si votre corps n'est pas parallèle à ces bâtons, vous êtes mal aligné. Les pros passent 30 secondes à vérifier leur alignment avant chaque coup. Les amateurs : 0 seconde. L'alignment incorrect crée plus de mauvais coups que n'importe quel autre facteur technique. Corriger l'alignment peut réduire votre score de 3 à 5 coups par round.",
+    takeaway: "Avant chaque coup, placez un club au sol pointant vers la cible, puis alignez vos pieds PARALLÈLEMENT à ce club. 30 secondes d'alignment valent 10 coups sauvés. Votre instinct dit 'je suis aligné' — mais vous ne l'êtes probablement pas.",
+    sourceTitle: "Alignement (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Fade vs Draw — quel coup choisir ?",
+    content: "Le fade (balle qui va de gauche à droite pour les droitiers) et le draw (balle qui va de droite à gauche) sont les deux coups de contrôle par excellence. Le draw donne plus de distance (effet de lift, plus de roll) mais est plus difficile à contrôler. Le fade est plus précis, moins sensible au vent latéral, et plus facile à arrêter sur le green. Les pros choisissent leur coup en fonction de la cible : fade sur les trous avec des bunkers à gauche, draw sur les trous avec des bunkers à droite. Les données du PGA Tour montrent que les joueurs qui font plus de draws ont en moyenne 5 yards de plus par drive, mais 2% de plus de fairway hit avec le fade. Le secret : le fade est un coup de CONFIANCE, le draw est un coup de DISTANCE. Choisissez en fonction de ce que le trou demande.",
+    takeaway: "Le fade est votre coup de sécurité : précis, contrôlable, arrête la balle. Le draw est votre coup de puissance : plus de distance, mais plus risqué. Sur un trou serré, jouez le fade. Sur un trou ouvert, jouez le draw.",
+    sourceTitle: "Trajectoire de balle (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Punch, flop, chip — quand utiliser quel coup",
+    content: "Le golf offre 4 coups de relief principaux, chacun avec un usage spécifique : le punch (coup de dégagement bas, sans spin), le flop (coup haut qui atterrit doucement), le chip (rebond-roule, 30% vol / 70% rouler), et le pitch (rebond-roule, 50% vol / 50% rouler). Le punch s'utilise quand il y a des obstacles (bush, bunker) devant la balle et qu'il faut la faire rouler. Le flop s'utilise quand il y a un obstacle près du trou et qu'il faut faire passer la balle PAR-DESSUS. Le chip s'utilise quand le green est dur et que la balle doit rouler. Le pitch s'utilise quand il y a assez de vert entre la balle et le trou. Les amateurs utilisent TOUJOURS le flop, même quand le punch serait mieux. Le secret : le coup le plus simple est souvent le meilleur coup.",
+    takeaway: "Choisissez le coup le PLUS SIMPLE possible. Si vous pouvez chipper (rouler), chippez. Si vous devez passer un obstacle, punch ou flop. Le flop est le coup le plus difficile — ne l'utilisez que quand c'est nécessaire.",
+    sourceTitle: "Coups de relief (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Le handicap — comprendre le système",
+    content: "Le handicap au golf est le système le plus incompris du sport. Un handicap de 18 ne signifie pas que le golfeur fait 108 coups (18 x 6 par trou) : il signifie que le golfeur fait environ 90 coups sur un parcours de par 72. Le système de handicap mondial (WHSC) calcule le handicap basé sur les 8 meilleurs scores des 20 derniers. Un handicap de 0 signifie un joueur de par 70 ou moins. Un handicap de 36 signifie un joueur de 108 coups. Le handicap ajusté au parcours tient compte de la difficulté de chaque trou (stroke index). Le secret : le handicap n'est pas une mesure de compétence, c'est une mesure de CONSISTANCE. Un golfeur à 5 handicaps est plus consistent qu'un golfeur à 20, même si ce dernier fait parfois des 80.",
+    takeaway: "Votre handicap ne mesure pas votre niveau, il mesure votre régularité. Un 18 de handicap fait environ 90 coups sur un par 72. Pour baisser votre handicap, visez la CONSISTANCE (zéro double bogey) plutôt que la DISTANCE (birdies).",
+    sourceTitle: "Handicap (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Par, birdie, eagle — la mathématique du score",
+    content: "Au golf, le score se calcule par rapport au PAR du parcours. Par 72 = 72 coups pour finir le trou. Birdie = 1 de moins que le par (3 sur un par 4). Eagle = 2 de moins (3 sur un par 5). Bogey = 1 de plus. Double bogey = 2 de plus. La statistique clé : un golfeur à 18 handicaps fait en moyenne 1.5 bogeys par trou, 0.3 birdies, et 0.01 eagles. Le secret du score bas : faire le moins de bogeys possible, pas le plus de birdies. Les données montrent qu'un golfeur qui fait 0 bogey et 3 birdies fait 69 (-3). Un golfeur qui fait 3 bogeys et 6 birdies fait aussi 69 (-3). Mais le premier est BEAUCOUP plus facile à atteindre. La stratégie : protégez votre par. Un par sauvé vaut 10x un birdie raté.",
+    takeaway: "Arrêtez de viser les birdies. Visez zéro bogey. Un par sauvé après un mauvais coup vaut plus qu'un birdie raté qui devient double bogey. Le golf se gagne en évitant les erreurs, pas en faisant des merveilles.",
+    sourceTitle: "Score (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Range vs parcours — pourquoi le practice ne compte pas",
+    content: "Le practice au driving range est le plus grand gaspillage de temps pour un golfeur amateur. Pourquoi ? Parce que le range ne ressemble PAS au parcours. Au range, vous frappez toujours depuis le même endroit, avec une balle posée sur un tee, sans vent, sans压力, sans conséquence. Au parcours, chaque coup est différent : lie variable, vent, pression, conséquences. Les études de Dr. Chris Visschers montrent que les golfeurs qui passent plus de 70% de leur temps au range sont 15% moins bons au parcours que ceux qui pratiquent sur le parcours. Le secret : pratiquez comme vous jouez. Frappez depuis des lies difficiles, utilisez des objectifs précis (pas juste 'frapper loin'), et surtout — créez des conséquences (pariez 1€ par coup raté). Le range développe le swing, pas le golf.",
+    takeaway: "Passez 80% de votre practice SUR le parcours, pas au range. Frappez depuis des lies différentes, avec des objectifs précis, et des conséquences. Le range vous apprend à swinguer. Le parcours vous apprend à jouer au golf.",
+    sourceTitle: "Practice (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Les drills qui fonctionnent — s'entraîner intelligemment",
+    content: "Les 3 drills les plus efficaces selon la recherche en neurosciences sportives : 1) Le drill du 'pause at the top' — faites une pause de 2 secondes au point le plus haut du backswing. Cela force votre cerveau à mémoriser la position correcte et améliore la séquence de swing de 25%. 2) Le drill du 'feet together' — swinguez les pieds joints. Cela améliore l'équilibre et la rotation des hanches. Si vous tombez, vous rotatez trop vite. 3) Le drill du 'alignment stick' — placez un bâton d'alignment le long de votre corps pendant le swing pour vérifier l'alignment. Les pros utilisent ces 3 drills quotidiennement. Les amateurs inventent des drills complexes qui n'ont aucun effet. Le secret : les meilleurs drills sont les plus simples.",
+    takeaway: "Les 3 drills essentiels : pause au top (2 sec), pieds joints (équilibre), bâton d'alignment (direction). 10 minutes de ces 3 drills valent 1 heure de practice au range. La simplicité bat la complexité.",
+    sourceTitle: "Entraînement (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Lire le vent — comment adapter son coup",
+    content: "Le vent est l'ennemi n°1 du golfeur amateur. Un vent de 10 mph (16 km/h) change la trajectoire de 3 yards. Un vent de 20 mph change la trajectoire de 6 yards et la distance de 10%. La règle d'or : vent de face = -1 yard par mph, vent de dos = +0.5 yard par mph (le vent de dos réduit moins la distance que le vent de face l'augmente). Vent de côté : dévie la balle de 1 yard par 5 mph de vent. Les pros calculent le vent avant chaque coup. Les amateurs ignorent le vent et se plaignent du 'mauvais jour'. Le secret : le vent n'est pas aléatoire — il est mesurable. Tendez le bras et sentez le vent sur votre paume. Comptez les arbres qui bougent. Estimez la force. Puis adaptez votre club.",
+    takeaway: "Chaque 10 mph de vent de face = -10 yards de distance. Vent de dos = +5 yards. Vent de côté = -1 yard de déviation par 5 mph. Adaptez VOTRE club, pas votre swing. Le vent se mesure, pas s'ignore.",
+    sourceTitle: "Vent (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Les mauvais jours — comment survivre à un 90+",
+    content: "Un jour à 90+ au golf n'est pas un jour 'nul' — c'est un jour d'apprentissage. Les études de psychologie sportive montrent que les golfeurs qui apprennent le plus de leurs mauvais jours sont ceux qui analysent SANS jugement leurs erreurs. Le secret d'un mauvais jour : il vient rarement d'un seul coup catastrophique, mais d'une cascade de petites erreurs. Un mauvais alignment → un coup raté → une frustration → un grip trop serré → un autre coup raté. La solution : le 'reset button'. Après chaque mauvais coup, faites un reset mental : respirez 3 fois, re-vérifiez votre alignment, et jouez le coup suivant comme s'il était le premier. Les pros appellent ça le 'next shot mentality'. Un jour à 90 devient un 80 si vous arrêtez de ruminer.",
+    takeaway: "Un mauvais jour = une cascade de petites erreurs, pas un gros coup. La solution : reset après chaque erreur. 3 respirations, re-alignement, coup suivant. Le 'next shot' est votre seul problème. Arrêtez de ruminer, commencez à jouer.",
+    sourceTitle: "Gestion des mauvais jours (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Bogey golf — le secret du 80",
+    content: "Le 'bogey golf' est l'art de faire par ou mieux sur chaque trou. Un golfeur qui fait par ou mieux sur 14 trous et bogey sur 4 trous fait 80 (14x4 + 4x5 = 56+24 = 80). Un golfeur qui fait birdie sur 2 trous, par sur 10 trous, et bogey sur 6 trous fait aussi 80. Mais le premier est BEAUCOUP plus facile à atteindre. La statistique clé : les golfeurs à 15-20 handicaps font en moyenne 1.2 bogeys par trou. Si vous réduisez vos bogeys à 0.5 par trou, votre score passe de 90 à 80. Le secret du bogey golf : ne jouez PAS les coups dangereux. Si vous êtes à 150 yards du green avec un bunker à 100 yards, ne visez pas le drapeau. Visez le centre du green. Le bogey golf, c'est jouer SANS risque. Birdies viennent d'eux-mêmes quand on arrête de faire des bogeys.",
+    takeaway: "Visez zéro bogey. Chaque bogey évité = 1 point de moins sur votre score. Jouez sans risque : si vous hésitez, ne jouez pas le coup. Le bogey golf est plus facile que le par golf et mène au même résultat.",
+    sourceTitle: "Bogey golf",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Warmup — pourquoi 10 minutes au départ changent tout",
+    content: "Le warmup avant le premier tee shot est l'investissement le plus sous-estimé au golf. Un golfeur qui ne s'échauffe pas joue avec des muscles froids, des articulations raides, et un cerveau non activé. Les conséquences : swing plus lent, moins de contrôle, plus de blessures. Les pros passent 20-30 minutes au warmup : 5 min de cardio léger, 5 min de stretching dynamique, 10 min de clubs courts (wedges), 10 min de drivers. Le secret du warmup : commencer DOUX et augmenter la vitesse progressivement. Ne commencez pas par le driver. Commencez par un wedge, puis un fer, puis un hybrid, puis le driver. Le cerveau doit se rappeler le mouvement AVANT de le faire à pleine vitesse. Un bon warmup améliore la distance de 5-10 yards et la précision de 15%.",
+    takeaway: "10 minutes de warmup = +5 yards de distance, +15% de précision. Commencez par les wedges, finissez par le driver. Ne frappez jamais le premier coup à pleine vitesse. Échauffez-vous comme un athlète, pas comme un amateur.",
+    sourceTitle: "Warmup (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Exercices spécifiques — ce que les pros font le matin",
+    content: "Les pros du PGA Tour commencent leur journée par 3 exercices spécifiques : 1) La rotation thoracique — debout, bras croisés, rotatez le thorax de 45 degrés de chaque côté. Les pros font 20 reps de chaque côté. 2) La mobilité de hanche — lunge avec rotation, 10 de chaque côté. Cela active les hanches pour le swing. 3) Le core activation — plank avec rotation, 30 secondes. Le core (abdominaux + lombaires) est le moteur du swing. Les golfeurs qui négligent ces 3 exercices perdent 15% de leur puissance et risquent 3x plus de blessures au dos. Le secret : ces 3 exercices prennent 10 minutes et se font n'importe où. Avant le tee shot, dans l'ascenseur, avant de dormir. La flexibilité se maintient, pas on la gagne.",
+    takeaway: "Les 3 exercices pros : rotation thoracique (20 reps), lunge avec rotation (10/côté), plank avec rotation (30 sec). 10 minutes par jour = +15% de puissance, -3x de blessures. La flexibilité est un entretien quotidien.",
+    sourceTitle: "Golf fitness",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Règles et étiquette — le code non écrit",
+    content: "Le golf a un code d'étiquette non écrit aussi important que les règles officielles. Les 5 règles d'or : 1) Jouez vite — ne laissez pas le groupe devant vous s'éloigner de plus d'un trou. 2) Réparez votre divot — replacez l'herbe que vous avez arrachée avec le drive. 3) Réparez les ball marks — utilisez un ball marker pour repasser les empreintes sur le green. 4) Ne marchez pas sur la ligne de putt — même si vous pensez que ça n'a pas d'importance. 5) Silence pendant le swing — ne bougez pas, ne parlez pas, ne prenez pas de photo. Les pros qui enfreignent ces règles sont punis par la communauté : ils ne sont plus invités. Le golf est un sport AUTONOME — il n'y a pas d'arbitre. L'étiquette est la seule loi. Un golfeur poli est un golfeur invité.",
+    takeaway: "5 règles d'or : jouez vite, réparez votre divot, réparez les ball marks, ne marchez pas sur la ligne de putt, silence pendant le swing. Le golf n'a pas d'arbitre : l'étiquette est votre seule loi. Respectez-la, vous serez le bienvenue partout.",
+    sourceTitle: "Étiquette (golf)",
+    topicNames: ['Golf']
+  },
+  {
+    title: "Les majors — les 4 tournois qui font l'histoire",
+    content: "Les 4 majors du golf (Masters, US Open, Open Britannique, PGA Championship) sont les tournois les plus prestigieux au monde. Le Masters (août) se joue à Augusta National en Géorgie — le parcours le plus beau et le plus difficile. L'US Open (juin) est le plus dur — greens rapides, rough haut, tous les parcours américains. L'Open Britannique (juillet) se joue en Écosse ou Angleterre — vent, bunkers profonds, parcours historiques comme St Andrews. Le PGA Championship (mai) est le plus récent — parcours modernes ultra-difficiles. Chaque major a une histoire unique : le Masters a le vert distinctif (green jacket), l'Open a le Claret Jug, l'US Open a le trophée USGA. Les golfeurs qui remportent les 4 majors un jour de leur carrière font le 'Career Grand Slam' — un exploit réalisé par seulement 5 golfeurs dans l'histoire : Gene Sarazen, Ben Hogan, Gary Player, Jack Nicklaus, Tiger Woods.",
+    takeaway: "Les majors ne se jouent pas avec les mêmes clubs ni le même mental. Chaque major demande une adaptation spécifique : Augusta = patience, US Open = précision, St Andrews = creativity, PGA = puissance. Comprendre les majors, c'est comprendre l'âme du golf.",
+    sourceTitle: "Majors (golf)",
+    topicNames: ['Golf']
+  },
 ]
 
 async function main() {
@@ -768,8 +1048,9 @@ async function main() {
   { name: 'Biologie & Évolution', icon: '🧬', color: '#22c55e', description: 'Vie, adaptation, sélection naturelle et systèmes biologiques' },
   { name: 'Mathématiques', icon: '🔢', color: '#ec4899', description: 'Paradoxes, théorèmes, probabilités et logique' },
   { name: 'Art & Design', icon: '🎨', color: '#ef4444', description: 'Mouvements artistiques, principes visuels et créativité' },
-  { name: 'Débat & Rhétorique', icon: '🎤', color: '#a855f7', description: 'Art de convaincre, logique et argumentation structurée' },
-]
+{ name: 'Débat & Rhétorique', icon: '🎤', color: '#a855f7', description: 'Art de convaincre, logique et argumentation structurée' },
+    { name: 'Golf', icon: '⛳', color: '#16a34a', description: 'Psychologie, science du swing, stratégie et culture du golf' },
+  ]
 
 for (const topicData of ROOT_TOPICS) {
   const existing = await prisma.topic.findUnique({ where: { name: topicData.name } })

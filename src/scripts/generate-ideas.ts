@@ -4,26 +4,28 @@ import { slugify } from '../lib/utils'
 import { distillIdeas } from '../lib/llm'
 
 const TOPICS_TO_GENERATE = [
-  { name: 'Psychologie', count: 20 },
-  { name: 'Philosophie', count: 15 },
-  { name: 'Sciences cognitives', count: 15 },
-  { name: 'Économie', count: 15 },
-  { name: 'Communication', count: 15 },
-  { name: 'Productivité', count: 15 },
-  { name: 'Santé & Bien-être', count: 15 },
-  { name: 'Créativité', count: 15 },
-  { name: 'Leadership', count: 15 },
-  { name: 'Histoire', count: 15 },
-  { name: 'Finance & Argent', count: 20 },
-  { name: 'Technologie & Innovation', count: 20 },
-  { name: 'Sociologie', count: 20 },
-  { name: 'Physique', count: 20 },
-  { name: 'Cuisine & Alimentation', count: 20 },
-  { name: 'Biologie & Évolution', count: 20 },
-  { name: 'Mathématiques', count: 20 },
-  { name: 'Art & Design', count: 20 },
-  { name: 'Débat & Rhétorique', count: 20 },
-  { name: 'Chats et chiens', count: 15 },
+  { name: 'Psychologie', count: 50 },
+  { name: 'Philosophie', count: 50 },
+  { name: 'Sciences cognitives', count: 50 },
+  { name: 'Économie', count: 50 },
+  { name: 'Communication', count: 50 },
+  { name: 'Productivité', count: 50 },
+  { name: 'Santé & Bien-être', count: 50 },
+  { name: 'Créativité', count: 50 },
+  { name: 'Leadership', count: 50 },
+  { name: 'Histoire', count: 50 },
+  { name: 'Finance & Argent', count: 50 },
+  { name: 'Technologie & Innovation', count: 50 },
+  { name: 'Sociologie', count: 50 },
+  { name: 'Physique', count: 50 },
+  { name: 'Cuisine & Alimentation', count: 50 },
+  { name: 'Biologie & Évolution', count: 50 },
+  { name: 'Mathématiques', count: 50 },
+  { name: 'Art & Design', count: 50 },
+  { name: 'Débat & Rhétorique', count: 50 },
+  { name: 'Chats et chiens', count: 50 },
+  { name: 'Golf', count: 50 },
+  { name: 'Voitures', count: 50 },
 ]
 
 const TOPIC_ARTICLES: Record<string, string[]> = {
@@ -47,6 +49,8 @@ const TOPIC_ARTICLES: Record<string, string[]> = {
   'Art & Design': ['Renaissance', 'Impressionnisme', 'Bauhaus', 'Minimalisme', 'Photographie', 'Architecture', 'Design graphique', 'Couleur', 'Typographie', 'Perspective (arts plastiques)'],
   'Débat & Rhétorique': ['Logique', 'Argumentation', 'Propagande', 'Dialectique', 'Pensée critique', 'Rhétorique', 'Méthode socratique', 'Fallacieux', 'Éthique', 'Éloquence'],
   'Chats et chiens': ['Chat domestique', 'Chien', 'Comportement du chat', 'Comportement du chien', 'Socialisation du chaton', 'Socialisation du chiot', 'Éducation du chien', 'Langage corporel du chat', 'Langage corporel du chien', 'Intelligence du chien', 'Anxiété de séparation', 'Jeu chez les animaux domestiques', 'Alimentation du chat', 'Alimentation du chien', 'Race de chat', 'Race de chien', 'Domestication du chat', 'Domestication du chien', 'Comportement alimentaire félin', 'Comportement alimentaire canin'],
+  'Golf': ['Golf', 'Vocabulaire_du_golf', 'Swing_de_golf', 'Matériel_de_golf', 'Règles_de_golf', 'Par_(golf)', 'Compétition_de_golf', 'Balle_de_golf', 'Terrain_de_golf', 'Histoire_du_golf', 'Étiquette_(golf)', 'Driving_range', 'Tee_(golf)', 'Fairway', 'Green_(golf)', 'Putter', 'Bunker_(sport)', 'Caddie', 'Handicap_(golf)', 'Jeu_de_golf'],
+  'Voitures': ['Automobile', 'Sécurité_automobile', 'Toyota', 'Tesla,_Inc.', 'Voiture_électrique', 'Moteur_électrique', 'Carrosserie', 'Batterie_rechargeable', 'Conduite_autonome', 'Formule_1', 'Industrie_automobile', 'Crédit_à_la_consommation', 'Assurance_automobile', 'Permis_de_conduire', 'Hybride_(automobile)', 'Tuning', 'Motorisation', 'Transmission_(automobile)', 'Pneu', 'Climatisation'],
 }
 
 async function main() {

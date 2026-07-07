@@ -102,13 +102,16 @@ const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: Id
 
         <div className="flex items-center justify-between">
           {idea.source.url && (
-            <span
+            <a
+              href={idea.source.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
               <ExternalLink className="h-3 w-3" />
               <span className="hidden sm:inline">Source</span>
-            </span>
+            </a>
           )}
 
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
