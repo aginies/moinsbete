@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { Bookmark } from 'lucide-react'
+import { toast } from 'sonner'
 import { Topic } from '@/generated/client'
 import { toggleTopic } from '@/actions/bookmark-actions'
 
@@ -12,37 +13,56 @@ interface TopicCardProps {
     children?: Topic[]
   }
   isFollowing?: boolean
+  onToggle?: () => void
+  isAuthenticated?: boolean
 }
 
-export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing = false }: TopicCardProps) {
-  const handleToggle = async () => {
-    await toggleTopic(topic.id)
+export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing: initialFollowing = false, onToggle, isAuthenticated }: TopicCardProps) {
+  const [following, setFollowing] = useState(initialFollowing)
+  const [loading, setLoading] = useState(false)
+
+  const handleToggle = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (loading) return
+    if (!isAuthenticated) {
+      toast('Connectez-vous pour suivre un sujet, ajouter des favoris, voir uniquement les fiches que vous n\'avez pas vues, et consulter votre historique.', {
+        action: {
+          label: 'Connexion',
+          onClick: () => window.location.href = '/login',
+        },
+      })
+      return
+    }
+    setLoading(true)
+    const newState = !following
+    setFollowing(newState)
+    
+    const result = await toggleTopic(topic.id)
+    if (result.error) {
+      console.error('[TopicCard] Toggle error:', result.error)
+      setFollowing(following)
+    } else {
+      onToggle?.()
+    }
+    setLoading(false)
   }
 
   return (
-    <Link
-      href={`/sujets/${topic.slug}`}
-      className={`group block overflow-hidden rounded-2xl border border-border/60 bg-card p-5 shadow-sm transition-all hover:border-border hover:shadow-md hover:-translate-y-0.5 ${isFollowing ? '' : 'opacity-60'}`}
-    >
+    <div className={`group rounded-2xl border border-border/60 bg-card p-5 shadow-sm transition-all hover:border-border hover:shadow-md ${following ? '' : 'opacity-75'}`}>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-2xl">{topic.icon}</span>
-          <div>
-            <h3 className="font-heading font-semibold text-foreground group-hover:text-primary">
-              {topic.name}
-            </h3>
-          </div>
+          <Link href={`/sujets/${topic.slug}`} className="font-heading font-semibold text-foreground group-hover:text-primary">
+            {topic.name}
+          </Link>
         </div>
         <button
           type="button"
-          onClick={async (e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            await handleToggle()
-          }}
-          className={`rounded-full p-1.5 transition-colors hover:bg-muted ${isFollowing ? 'text-primary' : 'text-muted-foreground'}`}
+          onClick={handleToggle}
+          className={`rounded-full p-2 transition-colors hover:bg-muted ${following ? 'text-primary' : 'text-muted-foreground'} ${loading ? 'animate-pulse' : ''}`}
         >
-          <Bookmark className={`h-5 w-5 ${isFollowing ? 'fill-current' : ''}`} />
+          <Bookmark className={`h-5 w-5 ${following ? 'fill-current' : ''}`} />
         </button>
       </div>
 
@@ -69,6 +89,6 @@ export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing
           )}
         </div>
       )}
-    </Link>
+    </div>
   )
 })

@@ -1,7 +1,6 @@
-// This is your Prisma schema file
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated"
+  provider        = "prisma-client"
+  output          = "../src/generated"
   previewFeatures = ["relationJoins"]
 }
 
@@ -11,59 +10,54 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  passwordHash  String
-  displayName   String?
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  bookmarks     Bookmark[]
-  following     Topic[]   @relation("UserFollowing")
-  growthPlan    GrowthPlan?
-  viewedIdeas   ViewedIdea[]
-  resetTokens   PasswordResetToken[]
-}
-
-enum UserRole {
-  USER
-  ADMIN
+  id           String               @id @default(cuid())
+  email        String               @unique
+  passwordHash String
+  displayName  String?
+  role         UserRole             @default("USER")
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  bookmarks    Bookmark[]
+  growthPlan   GrowthPlan?
+  resetTokens  PasswordResetToken[]
+  viewedIdeas  ViewedIdea[]
+  following    Topic[]              @relation("UserFollowing")
 }
 
 model Topic {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  slug        String   @unique
-  icon        String   @default("📚")
-  description String?
-  color       String   @default("#6366f1")
-  parentId    String?
-  parent      Topic?   @relation("TopicHierarchy", fields: [parentId], references: [id])
-  children    Topic[]  @relation("TopicHierarchy")
-  collections Collection[]
-  users       User[]   @relation("UserFollowing")
-  createdAt   DateTime @default(now())
-  sourceTopics SourceTopic[]
-  ideaTopics  IdeaTopic[]
-  suggestionParents TopicSuggestion[] @relation("ParentSuggestion")
+  id                String            @id @default(cuid())
+  name              String            @unique
+  slug              String            @unique
+  icon              String            @default("📚")
+  description       String?
+  color             String            @default("#6366f1")
+  parentId          String?
+  createdAt         DateTime          @default(now())
+  ideaTopics        IdeaTopic[]
+  sourceTopics      SourceTopic[]
+  parent            Topic?            @relation("TopicHierarchy", fields: [parentId], references: [id])
+  children          Topic[]           @relation("TopicHierarchy")
   suggestionMerges  TopicSuggestion[] @relation("MergeRelation")
+  suggestionParents TopicSuggestion[] @relation("ParentSuggestion")
+  collections       Collection[]      @relation("CollectionToTopic")
+  users             User[]            @relation("UserFollowing")
 
   @@index([parentId])
   @@index([slug])
 }
 
 model Source {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  author      String?
-  type        SourceType @default(WIKIPEDIA)
-  url         String?
-  coverUrl    String?
-  description String?
-  ideas       Idea[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String        @id @default(cuid())
+  title        String
+  slug         String        @unique
+  author       String?
+  type         SourceType    @default("WIKIPEDIA")
+  url          String?
+  coverUrl     String?
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  ideas        Idea[]
   sourceTopics SourceTopic[]
 
   @@index([type])
@@ -71,30 +65,30 @@ model Source {
 }
 
 model SourceTopic {
-  id      String @id @default(cuid())
+  id       String @id @default(cuid())
   sourceId String
-  source   Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
   topicId  String
   topic    Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  source   Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
   @@unique([sourceId, topicId])
 }
 
 model Idea {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   title       String
   content     String
   takeaway    String
   saviezVous  String?
-  slug        String   @unique
+  slug        String       @unique
   sourceId    String
-  source      Source   @relation(fields: [sourceId], references: [id])
-  orderIndex  Int      @default(0)
-  isPublished Boolean  @default(true)
-  isEnhanced  Boolean  @default(false)
+  orderIndex  Int          @default(0)
+  isPublished Boolean      @default(true)
+  isEnhanced  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   bookmarks   Bookmark[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  source      Source       @relation(fields: [sourceId], references: [id])
   ideaTopics  IdeaTopic[]
   viewedIdeas ViewedIdea[]
 
@@ -106,11 +100,11 @@ model Idea {
 }
 
 model IdeaTopic {
-  id     String @id @default(cuid())
-  ideaId String
-  idea   Idea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  ideaId  String
   topicId String
-  topic  Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  idea    Idea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
 
   @@unique([ideaId, topicId])
 }
@@ -121,47 +115,47 @@ model Collection {
   description String?
   slug        String   @unique
   isFeatured  Boolean  @default(false)
-  topics      Topic[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  topics      Topic[]  @relation("CollectionToTopic")
 
   @@index([slug])
   @@index([isFeatured])
 }
 
 model Bookmark {
-  id      String   @id @default(cuid())
-  userId  String
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ideaId  String
-  idea    Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  ideaId    String
   createdAt DateTime @default(now())
+  idea      Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, ideaId])
 }
 
 model GrowthPlan {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  streakDays     Int      @default(0)
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  streakDays     Int       @default(0)
   lastActiveDate DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model TopicSuggestion {
-  id            String   @id @default(cuid())
-  categoryName  String
-  parentId      String?
-  parentTopic   Topic?   @relation("ParentSuggestion", fields: [parentId], references: [id])
-  icon          String   @default("🤖")
-  confidence    Float
-  articleCount  Int      @default(0)
-  status        SuggestionStatus @default(PENDING)
-  mergedIntoId  String?
-  mergedInto    Topic?   @relation("MergeRelation", fields: [mergedIntoId], references: [id])
-  createdAt     DateTime @default(now())
+  id           String           @id @default(cuid())
+  categoryName String
+  parentId     String?
+  icon         String           @default("🤖")
+  confidence   Float
+  articleCount Int              @default(0)
+  status       SuggestionStatus @default("PENDING")
+  mergedIntoId String?
+  createdAt    DateTime         @default(now())
+  mergedInto   Topic?           @relation("MergeRelation", fields: [mergedIntoId], references: [id])
+  parentTopic  Topic?           @relation("ParentSuggestion", fields: [parentId], references: [id])
 
   @@index([status])
 }
@@ -183,25 +177,25 @@ model CommunityArticle {
 }
 
 model ViewedIdea {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ideaId    String
-  idea      Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
-  viewedAt  DateTime @default(now())
+  id       String   @id @default(cuid())
+  userId   String
+  ideaId   String
+  viewedAt DateTime @default(now())
+  idea     Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, ideaId])
   @@index([userId, viewedAt])
 }
 
 model PasswordResetToken {
-  id         String   @id @default(cuid())
-  token      String   @unique
-  email      String
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([email])
@@ -210,11 +204,16 @@ model PasswordResetToken {
 model SaviezVousFact {
   id            String   @id @default(cuid())
   text          String
+  createdAt     DateTime @default(now())
   sourceUrl     String?
   imageFilename String?
-  createdAt     DateTime @default(now())
 
   @@index([createdAt])
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
 
 enum SourceType {

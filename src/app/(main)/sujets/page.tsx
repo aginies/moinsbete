@@ -1,13 +1,21 @@
 import { prisma } from '@/lib/db'
-import { TopicGrid } from '@/components/topics/topic-grid'
-import { SearchBar } from '@/components/search/search-bar'
-import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
+import { getSession } from '@/lib/auth'
+import { SujetsClient } from './sujets-client'
 import { getRandomFact } from '@/lib/saviez-vous'
-import Link from 'next/link'
 
 export default async function SujetsPage() {
-  const topics = await prisma.topic.findMany({
+  const session = await getSession()
+  const userId = session?.user?.id
+
+  const followedTopicIds = userId
+    ? await prisma.user.findUnique({
+        where: { id: userId },
+        select: { following: { select: { id: true } } },
+      }).then(u => u?.following.map((t: { id: string }) => t.id) || [])
+    : []
+
+  const allTopics = await prisma.topic.findMany({
+    where: { parentId: null },
     include: {
       _count: { select: { ideaTopics: true } },
       children: true,
@@ -18,41 +26,11 @@ export default async function SujetsPage() {
   const saviezVousFact = await getRandomFact()
 
   return (
-    <div className="mx-auto max-w-4xl p-4 pb-20 md:p-6">
-      {saviezVousFact && (
-        <div className="mb-6">
-          <SaviezVousCard text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} />
-        </div>
-      )}
-
-      <div className="mb-6">
-        <WikipediaImageCard />
-      </div>
-
-      <div className="mb-6">
-        <Link
-          href="/idees/au-hasard"
-          className="block rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-600 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
-              <span className="text-lg">🎲</span>
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-blue-800 dark:text-blue-200">
-                Carte aléatoire
-              </h3>
-              <p className="text-xs text-blue-600 dark:text-blue-300">
-                Découvrir au Hasard
-              </p>
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      <SearchBar />
-
-      <TopicGrid topics={topics} />
-    </div>
+    <SujetsClient
+      allTopics={allTopics}
+      initialFollowedIds={followedTopicIds}
+      saviezVousFact={saviezVousFact}
+      userId={userId}
+    />
   )
 }
