@@ -19,6 +19,7 @@ function cleanText(wikiText: string): string {
   let text = wikiText.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
   text = text.replace(/'''([^']*)'''/g, '$1')
   text = text.replace(/''([^']*)''/g, '$1')
+  text = text.replace(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g, '$1 $2')
   text = text.replace(/\{\{[^}]*\}\}/g, '')
   text = text.replace(/<[^>]+>/g, '')
   text = text.replace(/\{\{lang\|[^\}]*\}\}/g, '')

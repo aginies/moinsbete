@@ -30,12 +30,13 @@ function saveCheckpoint(checkpoint: Checkpoint) {
   fs.writeFileSync(CHECKPOINT_FILE, JSON.stringify(checkpoint, null, 2))
 }
 
-function parseArgs(): { resume?: boolean; batch?: number; retry?: boolean } {
+function parseArgs(): { resume?: boolean; batch?: number; retry?: boolean; topic?: string } {
   const args = process.argv.slice(2)
   return {
     resume: args.includes('--resume'),
     batch: args.find(a => a.startsWith('--batch=')) ? parseInt(args.find(a => a.startsWith('--batch='))!.split('=')[1]) : undefined,
     retry: args.includes('--retry'),
+    topic: args.find(a => a.startsWith('--topic='))?.split('=')[1],
   }
 }
 
@@ -70,6 +71,7 @@ async function main() {
     where: {
       isPublished: true,
       isEnhanced: false,
+      ...(args.topic ? { ideaTopics: { some: { topic: { name: args.topic } } } } : {}),
     },
     select: {
       id: true,

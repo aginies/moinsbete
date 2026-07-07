@@ -62,9 +62,9 @@ export async function GET(request: NextRequest) {
         where: {
           isPublished: true,
           OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { content: { contains: q, mode: 'insensitive' } },
-            { takeaway: { contains: q, mode: 'insensitive' } },
+            { title: { contains: q } },
+            { content: { contains: q } },
+            { takeaway: { contains: q } },
           ],
         },
         select: {
@@ -86,22 +86,23 @@ export async function GET(request: NextRequest) {
       prisma.source.findMany({
         where: {
           OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { description: { contains: q, mode: 'insensitive' } },
+            { title: { contains: q } },
+            { description: { contains: q } },
           ],
         },
         select: {
-          id: true,
-          title: true,
-          slug: true,
-          type: true,
-          coverUrl: true,
-        },
+           id: true,
+           title: true,
+           slug: true,
+           type: true,
+           coverUrl: true,
+           description: true,
+         },
         take: 10,
       }),
       prisma.topic.findMany({
         where: {
-          name: { contains: q, mode: 'insensitive' },
+          name: { contains: q },
         },
         select: {
           id: true,
