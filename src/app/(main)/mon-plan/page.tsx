@@ -38,12 +38,16 @@ export default async function MonPlanPage() {
     )
   }
 
- const followedTopics = session.user.id
+  const followedTopics = session.user.id
     ? await prisma.user.findUnique({
         where: { id: session.user.id },
         include: { following: true },
       })
     : null
+
+  const growthPlan = await prisma.growthPlan.findUnique({
+    where: { userId: session.user.id },
+  })
 
   const allTopics = await prisma.topic.findMany({
     where: {

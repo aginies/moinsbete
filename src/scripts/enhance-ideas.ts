@@ -143,7 +143,7 @@ async function main() {
         continue
       }
       
-      if (result.expandedContent.length === idea.content.length && result.expandedContent === idea.content) {
+      if (result.expandedContent!.length === idea.content.length && result.expandedContent === idea.content) {
         console.log(`    ✓ Content unchanged, skipping`)
         skipped++
         await prisma.idea.update({
@@ -159,14 +159,14 @@ async function main() {
         await prisma.idea.update({
           where: { id: idea.id },
           data: {
-            content: result.expandedContent,
+            content: result.expandedContent!,
             isEnhanced: true,
           },
         })
         expanded++
         checkpoint.processedIds.push(idea.id)
         saveCheckpoint(checkpoint)
-        console.log(`    ✓ Expanded to ${result.expandedContent.length} chars (${result.attempt} attempt(s))`)
+        console.log(`    ✓ Expanded to ${result.expandedContent!.length} chars (${result.attempt} attempt(s))`)
       } catch (updateError) {
         console.error(`    ❌ Update failed:`, updateError)
         failed++
