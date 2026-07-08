@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slugify, generateSlug, truncate } from '@/lib/utils'
+import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS } from '@/lib/utils'
 
 describe('slugify', () => {
   it('converts to lowercase', () => {
@@ -74,5 +74,75 @@ describe('truncate', () => {
 
   it('handles zero length', () => {
     expect(truncate('hello', 0)).toBe('...')
+  })
+})
+
+describe('cn', () => {
+  it('merges class names', () => {
+    expect(cn('px-4 py-2', 'bg-blue-500')).toBe('px-4 py-2 bg-blue-500')
+  })
+
+  it('handles conditional classes', () => {
+    expect(cn('base', true && 'conditional', false && 'false-condition')).toBe('base conditional')
+  })
+
+  it('handles arrays', () => {
+    expect(cn(['class1', 'class2'])).toBe('class1 class2')
+  })
+
+  it('handles objects', () => {
+    expect(cn({ active: true, inactive: false })).toBe('active')
+  })
+
+  it('handles empty inputs', () => {
+    expect(cn()).toBe('')
+    expect(cn(null)).toBe('')
+    expect(cn(undefined)).toBe('')
+    expect(cn(false)).toBe('')
+  })
+
+  it('merges conflicting classes', () => {
+    expect(cn('px-4', 'px-6')).toBe('px-6')
+    expect(cn('bg-red-500', 'bg-blue-500')).toBe('bg-blue-500')
+  })
+})
+
+describe('getRandomIcon', () => {
+  it('returns an icon from TOPIC_ICONS', () => {
+    const icon = getRandomIcon()
+    expect(TOPIC_ICONS).toContain(icon)
+  })
+
+  it('returns different icons on multiple calls', () => {
+    const icons = new Set<string>()
+    for (let i = 0; i < 50; i++) {
+      icons.add(getRandomIcon())
+    }
+    expect(icons.size).toBeGreaterThan(1)
+  })
+
+  it('returns a non-empty string', () => {
+    const icon = getRandomIcon()
+    expect(icon.length).toBeGreaterThan(0)
+  })
+})
+
+describe('getRandomColor', () => {
+  it('returns a color from TOPIC_COLORS', () => {
+    const color = getRandomColor()
+    expect(TOPIC_COLORS).toContain(color)
+  })
+
+  it('returns different colors on multiple calls', () => {
+    const colors = new Set<string>()
+    for (let i = 0; i < 50; i++) {
+      colors.add(getRandomColor())
+    }
+    expect(colors.size).toBeGreaterThan(1)
+  })
+
+  it('returns a valid hex color', () => {
+    const color = getRandomColor()
+    expect(color).toMatch(/^#[0-9a-f]{6}$/i)
   })
 })

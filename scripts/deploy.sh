@@ -12,6 +12,8 @@ rsync -a --delete \
   --exclude='*.test.ts' \
   --exclude='*.test.tsx' \
   --exclude='vitest.config.ts' \
+  --exclude='deploy.sh' \
+  --exclude='test.sh' \
   --exclude='check_*.ts' \
   --exclude='debug_*.ts' \
   --exclude='get_sample.ts' \
