@@ -81,7 +81,7 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<any> {
 
 export async function GET(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const ip = request.ip || request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
     const clientId = ip.split(',')[0].trim()
     if (!checkRateLimit(`wiki-image:${clientId}`, 10, 60_000)) {
       return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })

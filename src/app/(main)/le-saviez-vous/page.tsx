@@ -32,18 +32,22 @@ export async function generateMetadata(): Promise<Metadata> {
     }
   }
 
+  const safeText = fact.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
+  const shortText = safeText.slice(0, 155)
+  const twitterDesc = safeText.slice(0, 200)
+
   return {
-    title: `Le saviez-vous ? - ${fact.text.slice(0, 50)}... | MoinsBête`,
-    description: fact.text,
+    title: `Le saviez-vous ? - ${safeText.slice(0, 50)}... | MoinsBête`,
+    description: shortText,
     openGraph: {
-      title: `Le saviez-vous ? - ${fact.text.slice(0, 60)}...`,
-      description: fact.text,
+      title: `Le saviez-vous ? - ${safeText.slice(0, 60)}...`,
+      description: shortText,
       type: 'website',
     },
     twitter: {
       card: 'summary',
-      title: `Le saviez-vous ? - ${fact.text.slice(0, 60)}...`,
-      description: fact.text,
+      title: `Le saviez-vous ? - ${safeText.slice(0, 60)}...`,
+      description: twitterDesc,
     },
   }
 }
