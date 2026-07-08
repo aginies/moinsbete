@@ -59,7 +59,7 @@ export default async function HomePage() {
 
       {saviezVousFact && (
         <div className="mb-6">
-          <SaviezVousCard text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} />
+          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} />
         </div>
       )}
 

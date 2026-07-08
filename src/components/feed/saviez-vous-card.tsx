@@ -9,6 +9,7 @@ import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 
 interface SaviezVousCardProps {
+  id: string
   text: string
   sourceUrl?: string | null
   imageFilename?: string | null
@@ -25,8 +26,8 @@ async function fetchRandomFact() {
   return null
 }
 
-export const SaviezVousCard = React.memo(function SaviezVousCardInner({ text, sourceUrl, imageFilename }: SaviezVousCardProps) {
-  const [fact, setFact] = useState({ text, sourceUrl, imageFilename })
+export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text, sourceUrl, imageFilename }: SaviezVousCardProps) {
+  const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
