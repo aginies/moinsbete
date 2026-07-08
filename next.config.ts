@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'fr.wikipedia.org' },
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      { protocol: 'https', hostname: 'lejournal.cnrs.fr' },
     ],
   },
   allowedDevOrigins: ['100.0.0.0/8', '10.0.1.78'],
