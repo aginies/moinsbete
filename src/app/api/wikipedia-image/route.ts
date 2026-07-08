@@ -87,17 +87,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
     }
 
-    const randomArchive = archives[Math.floor(Math.random() * archives.length)]
+    // Retry logic: pick random archives until we find one with valid entries
+    const usedArchives = new Set<string>()
+    const maxRetries = 5
+    let entries: ImageEntry[] = []
+    let randomArchive: string
 
-    const data = await fetchWithRetry(
-      `https://fr.wikipedia.org/w/api.php?action=parse&page=Wikip%C3%A9dia:Image_du_jour/${encodeURIComponent(randomArchive)}&prop=text&format=json`
-    )
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      // Pick a random archive not yet tried
+      do {
+        randomArchive = archives[Math.floor(Math.random() * archives.length)]
+      } while (usedArchives.has(randomArchive) && usedArchives.size < archives.length)
+      
+      usedArchives.add(randomArchive)
 
-    if (!data?.parse?.text?.['*']) {
-      return NextResponse.json({ error: true })
+      const data = await fetchWithRetry(
+        `https://fr.wikipedia.org/w/api.php?action=parse&page=Wikip%C3%A9dia:Image_du_jour/${encodeURIComponent(randomArchive)}&prop=text&format=json`
+      )
+
+      if (!data?.parse?.text?.['*']) continue
+
+      entries = extractEntries(data.parse.text['*'])
+      if (entries.length > 0) break
     }
-
-    const entries = extractEntries(data.parse.text['*'])
 
     if (entries.length === 0) {
       return NextResponse.json({ error: true })
