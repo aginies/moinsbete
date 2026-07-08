@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moinsbete.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moinsbete.guibo.com'
   const pageUrl = new URL(idea.slug, `${baseUrl}/idees/`).href
   const coverUrl = idea.source.coverUrl && isValidUrl(idea.source.coverUrl) ? idea.source.coverUrl : null
 
