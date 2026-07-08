@@ -51,4 +51,6 @@ next-env.d.ts
 *.dylib
 *.dll
 
-dev.db.bck
+# backup files
+*.bak
+*.bck
