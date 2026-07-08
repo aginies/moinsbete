@@ -46,7 +46,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
 
   useEffect(() => {
     loadImage()
-  }, [loadImage])
+  }, [])
 
   const hasImage = isValidUrl(image?.imageUrl ?? '') && !imageError
 
