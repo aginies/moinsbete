@@ -99,11 +99,24 @@ export default function AproposPage() {
           </p>
         </section>
 
-        <section>
+       <section>
           <h2 className="mb-3 text-xl font-semibold">100% gratuit</h2>
      <p className="text-muted-foreground">
-          MoinsBête est gratuit. Pas de publicité, pas d'abonnement.
-            Juste de l'apprentissage de qualité, sans friction.
+           MoinsBête est gratuit. Pas de publicité, pas d'abonnement.
+             Juste de l'apprentissage de qualité, sans friction.
+           </p>
+         </section>
+
+         <section>
+          <h2 className="mb-3 text-xl font-semibold">Documentaires Radio France</h2>
+          <p className="text-muted-foreground">
+            Découvrez des documentaires audio de qualité depuis Radio France.
+            Chaque jour, une carte vous propose un documentaire aléatoire parmi nos
+            collections sélectionnées : histoires, sciences, arts, société et plus encore.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sauvegardez vos documentaires préférés dans vos favoris et retrouvez-les
+            facilement dans l'onglet Documentaires Radio France de votre page favoris.
           </p>
         </section>
 
