@@ -357,7 +357,6 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
                       aria-label="Voir l'idée précédente"
                     >
                       <span className="text-[10px] text-muted-foreground/60 group-hover:text-primary/70">← Précédent</span>
-                      <span className="font-medium text-foreground group-hover:text-primary truncate max-w-[150px]">{prev.title}</span>
                     </button>
                   ) : (
                     <div className="inline-flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2">
@@ -374,7 +373,6 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
                       aria-label="Voir l'idée suivante"
                     >
                       <span className="text-[10px] text-muted-foreground/60 group-hover:text-primary/70">Suivant →</span>
-                      <span className="font-medium text-foreground group-hover:text-primary truncate max-w-[150px]">{next.title}</span>
                     </button>
                   ) : (
                     <div className="inline-flex w-full flex-col items-end gap-0.5 rounded-lg px-3 py-2">
