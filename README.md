@@ -8,9 +8,9 @@ MoinsBête propose des idées courtes et actionnables issues de Wikipédia, gén
 
 ## Démonstration
 
-[Voir la démo de MoinsBête](https://www.youtube.com/shorts/dHPhT6kqftw)
+[Voir la démo de MoinsBête sur YouTube](https://www.youtube.com/shorts/dHPhT6kqftw)
 
-<iframe width="100%" height="400" src="https://www.youtube.com/embed/dHPhT6kqftw" title="MoinsBête Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+![Demo MoinsBête](https://img.youtube.com/vi/dHPhT6kqftw/maxresdefault.jpg)
 
 ## Stack technique
 
