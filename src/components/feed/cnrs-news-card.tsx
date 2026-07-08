@@ -3,6 +3,9 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Newspaper, ExternalLink, RefreshCw, Share2, EyeOff } from 'lucide-react'
 import Link from 'next/link'
+import { isValidUrl } from '@/lib/utils'
+import { useShare } from './use-share'
+import { ShareButton } from './share-button'
 
 interface CnrsNewsCardProps {
   onToggle?: () => void
@@ -23,6 +26,15 @@ const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string
   'Sociétés': { border: 'border-amber-400', bg: 'bg-amber-100', text: 'text-amber-800', darkBorder: 'dark:border-amber-700', darkBg: 'dark:bg-amber-900/40', darkText: 'dark:text-amber-300' },
   'Terre': { border: 'border-teal-400', bg: 'bg-teal-100', text: 'text-teal-800', darkBorder: 'dark:border-teal-700', darkBg: 'dark:bg-teal-900/40', darkText: 'dark:text-teal-300' },
   'Univers': { border: 'border-indigo-400', bg: 'bg-indigo-100', text: 'text-indigo-800', darkBorder: 'dark:border-indigo-700', darkBg: 'dark:bg-indigo-900/40', darkText: 'dark:text-indigo-300' },
+  'actualite': { border: 'border-green-400', bg: 'bg-green-100', text: 'text-green-800', darkBorder: 'dark:border-green-700', darkBg: 'dark:bg-green-900/40', darkText: 'dark:text-green-300' },
+  'presse': { border: 'border-blue-400', bg: 'bg-blue-100', text: 'text-blue-800', darkBorder: 'dark:border-blue-700', darkBg: 'dark:bg-blue-900/40', darkText: 'dark:text-blue-300' },
+  'lejournal': { border: 'border-purple-400', bg: 'bg-purple-100', text: 'text-purple-800', darkBorder: 'dark:border-purple-700', darkBg: 'dark:bg-purple-900/40', darkText: 'dark:text-purple-300' },
+  'images': { border: 'border-amber-400', bg: 'bg-amber-100', text: 'text-amber-800', darkBorder: 'dark:border-amber-700', darkBg: 'dark:bg-amber-900/40', darkText: 'dark:text-amber-300' },
+  'videos': { border: 'border-red-400', bg: 'bg-red-100', text: 'text-red-800', darkBorder: 'dark:border-red-700', darkBg: 'dark:bg-red-900/40', darkText: 'dark:text-red-300' },
+  'diaporamas': { border: 'border-cyan-400', bg: 'bg-cyan-100', text: 'text-cyan-800', darkBorder: 'dark:border-cyan-700', darkBg: 'dark:bg-cyan-900/40', darkText: 'dark:text-cyan-300' },
+  'bibliotheque': { border: 'border-orange-400', bg: 'bg-orange-100', text: 'text-orange-800', darkBorder: 'dark:border-orange-700', darkBg: 'dark:bg-orange-900/40', darkText: 'dark:text-orange-300' },
+  'Sciences': { border: 'border-green-400', bg: 'bg-green-100', text: 'text-green-800', darkBorder: 'dark:border-green-700', darkBg: 'dark:bg-green-900/40', darkText: 'dark:text-green-300' },
+  '': { border: 'border-gray-400', bg: 'bg-gray-100', text: 'text-gray-800', darkBorder: 'dark:border-gray-700', darkBg: 'dark:bg-gray-900/40', darkText: 'dark:text-gray-300' },
 }
 
 async function fetchRandomArticle(): Promise<CnrsArticle | null> {
@@ -63,6 +75,13 @@ export function CnrsNewsCard({ onToggle }: CnrsNewsCardProps) {
 
   const categoryStyle = article ? CATEGORY_COLORS[article.category] || { border: 'border-gray-400', bg: 'bg-gray-100', text: 'text-gray-800', darkBorder: 'dark:border-gray-700', darkBg: 'dark:bg-gray-900/40', darkText: 'dark:text-gray-300' } : null
 
+  const shareOptions = article ? {
+    title: article.title,
+    text: `${article.title}\n\nCatégorie: ${article.category || 'Sciences'}`,
+    url: article.link,
+  } : null
+  const { share, copied, shareUrl } = useShare(shareOptions)
+
   return (
     <div
       onClick={loadArticle}
@@ -91,6 +110,9 @@ export function CnrsNewsCard({ onToggle }: CnrsNewsCardProps) {
             </button>
           )}
           <RefreshCw className={`h-4 w-4 text-green-600 dark:text-green-400 ${loading ? 'animate-spin' : ''}`} />
+          {shareOptions && (
+            <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
+          )}
         </div>
       </div>
 
@@ -127,12 +149,6 @@ export function CnrsNewsCard({ onToggle }: CnrsNewsCardProps) {
                 {article.category}
               </span>
             </div>
-          )}
-
-          {article.date && (
-            <p className="text-xs text-green-600 dark:text-green-400 mb-2">
-              {article.date}
-            </p>
           )}
 
           <Link
