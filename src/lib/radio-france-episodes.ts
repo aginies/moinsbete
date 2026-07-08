@@ -1,5 +1,24 @@
 import { RadioFranceDoc } from '@/data/radio-france'
 
+const VALID_ORIGINS = ['https://www.radiofrance.fr', 'https://radiofrance.fr']
+const BASE_PATH = '/franceculture/podcasts/'
+
+function isValidUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return VALID_ORIGINS.includes(parsed.origin)
+  } catch {
+    return false
+  }
+}
+
+function sanitizeUrl(url: string | null | undefined, fallback: string = ''): string {
+  if (url && isValidUrl(url)) {
+    return url.trim()
+  }
+  return fallback
+}
+
 const PODCAST_NAME_MAP: Record<string, string> = {
   'lsd': 'LSD, la série documentaire',
   'une-histoire-particuliere': 'Une histoire particulière',
@@ -65,7 +84,8 @@ export function parseEpisodesFromHtml(html: string): RadioFranceDoc[] {
     if (!urlMatch) continue
 
     const slug = urlMatch[1]
-    const url = `https://www.radiofrance.fr/franceculture/podcasts/${slug}`
+    const url = sanitizeUrl(`https://www.radiofrance.fr/franceculture/podcasts/${slug}`)
+    if (!url) continue
 
     const titleMatch = block.match(/<!--\[-1-->([^<]+(?:<[^>]+>[^<]+)*?)<!--\]-->/)
     const title = titleMatch ? titleMatch[1].trim() : ''
@@ -75,7 +95,7 @@ export function parseEpisodesFromHtml(html: string): RadioFranceDoc[] {
     const description = descMatch ? descMatch[1].trim() : ''
 
     const imgMatch = block.match(/src="(https:\/\/www\.radiofrance\.fr\/pikapi\/images\/[^"]+\/2048)"/)
-    const image = imgMatch ? imgMatch[1] : undefined
+    const image = imgMatch ? sanitizeUrl(imgMatch[1]) : undefined
 
     const dateArea = block.match(/AdditionalInfos[^>]*>([\s\S]*?)<\/div>/)
     let date = ''
