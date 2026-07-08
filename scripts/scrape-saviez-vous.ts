@@ -26,10 +26,11 @@ function cleanText(wikiText: string): string {
   // Remove images/files FIRST (before other replacements)
   text = text.replace(/\[\[Fichier:[^\]]*\]\]/g, '')
   text = text.replace(/\[\[Image:[^\]]*\]\]/g, '')
-  // Remove wiki links [[...]]
-  text = text.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
-  // Remove bold/italic
-  text = text.replace(/'''([^']*)'''/g, '$1')
+  // Remove wiki links [[...]] - use display text when available
+  text = text.replace(/\[\[([^\]|]+)\|([^]]*?)\]\]/g, '$2')
+  text = text.replace(/\[\[([^\]|]+)\]\]/g, '$1')
+  // Remove bold/italic - handle apostrophes in bold text
+  text = text.replace(/'''((?:[^']|'(?!''))*)'''/g, '$1')
   text = text.replace(/''([^']*)''/g, '$1')
   // Remove templates {{...}}
   text = text.replace(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g, '$1 $2')
@@ -53,7 +54,12 @@ function cleanText(wikiText: string): string {
 }
 
 function extractImageFilename(wikiText: string): string | null {
-  const match = wikiText.match(/\[\[Fichier:([^\]]+)\]\]/)
+  // Try Fichier: first (French Wikipedia), then Image:
+  let match = wikiText.match(/\[\[Fichier:([^\]]+)\]\]/)
+  if (match) {
+    return match[1].trim().split('|')[0]
+  }
+  match = wikiText.match(/\[\[Image:([^\]]+)\]\]/)
   if (match) {
     return match[1].trim().split('|')[0]
   }
@@ -61,9 +67,20 @@ function extractImageFilename(wikiText: string): string | null {
 }
 
 function extractArticleLink(wikiText: string): string | null {
-  const match = wikiText.match(/\[\[([^\]|]+)\]\]/)
-  if (match) {
-    return match[1]
+  // Match all wiki links, skip Fichier:/Image: links
+  const linkRegex = /\[\[(?!Fichier:|Image:)([^\]|]+)(\|([^]]*?))?\]\]/g
+  let match
+  while ((match = linkRegex.exec(wikiText)) !== null) {
+    const pageName = match[1]
+    // Skip category links and other special namespaces
+    if (pageName.startsWith('Catégorie:') || pageName.startsWith('Catégorie :') ||
+        pageName.startsWith('Discussion:') || pageName.startsWith('Discussion :') ||
+        pageName.startsWith('Wikipédia:') || pageName.startsWith('Wikipédia :') ||
+        pageName.startsWith('Fichier:') || pageName.startsWith('Fichier :') ||
+        pageName.startsWith('Image:') || pageName.startsWith('Image :')) {
+      continue
+    }
+    return pageName
       .replace(/ /g, '_')
       .replace(/#/g, '%23')
       .replace(/'/g, '%27')
