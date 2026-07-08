@@ -122,27 +122,36 @@ export async function resolveWikimediaImageUrls(facts: Array<{ id: string; image
   // Fallback: construct direct Wikimedia URL for facts still not resolved
   for (const fact of facts) {
     if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
-
-    const fn = fact.imageFilename
-
-    // Try decoded filename with MD5 path first
-    try {
-      const decoded = decodeURIComponent(fn)
-      if (decoded !== fn) {
-        const hash = crypto.createHash('md5').update(decoded).digest('hex')
-        const firstChar = decoded[0].toLowerCase()
-        const hashPrefix = hash.slice(0, 2)
-        fact.imageFilename = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${hashPrefix}/${decoded}`
-        continue
-      }
-    } catch {}
-
-    // Try original filename with MD5 path
-    const hash = crypto.createHash('md5').update(fn).digest('hex')
-    const firstChar = fn[0].toLowerCase()
-    const hashPrefix = hash.slice(0, 2)
-    fact.imageFilename = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${hashPrefix}/${fn}`
+    fact.imageFilename = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fact.imageFilename)}?width=1200`
   }
 
   return facts
+}
+
+export async function resolveWikimediaImageUrlsViaREST(filenames: string[]): Promise<Map<string, string>> {
+  const urlMap = new Map<string, string>()
+  if (filenames.length === 0) return urlMap
+
+  try {
+    const titles = filenames.join('|')
+    const res = await fetch(
+      `https://commons.wikimedia.org/w/rest.php/wikibase/v0/offloadable_urls?titles=${encodeURIComponent(titles)}`,
+      { headers: { 'User-Agent': 'moinsbete/1.0' } }
+    )
+    if (!res.ok) return urlMap
+    const data = await res.json()
+    if (data?.pages) {
+      for (const page of data.pages) {
+        const filename = page?.title?.replace(/^File:/, '')
+        const url = page?.mainEntity?.url || page?.url
+        if (filename && url) {
+          urlMap.set(filename, url)
+        }
+      }
+    }
+  } catch {
+    // Fall through to MD5 fallback
+  }
+
+  return urlMap
 }
