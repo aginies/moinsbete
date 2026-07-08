@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import { isCsrfValid } from '@/lib/csrf'
 
 export async function POST(request: NextRequest) {
-  if (!isCsrfValid(request)) {
+  if (!(await isCsrfValid(request))) {
     return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
   }
   try {
@@ -38,13 +38,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
-    const resetLink = `${baseUrl}/reset-password/${token}`
-
-    return NextResponse.json({
-      success: true,
-      resetLink,
-    })
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Reset token error:', error)
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })

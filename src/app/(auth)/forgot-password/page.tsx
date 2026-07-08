@@ -13,8 +13,6 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const [resetLink, setResetLink] = useState('')
-  const [copied, setCopied] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -38,9 +36,6 @@ export default function ForgotPasswordPage() {
         setError(data.error)
       } else {
         setSuccess(true)
-        if (data.resetLink) {
-          setResetLink(data.resetLink)
-        }
       }
     } catch {
       setError('Erreur lors de l\'envoi')
@@ -103,32 +98,12 @@ export default function ForgotPasswordPage() {
               </div>
               <h2 className="mb-2 text-lg font-semibold">Token de réinitialisation généré</h2>
               <p className="mb-4 text-sm text-muted-foreground">
-                Ce lien permet de réinitialiser votre mot de passe. Il expire dans 1 heure.
+                Vérifiez votre boîte mail. Le lien de réinitialisation expire dans 1 heure.
               </p>
             </div>
 
-            <div className="rounded-lg border border-border/60 bg-card p-4">
-              <p className="mb-2 text-xs font-medium text-muted-foreground">Lien de réinitialisation :</p>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 break-all rounded bg-muted px-3 py-2 text-xs font-mono">
-                  {resetLink}
-                </code>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(resetLink)
-                    setCopied(true)
-                    setTimeout(() => setCopied(false), 2000)
-                  }}
-                  className="shrink-0 rounded-lg border border-border/60 bg-card px-3 py-2 text-xs font-medium transition-colors hover:bg-muted"
-                >
-                  {copied ? 'Copié !' : 'Copier'}
-                </button>
-              </div>
-            </div>
-
-            <a href={resetLink} target="_blank" rel="noopener noreferrer">
-              <Button className="w-full">Ouvrir le lien de réinitialisation</Button>
+            <a href="/reset-password" target="_blank" rel="noopener noreferrer">
+              <Button className="w-full">Réinitialiser le mot de passe</Button>
             </a>
           </div>
         )}

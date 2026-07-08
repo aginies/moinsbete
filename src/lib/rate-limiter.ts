@@ -1,3 +1,4 @@
+const USE_REDIS = process.env.RATE_LIMITER_DRIVER === 'redis'
 export const stores = new Map<string, { timestamps: number[]; expiresAt: number }>()
 const CLEANUP_INTERVAL = 5 * 60 * 1000
 

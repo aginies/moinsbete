@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rate-limiter'
 
 export async function GET(request: NextRequest) {
   const session = await getSession()
@@ -10,6 +11,10 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const userId = session.user.id
+
+  if (!checkRateLimit(`history:${userId}`, 60, 60_000)) {
+    return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
+  }
   const page = parseInt(searchParams.get('page') || '1')
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
   const skip = (page - 1) * limit

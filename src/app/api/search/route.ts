@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { checkRateLimit } from '@/lib/rate-limiter'
 
 interface SearchCacheEntry {
   ideas: any[]
@@ -45,9 +46,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ideas: [], sources: [], topics: [] })
     }
 
-    // Limit query length
     if (q.length > 100) {
       q = q.substring(0, 100)
+    }
+
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const clientId = ip.split(',')[0].trim()
+    if (!checkRateLimit(`search:${clientId}`, 30, 60_000)) {
+      return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
     }
 
     // Check cache

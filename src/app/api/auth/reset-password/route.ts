@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import { isCsrfValid } from '@/lib/csrf'
 
 export async function POST(request: NextRequest) {
-  if (!isCsrfValid(request)) {
+  if (!(await isCsrfValid(request))) {
     return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
   }
   try {
@@ -16,6 +16,10 @@ export async function POST(request: NextRequest) {
 
     if (newPassword.length < 6) {
       return NextResponse.json({ error: 'Le mot de passe doit contenir au moins 6 caractères' }, { status: 400 })
+    }
+
+    if (newPassword.length > 128) {
+      return NextResponse.json({ error: 'Le mot de passe est trop long' }, { status: 400 })
     }
 
     // Find valid token

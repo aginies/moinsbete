@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { resolveWikimediaImageUrls } from '@/lib/utils'
 import crypto from 'node:crypto'
+import { checkRateLimit } from '@/lib/rate-limiter'
 
 interface ImageCacheEntry {
   url: string
@@ -33,6 +34,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const count = Math.min(parseInt(searchParams.get('count') || '1'), 10)
+
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const clientId = ip.split(',')[0].trim()
+    if (!checkRateLimit(`saviez-vous:${clientId}`, 20, 60_000)) {
+      return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
+    }
 
     const total = await prisma.saviezVousFact.count()
     if (total === 0) {

@@ -8,7 +8,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
-  if (!isCsrfValid(request)) {
+  if (!(await isCsrfValid(request))) {
     return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
   }
   const session = await getSession()
