@@ -6,6 +6,12 @@ Application de découverte de connaissances bite-sized : idées, sujets, sources
 
 MoinsBête propose des idées courtes et actionnables issues de Wikipédia, générées par LLM ou écrites manuellement. Chaque idée contient un titre, un contenu explicatif et un takeaway actionnable.
 
+## Démonstration
+
+[Voir la démo de MoinsBête](https://www.youtube.com/shorts/dHPhT6kqftw)
+
+<iframe width="100%" height="400" src="https://www.youtube.com/embed/dHPhT6kqftw" title="MoinsBête Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## Stack technique
 
 | Couche | Technologie |
