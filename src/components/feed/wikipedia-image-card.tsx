@@ -57,7 +57,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
     text: `${image.description}\n\nDate: ${image.date}`,
     url: image.fileUrl,
   } : null
-  const { share, copied } = useShare(shareOptions)
+  const { share, copied, shareUrl } = useShare(shareOptions)
 
   return (
     <>
@@ -75,7 +75,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
             </h3>
           </div>
           <RefreshCw className={`h-4 w-4 text-amber-600 dark:text-amber-400 ${loading ? 'animate-spin' : ''}`} />
-          <ShareButton onClick={share} copied={copied} />
+          <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
         </div>
 
         {error && !loading && (

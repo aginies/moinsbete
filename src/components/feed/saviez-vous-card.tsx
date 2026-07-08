@@ -45,12 +45,12 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ text, so
 
   const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError
 
-  const shareOptions = fact.sourceUrl ? {
+  const shareOptions = fact.id ? {
     title: 'Le saviez-vous ?',
     text: fact.text,
-    url: fact.sourceUrl,
+    url: `/saviez-vous/${fact.id}`,
   } : null
-  const { share, copied } = useShare(shareOptions)
+  const { share, copied, shareUrl } = useShare(shareOptions)
 
   return (
     <>
@@ -68,7 +68,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ text, so
             </h3>
           </div>
           <RefreshCw className={`h-4 w-4 text-amber-600 dark:text-amber-400 ${loading ? 'animate-spin' : ''}`} />
-          <ShareButton onClick={share} copied={copied} />
+          <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
         </div>
 
         {hasImage && (
