@@ -138,9 +138,9 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
       <div className="mb-6">
         <button
           onClick={handleToggle}
-          className="w-full rounded-xl border-2 border-dashed border-rose-300 bg-rose-50/50 p-4 dark:border-rose-800 dark:bg-rose-950/20 hover:border-rose-400 hover:bg-rose-50 dark:hover:border-rose-700 dark:hover:bg-rose-950/30 transition-colors"
+          className="w-full rounded-xl border-2 border-dashed border-purple-300 bg-purple-50/50 p-4 dark:border-purple-800 dark:bg-purple-950/20 hover:border-purple-400 hover:bg-purple-50 dark:hover:border-purple-700 dark:hover:bg-purple-950/30 transition-colors"
         >
-          <div className="flex items-center justify-center gap-2 text-sm text-rose-700 dark:text-rose-400">
+          <div className="flex items-center justify-center gap-2 text-sm text-purple-700 dark:text-purple-400">
             <Lightbulb className="h-4 w-4" />
             <span>Afficher Documentaires Radio France</span>
           </div>
@@ -151,20 +151,20 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
 
   return (
     <div className="mb-6">
-      <div className="rounded-xl border-2 border-rose-400 bg-gradient-to-br from-rose-50 to-pink-50 p-5 dark:border-rose-700 dark:from-rose-950/30 dark:to-pink-950/30 hover:shadow-md transition-shadow">
+      <div className="rounded-xl border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-violet-50 p-5 dark:border-purple-700 dark:from-purple-950/30 dark:to-violet-950/30 hover:shadow-md transition-shadow">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-500 dark:bg-rose-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 dark:bg-purple-600">
               <Lightbulb className="h-4 w-4 text-white" />
             </div>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-rose-800 dark:text-rose-300">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-purple-800 dark:text-purple-300">
               Documentaires Radio France
             </h3>
           </div>
           <div className="flex items-center gap-6">
             <button
               onClick={handleToggle}
-              className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
+              className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors"
               title="Masquer la carte"
             >
               <EyeOff className="h-4 w-4" />
@@ -173,11 +173,11 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
               onClick={handleRefresh}
               title="Changer de documentaire"
             >
-              <RefreshCw className={`h-4 w-4 text-rose-600 dark:text-rose-400 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 text-purple-600 dark:text-purple-400 ${loading ? 'animate-spin' : ''}`} />
             </button>
             <button
               onClick={handleBookmark}
-              className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
+              className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors"
               title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
               <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
@@ -191,7 +191,7 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
         {doc && (
           <>
             {doc.image && (
-              <div className="mb-3 overflow-hidden rounded-lg border border-rose-200 dark:border-rose-800">
+              <div className="mb-3 overflow-hidden rounded-lg border border-purple-200 dark:border-purple-800">
                 <img
                   src={sanitizeUrl(doc.image, '')}
                   alt={doc.title}
@@ -203,20 +203,20 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
               </div>
             )}
 
-            <p className="text-sm font-semibold text-rose-900 dark:text-rose-100 mb-2">
+            <p className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
               {doc.title}
             </p>
 
             <div className="mb-3">
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-rose-200 bg-rose-100 text-rose-800 dark:border-rose-700 dark:bg-rose-900/40 dark:text-rose-300">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-purple-200 bg-purple-100 text-purple-800 dark:border-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
                 {doc.radio}
               </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-rose-200 bg-rose-100 text-rose-800 dark:border-rose-700 dark:bg-rose-900/40 dark:text-rose-300 ml-2">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-purple-200 bg-purple-100 text-purple-800 dark:border-purple-700 dark:bg-purple-900/40 dark:text-purple-300 ml-2">
                 {doc.section}
               </span>
             </div>
 
-            <p className="text-sm leading-relaxed text-rose-800 dark:text-rose-200 mb-3">
+            <p className="text-sm leading-relaxed text-purple-800 dark:text-purple-200 mb-3">
               {doc.description}
             </p>
 
@@ -224,7 +224,7 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
               href={sanitizeUrl(doc.url)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
+              className="inline-flex items-center gap-1 text-xs text-purple-700 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-200 hover:underline"
             >
               Écouter sur Radio France
               <ExternalLink className="h-3 w-3" />
