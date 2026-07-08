@@ -20,7 +20,7 @@ MoinsBête propose des idées courtes et actionnables issues de Wikipédia, gén
 ## Structure du projet
 
 ```
-stashfru/
+moinsbete/
 ├── prisma/
 │   ├── schema.prisma          # Modèle de données
 │   ├── migrations/            # Migrations Prisma
@@ -40,7 +40,7 @@ stashfru/
 
 ```bash
 git clone <repo-url>
-cd stashfru
+cd moinsbete
 npm install
 cp .env.example .env
 npx prisma db push
@@ -96,6 +96,8 @@ Voir [docs/DATABASE.md](./DATABASE.md) pour la gestion complète (backup, reset,
 ## Contenu
 
 Voir [docs/CONTENT.md](./CONTENT.md) pour les 3 pipelines de génération de contenu.
+
+**Contact**: Pour réinitialiser votre mot de passe ou partager un retour, envoyez un email à [moinsbete@ginies.org](mailto:moinsbete@ginies.org).
 
 ---
 
