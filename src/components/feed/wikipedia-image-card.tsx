@@ -65,7 +65,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
         onClick={loadImage}
         className="rounded-xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-orange-950/30 cursor-pointer hover:shadow-md transition-shadow"
       >
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex items-center gap-1">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 dark:bg-amber-600">
               <Camera className="h-4 w-4 text-amber-950" />
