@@ -68,7 +68,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
               Le saviez-vous ?
             </h3>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <RefreshCw className={`h-4 w-4 text-amber-600 dark:text-amber-400 ${loading ? 'animate-spin' : ''}`} />
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           </div>
