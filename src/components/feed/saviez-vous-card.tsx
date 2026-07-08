@@ -39,7 +39,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
     setImageError(false)
     const newFact = await fetchRandomFact()
     if (newFact) {
-      setFact({ text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename })
+      setFact({ id: newFact.id, text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename })
     }
     setLoading(false)
   }, [loading])
