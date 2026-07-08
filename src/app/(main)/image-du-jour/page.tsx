@@ -24,8 +24,6 @@ export default function ImageDuJourPage() {
         Retour à l&apos;accueil
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold text-center">Image du jour</h1>
-
       <ImageDuJourClient />
     </div>
   )
