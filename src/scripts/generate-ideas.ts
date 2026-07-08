@@ -108,7 +108,7 @@ async function main() {
       for (const v of variations) {
         try {
           const res = await fetch(`${WIKIPEDIA_API}/page/summary/${v}`, {
-            headers: { 'User-Agent': 'MoinsBête/1.0 (contact: admin@stashfru.fr)' },
+            headers: { 'User-Agent': 'moinsbete/1.0 (contact: antoine@ginies.org)' },
           })
           if (res.ok) {
             const data = await res.json()

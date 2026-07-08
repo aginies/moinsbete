@@ -374,7 +374,7 @@ async function fetchWikipediaSummary(title: string): Promise<WikipediaSummary | 
   try {
     const response = await fetch(`${WIKIPEDIA_API}/page/summary/${encodeURIComponent(title)}`, {
       headers: {
-        'User-Agent': 'MoinsBête/1.0 (contact: admin@stashfru.fr)',
+        'User-Agent': 'moinsbete/1.0 (contact: antoine@ginies.org)',
       },
     })
     if (!response.ok) return null
@@ -390,7 +390,7 @@ async function fetchWikipediaCategories(title: string): Promise<string[]> {
   try {
     const response = await fetch(`${WIKIPEDIA_API}/page/html/${encodeURIComponent(title)}`, {
       headers: {
-        'User-Agent': 'MoinsBête/1.0 (contact: admin@stashfru.fr)',
+        'User-Agent': 'moinsbete/1.0 (contact: antoine@ginies.org)',
       },
     })
     if (!response.ok) return []

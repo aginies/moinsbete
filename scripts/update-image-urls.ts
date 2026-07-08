@@ -7,7 +7,7 @@ async function fetchPage(url: string): Promise<string> {
   const encoded = encodeURIComponent(url)
   const rawUrl = `https://fr.wikipedia.org/w/index.php?title=${encoded}&action=raw`
   const res = await fetch(rawUrl, {
-    headers: { 'User-Agent': 'MoinsBete/1.0 (contact: admin@stashfru.fr)' },
+    headers: { 'User-Agent': 'moinsbete/1.0 (contact: antoine@ginies.org)' },
   })
   if (!res.ok) return ''
   return res.text()

@@ -54,7 +54,7 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<any> {
   for (let i = 0; i < maxRetries; i++) {
     try {
       const res = await fetch(url, {
-        headers: { 'User-Agent': 'MoinsBete (https://moinsbete.guibo.com; bot-traffic@wikimedia.org)' },
+        headers: { 'User-Agent': 'moinsbete (https://moinsbete.guibo.com; bot-traffic@wikimedia.org)' },
         signal: AbortSignal.timeout(15000),
       })
       const text = await res.text()
