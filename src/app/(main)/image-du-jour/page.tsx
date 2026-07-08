@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function ImageDuJourPage() {
   return (
-    <div className="mx-auto flex min-h-[90vh] w-full flex-col items-center justify-center px-4 py-8 md:max-w-3xl md:p-6">
+    <div className="mx-auto flex min-h-[90vh] w-full flex-col items-center justify-start px-4 py-8 md:max-w-3xl md:p-6">
       <Link
         href="/"
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
