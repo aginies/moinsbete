@@ -5,7 +5,7 @@
 | Modèle | Description |
 |--------|-------------|
 | **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN) |
-| **Topic** | Sujets de connaissance (23 topics, hiérarchie parent/enfant) |
+| **Topic** | Sujets de connaissance (21 topics, hiérarchie parent/enfant) |
 | **Source** | Sources (Wikipédia, livres, articles, podcasts) |
 | **Idea** | Idées bite-sized (titre, contenu, takeaway, image source) | 736 |
 | **IdeaTopic** | Junction Idea ↔ Topic (1 par idée) | 736 |
@@ -15,7 +15,7 @@
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) |
 | **CommunityArticle** | Articles communautaires |
 
-## Topics disponibles (20)
+## Topics disponibles (21)
 
 - 🧠 Psychologie (20+), 🏛️ Philosophie (15+), 🔬 Sciences cognitives (15+)
 - 💰 Économie (15+), 🗣️ Communication (15+), ⚡ Productivité (15+)
@@ -32,7 +32,7 @@
 
 ### 1. Seed manuel (`src/scripts/seed-ideas.ts`)
 
-146+ idées écrites à la main, format bite-sized (titre + contenu + takeaway).
+148+ idées écrites à la main, format bite-sized (titre + contenu + takeaway).
 
 ```bash
 npx tsx src/scripts/seed-ideas.ts
@@ -84,8 +84,20 @@ Scrap automatiquement les archives de Wikipédia (2016-2025) :
 # Scraper les archives Wikipédia
 npx tsx scripts/scrape-saviez-vous.ts
 
+# Réinsérer les faits hardcodés
+npx tsx scripts/insert_saviez_vous.ts
+
 # Ou directement
 ./scripts/update scrape
+./scripts/update le-saviez-vous
+```
+
+### 4. Amélioration de contenu (`src/scripts/enhance-ideas.ts`)
+
+Étend le contenu court des idées à 500+ caractères via LLM.
+
+```bash
+./scripts/update enhance
 ```
 
 ## Ajouter de nouveaux articles Wikipédia
