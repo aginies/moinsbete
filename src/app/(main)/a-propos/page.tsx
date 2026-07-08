@@ -24,9 +24,7 @@ export default function AproposPage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">Qu&apos;est-ce que MoinsBête ?</h2>
           <p className="text-muted-foreground">
-             MoinsBête est une application d&apos;apprentissage rapide en français.
-             Nous transformons les connaissances issues de Wikipédia, du CNRS et d&apos;articles
-            en idées digestibles que vous pouvez apprendre en quelques minutes par jour.
+             MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia et d&apos;articles en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder directement aux actualités du CNRS.
           </p>
         </section>
 
