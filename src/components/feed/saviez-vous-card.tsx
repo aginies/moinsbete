@@ -30,6 +30,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
   const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [imageKey, setImageKey] = useState(0)
   const [showFullImage, setShowFullImage] = useState(false)
   const [show, setShow] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -48,6 +49,12 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
   }, [])
   const resolvedImageFilename = fact.imageFilename || imageFilename
 
+  const cachedImageUrl = useMemo(() => {
+    if (!resolvedImageFilename || !isValidUrlUtil(resolvedImageFilename)) return resolvedImageFilename
+    const separator = resolvedImageFilename.includes('?') ? '&' : '?'
+    return `${resolvedImageFilename}${separator}imageKey=${imageKey}`
+  }, [resolvedImageFilename, imageKey])
+
   const handleClick = useCallback(async () => {
     if (loading) return
     setLoading(true)
@@ -55,6 +62,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
     const newFact = await fetchRandomFact()
     if (newFact) {
       setFact({ id: newFact.id, text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename })
+      setImageKey(prev => prev + 1)
     }
     setLoading(false)
   }, [loading])
@@ -121,7 +129,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
             }}
           >
             <img
-              src={isValidUrlUtil(resolvedImageFilename) ? resolvedImageFilename! : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
+              src={cachedImageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt="Illustration"
               className="w-full h-48 object-contain transition-opacity hover:opacity-90 pointer-events-none bg-neutral-100 dark:bg-neutral-800"
               onError={() => setImageError(true)}
@@ -166,7 +174,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
               <X className="h-5 w-5" />
             </button>
             <img
-              src={isValidUrlUtil(resolvedImageFilename) ? resolvedImageFilename! : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
+              src={cachedImageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt="Illustration"
               className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl"
             />
