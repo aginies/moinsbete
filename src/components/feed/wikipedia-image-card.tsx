@@ -25,7 +25,7 @@ async function fetchRandomImage(): Promise<ImageData | null> {
   }
 }
 
-export const WikipediaImageCard = function WikipediaImageCardInner() {
+export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage }: { fullImage?: boolean }) {
   const [image, setImage] = useState<ImageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -129,16 +129,18 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
 
         {hasImage && (
           <div
-            className="mb-3 cursor-pointer overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800"
+            className={`mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}
             onClick={(e) => {
-              e.stopPropagation()
-              setShowFullImage(true)
+              if (!fullImage) {
+                e.stopPropagation()
+                setShowFullImage(true)
+              }
             }}
           >
             <img
               src={image?.imageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt={image?.description || 'Image'}
-              className="w-full h-48 object-cover transition-opacity hover:opacity-90 pointer-events-none bg-neutral-100 dark:bg-neutral-800"
+              className={`w-full transition-opacity ${fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
               onError={() => setImageError(true)}
             />
           </div>
