@@ -81,6 +81,21 @@ Voir [docs/DEPLOYMENT.md](./DEPLOYMENT.md) pour l'installation sur Apache avec P
 
 Voir [docs/DEVELOPMENT.md](./DEVELOPMENT.md) pour ajouter des topics, générer du contenu, et l'architecture des pages.
 
+## Tests
+
+171 tests sur 19 fichiers (vitest).
+
+```bash
+npm test              # Exécuter tous les tests
+npm test -- --watch   # Mode watch
+```
+
+Couverture :
+- `src/lib/` — utils, slugify, url validation, rate-limiter, csrf, auth, bookmark, feed-helpers, saviez-vous, view
+- `src/actions/` — auth-actions, bookmark-actions, topic-actions, view-actions
+- `src/scripts/` — seed-ideas data validation
+- `src/app/` — robots.txt, feed helpers, pagination
+
 ## Sécurité
 
 Voir [docs/SECURITY.md](./SECURITY.md) pour l'audit de sécurité, les rôles et le rate limiting.
