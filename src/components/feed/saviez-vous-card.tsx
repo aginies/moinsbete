@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useState, useCallback, useMemo } from 'react'
-import { Lightbulb, ExternalLink, RefreshCw, ImageIcon, X } from 'lucide-react'
+import { Lightbulb, ExternalLink, RefreshCw, ImageIcon, X, EyeOff, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl as isValidUrlUtil } from '@/lib/utils'
 import { useShare } from './use-share'
@@ -31,6 +31,21 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
+  const [show, setShow] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('saviez_vous_card_visible')
+      if (stored !== null) return stored === 'true'
+    }
+    return true
+  })
+
+  const handleToggle = useCallback(() => {
+    setShow(prev => {
+      const next = !prev
+      localStorage.setItem('saviez_vous_card_visible', String(next))
+      return next
+    })
+  }, [])
   const resolvedImageFilename = fact.imageFilename || imageFilename
 
   const handleClick = useCallback(async () => {
@@ -55,6 +70,19 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
 
   return (
     <>
+      {!show ? (
+        <div className="mb-6">
+          <button
+            onClick={handleToggle}
+            className="w-full rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-950/20 hover:border-blue-400 hover:bg-blue-50 dark:hover:border-blue-700 dark:hover:bg-blue-950/30 transition-colors"
+          >
+            <div className="flex items-center justify-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+              <Eye className="h-4 w-4" />
+              <span>Afficher Le saviez-vous ?</span>
+            </div>
+          </button>
+        </div>
+      ) : (
       <div
         onClick={handleClick}
         className="rounded-xl border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-cyan-950/30 cursor-pointer hover:shadow-md transition-shadow"
@@ -69,6 +97,16 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
             </h3>
           </div>
           <div className="flex items-center gap-6">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleToggle()
+              }}
+              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
+              title="Masquer la carte"
+            >
+              <EyeOff className="h-4 w-4" />
+            </button>
             <RefreshCw className={`h-4 w-4 text-blue-600 dark:text-blue-400 ${loading ? 'animate-spin' : ''}`} />
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           </div>
@@ -113,6 +151,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
           </div>
         )}
       </div>
+      )}
 
       {showFullImage && (
         <div

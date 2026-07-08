@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Camera, ExternalLink, RefreshCw, X, AlertCircle } from 'lucide-react'
+import { Camera, ExternalLink, RefreshCw, X, AlertCircle, EyeOff, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl } from '@/lib/utils'
 import { useShare } from './use-share'
@@ -31,6 +31,21 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
   const [error, setError] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
+  const [show, setShow] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('wikipedia_image_card_visible')
+      if (stored !== null) return stored === 'true'
+    }
+    return true
+  })
+
+  const handleToggle = useCallback(() => {
+    setShow(prev => {
+      const next = !prev
+      localStorage.setItem('wikipedia_image_card_visible', String(next))
+      return next
+    })
+  }, [])
 
   const loadImage = useCallback(async () => {
     setLoading(true)
@@ -61,6 +76,19 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
 
   return (
     <>
+      {!show ? (
+        <div className="mb-6">
+          <button
+            onClick={handleToggle}
+            className="w-full rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-4 dark:border-amber-800 dark:bg-amber-950/20 hover:border-amber-400 hover:bg-amber-50 dark:hover:border-amber-700 dark:hover:bg-amber-950/30 transition-colors"
+          >
+            <div className="flex items-center justify-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+              <Eye className="h-4 w-4" />
+              <span>Afficher Image du jour</span>
+            </div>
+          </button>
+        </div>
+      ) : (
       <div
         onClick={loadImage}
         className="rounded-xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-orange-950/30 cursor-pointer hover:shadow-md transition-shadow"
@@ -75,6 +103,16 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
             </h3>
           </div>
           <div className="flex items-center gap-6">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleToggle()
+              }}
+              className="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 transition-colors"
+              title="Masquer la carte"
+            >
+              <EyeOff className="h-4 w-4" />
+            </button>
             <RefreshCw className={`h-4 w-4 text-amber-600 dark:text-amber-400 ${loading ? 'animate-spin' : ''}`} />
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           </div>
@@ -126,6 +164,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
           </div>
         )}
       </div>
+      )}
 
       {showFullImage && (
         <div
