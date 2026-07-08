@@ -96,7 +96,7 @@ export function CnrsNewsCard({ onToggle }: CnrsNewsCardProps) {
             Actualité CNRS
           </h3>
         </div>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-6">
           {onToggle && (
             <button
               onClick={(e) => {
