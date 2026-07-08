@@ -14,13 +14,18 @@ export function useShare(options: ShareOptions | null) {
   const share = useCallback(async () => {
     if (!options) return
 
+    let shared = false
+
     if (navigator.share) {
       try {
         await navigator.share(options)
+        shared = true
       } catch {
         // User cancelled or share failed
       }
-    } else if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    }
+
+    if (!shared && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
       try {
         await navigator.clipboard.writeText(options.url)
         setCopied(true)
