@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { LeSaviezVousClient } from './le-saviez-vous-client'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { resolveWikimediaImageUrls } from '@/lib/utils'
 
 async function getRandomFact() {
   const total = await prisma.saviezVousFact.count()
@@ -15,7 +16,10 @@ async function getRandomFact() {
     select: { id: true, text: true, sourceUrl: true, imageFilename: true },
   })
   
-  return fact
+  if (!fact) return null
+  
+  const resolved = await resolveWikimediaImageUrls([{ id: fact.id, imageFilename: fact.imageFilename }])
+  return { ...fact, imageFilename: resolved[0]?.imageFilename ?? null }
 }
 
 export async function generateMetadata(): Promise<Metadata> {
