@@ -5,7 +5,7 @@
 - **Type**: SQLite (fichier unique `dev.db`)
 - **ORM**: Prisma v6
 - **Fichier**: `dev.db` à la racine du projet (dans `.gitignore`)
-- **Emplacement**: `/stashfru/dev.db`
+- **Emplacement**: à la racine du projet (`dev.db`)
 
 ## Statistiques actuelles
 
@@ -13,7 +13,7 @@
 |--------|-------------|----------|
 | **Idea** | Idées bite-sized (titre + contenu + takeaway) | 736 |
 | **Source** | Sources (Wikipédia articles) | 183 |
-| **Topic** | Sujets de connaissance | 20 |
+| **Topic** | Sujets de connaissance | 21 |
 | **IdeaTopic** | Association Idea ↔ Topic (1 par idée) | 736 |
 | **SaviezVousFact** | Faits "Le saviez-vous" | 8 136 |
 | **Collection** | Collections d'idées | 6 |
@@ -32,7 +32,7 @@ npx prisma db push
 # Seed initial (20 topics racine)
 npx tsx prisma/seed.ts
 
-# Idées manuelles (146 idées pré-écrites)
+# Idées manuelles (148 idées pré-écrites)
 npx tsx src/scripts/seed-ideas.ts
 ```
 
@@ -72,7 +72,7 @@ gunzip -c dev.db.20260702.backup.gz > dev.db
 
 ```bash
 # Supprimer TOUTES les données (garde la structure)
-sqlite3 dev.db "DELETE FROM IdeaTopic; DELETE FROM Idea; DELETE FROM Source; DELETE FROM SaviezVousFact; DELETE FROM Bookmark; DELETE FROM ViewedIdea; DELETE FROM Collection; DELETE FROM CommunityArticle; DELETE FROM GrowthPlan; DELETE FROM PasswordResetToken; DELETE FROM TopicSuggestion; DELETE FROM _CollectionToTopic; DELETE FROM _UserFollowing; DELETE FROM User;"
+sqlite3 dev.db "DELETE FROM IdeaTopic; DELETE FROM Idea; DELETE FROM Source; DELETE FROM SourceTopic; DELETE FROM SaviezVousFact; DELETE FROM Bookmark; DELETE FROM ViewedIdea; DELETE FROM Collection; DELETE FROM CommunityArticle; DELETE FROM GrowthPlan; DELETE FROM PasswordResetToken; DELETE FROM TopicSuggestion; DELETE FROM User;"
 
 # Recréer depuis zéro
 rm dev.db

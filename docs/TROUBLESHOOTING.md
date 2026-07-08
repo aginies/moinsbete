@@ -39,15 +39,6 @@ curl -X POST $LLM_BASE_URL/v1/chat/completions \
   -d '{"model":"$LLM_MODEL","messages":[{"role":"user","content":"test"}]}'
 ```
 
-## Base de données corrompue (alternative)
-
-```bash
-# Supprimer et recréer
-rm dev.db
-npx prisma migrate deploy
-npm run db:seed
-```
-
 ## Erreur Prisma "relationJoins"
 
 ```bash
@@ -78,8 +69,8 @@ sudo tail -f /var/log/apache2/error.log
 apache2ctl -M | grep -E "proxy|rewrite"
 
 # Vérifier les permissions
-ls -la /srv/http/stashfru/
-sudo chown -R www-data:www-data /srv/http/stashfru/
+ls -la /srv/http/moinsbete/
+sudo chown -R www-data:www-data /srv/http/moinsbete/
 ```
 
 ## Problèmes NextAuth

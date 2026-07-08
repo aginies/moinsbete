@@ -26,10 +26,11 @@ sudo mkdir -p /srv/http/moinsbete
 cd /srv/http/moinsbete
 
 # Cloner le repo
-git clone https://github.com/aginies/moinsbete/moinsbete .
+git clone https://github.com/aginies/moinsbete.git moinsbete
+cd moinsbete
 
 # Installer les dépendances (production uniquement)
-npm ci --production
+npm ci --omit=dev
 
 # Générer le client Prisma
 npx prisma generate
@@ -71,7 +72,7 @@ sqlite3 dev.db "SELECT COUNT(*) FROM SaviezVousFact;"
 **Permissions :**
 ```bash
 # 600 pour sécurité (contient emails + bcrypt hashes)
-sudo chmod 600 dev.db
+sudo chmod 644 dev.db
 sudo chown www-data:www-data dev.db
 ```
 
@@ -306,7 +307,7 @@ pm2 logs moinsbete --lines 100
 # Mettre à jour (git pull + rebuild)
 cd /srv/http/moinsbete
 git pull
-npm ci --production
+npm ci --omit=dev
 npx prisma generate
 npx prisma migrate deploy
 npm run build

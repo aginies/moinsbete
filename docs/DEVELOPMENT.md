@@ -7,11 +7,17 @@
 /sujets                    → Grille des topics + recherche
 /sujets/[slug]             → Détail d'un topic + idées associées
 /idees/[slug]              → Détail d'une idée
+/idees/au-hasard           → Idée aléatoire (option: ?followed=1)
 /ma-bibliotheque           → Bookmarks utilisateur (auth requis)
+/favoris                   → Favoris / bookmarks (auth requis)
 /mon-plan                  → Plan d'apprentissage (auth requis)
+/ma-histoire               → Historique de consultation (auth requis)
+/mon-compte                → Profil utilisateur (auth requis)
+/a-propos                  → Page d'information
 /login                     → Connexion
 /register                  → Inscription
 /admin                     → Dashboard admin
+/admin/review/topics       → Review de topics suggérés
 ```
 
 ## API
@@ -21,11 +27,15 @@
 | `/api/feed` | GET | Liste des idées (paginé, filtrable par topic) |
 | `/api/search?q=` | GET | Recherche dans idées, topics, sources |
 | `/api/ideas/[slug]/bookmark` | POST | Toggle bookmark |
-| `/api/topics/suggest` | POST | Suggestion de topic (admin) |
+| `/api/ideas/random` | GET | Idée aléatoire |
+| `/api/history` | GET/POST | Historique de consultation (auth requis) |
+| `/api/saviez-vous` | GET | Fait "Le saviez-vous" aléatoire |
+| `/api/auth/reset-password` | POST | Reset mot de passe |
+| `/api/auth/reset-password/generate` | POST | Générer token reset |
 
 ## Ajouter un nouveau topic
 
-1. Ajouter dans `src/scripts/seed-ideas.ts` → `ROOT_TOPICS` :
+1. Ajouter dans `prisma/seed.ts` → `ROOT_TOPICS` :
 ```ts
 { name: 'Nouveau Sujet', icon: '🎯', color: '#ff6b35', description: 'Description' }
 ```
@@ -79,14 +89,35 @@ Scrap les archives "Le saviez-vous ?" de Wikipédia (2016-2025).
 npx tsx scripts/scrape-saviez-vous.ts
 ```
 
+### `scripts/insert_saviez_vous.ts`
+
+Réinsère les faits "Le saviez-vous" hardcodés.
+
+```bash
+npx tsx scripts/insert_saviez_vous.ts
+```
+
 ### `scripts/update`
 
 Pipeline complet de mise à jour :
 
 ```bash
-./scripts/update scrape    # Scraper uniquement
-./scripts/update all       # Pipeline complet (scrape + ideas + ingest)
+./scripts/update le-saviez-vous  # Réinsérer faits hardcodés
+./scripts/update scrape           # Scraper uniquement
+./scripts/update ideas            # Générer idées via LLM
+./scripts/update ingest           # Ingestion Wikipédia
+./scripts/update enhance          # Améliorer contenu court des idées
+./scripts/update all              # Pipeline complet (scrape + ideas + ingest)
+./scripts/update seed             # Seed topics + idées manuelles
 ```
+
+### `scripts/deploy.sh`
+
+Script de déploiement sur serveur distant.
+
+### `scripts/install.sh`
+
+Script d'installation automatisée.
 
 ## Structure des composants
 
@@ -112,7 +143,8 @@ src/components/
 
 ```
 src/scripts/
-├── seed-ideas.ts          # 106+ idées manuelles
+├── seed-ideas.ts          # 148+ idées manuelles
 ├── generate-ideas.ts      # Génération LLM par topic
-└── ingest-wikipedia.ts    # Ingestion massive Wikipédia
+├── ingest-wikipedia.ts    # Ingestion massive Wikipédia
+└── enhance-ideas.ts       # Amélioration contenu court des idées
 ```
