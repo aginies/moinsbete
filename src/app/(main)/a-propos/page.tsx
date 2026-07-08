@@ -146,6 +146,21 @@ export default function AproposPage() {
         </section>
 
         <section>
+          <h2 className="mb-3 text-xl font-semibold">Contact</h2>
+          <p className="text-muted-foreground">
+            Pour réinitialiser votre mot de passe ou partager un retour sur MoinsBête,
+            envoyez un email à{' '}
+            <a
+              href="mailto:moinsbete@ginies.org"
+              className="text-primary hover:underline"
+            >
+              moinsbete@ginies.org
+            </a>
+            .
+          </p>
+        </section>
+
+        <section>
           <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
     <p className="text-muted-foreground">
           MoinsBête a été créé par <strong>Antoine Giniès</strong>.
