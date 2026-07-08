@@ -2,9 +2,11 @@
 
 import { useTransition, useMemo, useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Search, X } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { toggleBookmarkAction } from '@/actions/bookmark-actions'
 import Link from 'next/link'
+import { Input } from '@/components/ui/input'
 
 interface Idea {
   id: string
@@ -39,6 +41,7 @@ export function FavorisClient({
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const [optimisticBookmarks, setOptimisticBookmarks] = useState<Record<string, boolean>>({})
+  const [searchQuery, setSearchQuery] = useState('')
 
   const savedIdeaIds = useMemo(() => {
     const set = new Set(ideas.map(i => i.id))
@@ -51,6 +54,12 @@ export function FavorisClient({
     }
     return set
   }, [ideas, optimisticBookmarks])
+
+  const filteredIdeas = useMemo(() => {
+    if (!searchQuery.trim()) return ideas
+    const q = searchQuery.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    return ideas.filter(idea => idea.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(q))
+  }, [ideas, searchQuery])
 
   const handleBookmark = useCallback(async (ideaId: string) => {
     if (isPending) return
@@ -96,7 +105,31 @@ export function FavorisClient({
 
   return (
     <div className="space-y-3">
-      {ideas.map((idea) => (
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Rechercher dans les favoris..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 pr-10"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md p-0 text-muted-foreground hover:text-foreground"
+            onClick={() => setSearchQuery('')}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {searchQuery && filteredIdeas.length === 0 && (
+        <p className="py-8 text-center text-sm text-muted-foreground">Aucun favori pour "{searchQuery}"</p>
+      )}
+
+      {filteredIdeas.map((idea) => (
         <div key={idea.id} className="group relative">
           <CompactIdeaCard idea={{ ...idea, viewedAt: new Date().toISOString() }} />
           <button
@@ -166,7 +199,9 @@ export function FavorisClient({
 
       {total > 0 && (
         <p className="py-4 text-center text-xs text-muted-foreground">
-          Page {currentPage} sur {totalPages} · {total} favori{total !== 1 ? 's' : ''}
+          {searchQuery
+            ? `${filteredIdeas.length} résultat${filteredIdeas.length !== 1 ? 's' : ''} sur ${total} favori${total !== 1 ? 's' : ''}`
+            : `Page ${currentPage} sur ${totalPages} · ${total} favori${total !== 1 ? 's' : ''}`}
         </p>
       )}
     </div>

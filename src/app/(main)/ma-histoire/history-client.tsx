@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Trash2, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Trash2, ChevronLeft, ChevronRight, X, Search } from 'lucide-react'
 import { clearHistoryAction, removeFromHistoryAction } from '@/actions/view-actions'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Input } from '@/components/ui/input'
 
 interface HistoryPageClientProps {
   initialIdeas: Array<{
@@ -59,6 +60,13 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
   const [clearing, setClearing] = useState(false)
   const [removing, setRemoving] = useState<string | null>(null)
   const [total, setTotal] = useState(initialTotal)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredIdeas = useMemo(() => {
+    if (!searchQuery.trim()) return ideas
+    const q = searchQuery.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    return ideas.filter(idea => idea.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(q))
+  }, [ideas, searchQuery])
 
   const currentPage = parseInt(searchParams.get('page') || '1') || 1
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -145,6 +153,26 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
         </Button>
       </div>
 
+      <div className="relative mb-6">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Rechercher dans l&apos;historique..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 pr-10"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md p-0 text-muted-foreground hover:text-foreground"
+            onClick={() => setSearchQuery('')}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -155,10 +183,14 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <p className="text-muted-foreground">Aucun historique</p>
         </div>
+      ) : searchQuery && filteredIdeas.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <p className="text-muted-foreground">Aucun résultat pour "{searchQuery}"</p>
+        </div>
       ) : (
         <>
           <div className="space-y-3">
-            {ideas.map((idea) => (
+            {filteredIdeas.map((idea) => (
               <div key={idea.id} className="group relative">
                 <CompactIdeaCard idea={idea as typeof idea & { viewedAt: string }} />
                 <button
