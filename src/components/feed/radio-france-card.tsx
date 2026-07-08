@@ -33,6 +33,7 @@ interface FavoriteDoc {
 }
 
 const FAVORITES_KEY = 'rf_favorites'
+const VISIBILITY_KEY = 'radio_france_card_visible'
 
 function getFavorites(): FavoriteDoc[] {
   if (typeof window === 'undefined') return []
@@ -75,34 +76,30 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
   }
 }
 
-export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
-  const [doc, setDoc] = useState<RadioFranceDoc | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [show, setShow] = useState(true)
+export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
+  const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
+  const [loading, setLoading] = useState(!initialDoc)
+  const [show, setShow] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(VISIBILITY_KEY)
+      if (stored !== null) return stored === 'true'
+    }
+    return true
+  })
   const [favorites, setFavorites] = useState<FavoriteDoc[]>(getFavorites)
-  const [isFavorite, setIsFavorite] = useState(false)
+
+  const isFavorite = doc ? favorites.some(f => f.id === doc.id) : false
 
   useEffect(() => {
-    if (initialDoc) {
-      setDoc(initialDoc)
-      setIsFavorite(favorites.some(f => f.id === initialDoc.id))
-      setLoading(false)
-    } else {
+    if (!doc) {
       fetchRandomDoc().then(d => {
         if (d) {
           setDoc(d)
-          setIsFavorite(favorites.some(f => f.id === d.id))
         }
         setLoading(false)
       })
     }
-  }, [initialDoc, favorites])
-
-  useEffect(() => {
-    if (doc) {
-      setIsFavorite(favorites.some(f => f.id === doc.id))
-    }
-  }, [doc, favorites])
+  }, [doc])
 
   const handleRefresh = useCallback(async () => {
     if (loading) return
@@ -110,20 +107,22 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
     const newDoc = await fetchRandomDoc(doc?.id)
     if (newDoc) {
       setDoc(newDoc)
-      setIsFavorite(favorites.some(f => f.id === newDoc.id))
     }
     setLoading(false)
-  }, [loading, doc, favorites])
+  }, [loading, doc])
 
   const handleBookmark = useCallback(() => {
     if (!doc) return
     const result = toggleFavorite(doc, favorites)
     setFavorites(result.favorites)
-    setIsFavorite(result.isFavorite)
   }, [doc, favorites])
 
   const handleToggle = useCallback(() => {
-    setShow(prev => !prev)
+    setShow(prev => {
+      const next = !prev
+      localStorage.setItem(VISIBILITY_KEY, String(next))
+      return next
+    })
   }, [])
 
   const shareOptions = doc ? {
