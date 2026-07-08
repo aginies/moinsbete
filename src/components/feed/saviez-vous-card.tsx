@@ -49,7 +49,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
   const shareOptions = fact.id ? {
     title: 'Le saviez-vous ?',
     text: fact.text,
-    url: `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.com'}${window?.location?.pathname || '/saviez-vous'}/${fact.id}`,
+    url: `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'}${window?.location?.pathname || '/saviez-vous'}/${fact.id}`,
   } : null
   const { share, copied, shareUrl } = useShare(shareOptions)
 
