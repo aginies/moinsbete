@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # ============================================================
-# Stashfru (MoinsBête) — Install Script for Apache + PM2
+# MoinsBête — Install Script for Apache + PM2
 # ============================================================
-# Usage: sudo bash install.sh [--domain stashfru.example.com]
+# Usage: sudo bash install.sh [--domain moinsbete.example.com]
 # ============================================================
 
-DOMAIN="${1:-stashfru.local}"
+DOMAIN="${1:-moinsbete.local}"
 INSTALL_DIR="/srv/http/moinsbete"
 REPO_URL="https://github.com/aginies/deepstash.git"
 BRANCH="main"
@@ -107,7 +107,7 @@ log "Installing PM2..."
 npm install -g pm2
 
 log "Starting application with PM2..."
-pm2 start npm --name "stashfru" -- start --cwd "$INSTALL_DIR"
+pm2 start npm --name "moinsbete" -- start --cwd "$INSTALL_DIR"
 pm2 save
 pm2 startup > /tmp/pm2-startup.log 2>&1 || true
 log "PM2 startup command:"
@@ -209,29 +209,29 @@ certbot --apache -n --agree-tos --redirect --email "admin@$DOMAIN" -d "$DOMAIN" 
 log "Verifying installation..."
 sleep 3
 
-if pm2 list | grep -q "stashfru.*online"; then
+if pm2 list | grep -q "moinsbete.*online"; then
   log "PM2 process is running."
 else
-  err "PM2 process is NOT running. Check: pm2 logs stashfru"
+  err "PM2 process is NOT running. Check: pm2 logs moinsbete"
 fi
 
 # --- Summary ---
 echo ""
 echo "=============================================="
-echo "  Stashfru (MoinsBête) installed successfully!"
+echo "  MoinsBête installed successfully!"
 echo "=============================================="
 echo ""
 echo "  URL:         https://$DOMAIN"
 echo "  Install dir: $INSTALL_DIR"
 echo ""
 echo "  Management:"
-echo "    pm2 status stashfru          # Check status"
-echo "    pm2 logs stashfru --lines 50  # View logs"
-echo "    pm2 restart stashfru          # Restart"
+echo "    pm2 status moinsbete          # Check status"
+echo "    pm2 logs moinsbete --lines 50  # View logs"
+echo "    pm2 restart moinsbete          # Restart"
 echo ""
 echo "  Maintenance:"
 echo "    Backup: cp $INSTALL_DIR/dev.db \"/srv/http/moinsbete/dev.db.\$(date +%Y%m%d)\""
-echo "    Update: cd $INSTALL_DIR && git pull && npm ci --production && npm run build && pm2 restart stashfru"
+echo "    Update: cd $INSTALL_DIR && git pull && npm ci --production && npm run build && pm2 restart moinsbete"
 echo ""
 echo "=============================================="
 echo ""
