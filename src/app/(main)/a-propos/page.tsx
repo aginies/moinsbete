@@ -24,8 +24,8 @@ export default function AproposPage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">Qu&apos;est-ce que MoinsBête ?</h2>
           <p className="text-muted-foreground">
-            MoinsBête est une application d&apos;apprentissage rapide en français.
-            Nous transformons les connaissances issues de livres, d&apos;articles et de Wikipédia
+             MoinsBête est une application d&apos;apprentissage rapide en français.
+             Nous transformons les connaissances issues de Wikipédia, du CNRS et d&apos;articles
             en idées digestibles que vous pouvez apprendre en quelques minutes par jour.
           </p>
         </section>
@@ -38,6 +38,7 @@ export default function AproposPage() {
               'Consultez votre historique de lecture',
               'Suivez des sujets qui vous passionnent',
               'Découvrez des informations aléatoires',
+              'Actuez les actualités du CNRS dans vos préférences',
             ].map((step, i) => (
               <div key={i} className="flex items-start gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -64,10 +65,10 @@ export default function AproposPage() {
 
         <section>
           <h2 className="mb-3 text-xl font-semibold">Source des contenus</h2>
-     <p className="text-muted-foreground">
-        Toutes les informations de MoinsBête proviennent de Wikipédia.
-        L'IA résume l'idée principale pour offrir un contenu clair et digeste.
-      </p>
+      <p className="text-muted-foreground">
+         Le contenu de MoinsBête provient de Wikipédia et des actualités du CNRS.
+         L'IA résume l'idée principale pour offrir un contenu clair et digeste.
+       </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Découvrez nos sources sur{' '}
             <a
@@ -77,6 +78,15 @@ export default function AproposPage() {
               className="text-primary hover:underline"
             >
               Wikipédia en français
+            </a>
+            {' '}et{' '}
+            <a
+              href="https://lejournal.cnrs.fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              lejournal.cnrs.fr
             </a>
             .
           </p>
