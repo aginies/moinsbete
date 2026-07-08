@@ -132,7 +132,7 @@ export function IdeaDetailClient({
 
         {/* Cover image */}
         {idea.source.coverUrl && (
-          <div className="relative mb-8 overflow-hidden rounded-2xl shadow-lg">
+          <div className="relative mb-6 overflow-hidden rounded-2xl shadow-lg">
             <Image
               src={idea.source.coverUrl}
               alt={idea.title}
@@ -153,7 +153,7 @@ export function IdeaDetailClient({
         )}
 
         {/* Title area */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="mb-4 text-3xl font-bold leading-tight text-foreground md:text-4xl">
             {idea.title}
           </h1>
@@ -180,7 +180,7 @@ export function IdeaDetailClient({
         </div>
 
         {/* Content section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="rounded-2xl border border-border/40 bg-card/50 p-6 md:p-8">
             <div className="max-w-none prose prose-base dark:prose-invert">
               <p className="text-lg leading-relaxed text-foreground/90 md:text-[1.05rem]">
@@ -191,7 +191,7 @@ export function IdeaDetailClient({
         </div>
 
         {/* Takeaway - highlighted */}
-        <div className="mb-8 rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-6 md:p-8 shadow-sm">
+        <div className="mb-6 rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-6 md:p-8 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
               <Lightbulb className="h-4 w-4 text-primary" />
@@ -205,7 +205,7 @@ export function IdeaDetailClient({
 
         {/* Saviez-vous */}
         {idea.saviezVous && (
-          <div className="mb-8 rounded-2xl border border-amber-200/30 bg-gradient-to-br from-amber-50 to-amber-100/50 p-6 dark:border-amber-400/10 dark:from-amber-950/20 dark:to-amber-900/10">
+          <div className="mb-6 rounded-2xl border border-amber-200/30 bg-gradient-to-br from-amber-50 to-amber-100/50 p-6 dark:border-amber-400/10 dark:from-amber-950/20 dark:to-amber-900/10">
             <div className="mb-3 flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-amber-500" />
               <h3 className="text-base font-bold text-amber-700 dark:text-amber-400">
@@ -219,7 +219,7 @@ export function IdeaDetailClient({
         )}
 
         {/* Source */}
-        <div className="mb-8 rounded-2xl border border-border/40 bg-card p-5 shadow-sm">
+        <div className="mb-6 rounded-2xl border border-border/40 bg-card p-5 shadow-sm">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
             <BookOpen className="h-4 w-4" />
             Source
@@ -243,7 +243,7 @@ export function IdeaDetailClient({
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between gap-4 border-t border-border/40 pt-8">
+        <div className="flex items-center justify-between gap-4 border-t border-border/40 pt-6">
           <div className="flex-1">
             {prev ? (
               <Link
