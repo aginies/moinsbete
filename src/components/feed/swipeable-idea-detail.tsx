@@ -45,6 +45,7 @@ interface SwipeableIdeaDetailProps {
 export function SwipeableIdeaDetail({
   idea,
   prev,
+  next,
   topic,
   collection,
   onBookmark,
@@ -114,6 +115,7 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
           const [dx] = movement
           setDragX(dx)
           if (dx > 50) setHint('prev')
+          else if (dx < -50) setHint('next')
           else setHint(null)
         }
       },
@@ -129,6 +131,8 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
         const [dx] = state.movement
         if (dx > 100 && prev) {
           router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
+        } else if (dx < -100 && next) {
+          router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
         } else {
           setDragX(0)
           setHint(null)
@@ -150,8 +154,10 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft' && prev) {
       router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
+    } else if (e.key === 'ArrowRight' && next) {
+      router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
     }
-  }, [prev, topic, collection, router])
+  }, [prev, next, topic, collection, router])
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
@@ -169,6 +175,7 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
   const scale = 1 - absX * 0.0003
 
   const prevHintOpacity = hint === 'prev' ? Math.min(absX / 100, 1) : 0
+  const nextHintOpacity = hint === 'next' ? Math.min(absX / 100, 1) : 0
 
   return (
     <div className={`mx-auto w-full px-0 py-4 pb-24 ${mobileOnly ? 'md:hidden' : ''}`}>
@@ -190,6 +197,16 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
             style={{ opacity: prevHintOpacity }}
           >
             ← Précédent
+          </div>
+        )}
+
+        {/* Next hint overlay */}
+        {nextHintOpacity > 0 && (
+          <div
+            className="pointer-events-none absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-blue-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
+            style={{ opacity: nextHintOpacity }}
+          >
+            Suivant →
           </div>
         )}
 
@@ -343,7 +360,22 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
                   )}
                 </div>
 
-                <div className="flex-1" />
+                <div className="flex-1">
+                  {next ? (
+                    <button
+                      onClick={() => router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
+                      className="group inline-flex w-full flex-col items-end gap-0.5 rounded-lg px-3 py-2 text-xs transition-all hover:bg-muted/50"
+                      aria-label="Voir l'idée suivante"
+                    >
+                      <span className="text-[10px] text-muted-foreground/60 group-hover:text-primary/70">Suivant →</span>
+                      <span className="font-medium text-foreground group-hover:text-primary truncate max-w-[150px]">{next.title}</span>
+                    </button>
+                  ) : (
+                    <div className="inline-flex w-full flex-col items-end gap-0.5 rounded-lg px-3 py-2">
+                      <span className="text-[10px] text-muted-foreground/30">Suivant →</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
