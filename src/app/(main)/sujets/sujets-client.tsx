@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Topic } from '@/generated/client'
 import { TopicGrid } from '@/components/topics/topic-grid'
 import { SearchBar } from '@/components/search/search-bar'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
+import { CnrsNewsCard } from '@/components/feed/cnrs-news-card'
 import { getRandomFact } from '@/lib/saviez-vous'
 import Link from 'next/link'
+import { Newspaper } from 'lucide-react'
 
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
@@ -18,6 +20,21 @@ interface SujetsClientProps {
 
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId }: SujetsClientProps) {
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
+  const [cnrsEnabled, setCnrsEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('cnrs_news_enabled')
+      if (stored !== null) return stored === 'true'
+    }
+    return true
+  })
+
+  const toggleCnrs = useCallback(() => {
+    setCnrsEnabled(prev => {
+      const next = !prev
+      localStorage.setItem('cnrs_news_enabled', String(next))
+      return next
+    })
+  }, [])
 
   const handleToggle = (topicId: string, isFollowing: boolean) => {
     if (isFollowing) {
@@ -41,6 +58,26 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       <div className="mb-6">
         <WikipediaImageCard />
       </div>
+
+      {cnrsEnabled && (
+        <div className="mb-6">
+          <CnrsNewsCard onToggle={toggleCnrs} />
+        </div>
+      )}
+
+      {!cnrsEnabled && (
+        <div className="mb-6">
+          <button
+            onClick={toggleCnrs}
+            className="w-full rounded-xl border-2 border-dashed border-green-300 bg-green-50/50 p-4 dark:border-green-800 dark:bg-green-950/20 hover:border-green-400 hover:bg-green-50 dark:hover:border-green-700 dark:hover:bg-green-950/30 transition-colors"
+          >
+            <div className="flex items-center justify-center gap-2 text-sm text-green-700 dark:text-green-400">
+              <Newspaper className="h-4 w-4" />
+              <span>Afficher Actualité CNRS</span>
+            </div>
+          </button>
+        </div>
+      )}
 
       <div className="mb-6">
         <Link
