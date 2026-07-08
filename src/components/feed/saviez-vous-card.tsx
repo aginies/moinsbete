@@ -5,6 +5,8 @@ import { useState, useCallback, useMemo } from 'react'
 import { Lightbulb, ExternalLink, RefreshCw, ImageIcon, X } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl as isValidUrlUtil } from '@/lib/utils'
+import { useShare } from './use-share'
+import { ShareButton } from './share-button'
 
 interface SaviezVousCardProps {
   text: string
@@ -43,6 +45,13 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ text, so
 
   const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError
 
+  const shareOptions = fact.sourceUrl ? {
+    title: 'Le saviez-vous ?',
+    text: fact.text,
+    url: fact.sourceUrl,
+  } : null
+  const { share, copied } = useShare(shareOptions)
+
   return (
     <>
       <div
@@ -59,6 +68,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ text, so
             </h3>
           </div>
           <RefreshCw className={`h-4 w-4 text-amber-600 dark:text-amber-400 ${loading ? 'animate-spin' : ''}`} />
+          <ShareButton onClick={share} copied={copied} />
         </div>
 
         {hasImage && (

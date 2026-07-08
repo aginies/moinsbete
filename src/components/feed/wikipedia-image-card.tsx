@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect } from 'react'
 import { Camera, ExternalLink, RefreshCw, X, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl } from '@/lib/utils'
+import { useShare } from './use-share'
+import { ShareButton } from './share-button'
 
 interface ImageData {
   imageUrl: string
@@ -50,6 +52,13 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
 
   const hasImage = isValidUrl(image?.imageUrl ?? '') && !imageError
 
+  const shareOptions = image ? {
+    title: `Image du jour - ${image.description}`,
+    text: `${image.description}\n\nDate: ${image.date}`,
+    url: image.fileUrl,
+  } : null
+  const { share, copied } = useShare(shareOptions)
+
   return (
     <>
       <div
@@ -66,6 +75,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
             </h3>
           </div>
           <RefreshCw className={`h-4 w-4 text-amber-600 dark:text-amber-400 ${loading ? 'animate-spin' : ''}`} />
+          <ShareButton onClick={share} copied={copied} />
         </div>
 
         {error && !loading && (
