@@ -93,6 +93,15 @@ export default function AproposPage() {
         </section>
 
         <section>
+          <h2 className="mb-3 text-xl font-semibold">Partagez tout le contenu</h2>
+          <p className="text-muted-foreground">
+            Chaque idée, chaque article du CNRS et chaque page de MoinsBête peut être partagée
+            facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
+            ou copier le lien directement.
+          </p>
+        </section>
+
+        <section>
           <h2 className="mb-3 text-xl font-semibold">100% gratuit</h2>
      <p className="text-muted-foreground">
           MoinsBête est gratuit. Pas de publicité, pas d'abonnement.
