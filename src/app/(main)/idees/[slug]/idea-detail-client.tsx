@@ -44,7 +44,6 @@ const SHARE_URL = (slug: string) => {
 export function IdeaDetailClient({
   idea,
   prev,
-  next,
   topic,
   collection,
   initialBookmarked,
@@ -254,21 +253,7 @@ export function IdeaDetailClient({
             )}
           </div>
 
-          <div className="flex-1">
-            {next ? (
-              <Link
-                href={navigationUrl(next.slug)}
-                className="group inline-flex w-full flex-col items-end gap-1 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm transition-all hover:border-primary/30 hover:shadow-md"
-              >
-                <span className="text-xs text-muted-foreground group-hover:text-primary/70">Suivant →</span>
-                <span className="font-medium text-foreground group-hover:text-primary">{next.title}</span>
-              </Link>
-            ) : (
-              <div className="inline-flex w-full flex-col items-end gap-1 rounded-xl border border-border/20 bg-card/30 px-5 py-4">
-                <span className="text-xs text-muted-foreground/30">Suivant →</span>
-              </div>
-            )}
-          </div>
+          <div className="flex-1" />
         </div>
       </div>
     </div>
