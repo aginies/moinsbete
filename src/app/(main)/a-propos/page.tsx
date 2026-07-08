@@ -124,6 +124,25 @@ export default function AproposPage() {
             </a>
             .
           </p>
+         </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">Code source</h2>
+          <p className="text-muted-foreground">
+            Le code source de MoinsBête est disponible sur{' '}
+            <a
+              href="https://github.com/aginies/moinsbete"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              GitHub
+            </a>
+            .
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Le dépôt est actuellement privé en attendant la résolution de quelques problèmes de sécurité.
+          </p>
         </section>
 
         <section>
