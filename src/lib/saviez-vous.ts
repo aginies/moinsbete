@@ -8,7 +8,7 @@ interface SaviezVousFact {
   imageFilename: string | null
 }
 
-const factCache = new Map<string, { fact: SaviezVousFact; expiresAt: number }>()
+export const factCache = new Map<string, { fact: SaviezVousFact; expiresAt: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
 export async function getRandomFact(): Promise<SaviezVousFact | null> {
