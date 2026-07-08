@@ -15,24 +15,23 @@ export function useShare(options: ShareOptions | null) {
   const share = useCallback(async () => {
     if (!options) return
 
-    let shared = false
-
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      try {
-        await navigator.share(options)
-        shared = true
-      } catch {
-        // User cancelled or share failed
-      }
-    }
-
-    if (!shared && typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    // Step 1: Always copy to clipboard first (most reliable)
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
       try {
         await navigator.clipboard.writeText(options.url)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
       } catch {
         // Clipboard write failed
+      }
+    }
+
+    // Step 2: Try native share if available
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share(options)
+      } catch {
+        // User cancelled or share failed
       }
     }
   }, [options])
