@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { resolveWikimediaImageUrls } from '@/lib/utils'
 
 interface SaviezVousFact {
+  id: string
   text: string
   sourceUrl: string | null
   imageFilename: string | null
@@ -40,6 +41,7 @@ export async function getRandomFact(): Promise<SaviezVousFact | null> {
     }
     
     const factResult = {
+      id: fact.id,
       text: fact.text,
       sourceUrl: fact.sourceUrl,
       imageFilename: resolved[0]?.imageFilename ?? null,

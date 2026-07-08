@@ -12,7 +12,7 @@ import Link from 'next/link'
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
   initialFollowedIds: string[]
-  saviezVousFact: { text: string; sourceUrl: string | null; imageFilename: string | null } | null
+  saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null
   userId?: string
 }
 
@@ -34,7 +34,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
       {saviezVousFact && (
         <div className="mb-6">
-          <SaviezVousCard text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} />
+          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} />
         </div>
       )}
 
