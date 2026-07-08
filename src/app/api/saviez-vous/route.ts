@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const count = Math.min(parseInt(searchParams.get('count') || '1'), 10)
 
-    const ip = request.geo?.ip || request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
     const clientId = ip.split(',')[0].trim()
     if (!checkRateLimit(`saviez-vous:${clientId}`, 20, 60_000)) {
       return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
