@@ -9,7 +9,7 @@ async function extractImageFromWiki(articleTitle: string): Promise<string | null
 
   try {
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'MoinsBête/1.0 (contact: admin@stashfru.fr)' },
+      headers: { 'User-Agent': 'moinsbete/1.0 (contact: antoine@ginies.org)' },
     })
     const data = await res.json()
     const pages = data?.query?.pages || {}
