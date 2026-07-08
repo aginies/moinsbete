@@ -51,6 +51,7 @@ export function IdeaDetailClient({
 }: IdeaDetailClientProps) {
   const [isPending, startTransition] = useTransition()
   const [bookmarked, setBookmarked] = useState(initialBookmarked)
+  const [copied, setCopied] = useState(false)
 
   const handleBookmark = useCallback(async () => {
     if (isPending) return
@@ -86,6 +87,8 @@ export function IdeaDetailClient({
     if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
       try {
         await navigator.clipboard.writeText(url)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
       } catch {
         // Clipboard write failed
       }
@@ -153,7 +156,7 @@ export function IdeaDetailClient({
         )}
 
         {/* Title area */}
-        <div className="mb-6">
+        <div className="mb-6 relative">
           <h1 className="mb-4 text-3xl font-bold leading-tight text-foreground md:text-4xl">
             {idea.title}
           </h1>
@@ -177,6 +180,11 @@ export function IdeaDetailClient({
               {Math.ceil(idea.content.length / 500)} min de lecture
             </span>
           </div>
+          {copied && (
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-green-500/90 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm">
+              Copié !
+            </div>
+          )}
         </div>
 
         {/* Content section */}
