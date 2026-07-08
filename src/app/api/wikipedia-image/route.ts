@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit } from '@/lib/rate-limiter'
 
 interface ImageEntry {
   imageUrl: string
@@ -78,8 +79,14 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<any> {
   return null
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const clientId = ip.split(',')[0].trim()
+    if (!checkRateLimit(`wiki-image:${clientId}`, 10, 60_000)) {
+      return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
+    }
+
     const randomArchive = archives[Math.floor(Math.random() * archives.length)]
 
     const data = await fetchWithRetry(

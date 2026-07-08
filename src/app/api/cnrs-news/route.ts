@@ -73,13 +73,16 @@ async function scrapeNewsroomPage(page: number): Promise<ScrapedArticle[]> {
   }
 }
 
-async function fetchRandomArticle(): Promise<CnrsArticle | null> {
+async function fetchRandomArticle(depth = 0): Promise<CnrsArticle | null> {
+  const maxDepth = 10
+  if (depth >= maxDepth) return null
+
   const totalPages = 415
   const randomPage = Math.floor(Math.random() * totalPages)
 
   const articles = await scrapeNewsroomPage(randomPage)
   if (articles.length === 0) {
-    return fetchRandomArticle()
+    return fetchRandomArticle(depth + 1)
   }
 
   const article = articles[Math.floor(Math.random() * articles.length)]
