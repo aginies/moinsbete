@@ -74,16 +74,22 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
       url: getShareUrl(idea.slug),
     }
 
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share(shareData)
       } catch {
         // User cancelled or share failed
       }
-    } else {
-      await navigator.clipboard.writeText(getShareUrl(idea.slug))
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try {
+        await navigator.clipboard.writeText(getShareUrl(idea.slug))
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch {
+        // Clipboard write failed
+      }
     }
   }, [idea.title, idea.slug])
 
