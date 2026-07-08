@@ -4,7 +4,7 @@ import React from 'react'
 import { useState, useCallback, useMemo } from 'react'
 import { Lightbulb, ExternalLink, RefreshCw, ImageIcon, X, EyeOff, Eye } from 'lucide-react'
 import Link from 'next/link'
-import { isValidUrl as isValidUrlUtil } from '@/lib/utils'
+import { isValidUrl as isValidUrlUtil, sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 
@@ -154,7 +154,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
         {fact.sourceUrl && (
           <div className="mt-3">
             <Link
-              href={fact.sourceUrl}
+              href={sanitizeUrl(fact.sourceUrl, '#')}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
