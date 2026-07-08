@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -116,6 +117,31 @@ export async function resolveWikimediaImageUrls(facts: Array<{ id: string; image
     }
   } catch {
     // If API fails, keep original filenames
+  }
+
+  // Fallback: construct direct Wikimedia URL for facts still not resolved
+  for (const fact of facts) {
+    if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
+
+    const fn = fact.imageFilename
+
+    // Try decoded filename with MD5 path first
+    try {
+      const decoded = decodeURIComponent(fn)
+      if (decoded !== fn) {
+        const hash = crypto.createHash('md5').update(decoded).digest('hex')
+        const firstChar = decoded[0].toLowerCase()
+        const hashPrefix = hash.slice(0, 2)
+        fact.imageFilename = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${hashPrefix}/${decoded}`
+        continue
+      }
+    } catch {}
+
+    // Try original filename with MD5 path
+    const hash = crypto.createHash('md5').update(fn).digest('hex')
+    const firstChar = fn[0].toLowerCase()
+    const hashPrefix = hash.slice(0, 2)
+    fact.imageFilename = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${hashPrefix}/${fn}`
   }
 
   return facts

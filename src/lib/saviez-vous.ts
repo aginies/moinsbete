@@ -33,7 +33,7 @@ export async function getRandomFact(): Promise<SaviezVousFact | null> {
     if (!fact) return null
 
     const resolved = await resolveWikimediaImageUrls([{ id: fact.id, imageFilename: fact.imageFilename }])
-    if (resolved[0]?.imageFilename && !resolved[0].imageFilename.startsWith('http')) {
+    if (resolved[0]?.imageFilename?.startsWith('http')) {
       await prisma.saviezVousFact.update({
         where: { id: fact.id },
         data: { imageFilename: resolved[0].imageFilename },

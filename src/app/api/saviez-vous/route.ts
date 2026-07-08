@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { resolveWikimediaImageUrls } from '@/lib/utils'
+import crypto from 'node:crypto'
 
 interface ImageCacheEntry {
   url: string
@@ -101,6 +102,43 @@ export async function GET(request: NextRequest) {
         }
       } catch {
         // If API fails, keep original filenames
+      }
+
+      // Fallback: construct direct Wikimedia URL for facts still not resolved
+      for (const fact of facts) {
+        if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
+
+        const fn = fact.imageFilename
+
+        // Try decoded filename with MD5 path first
+        try {
+          const decoded = decodeURIComponent(fn)
+          if (decoded !== fn) {
+            const hash = crypto.createHash('md5').update(decoded).digest('hex')
+            const firstChar = decoded[0].toLowerCase()
+            const hashPrefix = hash.slice(0, 2)
+            const url = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${hashPrefix}/${decoded}`
+            fact.imageFilename = url
+            setCachedImageUrl(fn, url)
+            await prisma.saviezVousFact.update({
+              where: { id: fact.id },
+              data: { imageFilename: url },
+            })
+            continue
+          }
+        } catch {}
+
+        // Try original filename with MD5 path
+        const hash = crypto.createHash('md5').update(fn).digest('hex')
+        const firstChar = fn[0].toLowerCase()
+        const hashPrefix = hash.slice(0, 2)
+        const url = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${hashPrefix}/${fn}`
+        fact.imageFilename = url
+        setCachedImageUrl(fn, url)
+        await prisma.saviezVousFact.update({
+          where: { id: fact.id },
+          data: { imageFilename: url },
+        })
       }
     }
 
