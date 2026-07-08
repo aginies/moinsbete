@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Camera, ExternalLink, RefreshCw, X, AlertCircle, EyeOff, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl } from '@/lib/utils'
@@ -38,6 +38,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
     }
     return true
   })
+  const hasLoadedRef = useRef(false)
 
   const handleToggle = useCallback(() => {
     setShow(prev => {
@@ -62,7 +63,10 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
   }, [])
 
   useEffect(() => {
-    loadImage()
+    if (!hasLoadedRef.current) {
+      hasLoadedRef.current = true
+      loadImage()
+    }
   }, [])
 
   const hasImage = isValidUrl(image?.imageUrl ?? '') && !imageError
