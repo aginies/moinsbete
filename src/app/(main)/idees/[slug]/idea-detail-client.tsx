@@ -75,14 +75,20 @@ export function IdeaDetailClient({
       url,
     }
 
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share(shareData)
       } catch {
         // User cancelled or share failed
       }
-    } else {
-      await navigator.clipboard.writeText(url)
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try {
+        await navigator.clipboard.writeText(url)
+      } catch {
+        // Clipboard write failed
+      }
     }
   }, [idea.slug, idea.title, idea.takeaway])
 
