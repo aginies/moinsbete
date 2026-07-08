@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
-import { ExternalLink, Bookmark, X } from 'lucide-react'
+import { ExternalLink, X } from 'lucide-react'
+import { sanitizeUrl } from '@/lib/utils'
 
 interface FavoriteDoc {
   id: string
@@ -56,7 +57,7 @@ export function RadioFranceFavorites() {
               {doc.image && (
                 <div className="mb-2 overflow-hidden rounded-lg border border-purple-200 dark:border-purple-800">
                   <img
-                    src={doc.image}
+                    src={sanitizeUrl(doc.image, '')}
                     alt={doc.title}
                     className="w-full h-32 object-cover transition-opacity hover:opacity-90"
                     onError={(e) => {
@@ -80,7 +81,7 @@ export function RadioFranceFavorites() {
                   </span>
                 </div>
                 <Link
-                  href={doc.url}
+                  href={sanitizeUrl(doc.url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-purple-700 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-200 hover:underline"
