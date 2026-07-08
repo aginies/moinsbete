@@ -5,6 +5,7 @@ import { Lightbulb, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-rea
 import Link from 'next/link'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
+import { sanitizeUrl } from '@/lib/utils'
 
 interface RadioFranceDoc {
   id: string
@@ -192,7 +193,7 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
             {doc.image && (
               <div className="mb-3 overflow-hidden rounded-lg border border-purple-200 dark:border-purple-800">
                 <img
-                  src={doc.image}
+                  src={sanitizeUrl(doc.image, '')}
                   alt={doc.title}
                   className="w-full h-48 object-cover transition-opacity hover:opacity-90"
                   onError={(e) => {
@@ -220,7 +221,7 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
             </p>
 
             <Link
-              href={doc.url}
+              href={sanitizeUrl(doc.url)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-purple-700 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-200 hover:underline"
