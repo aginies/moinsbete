@@ -14,13 +14,15 @@ import { Newspaper } from 'lucide-react'
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
   initialFollowedIds: string[]
+  initialCnrsEnabled: boolean
   saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null
   userId?: string
 }
 
-export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId }: SujetsClientProps) {
+export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled, saviezVousFact, userId }: SujetsClientProps) {
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
   const [cnrsEnabled, setCnrsEnabled] = useState(() => {
+    if (userId) return initialCnrsEnabled
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('cnrs_news_enabled')
       if (stored !== null) return stored === 'true'
@@ -28,13 +30,21 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     return true
   })
 
-  const toggleCnrs = useCallback(() => {
+  const toggleCnrs = useCallback(async () => {
     setCnrsEnabled(prev => {
       const next = !prev
-      localStorage.setItem('cnrs_news_enabled', String(next))
+      if (userId) {
+        fetch('/api/user/cnrs-news', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cnrsNewsEnabled: next }),
+        }).catch(() => {})
+      } else {
+        localStorage.setItem('cnrs_news_enabled', String(next))
+      }
       return next
     })
-  }, [])
+  }, [userId])
 
   const handleToggle = (topicId: string, isFollowing: boolean) => {
     if (isFollowing) {
