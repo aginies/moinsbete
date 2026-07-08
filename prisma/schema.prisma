@@ -22,6 +22,7 @@ model User {
   resetTokens  PasswordResetToken[]
   viewedIdeas  ViewedIdea[]
   following    Topic[]              @relation("UserFollowing")
+  cnrsNewsEnabled Boolean @default(true)
 }
 
 model Topic {
