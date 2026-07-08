@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { resolveWikimediaImageUrls } from '@/lib/utils'
 import crypto from 'node:crypto'
 import { checkRateLimit } from '@/lib/rate-limiter'
+import { resolveWikimediaImageUrlsViaREST } from '@/lib/utils'
 
 interface ImageCacheEntry {
   url: string
@@ -112,41 +113,48 @@ export async function GET(request: NextRequest) {
       }
 
       // Fallback: construct direct Wikimedia URL for facts still not resolved
+      const unresolvedFilenames = facts
+        .filter(f => f.imageFilename && !f.imageFilename.startsWith('http'))
+        .map(f => f.imageFilename!)
+
+      const restUrls = await resolveWikimediaImageUrlsViaREST(unresolvedFilenames)
+
       for (const fact of facts) {
         if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
 
-        const fn = fact.imageFilename
+        // Use REST API resolved URL if available
+        if (restUrls.has(fact.imageFilename)) {
+          const url = restUrls.get(fact.imageFilename)!
+          fact.imageFilename = url
+          setCachedImageUrl(fact.imageFilename, url)
+          await prisma.saviezVousFact.update({
+            where: { id: fact.id },
+            data: { imageFilename: url },
+          })
+          continue
+        }
 
-        // Try decoded filename with MD5 path first
-        try {
-          const decoded = decodeURIComponent(fn)
-          if (decoded !== fn) {
-            const hash = crypto.createHash('md5').update(decoded).digest('hex')
-            const firstChar = decoded[0].toLowerCase()
-            const hashPrefix = hash.slice(0, 2)
-            const url = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${hashPrefix}/${decoded}`
-            fact.imageFilename = url
-            setCachedImageUrl(fn, url)
-            await prisma.saviezVousFact.update({
-              where: { id: fact.id },
-              data: { imageFilename: url },
-            })
-            continue
-          }
-        } catch {}
-
-        // Try original filename with MD5 path
-        const hash = crypto.createHash('md5').update(fn).digest('hex')
-        const firstChar = fn[0].toLowerCase()
-        const hashPrefix = hash.slice(0, 2)
-        const url = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${hashPrefix}/${fn}`
-        fact.imageFilename = url
-        setCachedImageUrl(fn, url)
+        // Use Special:FilePath redirect - works for all filenames including special chars
+        const specialUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fact.imageFilename)}?width=1200`
+        fact.imageFilename = specialUrl
+        setCachedImageUrl(fact.imageFilename, specialUrl)
         await prisma.saviezVousFact.update({
           where: { id: fact.id },
-          data: { imageFilename: url },
+          data: { imageFilename: specialUrl },
         })
       }
+    }
+
+    // Final fallback: use Special:FilePath for any still unresolved
+    for (const fact of facts) {
+      if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
+      fact.imageFilename = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fact.imageFilename)}?width=1200`
+    }
+
+    // Final fallback: use Special:FilePath redirect for any remaining unresolved images
+    for (const fact of facts) {
+      if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
+      fact.imageFilename = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fact.imageFilename)}?width=1200`
     }
 
     return NextResponse.json({ facts })

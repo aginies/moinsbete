@@ -129,7 +129,7 @@ export function CnrsNewsCard({ onToggle }: CnrsNewsCardProps) {
           <img
             src={article.imageUrl}
             alt={article.title}
-            className="w-full h-48 object-cover transition-opacity hover:opacity-90"
+            className="w-full h-72 object-cover transition-opacity hover:opacity-90"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none'
             }}
