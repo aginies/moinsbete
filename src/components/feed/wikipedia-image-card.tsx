@@ -25,7 +25,7 @@ async function fetchRandomImage(): Promise<ImageData | null> {
   }
 }
 
-export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage }: { fullImage?: boolean }) {
+export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, showLink = true }: { fullImage?: boolean; showLink?: boolean }) {
   const [image, setImage] = useState<ImageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -98,9 +98,15 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage }
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-400 dark:bg-teal-600">
               <Camera className="h-4 w-4 text-teal-950" />
             </div>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-teal-800 dark:text-teal-300">
-              Image du jour
-            </h3>
+            {showLink ? (
+              <Link href="/image-du-jour" className="text-sm font-bold uppercase tracking-wide text-teal-800 hover:underline dark:text-teal-300">
+                Image du jour
+              </Link>
+            ) : (
+              <h3 className="text-sm font-bold uppercase tracking-wide text-teal-800 dark:text-teal-300">
+                Image du jour
+              </h3>
+            )}
           </div>
           <div className="flex items-center gap-6">
             <button
