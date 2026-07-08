@@ -80,9 +80,9 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
         <div className="mb-6">
           <button
             onClick={handleToggle}
-            className="w-full rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-4 dark:border-amber-800 dark:bg-amber-950/20 hover:border-amber-400 hover:bg-amber-50 dark:hover:border-amber-700 dark:hover:bg-amber-950/30 transition-colors"
+            className="w-full rounded-xl border-2 border-dashed border-teal-300 bg-teal-50/50 p-4 dark:border-teal-800 dark:bg-teal-950/20 hover:border-teal-400 hover:bg-teal-50 dark:hover:border-teal-700 dark:hover:bg-teal-950/30 transition-colors"
           >
-            <div className="flex items-center justify-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+            <div className="flex items-center justify-center gap-2 text-sm text-teal-700 dark:text-teal-400">
               <Eye className="h-4 w-4" />
               <span>Afficher Image du jour</span>
             </div>
@@ -91,14 +91,14 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
       ) : (
       <div
         onClick={loadImage}
-        className="rounded-xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-orange-950/30 cursor-pointer hover:shadow-md transition-shadow"
+        className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-50 p-5 dark:border-teal-700 dark:from-teal-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
       >
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 dark:bg-amber-600">
-              <Camera className="h-4 w-4 text-amber-950" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-400 dark:bg-teal-600">
+              <Camera className="h-4 w-4 text-teal-950" />
             </div>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-teal-800 dark:text-teal-300">
               Image du jour
             </h3>
           </div>
@@ -108,20 +108,20 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
                 e.stopPropagation()
                 handleToggle()
               }}
-              className="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 transition-colors"
+              className="text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-200 transition-colors"
               title="Masquer la carte"
             >
               <EyeOff className="h-4 w-4" />
             </button>
-            <RefreshCw className={`h-4 w-4 text-amber-600 dark:text-amber-400 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 text-teal-600 dark:text-teal-400 ${loading ? 'animate-spin' : ''}`} />
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           </div>
         </div>
 
         {error && !loading && (
-          <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-100/50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
-            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            <p className="text-xs text-amber-700 dark:text-amber-300">
+          <div className="mb-3 flex items-center gap-2 rounded-lg border border-teal-200 bg-teal-100/50 p-3 dark:border-teal-800 dark:bg-teal-900/20">
+            <AlertCircle className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <p className="text-xs text-teal-700 dark:text-teal-300">
               Impossible de charger l'image. Cliquez pour réessayer.
             </p>
           </div>
@@ -129,7 +129,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
 
         {hasImage && (
           <div
-            className="mb-3 cursor-pointer overflow-hidden rounded-lg border border-amber-200 dark:border-amber-800"
+            className="mb-3 cursor-pointer overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800"
             onClick={(e) => {
               e.stopPropagation()
               setShowFullImage(true)
@@ -145,7 +145,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
         )}
 
         {image && (
-          <p className="text-sm leading-relaxed text-amber-900 dark:text-amber-100">
+          <p className="text-sm leading-relaxed text-teal-900 dark:text-teal-100">
             {image.description}
           </p>
         )}
@@ -156,7 +156,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-xs text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200 hover:underline"
+              className="inline-flex items-center gap-1 text-xs text-teal-700 hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-200 hover:underline"
             >
               <ExternalLink className="h-3 w-3" />
               Voir sur Wikimedia Commons
