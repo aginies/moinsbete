@@ -20,10 +20,14 @@ export function useShare(options: ShareOptions | null) {
       } catch {
         // User cancelled or share failed
       }
-    } else {
-      await navigator.clipboard.writeText(options.url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+    } else if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try {
+        await navigator.clipboard.writeText(options.url)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch {
+        // Clipboard write failed
+      }
     }
   }, [options])
 
