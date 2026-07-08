@@ -79,8 +79,6 @@ export default async function LeSaviezVousPage() {
         Retour à l&apos;accueil
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold text-center">Le saviez-vous ?</h1>
-
       <LeSaviezVousClient
         id={fact.id}
         text={fact.text}
