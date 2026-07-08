@@ -10,6 +10,7 @@ interface ShareOptions {
 
 export function useShare(options: ShareOptions | null) {
   const [copied, setCopied] = useState(false)
+  const shareUrl = options?.url ?? ''
 
   const share = useCallback(async () => {
     if (!options) return
@@ -36,5 +37,5 @@ export function useShare(options: ShareOptions | null) {
     }
   }, [options])
 
-  return { share, copied }
+  return { share, copied, shareUrl }
 }
