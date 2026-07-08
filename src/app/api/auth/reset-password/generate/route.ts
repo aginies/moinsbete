@@ -2,11 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import crypto from 'crypto'
 import { isCsrfValid } from '@/lib/csrf'
+import { checkRateLimit } from '@/lib/rate-limiter'
+import { RATE_LIMIT_RESET_GENERATE_MAX, RATE_LIMIT_RESET_GENERATE_WINDOW_MS } from '@/lib/constants'
+import { headers } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   if (!(await isCsrfValid(request))) {
     return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
   }
+
+  const headersList = await headers()
+  const rawIp = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  const clientId = rawIp.split(',')[0].trim()
+  if (!checkRateLimit(`reset-generate:${clientId}`, RATE_LIMIT_RESET_GENERATE_MAX, RATE_LIMIT_RESET_GENERATE_WINDOW_MS)) {
+    return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 5 minutes.' }, { status: 429 })
+  }
+
   try {
     const { email } = await request.json()
 
