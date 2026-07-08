@@ -12,7 +12,7 @@ interface LeSaviezVousClientProps {
 export function LeSaviezVousClient({ id, text, sourceUrl, imageFilename }: LeSaviezVousClientProps) {
   return (
     <div className="w-full">
-      <SaviezVousCard id={id} text={text} sourceUrl={sourceUrl} imageFilename={imageFilename} />
+      <SaviezVousCard id={id} text={text} sourceUrl={sourceUrl} imageFilename={imageFilename} showLink={false} />
     </div>
   )
 }

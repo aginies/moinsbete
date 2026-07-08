@@ -13,6 +13,7 @@ interface SaviezVousCardProps {
   text: string
   sourceUrl?: string | null
   imageFilename?: string | null
+  showLink?: boolean
 }
 
 async function fetchRandomFact() {
@@ -26,7 +27,7 @@ async function fetchRandomFact() {
   return null
 }
 
-export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text, sourceUrl, imageFilename }: SaviezVousCardProps) {
+export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text, sourceUrl, imageFilename, showLink = true }: SaviezVousCardProps) {
   const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
@@ -100,9 +101,15 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-400 dark:bg-blue-600">
               <Lightbulb className="h-4 w-4 text-blue-950" />
             </div>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">
-              Le saviez-vous ?
-            </h3>
+            {showLink ? (
+              <Link href="/le-saviez-vous" className="text-sm font-bold uppercase tracking-wide text-blue-800 hover:underline dark:text-blue-300">
+                Le saviez-vous ?
+              </Link>
+            ) : (
+              <h3 className="text-sm font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">
+                Le saviez-vous ?
+              </h3>
+            )}
           </div>
           <div className="flex items-center gap-6">
             <button
