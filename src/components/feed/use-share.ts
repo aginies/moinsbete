@@ -17,7 +17,7 @@ export function useShare(options: ShareOptions | null) {
 
     let shared = false
 
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share(options)
         shared = true
@@ -26,7 +26,7 @@ export function useShare(options: ShareOptions | null) {
       }
     }
 
-    if (!shared && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    if (!shared && typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
       try {
         await navigator.clipboard.writeText(options.url)
         setCopied(true)
