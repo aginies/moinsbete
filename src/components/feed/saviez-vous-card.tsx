@@ -17,7 +17,7 @@ interface SaviezVousCardProps {
 
 async function fetchRandomFact() {
   try {
-    const res = await fetch('/api/saviez-vous?count=1')
+    const res = await fetch('/api/saviez-vous?count=1', { cache: 'no-store' })
     const data = await res.json()
     if (data.facts?.length > 0) {
       return data.facts[0]
