@@ -28,20 +28,22 @@ interface Idea {
 
 export function FavorisClient({
   ideas,
+  userId,
   currentPage,
   totalPages,
   total,
+  searchQuery,
 }: {
   ideas: Idea[]
   userId?: string
   currentPage: number
   totalPages: number
   total: number
+  searchQuery: string
 }) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const [optimisticBookmarks, setOptimisticBookmarks] = useState<Record<string, boolean>>({})
-  const [searchQuery, setSearchQuery] = useState('')
 
   const savedIdeaIds = useMemo(() => {
     const set = new Set(ideas.map(i => i.id))
@@ -105,26 +107,6 @@ export function FavorisClient({
 
   return (
     <div className="space-y-3">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Rechercher dans les favoris..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 pr-10"
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md p-0 text-muted-foreground hover:text-foreground"
-            onClick={() => setSearchQuery('')}
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-
       {searchQuery && filteredIdeas.length === 0 && (
         <p className="py-8 text-center text-sm text-muted-foreground">Aucun favori pour "{searchQuery}"</p>
       )}

@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth'
 import Link from 'next/link'
 import { ArrowLeft, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { FavorisClient } from './favoris-client'
+import { FavorisPageClient } from './favoris-page-client'
 
 const PAGE_SIZE = 20
 
@@ -81,26 +81,16 @@ export default async function FavorisPage({
             Accueil
           </Link>
           <h1 className="text-2xl font-heading font-bold">Favoris</h1>
-          <p className="text-sm text-muted-foreground">
-            {total} id{total !== 1 ? 'ées' : ''} sauvegardé{total !== 1 ? 'es' : ''}
-          </p>
         </div>
       </div>
 
-      {total === 0 ? (
-        <div className="rounded-xl border border-border/60 bg-card p-12 text-center">
-          <Bookmark className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-semibold">Vos favoris sont vides</h3>
-          <p className="text-sm text-muted-foreground">
-            Cliquez sur le bookmark d&apos;une idée pour la sauvegarder ici.
-          </p>
-          <Link href="/" className="mt-4 inline-block text-primary hover:underline">
-            Découvrir des idées →
-          </Link>
-        </div>
-      ) : (
-        <FavorisClient ideas={ideas} userId={session.user.id} currentPage={currentPage} totalPages={totalPages} total={total} />
-      )}
+      <FavorisPageClient
+        ideas={ideas}
+        userId={session.user.id}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        total={total}
+      />
     </div>
   )
 }
