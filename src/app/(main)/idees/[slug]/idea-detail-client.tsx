@@ -251,7 +251,6 @@ export function IdeaDetailClient({
                 className="group inline-flex w-full flex-col items-start gap-1 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm transition-all hover:border-primary/30 hover:shadow-md"
               >
                 <span className="text-xs text-muted-foreground group-hover:text-primary/70">← Précédent</span>
-                <span className="font-medium text-foreground group-hover:text-primary">{prev.title}</span>
               </Link>
             ) : (
               <div className="inline-flex w-full flex-col items-start gap-1 rounded-xl border border-border/20 bg-card/30 px-5 py-4">
