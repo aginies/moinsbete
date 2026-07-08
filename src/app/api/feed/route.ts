@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = Math.min(parseInt(searchParams.get('limit') || String(DEFAULT_FEED_LIMIT)), 50)
 
-    if (userId && !/^[a-fA-F0-9\-]+$/.test(userId)) {
+    if (userId && !/^[\w\-]+$/.test(userId)) {
       return NextResponse.json({ ideas: [], hasMore: false, total: 0, page: 1 })
     }
 

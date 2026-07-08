@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId')
     const followed = searchParams.get('followed')
 
-    if (userId && !/^[a-fA-F0-9\-]+$/.test(userId)) {
+    if (userId && !/^[\w\-]+$/.test(userId)) {
       return NextResponse.json({ idea: null }, { status: 400 })
     }
 

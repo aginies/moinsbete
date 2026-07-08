@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       ...v.idea,
       viewedAt: v.viewedAt,
       topics: v.idea.ideaTopics.map(it => it.topic),
-      id: v.id,
+      id: v.idea.id,
     }))
 
     return NextResponse.json({
