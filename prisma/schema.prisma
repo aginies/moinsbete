@@ -239,4 +239,6 @@ enum BookmarkType {
   IDEA
   RADIO_FRANCE
   CNRS_NEWS
+  IMAGE_DU_JOUR
+  SAVIEZ_VOUS
 }

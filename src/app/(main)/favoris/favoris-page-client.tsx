@@ -14,6 +14,10 @@ import { CnrsBookmarks } from '@/components/feed/cnrs-bookmarks'
 import { type CompactIdea } from '@/types/idea'
 import { normalizeAccents } from '@/lib/utils'
 import { getRadioFavoritesCount } from '@/lib/radio-bookmark'
+import { getImageDuJourFavoritesCount } from '@/lib/image-du-jour-bookmark'
+import { getSaviezVousFavoritesCount } from '@/lib/saviez-vous-bookmark'
+import { ImageDuJourBookmarks } from '@/components/feed/image-du-jour-bookmarks'
+import { SaviezVousBookmarks } from '@/components/feed/saviez-vous-bookmarks'
 
 interface FavorisPageClientProps {
   ideas: CompactIdea[]
@@ -23,11 +27,13 @@ interface FavorisPageClientProps {
   total: number
   radioFavoritesCount: number
   cnrsFavoritesCount: number
+  imageDuJourFavoritesCount: number
+  saviezVousFavoritesCount: number
 }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous'
 
-export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount }: FavorisPageClientProps) {
+export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
@@ -76,6 +82,26 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           }`}
         >
           Actualites CNRS ({cnrsFavoritesCount})
+        </button>
+        <button
+          onClick={() => setActiveTab('image-du-jour')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'image-du-jour'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Image du jour ({imageDuJourFavoritesCount})
+        </button>
+        <button
+          onClick={() => setActiveTab('saviez-vous')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'saviez-vous'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Le saviez-vous ? ({saviezVousFavoritesCount})
         </button>
       </div>
 
@@ -170,6 +196,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       {activeTab === 'radio-france' && <RadioFranceFavorites userId={userId} />}
 
       {activeTab === 'cnrs-news' && <CnrsBookmarks userId={userId} />}
+
+      {activeTab === 'image-du-jour' && <ImageDuJourBookmarks userId={userId} />}
+
+      {activeTab === 'saviez-vous' && <SaviezVousBookmarks userId={userId} />}
     </div>
   )
 }

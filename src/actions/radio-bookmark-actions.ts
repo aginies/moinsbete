@@ -2,34 +2,23 @@
 
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { toggleRadioFavorite, getRadioFavorites, isRadioFavorite, type RadioFavoriteMeta } from '@/lib/radio-bookmark'
+import type { BookmarkType } from '@/generated/client'
+import { toggleFavoriteAction, isFavoriteAction } from '@/actions/favorite-actions'
+import { getRadioFavorites } from '@/lib/radio-bookmark'
+import type { RadioFavoriteMeta } from '@/lib/radio-bookmark'
+
+const TYPE: BookmarkType = 'RADIO_FRANCE'
 
 export async function toggleRadioFavoriteAction(docId: string, action?: 'add' | 'remove', meta?: RadioFavoriteMeta) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user) {
-    return { error: 'Non authentifié' }
-  }
-
-  const result = await toggleRadioFavorite(session.user.id, docId, action, meta)
-  return result
+  return toggleFavoriteAction(TYPE, docId, action, meta as Record<string, unknown>)
 }
 
 export async function getRadioFavoritesAction() {
   const session = await getServerSession(authOptions)
-  if (!session?.user) {
-    return { favorites: [] }
-  }
-
-  const favorites = await getRadioFavorites(session.user.id)
-  return { favorites }
+  if (!session?.user) return { favorites: [] }
+  return { favorites: await getRadioFavorites(session.user.id) }
 }
 
 export async function isRadioFavoriteAction(docId: string) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user) {
-    return { isFavorite: false }
-  }
-
-  const isFavorite = await isRadioFavorite(session.user.id, docId)
-  return { isFavorite }
+  return isFavoriteAction(TYPE, docId)
 }

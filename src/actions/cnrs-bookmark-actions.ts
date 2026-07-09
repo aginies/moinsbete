@@ -2,34 +2,23 @@
 
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { toggleCnrsFavorite, getCnrsFavorites, isCnrsFavorite, type CnrsFavoriteMeta } from '@/lib/cnrs-bookmark'
+import type { BookmarkType } from '@/generated/client'
+import { toggleFavoriteAction, isFavoriteAction } from '@/actions/favorite-actions'
+import { getCnrsFavorites } from '@/lib/cnrs-bookmark'
+import type { CnrsFavoriteMeta } from '@/lib/cnrs-bookmark'
+
+const TYPE: BookmarkType = 'CNRS_NEWS'
 
 export async function toggleCnrsFavoriteAction(articleId: string, action?: 'add' | 'remove', meta?: CnrsFavoriteMeta) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user) {
-    return { error: 'Non authentifié' }
-  }
-
-  const result = await toggleCnrsFavorite(session.user.id, articleId, action, meta)
-  return result
+  return toggleFavoriteAction(TYPE, articleId, action, meta as Record<string, unknown>)
 }
 
 export async function getCnrsFavoritesAction() {
   const session = await getServerSession(authOptions)
-  if (!session?.user) {
-    return { favorites: [] }
-  }
-
-  const favorites = await getCnrsFavorites(session.user.id)
-  return { favorites }
+  if (!session?.user) return { favorites: [] }
+  return { favorites: await getCnrsFavorites(session.user.id) }
 }
 
 export async function isCnrsFavoriteAction(articleId: string) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user) {
-    return { isFavorite: false }
-  }
-
-  const favorite = await isCnrsFavorite(session.user.id, articleId)
-  return { isFavorite: favorite }
+  return isFavoriteAction(TYPE, articleId)
 }
