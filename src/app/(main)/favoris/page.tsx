@@ -82,7 +82,7 @@ export default async function FavorisPage({
         <div>
           <Link
             href="/"
-            className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+            className="mb-2 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:inline-flex"
           >
             <ArrowLeft className="h-4 w-4" />
             Accueil
