@@ -172,7 +172,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
-            disabled={favoriting || !fact}
+            disabled={Boolean(favoriting || !fact)}
             className="rounded-full p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all disabled:opacity-50"
             title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
           >

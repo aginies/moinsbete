@@ -187,7 +187,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
-            disabled={favoriting || !image}
+            disabled={Boolean(favoriting || !image)}
             className="rounded-full p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all disabled:opacity-50"
             title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
           >
