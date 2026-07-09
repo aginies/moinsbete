@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 import { sanitizeUrl } from '@/lib/utils'
+import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { VisibilityButton } from './visibility-button'
 
 interface RadioFranceDoc {
   id: string
@@ -34,7 +36,6 @@ interface FavoriteDoc {
 }
 
 const FAVORITES_KEY = 'rf_favorites'
-const VISIBILITY_KEY = 'radio_france_card_visible'
 
 function getFavorites(): FavoriteDoc[] {
   if (typeof window === 'undefined') return []
@@ -80,18 +81,8 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
 export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
   const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
   const [loading, setLoading] = useState(!initialDoc)
-  const [show, setShow] = useState(true)
-  const [hasMounted, setHasMounted] = useState(false)
+  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible' })
   const prevShowRef = useRef<boolean>(true)
-
-  useEffect(() => {
-    setHasMounted(true)
-    const stored = localStorage.getItem(VISIBILITY_KEY)
-    if (stored !== null) {
-      setShow(stored === 'true')
-    }
-    prevShowRef.current = show
-  }, [])
 
   const [favorites, setFavorites] = useState<FavoriteDoc[]>(getFavorites)
 
@@ -138,14 +129,6 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
     setFavorites(result.favorites)
   }, [doc, favorites])
 
-  const handleToggle = useCallback(() => {
-    setShow(prev => {
-      const next = !prev
-      localStorage.setItem(VISIBILITY_KEY, String(next))
-      return next
-    })
-  }, [])
-
   const shareOptions = doc ? {
     title: doc.title,
     text: `${doc.description}\n\n${doc.radio} · ${doc.section}`,
@@ -156,15 +139,7 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
   if (!show && hasMounted) {
     return (
       <div className="mb-6">
-        <button
-          onClick={handleToggle}
-          className="w-full rounded-xl border-2 border-dashed border-purple-300 bg-purple-50/50 p-4 dark:border-purple-800 dark:bg-purple-950/20 hover:border-purple-400 hover:bg-purple-50 dark:hover:border-purple-700 dark:hover:bg-purple-950/30 transition-colors"
-        >
-          <div className="flex items-center justify-center gap-2 text-sm text-purple-700 dark:text-purple-400">
-            <Lightbulb className="h-4 w-4" />
-            <span>Afficher Documentaires Radio France</span>
-          </div>
-        </button>
+        <VisibilityButton color={buttonColor} label="Afficher Documentaires Radio France" onClick={handleToggle} />
       </div>
     )
   }
