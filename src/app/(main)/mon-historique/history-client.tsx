@@ -15,12 +15,13 @@ import type { CompactIdea } from '@/types/idea'
 interface HistoryPageClientProps {
   initialIdeas: Array<CompactIdea & { viewedAt: string }>
   total: number
+  totalIdeas: number
   userId: string
 }
 
 const PAGE_SIZE = 50
 
-export default function HistoryPageClient({ initialIdeas, total: initialTotal, userId }: HistoryPageClientProps) {
+export default function HistoryPageClient({ initialIdeas, total: initialTotal, totalIdeas: initialTotalIdeas, userId }: HistoryPageClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [ideas, setIdeas] = useState(initialIdeas)
@@ -28,6 +29,7 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
   const [clearing, setClearing] = useState(false)
   const [removing, setRemoving] = useState<string | null>(null)
   const [total, setTotal] = useState(initialTotal)
+  const [totalIdeas] = useState(initialTotalIdeas)
   const [searchQuery, setSearchQuery] = useState('')
 
   const filteredIdeas = useMemo(() => {
@@ -104,7 +106,8 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
         <div>
           <h1 className="text-2xl font-heading font-bold">Mon historique</h1>
           <p className="text-sm text-muted-foreground">
-            {total} idées vues
+            {total} idées / {totalIdeas} idées{' '}
+            {totalIdeas > 0 ? `(${Math.round((total / totalIdeas) * 100)}%)` : '(0%)'}
           </p>
         </div>
         <Button

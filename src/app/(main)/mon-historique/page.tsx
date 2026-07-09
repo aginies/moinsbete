@@ -1,6 +1,7 @@
 import { getSession } from '@/lib/auth'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
+import { prisma } from '@/lib/db'
 import HistoryPageClient from './history-client'
 
 export default async function HistoryPage() {
@@ -36,5 +37,7 @@ export default async function HistoryPage() {
   })
   const { ideas, total } = await historyRes.json()
 
-  return <HistoryPageClient initialIdeas={ideas} total={total} userId={userId} />
+  const totalIdeas = await prisma.idea.count({ where: { isPublished: true } })
+
+  return <HistoryPageClient initialIdeas={ideas} total={total} totalIdeas={totalIdeas} userId={userId} />
 }
