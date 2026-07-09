@@ -12,13 +12,6 @@ Ce document liste des pistes d'amélioration concrètes pour l'application **Moi
     1.  Renommer le dossier de page `src/app/(main)/ma-histoire` en `src/app/(main)/mon-historique` (ou `/mon-histoire`).
     2.  Mettre à jour les références d'URL dans les composants de navigation (`bottom-nav.tsx`, `navbar.tsx`), le sitemap (`sitemap.ts`) et la documentation (`DEVELOPMENT.md`).
 
-### 🔥 Activation de la Série d'Apprentissage (`GrowthPlan` & Streaks)
-*   **Problème :** Le modèle de base de données `GrowthPlan` possède les champs `streakDays` et `lastActiveDate`, et ces informations sont affichées sur `/mon-plan`. Cependant, **aucune logique n'écrit ni ne met à jour ces valeurs** dans le code actuel.
-*   **Solution :** Mettre à jour automatiquement le `GrowthPlan` de l'utilisateur lors de la consultation d'une idée (via l'appel à `markIdeaViewed` dans `src/lib/view.ts`) :
-    *   Si `lastActiveDate` est aujourd'hui (même date locale) : ne rien faire.
-    *   Si `lastActiveDate` était hier : incrémenter `streakDays` de 1 et mettre à jour `lastActiveDate` à aujourd'hui.
-    *   Si `lastActiveDate` est plus ancien ou nul : réinitialiser/définir `streakDays` à 1 et enregistrer `lastActiveDate` à aujourd'hui.
-
 ### 💾 Synchronisation des Favoris Radio France en Base de Données
 *   **Problème :** Les favoris des documentaires Radio France (`rf_favorites`) sont actuellement stockés uniquement dans le `localStorage` du navigateur. Si l'utilisateur change d'appareil ou se déconnecte, il perd ses favoris.
 *   **Solution :** Pour les utilisateurs authentifiés, enregistrer et synchroniser ces favoris en base de données en étendant le modèle `Bookmark` ou en créant une table dédiée.
@@ -28,7 +21,7 @@ Ce document liste des pistes d'amélioration concrètes pour l'application **Moi
 ## 2. Fonctionnalités d'Apprentissage Actif & Gamification
 
 ### 🧠 Quiz d'Auto-Évaluation par IA (Active Recall)
-*   **Amélioration :** Intégrer un système de mini-quizz de 3 questions (QCM) générés dynamiquement par LLM (via `src/lib/llm.ts`) sur `/mon-plan`. Ces questions seraient basées sur les dernières idées consultées par l'utilisateur (`ViewedIdea`) ou ses favoris (`Bookmark`) pour renforcer l'ancrage mémoriel.
+*   **Amélioration :** Intégrer un système de mini-quizz de 3 questions (QCM) générés dynamiquement par LLM (via `src/lib/llm.ts`) sur `/sujets`. Ces questions seraient basées sur les dernières idées consultées par l'utilisateur (`ViewedIdea`) ou ses favoris (`Bookmark`) pour renforcer l'ancrage mémoriel.
 
 ### 🔊 Synthèse Vocale (Text-To-Speech) des Idées
 *   **Amélioration :** Ajouter un bouton de lecture audio sur chaque `IdeaCard` en utilisant l'API native `Web Speech` du navigateur (`window.speechSynthesis`). Cela permettrait d'écouter les résumés de connaissances en déplacement (format "podcast court" mobile-first) de manière totalement gratuite et fluide en français.

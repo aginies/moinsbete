@@ -10,7 +10,6 @@
 /idees/au-hasard           → Idée aléatoire (option: ?followed=1)
 /ma-bibliotheque           → Bookmarks utilisateur (auth requis)
 /favoris                   → Favoris / bookmarks (auth requis)
-/mon-plan                  → Plan d'apprentissage (auth requis)
 /mon-historique            → Historique de consultation (auth requis)
 /mon-compte                → Profil utilisateur (auth requis)
 /a-propos                  → Page d'information
