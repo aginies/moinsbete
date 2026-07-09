@@ -5,7 +5,7 @@ import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
 export function ImageDuJourClient() {
   return (
     <div className="w-full">
-      <WikipediaImageCard fullImage showLink={false} showToggle={false} />
+      <WikipediaImageCard fullImage showLink={false} showToggle={false} swipeable={true} />
     </div>
   )
 }

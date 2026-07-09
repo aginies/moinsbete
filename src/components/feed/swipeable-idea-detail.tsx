@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
-import { useGesture } from '@use-gesture/react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Sparkles, Lightbulb } from 'lucide-react'
 import { isValidUrl } from '@/lib/utils'
+import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 
 interface Idea {
   id: string
@@ -164,18 +164,8 @@ export function SwipeableIdeaDetail({
   onSwipeRight,
 }: SwipeableIdeaDetailProps) {
   const router = useRouter()
-  const [dragX, setDragX] = useState(0)
-  const [hint, setHint] = useState<'prev' | 'next' | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
   const [copied, setCopied] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const dragStartRef = useRef<{ x: number; y: number } | null>(null)
-  const dragXRef = useRef(dragX)
-
-  useEffect(() => {
-    dragXRef.current = dragX
-  }, [dragX])
 
   const getShareUrl = (slug: string) => `${window.location.origin}/idees/${slug}`
 
@@ -211,117 +201,55 @@ export function SwipeableIdeaDetail({
   const handleBookmark = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (isDragging) return
 
     setBookmarked(prevVal => !prevVal)
     if (onBookmark) {
       onBookmark(idea.id)
     }
-  }, [isDragging, onBookmark, idea.id])
+  }, [onBookmark, idea.id])
 
-  const bind = useGesture(
-    {
-      onDragStart: () => {
-        setIsDragging(true)
-        const el = containerRef.current
-        if (el) {
-          el.style.userSelect = 'none'
-          el.style.touchAction = 'pan-y'
-        }
-        dragStartRef.current = { x: 0, y: 0 }
-      },
-      onDrag: (state: { first: boolean; movement: [number, number] }) => {
-        const { first, movement } = state
-        if (!first) {
-          const [dx] = movement
-          setDragX(dx)
-          if (dx > 50) setHint('prev')
-          else if (dx < -50) setHint('next')
-          else setHint(null)
-        }
-      },
-      onDragEnd: (state: { movement: [number, number] }) => {
-        setIsDragging(false)
-        const el = containerRef.current
-        if (el) {
-          el.style.userSelect = ''
-          el.style.touchAction = ''
-        }
-        dragStartRef.current = null
+  const navigateToPrev = useCallback(() => {
+    router.push(`/idees/${prev?.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
+  }, [prev, topic, collection, router])
 
-        const [dx] = state.movement
-        if (dx > 100) {
-          if (prev) {
-            setDragX(500)
-            router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
-          } else if (onSwipeRight) {
-            setDragX(500)
-            onSwipeRight()
-          } else {
-            setDragX(0)
-            setHint(null)
-          }
-        } else if (dx < -100) {
-          if (next) {
-            setDragX(-500)
-            router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
-          } else if (onSwipeLeft) {
-            setDragX(-500)
-            onSwipeLeft()
-          } else {
-            setDragX(0)
-            setHint(null)
-          }
-        } else {
-          setDragX(0)
-          setHint(null)
-        }
-      },
-    },
-    {
-      drag: {
-        axis: 'x',
-        filterTaps: true,
-      }
-    }
-  )
+  const navigateToNext = useCallback(() => {
+    router.push(`/idees/${next?.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
+  }, [next, topic, collection, router])
+
+  const {
+    bind,
+    containerRef,
+    dragX,
+    swipeStyle,
+    isDragging,
+    prefersReducedMotion,
+    prevHintOpacity,
+    nextHintOpacity,
+  } = useSwipeGesture({
+    onSwipeLeft: onSwipeLeft || (next ? navigateToNext : undefined),
+    onSwipeRight: onSwipeRight || (prev ? navigateToPrev : undefined),
+    resetDep: idea.id,
+  })
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setBookmarked(initialBookmarked || false)
   }, [initialBookmarked])
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDragX(0)
-    setHint(null)
-  }, [idea.id])
-
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft' && prev) {
-      router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
+      navigateToPrev()
     } else if (e.key === 'ArrowRight' && next) {
-      router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
+      navigateToNext()
     }
-  }, [prev, next, topic, collection, router])
+  }, [prev, next, navigateToPrev, navigateToNext])
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
-  const prefersReducedMotion = useMemo(() => {
-    if (typeof window === 'undefined') return false
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  }, [])
-
-  const effectiveX = dragX
-  const absX = Math.abs(effectiveX)
-  const rotation = effectiveX * 0.04
-  const scale = 1 - absX * 0.0003
-
-  const prevHintOpacity = hint === 'prev' ? Math.min(absX / 100, 1) : 0
-  const nextHintOpacity = hint === 'next' ? Math.min(absX / 100, 1) : 0
+  const absX = Math.abs(dragX)
 
   // Background card selection:
   // - Show prev if dragging right (dragX > 0)
@@ -381,10 +309,8 @@ export function SwipeableIdeaDetail({
 
         {/* Active Card */}
         <div
-          className={`relative z-10 ${prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
-          style={{
-            transform: `translateX(${effectiveX}px) rotate(${rotation}deg) scale(${scale})`,
-          }}
+          className={`relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
+          style={swipeStyle}
         >
           <div className="relative rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
             <div className="absolute right-3 top-3 z-10 flex gap-2">
@@ -418,7 +344,7 @@ export function SwipeableIdeaDetail({
                 <div className="flex-1">
                   {prev ? (
                     <button
-                      onClick={() => router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
+                      onClick={navigateToPrev}
                       className="group inline-flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-xs transition-all hover:bg-muted/50"
                       aria-label="Voir l'idée précédente"
                     >
@@ -434,7 +360,7 @@ export function SwipeableIdeaDetail({
                 <div className="flex-1">
                   {next ? (
                     <button
-                      onClick={() => router.push(`/idees/${next.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)}
+                      onClick={navigateToNext}
                       className="group inline-flex w-full flex-col items-end gap-0.5 rounded-lg px-3 py-2 text-xs transition-all hover:bg-muted/50"
                       aria-label="Voir l'idée suivante"
                     >
