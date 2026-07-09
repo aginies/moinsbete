@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { ExternalLink, X, ArrowUpRight } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getSaviezVousFavoritesAction } from '@/actions/saviez-vous-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
-import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
@@ -27,6 +26,36 @@ interface SaviezVousBookmarksProps {
 
 export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const handleShare = useCallback(async (item: SaviezVousFavoriteDoc) => {
+    if (copiedId === item.id) return
+    
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'
+    const shareUrl = `${baseUrl}/saviez-vous/${item.id}`
+    
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try {
+        await navigator.clipboard.writeText(shareUrl)
+        setCopiedId(item.id)
+        setTimeout(() => setCopiedId(null), 2000)
+      } catch {
+        // Clipboard write failed
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Le saviez-vous ?',
+          text: item.text,
+          url: shareUrl,
+        })
+      } catch {
+        // User cancelled or share failed
+      }
+    }
+  }, [copiedId])
 
   const handleRemove = async (item: SaviezVousFavoriteDoc) => {
     if (userId) {
@@ -56,12 +85,7 @@ export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
         }}
         renderItem={(item, onRemove) => {
           const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'
-          const shareOptions = {
-            title: 'Le saviez-vous ?',
-            text: item.text,
-            url: `${baseUrl}/saviez-vous/${item.id}`,
-          }
-          const { share, copied, shareUrl } = useShare(shareOptions)
+          const shareUrl = `${baseUrl}/saviez-vous/${item.id}`
           return (
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
@@ -98,7 +122,7 @@ export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
+                <ShareButton onClick={() => handleShare(item)} copied={copiedId === item.id} shareUrl={shareUrl} />
                 <Link
                   href={`/saviez-vous/${item.id}`}
                   className="rounded-full p-1.5 text-blue-600 opacity-60 hover:opacity-100 hover:text-blue-800 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"
