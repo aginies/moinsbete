@@ -3,11 +3,12 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Trash2, ChevronLeft, ChevronRight, X, Search } from 'lucide-react'
+import { Trash2, X, Search } from 'lucide-react'
 import { clearHistoryAction, removeFromHistoryAction } from '@/actions/view-actions'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
+import { Pagination } from '@/components/ui/pagination'
 
 interface HistoryPageClientProps {
   initialIdeas: Array<{
@@ -25,32 +26,6 @@ interface HistoryPageClientProps {
 }
 
 const PAGE_SIZE = 50
-
-function generatePageNumbers(currentPage: number, totalPages: number) {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1)
-  }
-
-  const pages: (number | 'ellipsis')[] = [1]
-
-  if (currentPage > 3) {
-    pages.push('ellipsis')
-  }
-
-  const start = Math.max(2, currentPage - 1)
-  const end = Math.min(totalPages - 1, currentPage + 1)
-
-  for (let i = start; i <= end; i++) {
-    pages.push(i)
-  }
-
-  if (currentPage < totalPages - 2) {
-    pages.push('ellipsis')
-  }
-
-  pages.push(totalPages)
-  return pages
-}
 
 export default function HistoryPageClient({ initialIdeas, total: initialTotal, userId }: HistoryPageClientProps) {
   const router = useRouter()
@@ -130,8 +105,6 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
     }
   }, [userId, currentPage, fetchHistory])
 
-  const pageNumbers = generatePageNumbers(currentPage, totalPages)
-
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
       <div className="mb-6 flex items-center justify-between">
@@ -209,49 +182,20 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
           </div>
 
           {totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage <= 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              <span className="px-3 py-1 text-sm text-muted-foreground">
-                Page {currentPage}/{totalPages}
-              </span>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage >= totalPages}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-
-              <div className="ml-4 flex items-center gap-1">
-                {pageNumbers.map((page, index) =>
-                  page === 'ellipsis' ? (
-                    <span key={`ellipsis-${index}`} className="px-1 text-muted-foreground">
-                      ...
-                    </span>
-                  ) : (
-                    <Button
-                      key={page}
-                      variant={page === currentPage ? 'default' : 'outline'}
-                      size="sm"
-                      className="min-w-[2rem]"
-                      onClick={() => goToPage(page)}
-                    >
-                      {page}
-                    </Button>
-                  )
-                )}
-              </div>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+              pageUrl={(page) => {
+                const params = new URLSearchParams(searchParams.toString())
+                if (page > 1) {
+                  params.set('page', String(page))
+                } else {
+                  params.delete('page')
+                }
+                return `/ma-histoire?${params.toString()}`
+              }}
+            />
           )}
         </>
       )}
