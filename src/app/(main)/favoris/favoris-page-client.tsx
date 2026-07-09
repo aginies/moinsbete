@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { useBookmarkToggle } from '@/hooks/use-bookmark-toggle'
 import { RadioFranceFavorites } from './radio-france-favorites'
+import { CnrsBookmarks } from '@/components/feed/cnrs-bookmarks'
 import { type CompactIdea } from '@/types/idea'
 import { normalizeAccents } from '@/lib/utils'
 import { getRadioFavoritesCount } from '@/lib/radio-bookmark'
@@ -21,11 +22,12 @@ interface FavorisPageClientProps {
   totalPages: number
   total: number
   radioFavoritesCount: number
+  cnrsFavoritesCount: number
 }
 
-type Tab = 'idees' | 'radio-france'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news'
 
-export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount }: FavorisPageClientProps) {
+export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
@@ -64,6 +66,16 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           }`}
         >
           Documentaires Radio France ({radioFavoritesCount})
+        </button>
+        <button
+          onClick={() => setActiveTab('cnrs-news')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'cnrs-news'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Actualites CNRS ({cnrsFavoritesCount})
         </button>
       </div>
 
@@ -156,6 +168,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       )}
 
       {activeTab === 'radio-france' && <RadioFranceFavorites userId={userId} />}
+
+      {activeTab === 'cnrs-news' && <CnrsBookmarks userId={userId} />}
     </div>
   )
 }

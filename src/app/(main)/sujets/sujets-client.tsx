@@ -73,7 +73,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
       {cnrsEnabled && (
         <div className="mb-6">
-          <CnrsNewsCard onToggle={toggleCnrs} />
+          <CnrsNewsCard onToggle={toggleCnrs} userId={userId} />
         </div>
       )}
 
