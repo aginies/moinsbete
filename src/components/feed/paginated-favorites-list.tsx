@@ -22,7 +22,7 @@ interface PaginatedFavoritesListProps {
   buttonHoverBg?: string
 }
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 10
 
 export function PaginatedFavoritesList({
   fetchFn,
