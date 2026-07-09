@@ -14,6 +14,7 @@ interface SaviezVousCardProps {
   sourceUrl?: string | null
   imageFilename?: string | null
   showLink?: boolean
+  showToggle?: boolean
   imageHeight?: string
 }
 
@@ -28,7 +29,7 @@ async function fetchRandomFact() {
   return null
 }
 
-export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text, sourceUrl, imageFilename, showLink = true, imageHeight = 'h-48' }: SaviezVousCardProps) {
+export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text, sourceUrl, imageFilename, showLink = true, showToggle = true, imageHeight = 'h-48' }: SaviezVousCardProps) {
   const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
@@ -87,7 +88,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
 
   return (
     <>
-      {!show && hasMounted ? (
+      {!show && hasMounted && showToggle ? (
         <div className="mb-6">
           <button
             onClick={handleToggle}
@@ -120,16 +121,18 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
             )}
           </div>
           <div className="flex items-center gap-6">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                handleToggle()
-              }}
-              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
-              title="Masquer la carte"
-            >
-              <EyeOff className="h-4 w-4" />
-            </button>
+            {showToggle && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleToggle()
+                }}
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
+                title="Masquer la carte"
+              >
+                <EyeOff className="h-4 w-4" />
+              </button>
+            )}
             <RefreshCw className={`h-4 w-4 text-blue-600 dark:text-blue-400 ${loading ? 'animate-spin' : ''}`} />
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           </div>
