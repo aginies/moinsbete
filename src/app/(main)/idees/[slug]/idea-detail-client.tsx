@@ -65,7 +65,7 @@ export function IdeaDetailClient({
         {/* Breadcrumb back */}
         <Link
           href="/"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground md:hidden"
+          className="mb-6 hidden items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour à l&apos;accueil
