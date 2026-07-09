@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ idea: null }, { status: 400 })
     }
 
-    let whereClause: any = { isPublished: true }
+    let whereClause: Record<string, any> = { isPublished: true }
 
     if (userId && followed === '1') {
       const user = await prisma.user.findUnique({
@@ -19,17 +19,13 @@ export async function GET(request: NextRequest) {
         select: { following: { select: { id: true } } },
       })
 
-      console.log('[RandomAPI] userId:', userId, 'hasFollowing:', !!user, 'followingCount:', user?.following?.length)
-
       if (user && user.following.length > 0) {
         const topicIds = user.following.map((t: { id: string }) => t.id)
         whereClause.ideaTopics = { some: { topicId: { in: topicIds } } }
-        console.log('[RandomAPI] topicIds:', topicIds)
       }
     }
 
     const total = await prisma.idea.count({ where: whereClause })
-    console.log('[RandomAPI] whereClause:', JSON.stringify(whereClause), 'total:', total)
     if (total === 0) {
       return NextResponse.json({ idea: null })
     }
