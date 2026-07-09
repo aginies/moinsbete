@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { Camera, ExternalLink, RefreshCw, X, AlertCircle, EyeOff, Eye } from 'lucide-react'
+import { Camera, ExternalLink, RefreshCw, X, AlertCircle, EyeOff, Eye, ImageIcon } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl } from '@/lib/utils'
 import { useShare } from './use-share'
@@ -237,6 +237,12 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
             className={`w-full transition-opacity ${fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
             onError={() => setImageError(true)}
           />
+          {!fullImage && (
+            <div className="flex items-center justify-center gap-1 bg-teal-100/80 px-3 py-1.5 dark:bg-teal-900/40">
+              <ImageIcon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+              <span className="text-xs text-teal-700 dark:text-teal-300">Cliquez pour agrandir</span>
+            </div>
+          )}
         </div>
       )}
 
