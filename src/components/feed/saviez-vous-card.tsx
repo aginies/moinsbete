@@ -12,6 +12,7 @@ import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
+import { SwipeBackgroundCard } from './swipe-background-card'
 
 interface SaviezVousCardProps {
   id: string
@@ -120,7 +121,6 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   const { share, copied, shareUrl } = useShare(shareOptions)
 
   const absX = Math.abs(dragX)
-  const bgScale = Math.min(0.95 + (absX / 1000) * 0.05, 1)
   const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
 
   const cardContent = (
@@ -212,29 +212,24 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
 
           {/* Background Card Stack (Using pre-fetched nextFact) */}
           {nextFact && bgOpacity > 0 && (
-            <div
-              className="absolute inset-0 pointer-events-none transition-all duration-200 ease-out z-0"
-              style={{
-                transform: `scale(${bgScale})`,
-                opacity: bgOpacity,
-              }}
+            <SwipeBackgroundCard
+              title="Le saviez-vous ?"
+              icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
+              iconBgColor="bg-blue-400"
+              iconDarkColor="dark:bg-blue-600"
+              titleColor="text-blue-800"
+              titleDarkColor="dark:text-blue-300"
+              borderColor="border-blue-300"
+              borderDarkColor="dark:border-blue-700"
+              bgGradient="bg-gradient-to-br from-blue-50 to-cyan-50"
+              bgGradientDark="dark:from-blue-950/30 dark:to-cyan-950/30"
+              textColor="text-blue-900"
+              textDarkColor="dark:text-blue-100"
             >
-              <div className="rounded-xl border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-cyan-950/30 h-full opacity-60 overflow-hidden">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-400 dark:bg-blue-600">
-                      <Lightbulb className="h-4 w-4 text-blue-950" />
-                    </div>
-                    <h3 className="text-sm font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">
-                      Le saviez-vous ?
-                    </h3>
-                  </div>
-                </div>
-                <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
-                  {nextFact.text}
-                </p>
-              </div>
-            </div>
+              <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
+                {nextFact.text}
+              </p>
+            </SwipeBackgroundCard>
           )}
 
           <div
