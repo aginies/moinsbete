@@ -112,10 +112,8 @@ export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
                 </Link>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2">
               <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
-            </div>
-            <div className="flex items-center gap-2">
               <Link
                 href={`/saviez-vous/${item.id}`}
                 className="rounded-full p-1.5 text-blue-600 opacity-60 hover:opacity-100 hover:text-blue-800 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"
