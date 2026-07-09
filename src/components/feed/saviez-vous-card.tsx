@@ -1,15 +1,17 @@
 'use client'
 
 import React from 'react'
-import { useState, useCallback, useMemo, useEffect } from 'react'
-import { Lightbulb, ExternalLink, Eye } from 'lucide-react'
+import { useState, useCallback, useMemo } from 'react'
+import { Lightbulb, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl as isValidUrlUtil, sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
+import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
+import { VisibilityButton } from './visibility-button'
 
 interface SaviezVousCardProps {
   id: string
@@ -49,10 +51,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   const [imageError, setImageError] = useState(false)
   const [imageKey, setImageKey] = useState(0)
   const [showFullImage, setShowFullImage] = useState(false)
-  const [show, setShow] = useState(true)
-  const [hasMounted, setHasMounted] = useState(false)
-
-  // Background pre-fetching
+  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'saviez_vous_card_visible' })
   const prefetchNextFact = useCallback(async () => {
     const fetched = await fetchRandomFact()
     if (fetched) {
@@ -63,22 +62,6 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         imageFilename: fetched.imageFilename,
       })
     }
-  }, [])
-
-  useEffect(() => {
-    setHasMounted(true)
-    const stored = localStorage.getItem('saviez_vous_card_visible')
-    if (stored !== null) {
-      setShow(stored === 'true')
-    }
-  }, [])
-
-  const handleToggle = useCallback(() => {
-    setShow(prev => {
-      const next = !prev
-      localStorage.setItem('saviez_vous_card_visible', String(next))
-      return next
-    })
   }, [])
 
   const handleClick = useCallback(async () => {
@@ -203,15 +186,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     <>
       {!show && hasMounted && showToggle ? (
         <div className="mb-6">
-          <button
-            onClick={handleToggle}
-            className="w-full rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-950/20 hover:border-blue-400 hover:bg-blue-50 dark:hover:border-blue-700 dark:hover:bg-blue-950/30 transition-colors"
-          >
-            <div className="flex items-center justify-center gap-2 text-sm text-blue-700 dark:text-blue-400">
-              <Eye className="h-4 w-4" />
-              <span>Afficher Le saviez-vous ?</span>
-            </div>
-          </button>
+          <VisibilityButton color={buttonColor} label="Afficher Le saviez-vous ?" onClick={handleToggle} />
         </div>
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>

@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { Camera, ExternalLink, AlertCircle, Eye } from 'lucide-react'
+import { Camera, ExternalLink, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl, sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
+import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
+import { VisibilityButton } from './visibility-button'
 
 interface ImageData {
   imageUrl: string
@@ -47,19 +49,8 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const [error, setError] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
-  const [show, setShow] = useState(true)
-  const [hasMounted, setHasMounted] = useState(false)
+  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'wikipedia_image_card_visible' })
   const prevShowRef = useRef<boolean>(true)
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setHasMounted(true)
-    const stored = localStorage.getItem('wikipedia_image_card_visible')
-    if (stored !== null) {
-      setShow(stored === 'true')
-    }
-    prevShowRef.current = show
-  }, [])
 
   const hasLoadedRef = useRef(false)
 
@@ -132,14 +123,6 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
       loadImage()
     }
   }, [show, image, loadImage])
-
-  const handleToggle = useCallback(() => {
-    setShow(prev => {
-      const next = !prev
-      localStorage.setItem('wikipedia_image_card_visible', String(next))
-      return next
-    })
-  }, [])
 
   const hasImage = isValidUrl(image?.imageUrl ?? '') && !imageError
 
@@ -230,15 +213,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     <>
       {!show && hasMounted && showToggle ? (
         <div className="mb-6">
-          <button
-            onClick={handleToggle}
-            className="w-full rounded-xl border-2 border-dashed border-teal-300 bg-teal-50/50 p-4 dark:border-teal-800 dark:bg-teal-950/20 hover:border-teal-400 hover:bg-teal-50 dark:hover:border-teal-700 dark:hover:bg-teal-950/30 transition-colors"
-          >
-            <div className="flex items-center justify-center gap-2 text-sm text-teal-700 dark:text-teal-400">
-              <Eye className="h-4 w-4" />
-              <span>Afficher Image du jour</span>
-            </div>
-          </button>
+          <VisibilityButton color={buttonColor} label="Afficher Image du jour" onClick={handleToggle} />
         </div>
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
