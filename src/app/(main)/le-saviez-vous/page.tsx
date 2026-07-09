@@ -5,6 +5,8 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { resolveWikimediaImageUrls } from '@/lib/utils'
 
+export const revalidate = 0
+
 async function getRandomFact() {
   const total = await prisma.saviezVousFact.count()
   if (total === 0) return null
@@ -52,8 +54,21 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function LeSaviezVousPage() {
-  const fact = await getRandomFact()
+export default async function LeSaviezVousPage({ searchParams }: { searchParams: Promise<{ factId?: string }> }) {
+  const params = await searchParams
+  const factId = params.factId
+
+  let fact
+  if (factId) {
+    fact = await prisma.saviezVousFact.findUnique({
+      where: { id: factId },
+      select: { id: true, text: true, sourceUrl: true, imageFilename: true },
+    })
+  }
+  
+  if (!fact) {
+    fact = await getRandomFact()
+  }
 
   if (!fact) {
     return (

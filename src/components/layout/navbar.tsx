@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BookOpen, Menu, LogOut, User, Clock, Bookmark } from 'lucide-react'
+import { BookOpen, LogOut, User, Clock, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
 import { getSession } from '@/lib/auth'

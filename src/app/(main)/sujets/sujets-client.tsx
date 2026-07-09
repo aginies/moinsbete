@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Topic } from '@/generated/client'
 import { TopicGrid } from '@/components/topics/topic-grid'
-import { SearchBar } from '@/components/search/search-bar'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
 import { CnrsNewsCard } from '@/components/feed/cnrs-news-card'
@@ -114,10 +113,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
             </div>
           </div>
         </Link>
-      </div>
-
-      <div className="mb-6">
-        <SearchBar />
       </div>
 
       {followedTopics.length > 0 && (
