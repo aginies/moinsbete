@@ -17,6 +17,10 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+export function normalizeAccents(text: string): string {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+
 export function generateSlug(title: string): string {
   const slug = slugify(title)
   const timestamp = Date.now().toString().slice(-6)

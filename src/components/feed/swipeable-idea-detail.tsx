@@ -7,28 +7,7 @@ import Link from 'next/link'
 import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Sparkles, Lightbulb } from 'lucide-react'
 import { isValidUrl, sanitizeUrl } from '@/lib/utils'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
-
-interface Idea {
-  id: string
-  title: string
-  content: string
-  takeaway: string
-  slug: string
-  saviezVous?: string | null
-  source: {
-    title: string
-    type: string
-    url?: string | null
-    coverUrl?: string | null
-  }
-  topics: Array<{
-    id: string
-    name: string
-    slug: string
-    icon: string
-    color: string
-  }>
-}
+import type { Idea } from '@/types/idea'
 
 interface SwipeableIdeaDetailProps {
   idea: Idea

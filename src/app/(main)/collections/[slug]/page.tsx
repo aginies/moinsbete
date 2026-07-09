@@ -3,8 +3,10 @@ import { getSession } from '@/lib/auth'
 import { Feed } from '@/components/feed/feed'
 import Link from 'next/link'
 import { ArrowLeft, BookmarkCheck } from 'lucide-react'
+import { mapIdeaWithTopics } from '@/lib/feed-helpers'
+import type { IdeaSource } from '@/types/idea'
 
-interface TopicIdea {
+interface CollectionIdea {
   id: string
   title: string
   content: string
@@ -21,20 +23,15 @@ interface TopicIdea {
       color: string
     }
   }>
-  source: {
-    title: string
-    type: string
-    url: string | null
-    coverUrl: string | null
-  }
+  source: IdeaSource
 }
 
-interface IdeaTopic {
-  idea: TopicIdea
+interface CollectionIdeaTopic {
+  idea: CollectionIdea
 }
 
 interface TopicWithIdeas {
-  ideaTopics: IdeaTopic[]
+  ideaTopics: CollectionIdeaTopic[]
 }
 
 interface CollectionData {
@@ -90,7 +87,7 @@ export default async function CollectionPage({
     )
   }
 
-  const ideasMap = new Map<string, TopicIdea>()
+  const ideasMap = new Map<string, CollectionIdea>()
   for (const topic of collection.topics) {
     for (const it of topic.ideaTopics) {
       if (it.idea && it.idea.isPublished && !ideasMap.has(it.idea.id)) {
@@ -108,7 +105,7 @@ export default async function CollectionPage({
 
   const ideasWithTopics = Array.from(ideasMap.values()).map(idea => ({
     ...idea,
-    topics: idea.ideaTopics.map(it => it.topic),
+    topics: mapIdeaWithTopics(idea),
   })).filter(idea => !viewedIdeaIds.has(idea.id))
 
   return (

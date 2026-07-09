@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { useBookmarkToggle } from '@/hooks/use-bookmark-toggle'
 import { RadioFranceFavorites } from './radio-france-favorites'
+import { type CompactIdea } from '@/types/idea'
+import { normalizeAccents } from '@/lib/utils'
 
 const FAVORITES_KEY = 'rf_favorites'
 
@@ -23,26 +25,8 @@ function getRadioFavoritesCount(): number {
   }
 }
 
-interface Idea {
-  id: string
-  title: string
-  slug: string
-  topics: Array<{
-    id: string
-    name: string
-    slug: string
-    icon: string
-    color: string
-  }>
-  source: {
-    title: string
-    type: string
-    url: string | null
-  }
-}
-
 interface FavorisPageClientProps {
-  ideas: Idea[]
+  ideas: CompactIdea[]
   userId?: string
   currentPage: number
   totalPages: number
@@ -59,8 +43,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
-    const q = searchQuery.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-    return ideas.filter(idea => idea.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(q))
+    const q = normalizeAccents(searchQuery).toLowerCase()
+    return ideas.filter(idea => normalizeAccents(idea.title).toLowerCase().includes(q))
   }, [ideas, searchQuery])
 
 

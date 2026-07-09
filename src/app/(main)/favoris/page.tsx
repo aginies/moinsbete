@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FavorisPageClient } from './favoris-page-client'
+import { mapIdeaWithSourceAndTopics } from '@/lib/feed-helpers'
 
 const PAGE_SIZE = 20
 
@@ -59,13 +60,7 @@ export default async function FavorisPage({
     }),
   ])
 
-  const ideas = bookmarks.map(b => ({
-    id: b.idea.id,
-    title: b.idea.title,
-    slug: b.idea.slug,
-    topics: b.idea.ideaTopics.map(it => it.topic),
-    source: b.idea.source,
-  }))
+  const ideas = bookmarks.map(b => mapIdeaWithSourceAndTopics(b.idea))
 
   const totalPages = Math.ceil(total / PAGE_SIZE)
 

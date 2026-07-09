@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchRandomEpisode } from '@/lib/radio-france-episodes'
 import { checkRateLimit } from '@/lib/rate-limiter'
+import { getClientIp } from '@/lib/ip'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
 export async function GET(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
-  const clientId = ip.split(',')[0].trim()
+  const clientId = getClientIp(request)
   if (!checkRateLimit(`radio-france:${clientId}`, 30, 60_000)) {
-    return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
+    return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
   }
 
   const { searchParams } = new URL(request.url)

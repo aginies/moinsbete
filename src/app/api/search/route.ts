@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
+import { getClientIp } from '@/lib/ip'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import { mapIdeaWithTopics } from '@/lib/feed-helpers'
+import { normalizeAccents } from '@/lib/utils'
 
 interface SearchCacheEntry {
   ideas: any[]
@@ -11,10 +15,6 @@ interface SearchCacheEntry {
 
 const searchCache = new Map<string, SearchCacheEntry>()
 const SEARCH_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
-
-function normalizeAccents(str: string): string {
-  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-}
 
 function getCachedSearch(q: string) {
   const normalized = normalizeAccents(q).toLowerCase()
@@ -50,10 +50,9 @@ export async function GET(request: NextRequest) {
       q = q.substring(0, 100)
     }
 
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
-    const clientId = ip.split(',')[0].trim()
+    const clientId = getClientIp(request)
     if (!checkRateLimit(`search:${clientId}`, 30, 60_000)) {
-      return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
+      return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 
     // Check cache
@@ -138,7 +137,7 @@ export async function GET(request: NextRequest) {
 
     const formattedIdeas = filteredIdeas.map(idea => ({
       ...idea,
-      topics: idea.ideaTopics.map(it => it.topic),
+      topics: mapIdeaWithTopics(idea),
     }))
 
     // Cache results

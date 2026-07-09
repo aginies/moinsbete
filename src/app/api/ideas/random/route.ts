@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { mapIdeaWithTopics } from '@/lib/feed-helpers'
 
 export async function GET(request: NextRequest) {
   try {
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
         takeaway: idea.takeaway,
         slug: idea.slug,
         source: idea.source,
-        topics: idea.ideaTopics.map(it => it.topic),
+        topics: mapIdeaWithTopics(idea),
       },
     })
   } catch (error) {

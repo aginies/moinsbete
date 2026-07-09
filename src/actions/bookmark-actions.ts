@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { toggleBookmark } from '@/lib/bookmark'
+import { mapIdeaWithTopics } from '@/lib/feed-helpers'
 
 export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
   const session = await getServerSession(authOptions)
@@ -70,7 +71,7 @@ export async function getSavedIdeas() {
   return {
     ideas: bookmarks.map(b => ({
       ...b.idea,
-      topics: b.idea.ideaTopics.map(it => it.topic),
+      topics: mapIdeaWithTopics(b.idea),
     })),
     count: bookmarks.length,
   }

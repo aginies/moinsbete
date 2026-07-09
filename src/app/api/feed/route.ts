@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { DEFAULT_FEED_LIMIT } from '@/lib/constants'
-import { getAllDescendantTopicIds, getAllDescendantCollectionTopicIds } from '@/lib/feed-helpers'
+import { getAllDescendantTopicIds, getAllDescendantCollectionTopicIds, mapIdeaWithTopics } from '@/lib/feed-helpers'
 
 interface WhereClause {
   isPublished: boolean
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
 
     const formattedIdeas = Array.from(uniqueIdeas.values()).map(idea => ({
       ...idea,
-      topics: idea.ideaTopics.map(it => it.topic),
+      topics: mapIdeaWithTopics(idea),
     }))
 
     return NextResponse.json({

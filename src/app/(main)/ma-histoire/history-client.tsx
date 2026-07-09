@@ -9,18 +9,11 @@ import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
+import { normalizeAccents } from '@/lib/utils'
+import type { CompactIdea } from '@/types/idea'
 
 interface HistoryPageClientProps {
-  initialIdeas: Array<{
-    id: string
-    title: string
-    slug: string
-    content: string
-    takeaway: string
-    source: { title: string; type: string; url?: string | null; coverUrl?: string | null }
-    topics: Array<{ id: string; name: string; slug: string; icon: string; color: string }>
-    viewedAt: string
-  }>
+  initialIdeas: Array<CompactIdea & { viewedAt: string }>
   total: number
   userId: string
 }
@@ -39,8 +32,8 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
-    const q = searchQuery.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-    return ideas.filter(idea => idea.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(q))
+    const q = normalizeAccents(searchQuery).toLowerCase()
+    return ideas.filter(idea => normalizeAccents(idea.title).toLowerCase().includes(q))
   }, [ideas, searchQuery])
 
   const currentPage = parseInt(searchParams.get('page') || '1') || 1

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import type { IdeaTopic, IdeaSource } from '@/types/idea'
 
 export const topicCache = new Map<string, { children: string[]; expiresAt: number }>()
 const COLLECTION_CACHE_TTL = 5 * 60 * 1000
@@ -72,4 +73,26 @@ export async function getAllDescendantCollectionTopicIds(collectionSlug: string)
 
   setTopicChildren(cachedKey, Array.from(allIds))
   return Array.from(allIds)
+}
+
+export function mapIdeaWithTopics(idea: { ideaTopics: Array<{ topic: IdeaTopic }> }): IdeaTopic[] {
+  return idea.ideaTopics.map(it => it.topic)
+}
+
+export function mapIdeaWithSourceAndTopics(
+  idea: {
+    id: string
+    title: string
+    slug: string
+    source: IdeaSource
+    ideaTopics: Array<{ topic: IdeaTopic }>
+  }
+): { id: string; title: string; slug: string; source: IdeaSource; topics: IdeaTopic[] } {
+  return {
+    id: idea.id,
+    title: idea.title,
+    slug: idea.slug,
+    source: idea.source,
+    topics: mapIdeaWithTopics(idea),
+  }
 }
