@@ -23,9 +23,6 @@ Ce document liste des pistes d'amélioration concrètes pour l'application **Moi
 ### 🧠 Quiz d'Auto-Évaluation par IA (Active Recall)
 *   **Amélioration :** Intégrer un système de mini-quizz de 3 questions (QCM) générés dynamiquement par LLM (via `src/lib/llm.ts`) sur `/sujets`. Ces questions seraient basées sur les dernières idées consultées par l'utilisateur (`ViewedIdea`) ou ses favoris (`Bookmark`) pour renforcer l'ancrage mémoriel.
 
-### 🔊 Synthèse Vocale (Text-To-Speech) des Idées
-*   **Amélioration :** Ajouter un bouton de lecture audio sur chaque `IdeaCard` en utilisant l'API native `Web Speech` du navigateur (`window.speechSynthesis`). Cela permettrait d'écouter les résumés de connaissances en déplacement (format "podcast court" mobile-first) de manière totalement gratuite et fluide en français.
-
 ---
 
 ## 3. Optimisations Techniques & Performance
