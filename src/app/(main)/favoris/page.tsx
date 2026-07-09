@@ -63,7 +63,7 @@ export default async function FavorisPage({
     }),
   ])
 
-  const ideas = bookmarks.map(b => mapIdeaWithSourceAndTopics(b.idea))
+  const ideas = bookmarks.map(b => mapIdeaWithSourceAndTopics(b.idea!))
 
   const totalPages = Math.ceil(total / PAGE_SIZE)
 

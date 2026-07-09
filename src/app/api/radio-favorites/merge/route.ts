@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
 
   await prisma.bookmark.createMany({
     data: metaEntries,
-    skipDuplicates: true,
   })
 
   return NextResponse.json({ success: true, count: favorites.length })

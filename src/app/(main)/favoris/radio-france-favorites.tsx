@@ -6,7 +6,7 @@ import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
 import { toggleRadioFavoriteAction, getRadioFavoritesAction } from '@/actions/radio-bookmark-actions'
 
-interface FavoriteDoc {
+export interface FavoriteDoc {
   id: string
   title: string
   description: string

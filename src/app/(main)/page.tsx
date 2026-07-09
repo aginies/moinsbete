@@ -31,9 +31,9 @@ export default async function HomePage() {
 
   const savedIdeaList = userId
     ? await prisma.bookmark.findMany({
-        where: { userId },
+        where: { userId, type: 'IDEA' },
         select: { ideaId: true },
-      }).then(bookmarks => bookmarks.map(b => b.ideaId))
+      }).then(bookmarks => bookmarks.map(b => b.ideaId!).filter(Boolean))
     : []
 
   const followedTopics = userId

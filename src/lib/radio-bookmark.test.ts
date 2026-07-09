@@ -42,7 +42,7 @@ describe('toggleRadioFavorite', async () => {
     expect(result).toEqual({ bookmarked: true, wasBookmarked: false })
     const { prisma: p } = await import('@/lib/db')
     expect(vi.mocked(p.bookmark.create)).toHaveBeenCalledWith({
-      data: { userId: 'u1', resourceId: 'doc-1', type: 'RADIO_FRANCE', meta: null },
+      data: { userId: 'u1', resourceId: 'doc-1', type: 'RADIO_FRANCE', meta: undefined },
     })
   })
 
