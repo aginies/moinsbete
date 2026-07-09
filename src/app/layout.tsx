@@ -6,10 +6,22 @@ import { BottomNav } from '@/components/layout/bottom-nav'
 import { Toaster } from '@/components/ui/sonner'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
-export const revalidate = 3600
+const revalidate = 3600
 
 const inter = Inter({ subsets: ['latin'] })
+
+let appVersion = 'dev'
+let buildDate = ''
+try {
+  const versionFile = JSON.parse(
+    readFileSync(join(process.cwd(), 'version.json'), 'utf-8')
+  )
+  appVersion = versionFile.version || 'dev'
+  buildDate = versionFile.buildDate ? new Date(versionFile.buildDate).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : ''
+} catch {}
 
 export const metadata: Metadata = {
   title: 'MoinsBête - Apprendre en s\'amusant',
@@ -81,6 +93,8 @@ export default async function RootLayout({
             <Link href="/a-propos" className="hover:underline">À propos</Link>
             {' · '}
             {ideaCount} idées · {factCount} faits · guibo ©
+            {' · '}
+            v{appVersion} · {buildDate}
           </footer>
           <BottomNav />
         </div>
