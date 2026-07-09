@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { Bookmark, X, Search } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
-import { toggleBookmarkAction } from '@/actions/bookmark-actions'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
+import { useBookmarkToggle } from '@/hooks/use-bookmark-toggle'
 import { RadioFranceFavorites } from './radio-france-favorites'
 
 const FAVORITES_KEY = 'rf_favorites'
@@ -54,10 +54,8 @@ type Tab = 'idees' | 'radio-france'
 export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
-  const [isPending, startTransition] = useTransition()
-  const router = useRouter()
-  const [optimisticBookmarks, setOptimisticBookmarks] = useState<Record<string, boolean>>({})
   const [radioFavoritesCount, setRadioFavoritesCount] = useState(getRadioFavoritesCount)
+  const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
@@ -65,54 +63,6 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     return ideas.filter(idea => idea.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(q))
   }, [ideas, searchQuery])
 
-  const savedIdeaIds = useMemo(() => {
-    const set = new Set(ideas.map(i => i.id))
-    for (const [ideaId, isBookmarked] of Object.entries(optimisticBookmarks)) {
-      if (isBookmarked) {
-        set.add(ideaId)
-      } else {
-        set.delete(ideaId)
-      }
-    }
-    return set
-  }, [ideas, optimisticBookmarks])
-
-  const handleBookmark = useCallback(async (ideaId: string) => {
-    if (isPending) return
-
-    const currentlyBookmarked = savedIdeaIds.has(ideaId)
-    const optimisticState = !currentlyBookmarked
-
-    setOptimisticBookmarks(prev => ({ ...prev, [ideaId]: optimisticState }))
-
-    startTransition(async () => {
-      try {
-        const result = await toggleBookmarkAction(ideaId)
-        if (result.error) {
-          console.error('[FAVORIS] Bookmark error:', result.error)
-          setOptimisticBookmarks(prev => {
-            const next = { ...prev }
-            next[ideaId] = currentlyBookmarked
-            return next
-          })
-        } else {
-          setOptimisticBookmarks(prev => {
-            const next = { ...prev }
-            delete next[ideaId]
-            return next
-          })
-          router.refresh()
-        }
-      } catch (err) {
-        console.error('[FAVORIS] Bookmark failed:', err)
-        setOptimisticBookmarks(prev => {
-          const next = { ...prev }
-          next[ideaId] = currentlyBookmarked
-          return next
-        })
-      }
-    })
-  }, [isPending, savedIdeaIds, router])
 
   const pageUrl = (page: number) => {
     if (page === 1) return '/favoris'
