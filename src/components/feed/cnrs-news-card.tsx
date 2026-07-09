@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Newspaper, ExternalLink, RefreshCw, EyeOff } from 'lucide-react'
+import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
+import { toggleCnrsFavoriteAction, isCnrsFavoriteAction } from '@/actions/cnrs-bookmark-actions'
 
 interface CnrsNewsCardProps {
   onToggle?: () => void
+  userId?: string
 }
 
 interface CnrsArticle {
@@ -51,10 +53,22 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
   }
 }
 
-export function CnrsNewsCard({ onToggle }: CnrsNewsCardProps) {
+export function CnrsNewsCard({ onToggle, userId }: CnrsNewsCardProps) {
   const [article, setArticle] = useState<CnrsArticle | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const FAVORITES_KEY = 'cnrs_favorites'
+
+  const getFavorites = useCallback(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const stored = localStorage.getItem(FAVORITES_KEY)
+      return stored ? JSON.parse(stored) : []
+    } catch {
+      return []
+    }
+  }, [FAVORITES_KEY])
 
   const loadArticle = useCallback(async () => {
     setLoading(true)
@@ -73,7 +87,60 @@ export function CnrsNewsCard({ onToggle }: CnrsNewsCardProps) {
     loadArticle()
   }, [loadArticle])
 
+  useEffect(() => {
+    if (userId && article) {
+      isCnrsFavoriteAction(article.link).then(result => {
+        if (result.isFavorite) {
+          setIsFavorite(true)
+        }
+      }).catch(() => {})
+    } else if (!userId && article) {
+      const favorites = getFavorites()
+      if (favorites.some((f: { link: string }) => f.link === article.link)) {
+        setIsFavorite(true)
+      }
+    }
+  }, [userId, article, getFavorites])
+
   const categoryStyle = article ? CATEGORY_COLORS[article.category] || { border: 'border-gray-400', bg: 'bg-gray-100', text: 'text-gray-800', darkBorder: 'dark:border-gray-700', darkBg: 'dark:bg-gray-900/40', darkText: 'dark:text-gray-300' } : null
+
+  const handleBookmark = useCallback(async () => {
+    if (!article) return
+    const newFavorite = !isFavorite
+
+    if (userId) {
+      try {
+        await toggleCnrsFavoriteAction(article.link, newFavorite ? 'add' : 'remove', {
+          title: article.title,
+          category: article.category,
+          imageUrl: article.imageUrl,
+          link: article.link,
+          date: article.date,
+        })
+        setIsFavorite(newFavorite)
+      } catch {
+        setIsFavorite(prev => !prev)
+      }
+    } else {
+      const favorites = getFavorites()
+      const exists = favorites.some((f: { link: string }) => f.link === article.link)
+      if (newFavorite && !exists) {
+        const newFav = {
+          id: article.link,
+          title: article.title,
+          category: article.category,
+          imageUrl: article.imageUrl,
+          link: article.link,
+          date: article.date,
+          favoritedAt: new Date().toISOString(),
+        }
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites, newFav]))
+      } else if (!newFavorite && exists) {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites.filter((f: { link: string }) => f.link !== article.link)))
+      }
+      setIsFavorite(newFavorite)
+    }
+  }, [article, isFavorite, userId, getFavorites, FAVORITES_KEY])
 
   const shareOptions = article ? {
     title: article.title,
@@ -110,6 +177,18 @@ export function CnrsNewsCard({ onToggle }: CnrsNewsCardProps) {
             </button>
           )}
           <RefreshCw className={`h-4 w-4 text-green-600 dark:text-green-400 ${loading ? 'animate-spin' : ''}`} />
+             {article && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleBookmark()
+              }}
+              className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 transition-colors"
+              title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+            >
+              <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+            </button>
+          )}
           {shareOptions && (
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           )}

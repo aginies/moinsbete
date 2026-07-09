@@ -238,4 +238,5 @@ enum SuggestionStatus {
 enum BookmarkType {
   IDEA
   RADIO_FRANCE
+  CNRS_NEWS
 }
