@@ -2,12 +2,14 @@
 
 import React from 'react'
 import { useState, useCallback, useMemo, useEffect } from 'react'
-import { Lightbulb, ExternalLink, RefreshCw, ImageIcon, X, EyeOff, Eye } from 'lucide-react'
+import { Lightbulb, ExternalLink, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl as isValidUrlUtil, sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
-import { ShareButton } from './share-button'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
+import { ImageLightbox } from './image-lightbox'
+import { ImageHint } from './image-hint'
+import { CardHeader } from './card-header'
 
 interface SaviezVousCardProps {
   id: string
@@ -155,47 +157,20 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
       onClick={swipeable ? undefined : handleClick}
       className="rounded-xl border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-cyan-950/30 cursor-pointer hover:shadow-md transition-shadow"
     >
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-400 dark:bg-blue-600">
-            <Lightbulb className="h-4 w-4 text-blue-950" />
-          </div>
-          {showLink ? (
-            <Link href="/le-saviez-vous" className="text-sm font-bold uppercase tracking-wide text-blue-800 hover:underline dark:text-blue-300">
-              Le saviez-vous ?
-            </Link>
-          ) : (
-            <h3 className="text-sm font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">
-              Le saviez-vous ?
-            </h3>
-          )}
-        </div>
-        <div className="flex items-center gap-6">
-          {showToggle && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                handleToggle()
-              }}
-              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
-              title="Masquer la carte"
-            >
-              <EyeOff className="h-4 w-4" />
-            </button>
-          )}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              handleClick()
-            }}
-            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors cursor-pointer"
-            title="Rafraîchir"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-          <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
-        </div>
-      </div>
+      <CardHeader
+        icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
+        iconBgColor="bg-blue-400"
+        iconDarkColor="dark:bg-blue-600"
+        title="Le saviez-vous ?"
+        titleColor="text-blue-800"
+        titleDarkColor="dark:text-blue-300"
+        linkHref={showLink ? '/le-saviez-vous' : undefined}
+        showToggle={showToggle}
+        onToggle={handleToggle}
+        onRefresh={handleClick}
+        loading={loading}
+        shareOptions={{ onClick: share, copied, shareUrl }}
+      />
 
       {hasImage && (
         <div
@@ -212,10 +187,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
             className={`w-full ${imageHeight} object-contain transition-opacity hover:opacity-90 pointer-events-none bg-neutral-100 dark:bg-neutral-800`}
             onError={() => setImageError(true)}
           />
-          <div className="flex items-center justify-center gap-1 bg-blue-100/80 px-3 py-1.5 dark:bg-blue-900/40">
-            <ImageIcon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-            <span className="text-xs text-blue-700 dark:text-blue-300">Cliquez pour agrandir</span>
-          </div>
+          <ImageHint color="blue" />
         </div>
       )}
 
@@ -314,24 +286,11 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
       )}
 
       {showFullImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-          onClick={() => setShowFullImage(false)}
-        >
-          <div className="relative max-h-[90vh] max-w-[90vw] p-4">
-            <button
-              onClick={() => setShowFullImage(false)}
-              className="absolute -top-3 -right-3 z-10 rounded-full bg-white/20 p-1.5 text-white backdrop-blur-sm hover:bg-white/30 transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <img
-              src={cachedImageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
-              alt="Illustration"
-              className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl"
-            />
-          </div>
-        </div>
+        <ImageLightbox
+          src={cachedImageUrl || ''}
+          alt="Illustration"
+          onClose={() => setShowFullImage(false)}
+        />
       )}
     </>
   )
