@@ -12,18 +12,7 @@ import { useBookmarkToggle } from '@/hooks/use-bookmark-toggle'
 import { RadioFranceFavorites } from './radio-france-favorites'
 import { type CompactIdea } from '@/types/idea'
 import { normalizeAccents } from '@/lib/utils'
-
-const FAVORITES_KEY = 'rf_favorites'
-
-function getRadioFavoritesCount(): number {
-  if (typeof window === 'undefined') return 0
-  try {
-    const stored = localStorage.getItem(FAVORITES_KEY)
-    return stored ? JSON.parse(stored).length : 0
-  } catch {
-    return 0
-  }
-}
+import { getRadioFavoritesCount } from '@/lib/radio-bookmark'
 
 interface FavorisPageClientProps {
   ideas: CompactIdea[]
@@ -31,14 +20,14 @@ interface FavorisPageClientProps {
   currentPage: number
   totalPages: number
   total: number
+  radioFavoritesCount: number
 }
 
 type Tab = 'idees' | 'radio-france'
 
-export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total }: FavorisPageClientProps) {
+export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
-  const [radioFavoritesCount, setRadioFavoritesCount] = useState(getRadioFavoritesCount)
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
 
   const filteredIdeas = useMemo(() => {
@@ -166,7 +155,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         </>
       )}
 
-      {activeTab === 'radio-france' && <RadioFranceFavorites />}
+      {activeTab === 'radio-france' && <RadioFranceFavorites userId={userId} />}
     </div>
   )
 }

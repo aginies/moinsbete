@@ -36,9 +36,9 @@ export default async function FavorisPage({
   const currentPage = Math.max(1, parseInt((await searchParams).page || '1', 10))
   const skip = (currentPage - 1) * PAGE_SIZE
 
-  const [bookmarks, total] = await Promise.all([
+  const [bookmarks, total, radioFavoritesCount] = await Promise.all([
     prisma.bookmark.findMany({
-      where: { userId: session.user.id },
+      where: { userId: session.user.id, type: 'IDEA' },
       include: {
         idea: {
           include: {
@@ -56,7 +56,10 @@ export default async function FavorisPage({
       take: PAGE_SIZE,
     }),
     prisma.bookmark.count({
-      where: { userId: session.user.id },
+      where: { userId: session.user.id, type: 'IDEA' },
+    }),
+    prisma.bookmark.count({
+      where: { userId: session.user.id, type: 'RADIO_FRANCE' },
     }),
   ])
 
@@ -85,6 +88,7 @@ export default async function FavorisPage({
         currentPage={currentPage}
         totalPages={totalPages}
         total={total}
+        radioFavoritesCount={radioFavoritesCount}
       />
     </div>
   )

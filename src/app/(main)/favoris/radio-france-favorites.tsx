@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
+import { toggleRadioFavoriteAction, getRadioFavoritesAction } from '@/actions/radio-bookmark-actions'
 
 interface FavoriteDoc {
   id: string
@@ -34,13 +35,65 @@ function removeFavorite(docId: string): FavoriteDoc[] {
   return favorites
 }
 
-export function RadioFranceFavorites() {
-  const [favorites, setFavorites] = useState<FavoriteDoc[]>(getFavorites)
+interface RadioFranceFavoritesProps {
+  userId?: string
+}
 
-  const handleRemove = useCallback((docId: string) => {
-    const updated = removeFavorite(docId)
-    setFavorites(updated)
-  }, [])
+export function RadioFranceFavorites({ userId }: RadioFranceFavoritesProps) {
+  const [favorites, setFavorites] = useState<FavoriteDoc[]>([])
+  const [loading, setLoading] = useState(true)
+  const [hasMigrated, setHasMigrated] = useState(false)
+
+  useEffect(() => {
+    async function loadFavorites() {
+      if (userId) {
+        try {
+          const result = await getRadioFavoritesAction()
+          setFavorites(result.favorites || [])
+        } catch {
+          setFavorites(getFavorites())
+        }
+      } else {
+        setFavorites(getFavorites())
+      }
+      setLoading(false)
+    }
+    loadFavorites()
+  }, [userId])
+
+  useEffect(() => {
+    if (userId && !hasMigrated && favorites.length === 0 && loading === false) {
+      const localStorageFavorites = getFavorites()
+      if (localStorageFavorites.length > 0) {
+        fetch('/api/radio-favorites/merge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(localStorageFavorites),
+        }).then(() => {
+          localStorage.removeItem(FAVORITES_KEY)
+          setHasMigrated(true)
+          setFavorites(localStorageFavorites)
+        }).catch(() => {
+          setFavorites(localStorageFavorites)
+        })
+      }
+    }
+  }, [userId, hasMigrated, loading, favorites.length])
+
+  const handleRemove = useCallback(async (docId: string) => {
+    if (userId) {
+      try {
+        await toggleRadioFavoriteAction(docId, 'remove')
+        setFavorites(prev => prev.filter(f => f.id !== docId))
+      } catch {
+        const updated = removeFavorite(docId)
+        setFavorites(updated)
+      }
+    } else {
+      const updated = removeFavorite(docId)
+      setFavorites(updated)
+    }
+  }, [userId])
 
   if (favorites.length === 0) return null
 
@@ -53,7 +106,7 @@ export function RadioFranceFavorites() {
             className="group relative rounded-xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50 p-4 dark:border-purple-800 dark:from-purple-950/20 dark:to-violet-950/20 hover:shadow-md transition-shadow"
           >
             <div className="flex items-start justify-between gap-4">
-           <div className="flex-1">
+            <div className="flex-1">
               {doc.image && (
                 <div className="mb-2 overflow-hidden rounded-lg border border-purple-200 dark:border-purple-800">
                   <img
@@ -87,7 +140,7 @@ export function RadioFranceFavorites() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-purple-700 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-200 hover:underline"
                 >
-                  Écouter sur Radio France
+                  Ecouter sur Radio France
                   <ExternalLink className="h-3 w-3" />
                 </Link>
               </div>
