@@ -6,7 +6,7 @@ export default function AproposPage() {
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
       <Link
         href="/"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="mb-6 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:inline-flex"
       >
         <ArrowLeft className="h-4 w-4" />
         Accueil
@@ -219,8 +219,8 @@ export default function AproposPage() {
 
       <div className="mt-12 pt-6 border-t text-center text-sm text-muted-foreground">
         <Link href="/confidentialite" className="hover:underline">Politique de confidentialité</Link>
-        {' · '}
-        <Link href="/" className="hover:underline">← Retour à l&apos;accueil</Link>
+        <span className="hidden md:inline">{' · '}</span>
+        <Link href="/" className="hidden md:inline hover:underline">← Retour à l&apos;accueil</Link>
       </div>
     </div>
   )
