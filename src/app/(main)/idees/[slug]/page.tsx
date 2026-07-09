@@ -199,7 +199,7 @@ export default async function IdeaDetailPage({
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Idée introuvable</h1>
-          <Link href="/" className="mt-4 text-primary hover:underline">
+          <Link href="/" className="mt-4 hidden text-primary hover:underline md:inline-block">
             ← Retour à l&apos;accueil
           </Link>
         </div>
