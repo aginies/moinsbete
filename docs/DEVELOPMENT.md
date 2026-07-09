@@ -11,7 +11,7 @@
 /ma-bibliotheque           → Bookmarks utilisateur (auth requis)
 /favoris                   → Favoris / bookmarks (auth requis)
 /mon-plan                  → Plan d'apprentissage (auth requis)
-/ma-histoire               → Historique de consultation (auth requis)
+/mon-historique            → Historique de consultation (auth requis)
 /mon-compte                → Profil utilisateur (auth requis)
 /a-propos                  → Page d'information
 /login                     → Connexion

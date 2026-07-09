@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/sujets', label: 'Accueil', icon: Home },
-  { href: '/ma-histoire', label: 'Historique', icon: Clock },
+  { href: '/mon-historique', label: 'Historique', icon: Clock },
 ]
 
 export function BottomNav() {

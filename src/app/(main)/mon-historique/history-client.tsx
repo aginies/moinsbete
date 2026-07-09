@@ -66,7 +66,7 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
     } else {
       params.delete('page')
     }
-    router.push(`/ma-histoire?${params.toString()}`)
+    router.push(`/mon-historique?${params.toString()}`)
   }, [router, searchParams])
 
   const handleClearHistory = useCallback(async () => {
@@ -186,7 +186,7 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, u
                 } else {
                   params.delete('page')
                 }
-                return `/ma-histoire?${params.toString()}`
+                return `/mon-historique?${params.toString()}`
               }}
             />
           )}
