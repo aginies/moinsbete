@@ -1,11 +1,10 @@
 import Link from 'next/link'
-import { BookOpen, Search, Menu, LogOut, User, Clock, Bookmark } from 'lucide-react'
+import { BookOpen, Menu, LogOut, User, Clock, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
 import { getSession } from '@/lib/auth'
 import { logoutAction } from '@/actions/auth-actions'
-import { SearchOverlay } from '@/components/search/search-overlay'
-import { useState, useCallback } from 'react'
+import { SearchButton } from './search-button'
 
 export async function Navbar() {
   const session = await getSession()
@@ -14,10 +13,6 @@ export async function Navbar() {
 }
 
 function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSession>> }) {
-  const [showSearch, setShowSearch] = useState(false)
-  const toggleSearch = useCallback(() => setShowSearch(prev => !prev), [])
-  const closeSearch = useCallback(() => setShowSearch(false), [])
-
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -30,16 +25,7 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
           </div>
 
           <div className="flex items-center gap-2">
-            {session?.user && (
-              <button
-                type="button"
-                onClick={toggleSearch}
-                className="p-2 hover:bg-muted rounded-lg transition-colors"
-                aria-label="Rechercher"
-              >
-                <Search className="h-5 w-5 text-muted-foreground" />
-              </button>
-            )}
+            {session?.user && <SearchButton />}
             {session?.user ? (
               <>
                 <Link href="/favoris">
@@ -85,9 +71,6 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
           </div>
         </div>
       </nav>
-      {session?.user && (
-        <SearchOverlay isOpen={showSearch} onClose={closeSearch} />
-      )}
     </>
   )
 }
