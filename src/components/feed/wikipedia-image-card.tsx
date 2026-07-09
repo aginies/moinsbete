@@ -27,7 +27,7 @@ async function fetchRandomImage(): Promise<ImageData | null> {
 
 export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, showLink = true }: { fullImage?: boolean; showLink?: boolean }) {
   const [image, setImage] = useState<ImageData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
