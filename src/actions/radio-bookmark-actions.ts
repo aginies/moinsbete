@@ -2,15 +2,15 @@
 
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { toggleRadioFavorite, getRadioFavorites, isRadioFavorite } from '@/lib/radio-bookmark'
+import { toggleRadioFavorite, getRadioFavorites, isRadioFavorite, type RadioFavoriteMeta } from '@/lib/radio-bookmark'
 
-export async function toggleRadioFavoriteAction(docId: string, action?: 'add' | 'remove') {
+export async function toggleRadioFavoriteAction(docId: string, action?: 'add' | 'remove', meta?: RadioFavoriteMeta) {
   const session = await getServerSession(authOptions)
   if (!session?.user) {
     return { error: 'Non authentifié' }
   }
 
-  const result = await toggleRadioFavorite(session.user.id, docId, action)
+  const result = await toggleRadioFavorite(session.user.id, docId, action, meta)
   return result
 }
 

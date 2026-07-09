@@ -104,7 +104,15 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
 
     if (userId) {
       try {
-        await toggleRadioFavoriteAction(doc.id, newFavorite ? 'add' : 'remove')
+        await toggleRadioFavoriteAction(doc.id, newFavorite ? 'add' : 'remove', {
+          title: doc.title,
+          description: doc.description,
+          url: doc.url,
+          radio: doc.radio,
+          section: doc.section,
+          image: doc.image,
+          favoritedAt: newFavorite ? new Date().toISOString() : undefined,
+        })
         setIsFavorite(newFavorite)
       } catch {
         setIsFavorite(prev => !prev)
