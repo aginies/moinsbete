@@ -14,6 +14,7 @@ interface SaviezVousCardProps {
   sourceUrl?: string | null
   imageFilename?: string | null
   showLink?: boolean
+  imageHeight?: string
 }
 
 async function fetchRandomFact() {
@@ -27,7 +28,7 @@ async function fetchRandomFact() {
   return null
 }
 
-export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text, sourceUrl, imageFilename, showLink = true }: SaviezVousCardProps) {
+export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text, sourceUrl, imageFilename, showLink = true, imageHeight = 'h-48' }: SaviezVousCardProps) {
   const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
@@ -138,7 +139,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
             <img
               src={cachedImageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt="Illustration"
-              className="w-full h-48 object-contain transition-opacity hover:opacity-90 pointer-events-none bg-neutral-100 dark:bg-neutral-800"
+              className={`w-full ${imageHeight} object-contain transition-opacity hover:opacity-90 pointer-events-none bg-neutral-100 dark:bg-neutral-800`}
               onError={() => setImageError(true)}
             />
             <div className="flex items-center justify-center gap-1 bg-blue-100/80 px-3 py-1.5 dark:bg-blue-900/40">
