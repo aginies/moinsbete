@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
-import { getRadioFavoritesAction, toggleRadioFavoriteAction } from '@/actions/radio-bookmark-actions'
-import { FavoritesList, type FavoriteItemBase } from '@/components/feed/favorites-list'
+import { getRadioFavoritesAction } from '@/actions/radio-bookmark-actions'
+import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 
-export interface FavoriteDoc extends FavoriteItemBase {
+export interface FavoriteDoc {
   id: string
   title: string
   description: string
@@ -15,65 +14,16 @@ export interface FavoriteDoc extends FavoriteItemBase {
   radio: string
   section: string
   image?: string
+  favoritedAt: string
 }
 
 const FAVORITES_KEY = 'rf_favorites'
-
-function getFavorites(): FavoriteDoc[] {
-  if (typeof window === 'undefined') return []
-  try {
-    const stored = localStorage.getItem(FAVORITES_KEY)
-    return stored ? JSON.parse(stored) : []
-  } catch {
-    return []
-  }
-}
 
 interface RadioFranceFavoritesProps {
   userId?: string
 }
 
 export function RadioFranceFavorites({ userId }: RadioFranceFavoritesProps) {
-  const [favorites, setFavorites] = useState<FavoriteDoc[]>([])
-  const [loading, setLoading] = useState(true)
-  const [hasMigrated, setHasMigrated] = useState(false)
-
-  useEffect(() => {
-    async function loadFavorites() {
-      if (userId) {
-        try {
-          const result = await getRadioFavoritesAction()
-          setFavorites(result.favorites as FavoriteDoc[])
-        } catch {
-          setFavorites(getFavorites())
-        }
-      } else {
-        setFavorites(getFavorites())
-      }
-      setLoading(false)
-    }
-    loadFavorites()
-  }, [userId])
-
-  useEffect(() => {
-    if (userId && !hasMigrated && favorites.length === 0 && loading === false) {
-      const localStorageFavorites = getFavorites()
-      if (localStorageFavorites.length > 0) {
-        fetch('/api/radio-favorites/merge', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(localStorageFavorites),
-        }).then(() => {
-          localStorage.removeItem(FAVORITES_KEY)
-          setHasMigrated(true)
-          setFavorites(localStorageFavorites)
-        }).catch(() => {
-          setFavorites(localStorageFavorites)
-        })
-      }
-    }
-  }, [userId, hasMigrated, loading, favorites.length])
-
   const handleRemove = async (item: FavoriteDoc) => {
     if (userId) {
       try {
@@ -83,26 +33,22 @@ export function RadioFranceFavorites({ userId }: RadioFranceFavoritesProps) {
         // localStorage fallback handled by re-render
       }
     }
-    setFavorites(prev => prev.filter(f => f.id !== item.id))
   }
 
   return (
-    <FavoritesList<FavoriteDoc>
-      favorites={favorites}
-      loading={loading}
-      emptyTitle="Aucun favori Radio France"
-      emptyDescription="Favorise des documentaires depuis la page d&apos;accueil pour les voir ici."
-      storageKey={FAVORITES_KEY}
-      userId={userId}
-      removeFavorite={handleRemove}
-      borderColor="border-purple-200"
-      bgGradient="bg-gradient-to-br from-purple-50 to-violet-50"
-      darkBorderColor="dark:border-purple-800"
-      darkBgGradient="dark:from-purple-950/20 dark:to-violet-950/20"
-      textColor="text-purple-900"
-      darkTextColor="dark:text-purple-100"
-      buttonColor="text-purple-600"
-      buttonHoverBg="hover:bg-purple-100"
+    <PaginatedFavoritesList
+      fetchFn={async () => {
+        if (userId) {
+          const result = await getRadioFavoritesAction()
+          return result.favorites as FavoriteDoc[]
+        }
+        try {
+          const stored = localStorage.getItem(FAVORITES_KEY)
+          return stored ? JSON.parse(stored) : []
+        } catch {
+          return []
+        }
+      }}
       renderItem={(item, onRemove) => (
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -152,6 +98,19 @@ export function RadioFranceFavorites({ userId }: RadioFranceFavoritesProps) {
           </button>
         </div>
       )}
+      emptyTitle="Aucun favori Radio France"
+      emptyDescription="Favorise des documentaires depuis la page d&apos;accueil pour les voir ici."
+      storageKey={FAVORITES_KEY}
+      userId={userId}
+      removeFavorite={handleRemove}
+      borderColor="border-purple-200"
+      bgGradient="bg-gradient-to-br from-purple-50 to-violet-50"
+      darkBorderColor="dark:border-purple-800"
+      darkBgGradient="dark:from-purple-950/20 dark:to-violet-950/20"
+      textColor="text-purple-900"
+      darkTextColor="dark:text-purple-100"
+      buttonColor="text-purple-600"
+      buttonHoverBg="hover:bg-purple-100"
     />
   )
 }

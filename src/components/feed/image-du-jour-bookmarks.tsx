@@ -1,23 +1,23 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
-import { getImageDuJourFavoritesAction, toggleImageDuJourFavoriteAction } from '@/actions/image-du-jour-bookmark-actions'
-import { FavoritesList, type FavoriteItemBase } from '@/components/feed/favorites-list'
-import { getStoredFavorites, removeStoredFavorite } from '@/lib/favorite-storage'
-import { useShare } from './use-share'
-import { ShareButton } from './share-button'
+import { getImageDuJourFavoritesAction } from '@/actions/image-du-jour-bookmark-actions'
+import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
+import { useShare } from './use-share'
+import { ShareButton } from './share-button'
 
-export interface ImageDuJourFavoriteDoc extends FavoriteItemBase {
+export interface ImageDuJourFavoriteDoc {
   id: string
   imageUrl: string
   description: string
   fileUrl: string
   date: string
+  favoritedAt: string
 }
 
 const IMAGE_DU_JOUR_FAVORITES_KEY = 'image_du_jour_favorites'
@@ -27,28 +27,9 @@ interface ImageDuJourBookmarksProps {
 }
 
 export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
-  const [favorites, setFavorites] = useState<ImageDuJourFavoriteDoc[]>([])
-  const [loading, setLoading] = useState(true)
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function loadFavorites() {
-      if (userId) {
-        try {
-          const result = await getImageDuJourFavoritesAction()
-          setFavorites(result.favorites as ImageDuJourFavoriteDoc[])
-        } catch {
-          setFavorites(getStoredFavorites(IMAGE_DU_JOUR_FAVORITES_KEY))
-        }
-      } else {
-        setFavorites(getStoredFavorites(IMAGE_DU_JOUR_FAVORITES_KEY))
-      }
-      setLoading(false)
-    }
-    loadFavorites()
-  }, [userId])
-
-  const handleRemove = useCallback(async (item: ImageDuJourFavoriteDoc) => {
+  const handleRemove = async (item: ImageDuJourFavoriteDoc) => {
     if (userId) {
       try {
         const { toggleFavoriteAction } = await import('@/actions/favorite-actions')
@@ -57,27 +38,23 @@ export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
         // localStorage fallback
       }
     }
-    setFavorites(prev => removeStoredFavorite(IMAGE_DU_JOUR_FAVORITES_KEY, (f: ImageDuJourFavoriteDoc) => f.fileUrl === item.fileUrl))
-  }, [userId])
+  }
 
- return (
+  return (
     <>
-      <FavoritesList<ImageDuJourFavoriteDoc>
-        favorites={favorites}
-        loading={loading}
-        emptyTitle="Aucune image favoris"
-        emptyDescription="Cliquez sur le bookmark d&apos;une image du jour pour la sauvegarder ici."
-        storageKey={IMAGE_DU_JOUR_FAVORITES_KEY}
-        userId={userId}
-        removeFavorite={handleRemove}
-        borderColor="border-teal-200"
-        bgGradient="bg-gradient-to-br from-teal-50 to-emerald-50"
-        darkBorderColor="dark:border-teal-800"
-        darkBgGradient="dark:from-teal-950/20 dark:to-emerald-950/20"
-        textColor="text-teal-900"
-        darkTextColor="dark:text-teal-100"
-        buttonColor="text-teal-600"
-        buttonHoverBg="hover:bg-teal-100"
+      <PaginatedFavoritesList
+        fetchFn={async () => {
+          if (userId) {
+            const result = await getImageDuJourFavoritesAction()
+            return result.favorites as ImageDuJourFavoriteDoc[]
+          }
+          try {
+            const stored = localStorage.getItem(IMAGE_DU_JOUR_FAVORITES_KEY)
+            return stored ? JSON.parse(stored) : []
+          } catch {
+            return []
+          }
+        }}
         renderItem={(item, onRemove) => {
           const shareOptions = item.fileUrl ? {
             title: `Image du jour - ${item.description}`,
@@ -120,7 +97,7 @@ export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
                   </Link>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-2">
                 {shareOptions && (
                   <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
                 )}
@@ -135,6 +112,19 @@ export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
             </div>
           )
         }}
+        emptyTitle="Aucune image favoris"
+        emptyDescription="Cliquez sur le bookmark d&apos;une image du jour pour la sauvegarder ici."
+        storageKey={IMAGE_DU_JOUR_FAVORITES_KEY}
+        userId={userId}
+        removeFavorite={handleRemove}
+        borderColor="border-teal-200"
+        bgGradient="bg-gradient-to-br from-teal-50 to-emerald-50"
+        darkBorderColor="dark:border-teal-800"
+        darkBgGradient="dark:from-teal-950/20 dark:to-emerald-950/20"
+        textColor="text-teal-900"
+        darkTextColor="dark:text-teal-100"
+        buttonColor="text-teal-600"
+        buttonHoverBg="hover:bg-teal-100"
       />
       {showFullImage && (
         <ImageLightbox
