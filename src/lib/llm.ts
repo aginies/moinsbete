@@ -209,6 +209,39 @@ export function tryExtractArray(text: string): Array<{ title: string; content: s
   return null
 }
 
+export async function renameTitle(
+  title: string,
+  content: string,
+  takeaway: string
+): Promise<string | null> {
+  const systemPrompt = `Tu es un expert en titrage pédagogique. Tu transformes des titres génériques en titres descriptifs et précis.`
+
+  try {
+    const response = await llm.chat.completions.create({
+      model: process.env.LLM_MODEL!,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Transforme ce titre générique en un titre descriptif et précis.\n\nTitre actuel: ${title}\n\nContenu:\n${content.substring(0, 1000)}\n\nTakeaway: ${takeaway}\n\nRetourne uniquement: TITRE: [ton nouveau titre]` },
+      ],
+      temperature: 0.3,
+      max_tokens: 200,
+    })
+
+    const choice = response.choices?.[0]
+    if (!choice) {
+      console.error('LLM returned no choices')
+      return null
+    }
+    
+    const rawContent = choice.message?.content || ''
+    const match = rawContent.match(/TITRE:\s*(.+)/i)
+    return match ? match[1].trim() : null
+  } catch (error) {
+    console.error('LLM rename error:', error)
+    return null
+  }
+}
+
 export async function expandIdeas(
   title: string,
   content: string,
