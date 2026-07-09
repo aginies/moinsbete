@@ -128,6 +128,7 @@ model Bookmark {
   id        String            @id @default(cuid())
   userId    String
   ideaId    String?
+  resourceId String?
   type      BookmarkType      @default(IDEA)
   meta      Json?
   createdAt DateTime          @default(now())
@@ -135,6 +136,7 @@ model Bookmark {
   user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, ideaId])
+  @@unique([userId, resourceId])
 }
 
 model GrowthPlan {

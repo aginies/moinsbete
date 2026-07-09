@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   // Insert new favorites
   const metaEntries = favorites.map((fav) => ({
     userId: session.user.id,
-    ideaId: fav.id,
+    resourceId: fav.id,
     type: 'RADIO_FRANCE' as const,
     meta: {
       title: fav.title,
