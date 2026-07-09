@@ -73,15 +73,6 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
       })
     }
   }, [doc, show])
-    if (!doc && show) {
-      fetchRandomDoc().then(d => {
-        if (d) {
-          setDoc(d)
-        }
-        setLoading(false)
-      })
-    }
-  }, [doc, show])
 
   useEffect(() => {
     if (!doc && prevShowRef.current && !show) {
