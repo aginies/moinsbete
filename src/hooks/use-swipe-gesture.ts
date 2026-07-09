@@ -4,6 +4,7 @@ import { useGesture } from '@use-gesture/react'
 interface UseSwipeGestureOptions {
   onSwipeLeft?: () => void
   onSwipeRight?: () => void
+  onDragStart?: () => void
   swipeable?: boolean
   triggerDistance?: number
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -13,6 +14,7 @@ interface UseSwipeGestureOptions {
 export function useSwipeGesture({
   onSwipeLeft,
   onSwipeRight,
+  onDragStart,
   swipeable = true,
   triggerDistance = 100,
   resetDep,
@@ -28,6 +30,9 @@ export function useSwipeGesture({
       onDragStart: () => {
         if (!swipeable) return
         setIsDragging(true)
+        if (onDragStart) {
+          onDragStart()
+        }
         const el = containerRef.current
         if (el) {
           el.style.userSelect = 'none'
