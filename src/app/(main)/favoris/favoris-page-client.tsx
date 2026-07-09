@@ -52,10 +52,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   return (
     <div>
-      <div className="flex gap-2 mb-6 border-b border-border">
+      <div className="flex gap-1 md:gap-2 mb-4 md:mb-6 border-b border-border overflow-x-auto">
         <button
           onClick={() => setActiveTab('idees')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'idees'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -64,28 +64,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           Idées favoris ({total})
         </button>
         <button
-          onClick={() => setActiveTab('radio-france')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'radio-france'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Documentaires Radio France ({radioFavoritesCount})
-        </button>
-        <button
-          onClick={() => setActiveTab('cnrs-news')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'cnrs-news'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Actualites CNRS ({cnrsFavoritesCount})
-        </button>
-        <button
           onClick={() => setActiveTab('image-du-jour')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'image-du-jour'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -95,13 +75,33 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         </button>
         <button
           onClick={() => setActiveTab('saviez-vous')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'saviez-vous'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           Le saviez-vous ? ({saviezVousFavoritesCount})
+        </button>
+        <button
+          onClick={() => setActiveTab('radio-france')}
+          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'radio-france'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Documentaires Radio France ({radioFavoritesCount})
+        </button>
+        <button
+          onClick={() => setActiveTab('cnrs-news')}
+          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'cnrs-news'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Actualites CNRS ({cnrsFavoritesCount})
         </button>
       </div>
 
