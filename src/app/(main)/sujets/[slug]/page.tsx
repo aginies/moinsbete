@@ -39,7 +39,7 @@ export default async function SujetDetailPage({
   const ideasRes = await fetch(
     `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/feed?topic=${slug}&page=1&limit=10${userId ? `&userId=${userId}` : ''}`,
   )
-  const { ideas, hasMore, total } = await ideasRes.json()
+  const { ideas, hasMore } = await ideasRes.json()
 
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
@@ -55,9 +55,6 @@ export default async function SujetDetailPage({
         <span className="text-3xl">{topic.icon}</span>
         <div>
           <h1 className="text-2xl font-heading font-bold text-foreground">{topic.name}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {ideas.length}/{total} idées
-          </p>
         </div>
       </div>
 
