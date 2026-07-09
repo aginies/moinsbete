@@ -74,11 +74,12 @@ export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
       buttonColor="text-blue-600"
       buttonHoverBg="hover:bg-blue-100"
       renderItem={(item, onRemove) => {
-        const shareOptions = item.sourceUrl ? {
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'
+       const shareOptions = {
           title: 'Le saviez-vous ?',
           text: item.text,
-          url: item.sourceUrl,
-        } : null
+          url: `${baseUrl}/saviez-vous/${item.id}`,
+        }
         const { share, copied, shareUrl } = useShare(shareOptions)
         return (
           <div className="flex items-start justify-between gap-4">
