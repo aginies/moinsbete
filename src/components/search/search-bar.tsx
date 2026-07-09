@@ -15,16 +15,22 @@ interface SearchResult {
 
 import React from 'react'
 
-export const SearchBar = React.memo(function SearchBar() {
+interface SearchBarProps {
+  onClose?: () => void
+}
+
+export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [searching, setSearching] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
 
-  const closeSearch = useCallback(() => {
+  const closeResults = useCallback(() => {
+    setQuery('')
     setIsOpen(false)
-  }, [])
+    onClose?.()
+  }, [onClose])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -79,7 +85,7 @@ export const SearchBar = React.memo(function SearchBar() {
             variant="ghost"
             size="sm"
             className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0"
-            onClick={() => { setQuery(''); setIsOpen(false) }}
+            onClick={closeResults}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -97,7 +103,7 @@ export const SearchBar = React.memo(function SearchBar() {
                     key={topic.id}
                     href={`/sujets/${topic.slug}`}
                     className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                    onClick={() => { setQuery(''); setIsOpen(false) }}
+                    onClick={closeResults}
                   >
                     <span>{topic.icon}</span>
                     <span>{topic.name}</span>
@@ -116,7 +122,7 @@ export const SearchBar = React.memo(function SearchBar() {
                     key={idea.id}
                     href={`/idees/${idea.slug}`}
                     className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                    onClick={() => { setQuery(''); setIsOpen(false) }}
+                    onClick={closeResults}
                   >
                     <span className="font-medium">{idea.title}</span>
                     {idea.topics.length > 0 && (
@@ -137,7 +143,7 @@ export const SearchBar = React.memo(function SearchBar() {
                 {results.facts.slice(0, 10).map((fact) => (
                   <Link
                     key={fact.id}
-                    href="/le-saviez-vous"
+                    href={`/le-saviez-vous?factId=${fact.id}`}
                     className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
                     onClick={() => { setQuery(''); setIsOpen(false) }}
                   >
@@ -157,7 +163,7 @@ export const SearchBar = React.memo(function SearchBar() {
                     key={source.id}
                     href={`/sources/${source.slug}`}
                     className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                    onClick={() => { setQuery(''); setIsOpen(false) }}
+                    onClick={closeResults}
                   >
                     <span>{source.title}</span>
                   </Link>
