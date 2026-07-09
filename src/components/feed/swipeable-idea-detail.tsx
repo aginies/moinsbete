@@ -156,7 +156,7 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
         filterTaps: true,
       }
     }
-  , [idea.id, prev, next, topic, collection, router])
+  )
 
   useEffect(() => {
     setBookmarked(initialBookmarked || false)
@@ -205,7 +205,7 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
         </Link>
       </div>
 
-      <div className="relative touch-pan-y" ref={containerRef} {...bind()}>
+      <div key={idea.id} className="relative touch-pan-y" ref={containerRef} {...bind()}>
         {/* Prev hint overlay */}
         {prevHintOpacity > 0 && (
           <div
