@@ -1,7 +1,17 @@
 import { prisma } from '@/lib/db'
 import type { FavoriteDoc } from '@/app/(main)/favoris/radio-france-favorites'
 
-export async function toggleRadioFavorite(userId: string, docId: string, action?: 'add' | 'remove') {
+export interface RadioFavoriteMeta {
+  title?: string
+  description?: string
+  url?: string
+  radio?: string
+  section?: string
+  image?: string
+  favoritedAt?: string
+}
+
+export async function toggleRadioFavorite(userId: string, docId: string, action?: 'add' | 'remove', meta?: RadioFavoriteMeta) {
   const existing = await prisma.bookmark.findFirst({
     where: { userId, resourceId: docId, type: 'RADIO_FRANCE' },
   })
@@ -15,7 +25,12 @@ export async function toggleRadioFavorite(userId: string, docId: string, action?
   if (action === 'remove') return { bookmarked: true, wasBookmarked: false }
 
   await prisma.bookmark.create({
-    data: { userId, resourceId: docId, type: 'RADIO_FRANCE' },
+    data: {
+      userId,
+      resourceId: docId,
+      type: 'RADIO_FRANCE',
+      meta: meta || null,
+    },
   })
   return { bookmarked: true, wasBookmarked: false }
 }
@@ -41,12 +56,12 @@ export async function getRadioFavorites(userId: string): Promise<FavoriteDoc[]> 
 
   return bookmarks.map((b) => ({
     id: b.resourceId || '',
-    title: (b.meta as { title?: string } | null)?.title || b.resourceId || '',
-    description: (b.meta as { description?: string } | null)?.description || '',
-    url: (b.meta as { url?: string } | null)?.url || '',
-    radio: (b.meta as { radio?: string } | null)?.radio || '',
-    section: (b.meta as { section?: string } | null)?.section || '',
-    image: (b.meta as { image?: string } | null)?.image,
+    title: (b.meta as RadioFavoriteMeta | null)?.title || b.resourceId || '',
+    description: (b.meta as RadioFavoriteMeta | null)?.description || '',
+    url: (b.meta as RadioFavoriteMeta | null)?.url || '',
+    radio: (b.meta as RadioFavoriteMeta | null)?.radio || '',
+    section: (b.meta as RadioFavoriteMeta | null)?.section || '',
+    image: (b.meta as RadioFavoriteMeta | null)?.image,
     favoritedAt: b.createdAt.toISOString(),
   }))
 }
