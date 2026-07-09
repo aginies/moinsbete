@@ -29,15 +29,15 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
             {session?.user ? (
               <>
                 <Link href="/favoris">
-                  <Button variant="ghost" size="sm">
-                    <Bookmark className="h-4 w-4 mr-1" />
-                    Favoris
+                  <Button variant="ghost" size="sm" className="hidden md:inline-flex">
+                    <Bookmark className="h-4 w-4" />
+                    <span className="ml-1">Favoris</span>
                   </Button>
                 </Link>
                 <Link href="/mon-historique">
-                  <Button variant="ghost" size="sm">
-                    <Clock className="h-4 w-4 mr-1" />
-                    Historique
+                  <Button variant="ghost" size="sm" className="hidden md:inline-flex">
+                    <Clock className="h-4 w-4" />
+                    <span className="ml-1">Historique</span>
                   </Button>
                 </Link>
                 <Link href="/mon-compte" className="flex items-center gap-2 mr-2 hover:opacity-80 transition-opacity">
