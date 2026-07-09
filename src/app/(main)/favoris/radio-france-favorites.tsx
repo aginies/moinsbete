@@ -93,7 +93,7 @@ export function RadioFranceFavorites() {
               </div>
               <button
                 onClick={() => handleRemove(doc.id)}
-                className="rounded-full p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-100 dark:text-purple-400 dark:hover:text-purple-200 dark:hover:bg-purple-900/40 opacity-0 group-hover:opacity-100 transition-all"
+                className="rounded-full p-1.5 text-purple-600 opacity-60 hover:opacity-100 hover:text-purple-800 hover:bg-purple-100 dark:text-purple-400 dark:hover:text-purple-200 dark:hover:bg-purple-900/40 transition-all"
                 title="Retirer des favoris"
               >
                 <X className="h-4 w-4" />
