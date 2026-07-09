@@ -103,6 +103,24 @@ function parseFactsFromHtml(html: string): Fact[] {
       }
     }
 
+    // Fallback: extract image from <a href="//fr.wikipedia.org/wiki/Fichier:...">
+    if (!imageUrl) {
+      const fileLinkMatch = content.match(/href=["']\/\/fr\.wikipedia\.org\/wiki\/Fichier:([^"']+)["']/i)
+      if (fileLinkMatch) {
+        const filename = decodeURIComponent(fileLinkMatch[1])
+        imageUrl = `https://upload.wikimedia.org/wikipedia/commons/${filename}`
+      }
+    }
+
+    // Fallback: extract image from <a href="//commons.wikimedia.org/wiki/File:...">
+    if (!imageUrl) {
+      const commonsLinkMatch = content.match(/href=["']\/\/commons\.wikimedia\.org\/wiki\/File:([^"'\s>]+)["']/i)
+      if (commonsLinkMatch) {
+        const filename = decodeURIComponent(commonsLinkMatch[1])
+        imageUrl = `https://upload.wikimedia.org/wikipedia/commons/${filename}`
+      }
+    }
+
     // Remove <dl><dd><small>...</small></dd></dl> display info
     content = content.replace(/<dl[^>]*>[\s\S]*?<small[^>]*>([\s\S]*?)<\/small>[\s\S]*?<\/dl>/gi, '')
 

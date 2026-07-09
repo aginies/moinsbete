@@ -66,6 +66,21 @@ function extractImageFilename(wikiText: string): string | null {
   return null
 }
 
+function filenameToFullSizeUrl(filename: string): string | null {
+  if (!filename) return null
+  // Construct full-size URL from filename
+  // Handle multi-part filenames with slashes
+  const parts = filename.split('/')
+  if (parts.length >= 2) {
+    const hash = parts[0]
+    const fileName = parts.slice(1).join('/')
+    return `https://upload.wikimedia.org/wikipedia/commons/${hash}/${fileName}`
+  }
+  // Single-part filename: try to find it on Wikimedia
+  // Use Special:FilePath as fallback
+  return `https://upload.wikimedia.org/wikipedia/commons/${filename}`
+}
+
 function extractArticleLink(wikiText: string): string | null {
   // Match all wiki links, skip Fichier:/Image: links
   const linkRegex = /\[\[(?!Fichier:|Image:)([^\]|]+)(\|([^]]*?))?\]\]/g
@@ -115,10 +130,11 @@ async function parseFacts(wikitext: string): Promise<Array<{ text: string; image
     const text = cleanText(afterComment)
     if (!text || text.length < 20) continue
 
-    const image = extractImageFilename(afterComment)
+    const imageFilename = extractImageFilename(afterComment)
     const article = extractArticleLink(afterComment)
+    const imageUrl = imageFilename ? filenameToFullSizeUrl(imageFilename) : null
 
-    facts.push({ text, image: image || null, article: article || '' })
+    facts.push({ text, image: imageUrl ?? null, article: article || '' })
   }
 
   return facts
@@ -162,7 +178,7 @@ async function main() {
             sourceUrl: fact.article
               ? `https://fr.wikipedia.org/wiki/${fact.article}`
               : null,
-            imageFilename: fact.image,
+            imageFilename: fact.image || null,
           },
         })
         newInserted++
