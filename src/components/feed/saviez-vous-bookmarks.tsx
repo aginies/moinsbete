@@ -77,7 +77,7 @@ export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
         const shareOptions = {
           title: 'Le saviez-vous ?',
           text: item.text,
-          url: `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'}/saviez-vous/${encodeURIComponent(item.id)}`,
+          url: `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'}/saviez-vous/${item.id}`,
         }
         const { share, copied, shareUrl } = useShare(shareOptions)
         return (
