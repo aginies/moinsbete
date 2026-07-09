@@ -167,7 +167,7 @@ export function SwipeableIdeaDetail({
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
   const [copied, setCopied] = useState(false)
 
-  const getShareUrl = (slug: string) => `${window.location.origin}/idees/${slug}`
+  const getShareUrl = useCallback((slug: string) => `${typeof window !== 'undefined' ? window.location.origin : ''}/idees/${slug}`, [])
 
   const handleShare = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -196,7 +196,7 @@ export function SwipeableIdeaDetail({
         // Clipboard write failed
       }
     }
-  }, [idea.title, idea.slug, idea.takeaway])
+  }, [idea.title, idea.slug, idea.takeaway, getShareUrl])
 
   const handleBookmark = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()

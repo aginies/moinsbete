@@ -11,6 +11,7 @@ import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
+import { SwipeBackgroundCard } from './swipe-background-card'
 
 interface ImageData {
   imageUrl: string
@@ -134,7 +135,6 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const { share, copied, shareUrl } = useShare(shareOptions)
 
   const absX = Math.abs(dragX)
-  const bgScale = Math.min(0.95 + (absX / 1000) * 0.05, 1)
   const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
 
   const cardContent = (
@@ -239,38 +239,33 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
 
           {/* Background Card Stack (Using pre-fetched nextImage) */}
           {nextImage && bgOpacity > 0 && (
-            <div
-              className="absolute inset-0 pointer-events-none transition-all duration-200 ease-out z-0"
-              style={{
-                transform: `scale(${bgScale})`,
-                opacity: bgOpacity,
-              }}
+            <SwipeBackgroundCard
+              title="Image du jour"
+              icon={<Camera className="h-4 w-4 text-teal-950" />}
+              iconBgColor="bg-teal-400"
+              iconDarkColor="dark:bg-teal-600"
+              titleColor="text-teal-800"
+              titleDarkColor="dark:text-teal-300"
+              borderColor="border-teal-300"
+              borderDarkColor="dark:border-teal-700"
+              bgGradient="bg-gradient-to-br from-teal-50 to-emerald-50"
+              bgGradientDark="dark:from-teal-950/30 dark:to-emerald-950/30"
+              textColor="text-teal-900"
+              textDarkColor="dark:text-teal-100"
             >
-              <div className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-50 p-5 dark:border-teal-700 dark:from-teal-950/30 dark:to-emerald-950/30 h-full opacity-60 overflow-hidden">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-400 dark:bg-teal-600">
-                      <Camera className="h-4 w-4 text-teal-950" />
-                    </div>
-                    <h3 className="text-sm font-bold uppercase tracking-wide text-teal-800 dark:text-teal-300">
-                      Image du jour
-                    </h3>
-                  </div>
+              {nextImage.imageUrl && (
+                <div className="mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 h-48">
+                  <img
+                    src={nextImage.imageUrl}
+                    alt="Next Preview"
+                    className="w-full h-full object-cover pointer-events-none opacity-90"
+                  />
                 </div>
-                {nextImage.imageUrl && (
-                  <div className="mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 h-48">
-                    <img
-                      src={nextImage.imageUrl}
-                      alt="Next Preview"
-                      className="w-full h-full object-cover pointer-events-none opacity-90"
-                    />
-                  </div>
-                )}
-                <p className="text-sm leading-relaxed text-teal-900 dark:text-teal-100">
-                  {nextImage.description}
-                </p>
-              </div>
-            </div>
+              )}
+              <p className="text-sm leading-relaxed text-teal-900 dark:text-teal-100">
+                {nextImage.description}
+              </p>
+            </SwipeBackgroundCard>
           )}
 
           <div
