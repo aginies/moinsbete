@@ -82,7 +82,7 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
   const [loading, setLoading] = useState(!initialDoc)
   const [show, setShow] = useState(true)
   const [hasMounted, setHasMounted] = useState(false)
-  const prevShowRef = useRef(show)
+  const prevShowRef = useRef<boolean>(true)
 
   useEffect(() => {
     setHasMounted(true)
@@ -90,6 +90,7 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
     if (stored !== null) {
       setShow(stored === 'true')
     }
+    prevShowRef.current = show
   }, [])
 
   const [favorites, setFavorites] = useState<FavoriteDoc[]>(getFavorites)

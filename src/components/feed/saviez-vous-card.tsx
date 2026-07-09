@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Lightbulb, ExternalLink, RefreshCw, ImageIcon, X, EyeOff, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl as isValidUrlUtil, sanitizeUrl } from '@/lib/utils'
@@ -34,13 +34,17 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
   const [imageError, setImageError] = useState(false)
   const [imageKey, setImageKey] = useState(0)
   const [showFullImage, setShowFullImage] = useState(false)
-  const [show, setShow] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('saviez_vous_card_visible')
-      if (stored !== null) return stored === 'true'
+  const [show, setShow] = useState(true)
+  const [hasMounted, setHasMounted] = useState(false)
+
+  useEffect(() => {
+    setHasMounted(true)
+    const stored = localStorage.getItem('saviez_vous_card_visible')
+    if (stored !== null) {
+      setShow(stored === 'true')
     }
-    return true
-  })
+  }, [])
+
   const [lastRefreshed, setLastRefreshed] = useState(0)
   const canRefresh = lastRefreshed === 0 || Date.now() - lastRefreshed >= 2000
 
@@ -83,7 +87,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
 
   return (
     <>
-      {!show ? (
+      {!show && hasMounted ? (
         <div className="mb-6">
           <button
             onClick={handleToggle}

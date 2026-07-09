@@ -38,6 +38,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
   const [showFullImage, setShowFullImage] = useState(false)
   const [show, setShow] = useState(true)
   const [hasMounted, setHasMounted] = useState(false)
+  const prevShowRef = useRef<boolean>(true)
 
   useEffect(() => {
     setHasMounted(true)
@@ -45,12 +46,12 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
     if (stored !== null) {
       setShow(stored === 'true')
     }
+    prevShowRef.current = show
   }, [])
 
   const [lastRefreshed, setLastRefreshed] = useState(0)
   const canRefresh = lastRefreshed === 0 || Date.now() - lastRefreshed >= 2000
   const hasLoadedRef = useRef(false)
-  const prevShowRef = useRef(show)
 
   useEffect(() => {
     if (!hasLoadedRef.current) {
