@@ -54,6 +54,7 @@ export default function RandomIdeaClient() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFollowed(params.get('followed') === '1')
     
     const checkSession = async () => {
@@ -167,6 +168,8 @@ export default function RandomIdeaClient() {
         onBookmark={handleBookmark}
         isBookmarked={isBookmarked}
         showNav={false}
+        onSwipeLeft={handleRefresh}
+        onSwipeRight={handleRefresh}
       />
     </div>
   )
