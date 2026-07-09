@@ -24,7 +24,7 @@ function extractEntries(html: string): ImageEntry[] {
 
   while ((h2Match = h2Regex.exec(html)) !== null) {
     const h2Content = h2Match[1]
-    const dateMatch = h2Content.match(/>(\d{1,2}(?:er)?\s+\w+\s+\d{4})/i)
+    const dateMatch = h2Content.match(/(\d{1,2}(?:er)?\s+\w+\s+\d{4})/)
     if (!dateMatch) continue
 
     const date = dateMatch[1].replace(/<[^>]*>/g, '').trim()
