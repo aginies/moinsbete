@@ -5,6 +5,7 @@ import { Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface SearchResult {
   ideas: Array<{ id: string; title: string; slug: string; topics: Array<{ name: string; icon: string }> }>
@@ -20,6 +21,7 @@ interface SearchBarProps {
 }
 
 export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarProps) {
+  const router = useRouter()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult | null>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -31,6 +33,11 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
     setIsOpen(false)
     onClose?.()
   }, [onClose])
+
+  const navigateAndClose = useCallback((href: string) => {
+    router.push(href)
+    closeResults()
+  }, [router, closeResults])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -141,14 +148,14 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Faits</h4>
               <div className="space-y-1">
                 {results.facts.slice(0, 10).map((fact) => (
-                  <Link
+                  <button
                     key={fact.id}
-                    href={`/le-saviez-vous?factId=${fact.id}`}
-                    className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                    onClick={() => { setQuery(''); setIsOpen(false) }}
+                    type="button"
+                    onClick={() => navigateAndClose(`/le-saviez-vous?factId=${fact.id}`)}
+                    className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted text-left"
                   >
                     <span className="line-clamp-2">{fact.text}</span>
-                  </Link>
+                  </button>
                 ))}
               </div>
             </div>
