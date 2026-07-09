@@ -116,19 +116,17 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         </Link>
       </div>
 
-      <SearchBar />
+      <div className="mb-6">
+        <SearchBar />
+      </div>
 
       {followedTopics.length > 0 && (
         <div className="mb-8">
-          <h2 className="mb-4 text-lg font-semibold">Vos sujets suivis ({followedTopics.length})</h2>
           <TopicGrid topics={followedTopics} followedIds={followedIds} onToggle={handleToggle} isAuthenticated={!!userId} />
         </div>
       )}
 
-      <div>
-        <h2 className="mb-4 text-lg font-semibold">Découvrir des sujets ({unfollowedTopics.length})</h2>
-        <TopicGrid topics={unfollowedTopics} followedIds={followedIds} onToggle={handleToggle} isAuthenticated={!!userId} />
-      </div>
+      <TopicGrid topics={unfollowedTopics} followedIds={followedIds} onToggle={handleToggle} isAuthenticated={!!userId} />
     </div>
   )
 }
