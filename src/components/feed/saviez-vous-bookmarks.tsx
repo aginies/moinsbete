@@ -74,11 +74,7 @@ export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
       buttonColor="text-blue-600"
       buttonHoverBg="hover:bg-blue-100"
       renderItem={(item, onRemove) => {
-        const shareOptions = item.sourceUrl ? {
-          title: 'Le saviez-vous ?',
-          text: item.text,
-          url: item.sourceUrl,
-        } : {
+        const shareOptions = {
           title: 'Le saviez-vous ?',
           text: item.text,
           url: `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'}/saviez-vous/${item.id}`,
