@@ -174,11 +174,13 @@ export default function AproposPage() {
         </section>
 
        <section>
-           <h2 className="mb-3 text-xl font-semibold">Vie privée</h2>
-           <p className="text-muted-foreground">
-             Aucune information de l'utilisateur n'est utilisée.
-           </p>
-         </section>
+          <h2 className="mb-3 text-xl font-semibold">Vie privée</h2>
+          <p className="text-muted-foreground">
+            <Link href="/confidentialite" className="text-primary hover:underline">
+              Politique de confidentialité
+            </Link>
+          </p>
+        </section>
 
          <section>
            <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
