@@ -1,5 +1,9 @@
 import 'dotenv/config';
+// eslint-disable-next-line no-process-env
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+process.on('warning', (warning) => {
+  if (warning.message?.includes('NODE_TLS_REJECT_UNAUTHORIZED')) return
+})
 import { PrismaClient } from './src/generated/client';
 const prisma = new PrismaClient();
 

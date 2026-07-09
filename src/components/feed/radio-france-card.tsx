@@ -80,13 +80,17 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
 export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
   const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
   const [loading, setLoading] = useState(!initialDoc)
-  const [show, setShow] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(VISIBILITY_KEY)
-      if (stored !== null) return stored === 'true'
+  const [show, setShow] = useState(true)
+  const [hasMounted, setHasMounted] = useState(false)
+
+  useEffect(() => {
+    setHasMounted(true)
+    const stored = localStorage.getItem(VISIBILITY_KEY)
+    if (stored !== null) {
+      setShow(stored === 'true')
     }
-    return true
-  })
+  }, [])
+
   const [favorites, setFavorites] = useState<FavoriteDoc[]>(getFavorites)
 
   const isFavorite = doc ? favorites.some(f => f.id === doc.id) : false
@@ -133,7 +137,7 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
   } : null
   const { share, copied, shareUrl } = useShare(shareOptions)
 
-  if (!show) {
+  if (!show && hasMounted) {
     return (
       <div className="mb-6">
         <button

@@ -126,8 +126,12 @@ async function main() {
     if (args.batch && args.batch !== batchNum) continue
     
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(0)
-    const eta = ((Date.now() - startTime) / (processed + 1) * (total - (processed + 1))).toFixed(0)
-    console.log(`\n📦 Batch ${batchNum}/${totalBatches} (${batch.length} ideas) [${Math.round((processed / total) * 100)}%] ETA: ${eta}s`)
+    const etaSeconds = ((Date.now() - startTime) / (processed + 1) * (total - (processed + 1))).toFixed(0)
+    const hours = Math.floor(etaSeconds / 3600)
+    const minutes = Math.floor((etaSeconds % 3600) / 60)
+    const seconds = Math.round(etaSeconds % 60)
+    const etaStr = hours > 0 ? `${hours}h${minutes.toString().padStart(2,'0')}m` : minutes > 0 ? `${minutes}m${seconds}s` : `${seconds}s`
+    console.log(`\n📦 Batch ${batchNum}/${totalBatches} (${batch.length} ideas) [${Math.round((processed / total) * 100)}%] ETA: ${etaStr}`)
     
     for (const idea of batch) {
       processed++
