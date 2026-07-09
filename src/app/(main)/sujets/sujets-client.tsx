@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Topic } from '@/generated/client'
 import { TopicGrid } from '@/components/topics/topic-grid'
 import { SearchBar } from '@/components/search/search-bar'
