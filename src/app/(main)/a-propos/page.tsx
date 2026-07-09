@@ -173,8 +173,15 @@ export default function AproposPage() {
           </p>
         </section>
 
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
+       <section>
+           <h2 className="mb-3 text-xl font-semibold">Vie privée</h2>
+           <p className="text-muted-foreground">
+             Aucune information de l'utilisateur n'est utilisée.
+           </p>
+         </section>
+
+         <section>
+           <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
     <p className="text-muted-foreground">
           MoinsBête a été créé par <strong>Antoine Giniès</strong>.
             Le projet s'inspire de la philosophie Deep Stash, popularisée par 
@@ -200,6 +207,8 @@ export default function AproposPage() {
       </div>
 
       <div className="mt-12 pt-6 border-t text-center text-sm text-muted-foreground">
+        <Link href="/confidentialite" className="hover:underline">Politique de confidentialité</Link>
+        {' · '}
         <Link href="/" className="hover:underline">← Retour à l&apos;accueil</Link>
       </div>
     </div>
