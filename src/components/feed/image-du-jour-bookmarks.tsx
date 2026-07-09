@@ -10,6 +10,7 @@ import { getStoredFavorites, removeStoredFavorite } from '@/lib/favorite-storage
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 import { ImageLightbox } from './image-lightbox'
+import { ImageHint } from './image-hint'
 
 export interface ImageDuJourFavoriteDoc extends FavoriteItemBase {
   id: string
@@ -101,7 +102,7 @@ export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
                         (e.target as HTMLImageElement).style.display = 'none'
                       }}
                     />
-                    <p className="px-2 py-1 text-xs text-teal-700 dark:text-teal-300">Cliquer pour agrandir</p>
+                    <ImageHint color="teal" />
                   </div>
                 )}
                 <p className="text-sm leading-relaxed text-teal-900 dark:text-teal-100 mb-2">
