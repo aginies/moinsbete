@@ -204,6 +204,15 @@ export default function AproposPage() {
             actionnable.
           </p>
         </section>
+
+        <section>
+           <h2 className="mb-3 text-xl font-semibold">Infrastructure</h2>
+           <p className="text-muted-foreground">
+             Le service MoinsBete est hébergé sur un serveur loué personnellement par Antoine Giniès à des fins personnelles.
+             Ce service est offert en l'état et peut être arrêté à tout moment sans annonce préalable.
+           </p>
+         </section>
+
       </div>
 
       <div className="mt-12 pt-6 border-t text-center text-sm text-muted-foreground">
