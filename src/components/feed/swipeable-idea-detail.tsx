@@ -221,7 +221,7 @@ export function SwipeableIdeaDetail({
       <div className="px-4">
         <Link
           href="/"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          className="mb-4 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:inline-flex"
         >
           <ArrowLeft className="h-4 w-4" />
           Accueil
