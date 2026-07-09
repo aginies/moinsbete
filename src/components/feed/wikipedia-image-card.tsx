@@ -195,6 +195,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
             <img
               src={image?.imageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt={image?.description || 'Image'}
+              loading="lazy"
               className={`w-full transition-opacity ${fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
               onError={() => setImageError(true)}
             />
