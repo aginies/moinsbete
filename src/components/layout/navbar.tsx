@@ -27,7 +27,7 @@ export async function Navbar() {
                   Favoris
                 </Button>
               </Link>
-              <Link href="/ma-histoire">
+              <Link href="/mon-historique">
                 <Button variant="ghost" size="sm">
                   <Clock className="h-4 w-4 mr-1" />
                   Historique

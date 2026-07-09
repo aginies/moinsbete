@@ -122,7 +122,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
                   <CompactIdeaCard idea={{ ...idea, viewedAt: new Date().toISOString() }} />
                   <button
                     type="button"
-                    className="absolute right-2 top-2 z-10 rounded-full bg-card/90 p-1.5 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100 hover:bg-muted hover:text-foreground"
+                    className="absolute right-2 top-2 z-10 rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
