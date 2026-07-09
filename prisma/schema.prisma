@@ -10,19 +10,19 @@ datasource db {
 }
 
 model User {
-  id           String               @id @default(cuid())
-  email        String               @unique
-  passwordHash String
-  displayName  String?
-  role         UserRole @default(USER)
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-  bookmarks    Bookmark[]
-  growthPlan   GrowthPlan?
-  resetTokens  PasswordResetToken[]
-  viewedIdeas  ViewedIdea[]
-  following    Topic[]              @relation("UserFollowing")
-  cnrsNewsEnabled Boolean @default(true)
+  id              String               @id @default(cuid())
+  email           String               @unique
+  passwordHash    String
+  displayName     String?
+  role            UserRole             @default("USER")
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  cnrsNewsEnabled Boolean              @default(true)
+  bookmarks       Bookmark[]
+  growthPlan      GrowthPlan?
+  resetTokens     PasswordResetToken[]
+  viewedIdeas     ViewedIdea[]
+  following       Topic[]              @relation("UserFollowing")
 }
 
 model Topic {
@@ -52,7 +52,7 @@ model Source {
   title        String
   slug         String        @unique
   author       String?
-  type         SourceType @default(WIKIPEDIA)
+  type         SourceType    @default("WIKIPEDIA")
   url          String?
   coverUrl     String?
   description  String?
@@ -152,7 +152,7 @@ model TopicSuggestion {
   icon         String           @default("🤖")
   confidence   Float
   articleCount Int              @default(0)
-  status       SuggestionStatus @default(PENDING)
+  status       SuggestionStatus @default("PENDING")
   mergedIntoId String?
   createdAt    DateTime         @default(now())
   mergedInto   Topic?           @relation("MergeRelation", fields: [mergedIntoId], references: [id])
