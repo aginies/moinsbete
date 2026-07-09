@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Lightbulb, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { useShare } from './use-share'
@@ -8,6 +8,7 @@ import { ShareButton } from './share-button'
 import { sanitizeUrl } from '@/lib/utils'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
+import { toggleRadioFavoriteAction, isRadioFavoriteAction } from '@/actions/radio-bookmark-actions'
 
 interface RadioFranceDoc {
   id: string
@@ -17,11 +18,6 @@ interface RadioFranceDoc {
   radio: string
   section: string
   image?: string
-}
-
-interface RadioFranceCardProps {
-  initialDoc?: RadioFranceDoc
-  userId?: string
 }
 
 interface FavoriteDoc {
@@ -36,34 +32,6 @@ interface FavoriteDoc {
 }
 
 const FAVORITES_KEY = 'rf_favorites'
-
-function getFavorites(): FavoriteDoc[] {
-  if (typeof window === 'undefined') return []
-  try {
-    const stored = localStorage.getItem(FAVORITES_KEY)
-    return stored ? JSON.parse(stored) : []
-  } catch {
-    return []
-  }
-}
-
-function toggleFavorite(doc: RadioFranceDoc, favorites: FavoriteDoc[]): { isFavorite: boolean; favorites: FavoriteDoc[] } {
-  const exists = favorites.find(f => f.id === doc.id)
-
-  if (exists) {
-    const updated = favorites.filter(f => f.id !== doc.id)
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated))
-    return { isFavorite: false, favorites: updated }
-  }
-
-  const newFavorite: FavoriteDoc = {
-    ...doc,
-    favoritedAt: new Date().toISOString(),
-  }
-  const updated = [...favorites, newFavorite]
-  localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated))
-  return { isFavorite: true, favorites: updated }
-}
 
 async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null> {
   try {
@@ -81,14 +49,30 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
 export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
   const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
   const [loading, setLoading] = useState(!initialDoc)
+  const [isFavorite, setIsFavorite] = useState(false)
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible' })
-  const prevShowRef = useRef<boolean>(true)
-
-  const [favorites, setFavorites] = useState<FavoriteDoc[]>(getFavorites)
-
-  const isFavorite = doc ? favorites.some(f => f.id === doc.id) : false
+  const prevShowRef = { current: true }
 
   useEffect(() => {
+    if (userId && doc) {
+      isRadioFavoriteAction(doc.id).then(result => {
+        if (result.isFavorite) {
+          setIsFavorite(true)
+        }
+      }).catch(() => {})
+    }
+  }, [userId, doc])
+
+  useEffect(() => {
+    if (!doc && show) {
+      fetchRandomDoc().then(d => {
+        if (d) {
+          setDoc(d)
+        }
+        setLoading(false)
+      })
+    }
+  }, [doc, show])
     if (!doc && show) {
       fetchRandomDoc().then(d => {
         if (d) {
@@ -123,11 +107,29 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
     setLoading(false)
   }, [loading, doc])
 
-  const handleBookmark = useCallback(() => {
+  const handleBookmark = useCallback(async () => {
     if (!doc) return
-    const result = toggleFavorite(doc, favorites)
-    setFavorites(result.favorites)
-  }, [doc, favorites])
+    const newFavorite = !isFavorite
+
+    if (userId) {
+      try {
+        await toggleRadioFavoriteAction(doc.id, newFavorite ? 'add' : 'remove')
+        setIsFavorite(newFavorite)
+      } catch {
+        setIsFavorite(prev => !prev)
+      }
+    } else {
+      const stored = getFavorites()
+      const exists = stored.some(f => f.id === doc.id)
+      if (newFavorite && !exists) {
+        const newFav: FavoriteDoc = { ...doc, favoritedAt: new Date().toISOString() }
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify([...stored, newFav]))
+      } else if (!newFavorite && exists) {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(stored.filter(f => f.id !== doc.id)))
+      }
+      setIsFavorite(newFavorite)
+    }
+  }, [doc, isFavorite, userId])
 
   const shareOptions = doc ? {
     title: doc.title,
