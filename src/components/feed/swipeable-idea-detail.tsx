@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Sparkles, Lightbulb } from 'lucide-react'
 import { isValidUrl, sanitizeUrl } from '@/lib/utils'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
+import { useShare } from './use-share'
 import type { Idea } from '@/types/idea'
 
 interface SwipeableIdeaDetailProps {
@@ -144,38 +145,15 @@ export function SwipeableIdeaDetail({
 }: SwipeableIdeaDetailProps) {
   const router = useRouter()
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
-  const [copied, setCopied] = useState(false)
 
   const getShareUrl = useCallback((slug: string) => `${typeof window !== 'undefined' ? window.location.origin : ''}/idees/${slug}`, [])
 
-  const handleShare = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    const shareData = {
-      title: idea.title,
-      text: idea.takeaway,
-      url: getShareUrl(idea.slug),
-    }
-
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      try {
-        await navigator.share(shareData)
-      } catch {
-        // User cancelled or share failed
-      }
-    }
-
-    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      try {
-        await navigator.clipboard.writeText(getShareUrl(idea.slug))
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      } catch {
-        // Clipboard write failed
-      }
-    }
-  }, [idea.title, idea.slug, idea.takeaway, getShareUrl])
+  const shareOptions = {
+    title: idea.title,
+    text: idea.takeaway,
+    url: getShareUrl(idea.slug),
+  }
+  const { share: handleShare, copied } = useShare(shareOptions)
 
   const handleBookmark = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
