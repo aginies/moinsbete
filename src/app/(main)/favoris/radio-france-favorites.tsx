@@ -95,7 +95,16 @@ export function RadioFranceFavorites({ userId }: RadioFranceFavoritesProps) {
     }
   }, [userId])
 
-  if (favorites.length === 0) return null
+  if (favorites.length === 0) {
+    return (
+      <div className="rounded-xl border border-border/60 bg-card p-12 text-center">
+        <p className="mb-2 text-lg font-semibold">Aucun favori Radio France</p>
+        <p className="text-sm text-muted-foreground">
+          Favorise des documentaires depuis la page d&apos;accueil pour les voir ici.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="mb-8">
