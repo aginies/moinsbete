@@ -1,0 +1,122 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { Pagination } from '@/components/ui/pagination'
+
+interface PaginatedFavoritesListProps {
+  fetchFn: () => Promise<any[]>
+  renderItem: (item: any, onRemove: () => void) => React.ReactNode
+  emptyTitle: string
+  emptyDescription: string
+  storageKey: string
+  userId?: string
+  removeFavorite: (item: any) => Promise<void>
+  borderColor?: string
+  bgGradient?: string
+  darkBorderColor?: string
+  darkBgGradient?: string
+  textColor?: string
+  darkTextColor?: string
+  buttonColor?: string
+  buttonHoverBg?: string
+}
+
+const PAGE_SIZE = 5
+
+export function PaginatedFavoritesList({
+  fetchFn,
+  renderItem,
+  emptyTitle,
+  emptyDescription,
+  storageKey,
+  userId,
+  removeFavorite,
+  borderColor = 'border-purple-200',
+  bgGradient = 'bg-gradient-to-br from-purple-50 to-violet-50',
+  darkBorderColor = 'dark:border-purple-800',
+  darkBgGradient = 'dark:from-purple-950/20 dark:to-violet-950/20',
+  textColor = 'text-purple-900',
+  darkTextColor = 'dark:text-purple-100',
+  buttonColor = 'text-purple-600',
+  buttonHoverBg = 'hover:bg-purple-100',
+}: PaginatedFavoritesListProps) {
+  const [allFavorites, setAllFavorites] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    async function loadFavorites() {
+      try {
+        const result = await fetchFn()
+        setAllFavorites(result)
+      } catch {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null
+        setAllFavorites(stored ? JSON.parse(stored) : [])
+      }
+      setLoading(false)
+    }
+    loadFavorites()
+  }, [fetchFn, storageKey])
+
+  const totalPages = Math.max(1, Math.ceil(allFavorites.length / PAGE_SIZE))
+  const safePage = Math.min(currentPage, totalPages)
+  const start = (safePage - 1) * PAGE_SIZE
+  const paginatedFavorites = allFavorites.slice(start, start + PAGE_SIZE)
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  const pageUrl = (page: number) => {
+    if (page === 1) return window.location.pathname
+    return `${window.location.pathname}?page=${page}`
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    )
+  }
+
+  if (paginatedFavorites.length === 0) {
+    return (
+      <div className="rounded-xl border border-border/60 bg-card p-12 text-center">
+        <p className="mb-2 text-lg font-semibold">{emptyTitle}</p>
+        <p className="text-sm text-muted-foreground">{emptyDescription}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mb-8">
+      <div className="space-y-3">
+        {paginatedFavorites.map((item, index) => (
+          <div
+            key={item.id || index}
+            className={`group relative rounded-xl border-2 ${borderColor} ${bgGradient} p-4 ${darkBorderColor} ${darkBgGradient} hover:shadow-md transition-shadow`}
+          >
+            {renderItem(item, () => removeFavorite(item))}
+          </div>
+        ))}
+      </div>
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={safePage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          pageUrl={pageUrl}
+        />
+      )}
+
+      {allFavorites.length > 0 && (
+        <p className="py-4 text-center text-xs text-muted-foreground">
+          Page {safePage} sur {totalPages} · {allFavorites.length} favori{allFavorites.length !== 1 ? 's' : ''}
+        </p>
+      )}
+    </div>
+  )
+}

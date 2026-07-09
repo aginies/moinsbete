@@ -1,20 +1,19 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { ExternalLink, X, Camera } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
-import { getCnrsFavoritesAction, toggleCnrsFavoriteAction } from '@/actions/cnrs-bookmark-actions'
-import { FavoritesList, type FavoriteItemBase } from '@/components/feed/favorites-list'
-import { getStoredFavorites, removeStoredFavorite } from '@/lib/favorite-storage'
+import { getCnrsFavoritesAction } from '@/actions/cnrs-bookmark-actions'
+import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 
-export interface CnrsFavoriteDoc extends FavoriteItemBase {
+export interface CnrsFavoriteDoc {
   id: string
   title: string
   category: string
   imageUrl: string | undefined
   link: string
   date: string
+  favoritedAt: string
 }
 
 const CNRS_FAVORITES_KEY = 'cnrs_favorites'
@@ -24,27 +23,7 @@ interface CnrsBookmarksProps {
 }
 
 export function CnrsBookmarks({ userId }: CnrsBookmarksProps) {
-  const [favorites, setFavorites] = useState<CnrsFavoriteDoc[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function loadFavorites() {
-      if (userId) {
-        try {
-          const result = await getCnrsFavoritesAction()
-          setFavorites(result.favorites as CnrsFavoriteDoc[])
-        } catch {
-          setFavorites(getStoredFavorites(CNRS_FAVORITES_KEY))
-        }
-      } else {
-        setFavorites(getStoredFavorites(CNRS_FAVORITES_KEY))
-      }
-      setLoading(false)
-    }
-    loadFavorites()
-  }, [userId])
-
-  const handleRemove = useCallback(async (item: CnrsFavoriteDoc) => {
+  const handleRemove = async (item: CnrsFavoriteDoc) => {
     if (userId) {
       try {
         const { toggleFavoriteAction } = await import('@/actions/favorite-actions')
@@ -53,26 +32,22 @@ export function CnrsBookmarks({ userId }: CnrsBookmarksProps) {
         // localStorage fallback
       }
     }
-    setFavorites(prev => removeStoredFavorite(CNRS_FAVORITES_KEY, (f: CnrsFavoriteDoc) => f.link === item.link))
-  }, [userId])
+  }
 
   return (
-    <FavoritesList<CnrsFavoriteDoc>
-      favorites={favorites}
-      loading={loading}
-      emptyTitle="Aucun favori CNRS"
-      emptyDescription="Favorisez des actualites depuis la page d&apos;accueil pour les voir ici."
-      storageKey={CNRS_FAVORITES_KEY}
-      userId={userId}
-      removeFavorite={handleRemove}
-      borderColor="border-green-200"
-      bgGradient="bg-gradient-to-br from-green-50 to-emerald-50"
-      darkBorderColor="dark:border-green-800"
-      darkBgGradient="dark:from-green-950/20 dark:to-emerald-950/20"
-      textColor="text-green-900"
-      darkTextColor="dark:text-green-100"
-      buttonColor="text-green-600"
-      buttonHoverBg="hover:bg-green-100"
+    <PaginatedFavoritesList
+      fetchFn={async () => {
+        if (userId) {
+          const result = await getCnrsFavoritesAction()
+          return result.favorites as CnrsFavoriteDoc[]
+        }
+        try {
+          const stored = localStorage.getItem(CNRS_FAVORITES_KEY)
+          return stored ? JSON.parse(stored) : []
+        } catch {
+          return []
+        }
+      }}
       renderItem={(item, onRemove) => (
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -125,6 +100,19 @@ export function CnrsBookmarks({ userId }: CnrsBookmarksProps) {
           </button>
         </div>
       )}
+      emptyTitle="Aucun favori CNRS"
+      emptyDescription="Favorisez des actualites depuis la page d&apos;accueil pour les voir ici."
+      storageKey={CNRS_FAVORITES_KEY}
+      userId={userId}
+      removeFavorite={handleRemove}
+      borderColor="border-green-200"
+      bgGradient="bg-gradient-to-br from-green-50 to-emerald-50"
+      darkBorderColor="dark:border-green-800"
+      darkBgGradient="dark:from-green-950/20 dark:to-emerald-950/20"
+      textColor="text-green-900"
+      darkTextColor="dark:text-green-100"
+      buttonColor="text-green-600"
+      buttonHoverBg="hover:bg-green-100"
     />
   )
 }
