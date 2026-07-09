@@ -28,7 +28,7 @@ describe('toggleRadioFavorite', async () => {
     vi.mocked(prisma.bookmark.create).mockResolvedValue({
       id: 'bm-1',
       userId: 'u1',
-      ideaId: 'doc-1',
+      resourceId: 'doc-1',
       type: 'RADIO_FRANCE',
       meta: null,
       createdAt: new Date(),
@@ -42,7 +42,7 @@ describe('toggleRadioFavorite', async () => {
     expect(result).toEqual({ bookmarked: true, wasBookmarked: false })
     const { prisma: p } = await import('@/lib/db')
     expect(vi.mocked(p.bookmark.create)).toHaveBeenCalledWith({
-      data: { userId: 'u1', ideaId: 'doc-1', type: 'RADIO_FRANCE' },
+      data: { userId: 'u1', resourceId: 'doc-1', type: 'RADIO_FRANCE' },
     })
   })
 
@@ -91,7 +91,7 @@ describe('getRadioFavorites', async () => {
     vi.mocked(prisma.bookmark.findMany).mockResolvedValue([
       {
         id: 'bm-1',
-        ideaId: 'doc-1',
+        resourceId: 'doc-1',
         meta: { title: 'Test', description: 'Desc', url: 'http://test.com', radio: 'France Culture', section: 'Docs', image: 'img.jpg', favoritedAt: '2024-01-01' },
         createdAt: new Date('2024-01-01'),
       },
