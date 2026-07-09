@@ -81,7 +81,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
   }, [])
 
   const loadImage = useCallback(async () => {
-    if (loading || !canRefresh) return
+    if (loading) return
     setLoading(true)
     setError(false)
     setImageError(false)
@@ -94,7 +94,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
     }
     setLoading(false)
     setLastRefreshed(Date.now())
-  }, [loading, canRefresh])
+  }, [loading])
 
   useEffect(() => {
     if (!hasLoadedRef.current) {
