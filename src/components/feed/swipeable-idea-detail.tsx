@@ -61,6 +61,11 @@ export function SwipeableIdeaDetail({
   const [copied, setCopied] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ x: number; y: number } | null>(null)
+  const dragXRef = useRef(dragX)
+
+  useEffect(() => {
+    dragXRef.current = dragX
+  }, [dragX])
 
   const getShareUrl = (slug: string) => `${window.location.origin}/idees/${slug}`
 
@@ -151,7 +156,7 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
         filterTaps: true,
       }
     }
-  )
+  , [idea.id, prev, next, topic, collection, router])
 
   useEffect(() => {
     setBookmarked(initialBookmarked || false)
