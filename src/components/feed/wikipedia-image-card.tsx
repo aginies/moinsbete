@@ -14,6 +14,11 @@ interface ImageData {
   date: string
 }
 
+interface WikipediaImageCardProps {
+  fullImage?: boolean
+  showLink?: boolean
+}
+
 async function fetchRandomImage(): Promise<ImageData | null> {
   try {
     const res = await fetch('/api/wikipedia-image', { signal: AbortSignal.timeout(8000) })
@@ -25,7 +30,7 @@ async function fetchRandomImage(): Promise<ImageData | null> {
   }
 }
 
-export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, showLink = true }: { fullImage?: boolean; showLink?: boolean }) {
+export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, showLink = true }: WikipediaImageCardProps) {
   const [image, setImage] = useState<ImageData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -45,6 +50,25 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
   const [lastRefreshed, setLastRefreshed] = useState(0)
   const canRefresh = lastRefreshed === 0 || Date.now() - lastRefreshed >= 2000
   const hasLoadedRef = useRef(false)
+  const prevShowRef = useRef(show)
+
+  useEffect(() => {
+    if (!hasLoadedRef.current) {
+      hasLoadedRef.current = true
+      if (show) {
+        loadImage()
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!image && prevShowRef.current && !show) {
+      prevShowRef.current = show
+    } else if (!image && !prevShowRef.current && show) {
+      prevShowRef.current = show
+      loadImage()
+    }
+  }, [show, image])
 
   const handleToggle = useCallback(() => {
     setShow(prev => {

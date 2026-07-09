@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Lightbulb, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { useShare } from './use-share'
@@ -77,11 +77,12 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
   }
 }
 
-export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
+export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
   const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
   const [loading, setLoading] = useState(!initialDoc)
   const [show, setShow] = useState(true)
   const [hasMounted, setHasMounted] = useState(false)
+  const prevShowRef = useRef(show)
 
   useEffect(() => {
     setHasMounted(true)
@@ -96,7 +97,7 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
   const isFavorite = doc ? favorites.some(f => f.id === doc.id) : false
 
   useEffect(() => {
-    if (!doc) {
+    if (!doc && show) {
       fetchRandomDoc().then(d => {
         if (d) {
           setDoc(d)
@@ -104,7 +105,21 @@ export function RadioFranceCard({ initialDoc }: RadioFranceCardProps) {
         setLoading(false)
       })
     }
-  }, [doc])
+  }, [doc, show])
+
+  useEffect(() => {
+    if (!doc && prevShowRef.current && !show) {
+      prevShowRef.current = show
+    } else if (!doc && !prevShowRef.current && show) {
+      prevShowRef.current = show
+      fetchRandomDoc().then(d => {
+        if (d) {
+          setDoc(d)
+        }
+        setLoading(false)
+      })
+    }
+  }, [show, doc])
 
   const handleRefresh = useCallback(async () => {
     if (loading) return
