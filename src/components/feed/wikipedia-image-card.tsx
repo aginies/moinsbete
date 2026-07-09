@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { Camera, ExternalLink, RefreshCw, X, AlertCircle, EyeOff, Eye, ImageIcon } from 'lucide-react'
 import Link from 'next/link'
-import { isValidUrl } from '@/lib/utils'
+import { isValidUrl, sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
@@ -254,7 +254,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
       {image && (
         <div className="mt-3">
           <Link
-            href={image.fileUrl}
+            href={sanitizeUrl(image.fileUrl)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
