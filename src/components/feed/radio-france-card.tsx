@@ -215,6 +215,7 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
                 <img
                   src={sanitizeUrl(doc.image, '')}
                   alt={doc.title}
+                  loading="lazy"
                   className="w-full h-72 object-cover transition-opacity hover:opacity-90"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none'

@@ -158,6 +158,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
             <img
               src={cachedImageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
               alt="Illustration"
+              loading="lazy"
               className={`w-full ${imageHeight} object-contain transition-opacity hover:opacity-90 pointer-events-none bg-neutral-100 dark:bg-neutral-800`}
               onError={() => setImageError(true)}
             />
