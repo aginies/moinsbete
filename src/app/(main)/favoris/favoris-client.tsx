@@ -7,6 +7,7 @@ import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { toggleBookmarkAction } from '@/actions/bookmark-actions'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
+import { Pagination } from '@/components/ui/pagination'
 
 interface Idea {
   id: string
@@ -142,41 +143,12 @@ export function FavorisClient({
       ))}
 
       {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-2">
-          {currentPage > 1 && (
-            <Link
-              href={pageUrl(currentPage - 1)}
-              className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
-            >
-              ← Précédent
-            </Link>
-          )}
-
-          <div className="flex items-center gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Link
-                key={page}
-                href={pageUrl(page)}
-                className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                  page === currentPage
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                {page}
-              </Link>
-            ))}
-          </div>
-
-          {currentPage < totalPages && (
-            <Link
-              href={pageUrl(currentPage + 1)}
-              className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
-            >
-              Suivant →
-            </Link>
-          )}
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={() => {}}
+          pageUrl={pageUrl}
+        />
       )}
 
       {total > 0 && (
