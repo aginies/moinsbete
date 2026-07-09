@@ -115,22 +115,10 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     onSwipeLeft: handleClick,
     onSwipeRight: handleClick,
     onDragStart: prefetchNextFact,
+    onRefresh: handleClick,
     swipeable,
     resetDep: fact.id,
   })
-
-  // Desktop keyboard accessibility listener
-  useEffect(() => {
-    if (!swipeable) return
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
-        if (e.key === ' ') e.preventDefault() // prevent spacebar page scroll
-        handleClick()
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [swipeable, handleClick])
 
   const resolvedImageFilename = fact.imageFilename || imageFilename
   const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError

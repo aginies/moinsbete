@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Newspaper, ExternalLink, RefreshCw, Share2, EyeOff } from 'lucide-react'
+import { Newspaper, ExternalLink, RefreshCw, EyeOff } from 'lucide-react'
 import Link from 'next/link'
-import { isValidUrl } from '@/lib/utils'
+import { sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 
@@ -153,7 +153,7 @@ export function CnrsNewsCard({ onToggle }: CnrsNewsCardProps) {
           )}
 
           <Link
-            href={article.link}
+            href={sanitizeUrl(article.link)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
