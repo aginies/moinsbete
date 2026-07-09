@@ -1,4 +1,11 @@
-import { prisma } from '@/lib/db'
+import type { BookmarkType } from '@/generated/client'
+import {
+  toggleFavorite,
+  isFavorite,
+  getFavorites,
+  getFavoritesCount,
+  type FavoriteItem,
+} from '@/lib/favorite'
 import type { FavoriteDoc } from '@/app/(main)/favoris/radio-france-favorites'
 
 export interface RadioFavoriteMeta {
@@ -11,63 +18,47 @@ export interface RadioFavoriteMeta {
   favoritedAt?: string
 }
 
-export async function toggleRadioFavorite(userId: string, docId: string, action?: 'add' | 'remove', meta?: RadioFavoriteMeta) {
-  const existing = await prisma.bookmark.findFirst({
-    where: { userId, resourceId: docId, type: 'RADIO_FRANCE' },
-  })
+const TYPE: BookmarkType = 'RADIO_FRANCE'
 
-  if (existing) {
-    if (action === 'add') return { bookmarked: false, wasBookmarked: true }
-    await prisma.bookmark.delete({ where: { id: existing.id } })
-    return { bookmarked: false, wasBookmarked: true }
+function mapMeta(meta: unknown): FavoriteDoc | null {
+  const m = meta as RadioFavoriteMeta | null
+  if (!m) return null
+  return {
+    id: m.favoritedAt || '',
+    title: m.title || '',
+    description: m.description || '',
+    url: m.url || '',
+    radio: m.radio || '',
+    section: m.section || '',
+    image: m.image,
+    favoritedAt: m.favoritedAt || new Date().toISOString(),
   }
+}
 
-  if (action === 'remove') return { bookmarked: true, wasBookmarked: false }
-
-  await prisma.bookmark.create({
-    data: {
-      userId,
-      resourceId: docId,
-      type: 'RADIO_FRANCE',
-      meta: meta as any,
-    },
-  })
-  return { bookmarked: true, wasBookmarked: false }
+export async function toggleRadioFavorite(
+  userId: string,
+  docId: string,
+  action?: 'add' | 'remove',
+  meta?: RadioFavoriteMeta,
+) {
+  return toggleFavorite(userId, TYPE, docId, action, meta as Record<string, unknown>)
 }
 
 export async function isRadioFavorite(userId: string, docId: string): Promise<boolean> {
-  const existing = await prisma.bookmark.findFirst({
-    where: { userId, resourceId: docId, type: 'RADIO_FRANCE' },
-  })
-  return !!existing
+  return isFavorite(userId, TYPE, docId)
 }
 
 export async function getRadioFavorites(userId: string): Promise<FavoriteDoc[]> {
-  const bookmarks = await prisma.bookmark.findMany({
-    where: { userId, type: 'RADIO_FRANCE' },
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      resourceId: true,
-      meta: true,
-      createdAt: true,
-    },
-  })
-
-  return bookmarks.map((b) => ({
-    id: b.resourceId || '',
-    title: (b.meta as RadioFavoriteMeta | null)?.title || b.resourceId || '',
-    description: (b.meta as RadioFavoriteMeta | null)?.description || '',
-    url: (b.meta as RadioFavoriteMeta | null)?.url || '',
-    radio: (b.meta as RadioFavoriteMeta | null)?.radio || '',
-    section: (b.meta as RadioFavoriteMeta | null)?.section || '',
-    image: (b.meta as RadioFavoriteMeta | null)?.image,
-    favoritedAt: b.createdAt.toISOString(),
-  }))
+  const items = await getFavorites(userId, TYPE)
+  return items
+    .map((item) => {
+      const mapped = mapMeta(item.meta)
+      if (!mapped) return null
+      return { ...mapped, id: item.resourceId }
+    })
+    .filter((d): d is FavoriteDoc => d !== null)
 }
 
 export async function getRadioFavoritesCount(userId: string): Promise<number> {
-  return prisma.bookmark.count({
-    where: { userId, type: 'RADIO_FRANCE' },
-  })
+  return getFavoritesCount(userId, TYPE)
 }

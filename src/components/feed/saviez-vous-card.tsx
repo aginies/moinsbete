@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { useState, useCallback, useMemo } from 'react'
-import { Lightbulb, ExternalLink } from 'lucide-react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import { Lightbulb, ExternalLink, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl as isValidUrlUtil, sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
@@ -13,6 +13,7 @@ import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
+import { toggleFavoriteAction, isFavoriteAction } from '@/actions/favorite-actions'
 
 interface SaviezVousCardProps {
   id: string
@@ -120,6 +121,32 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   } : null
   const { share, copied, shareUrl } = useShare(shareOptions)
 
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [favoriting, setFavoriting] = useState(false)
+  const factId = fact.id
+
+  useEffect(() => {
+    if (!factId) return
+    let mounted = true
+    isFavoriteAction('SAVIEZ_VOUS', factId).then((result) => {
+      if (mounted) setIsFavorited(result.isFavorite)
+    })
+    return () => { mounted = false }
+  }, [factId])
+
+  const handleToggleFavorite = useCallback(async () => {
+    if (!fact || favoriting) return
+    setFavoriting(true)
+    const action = isFavorited ? 'remove' : 'add'
+    await toggleFavoriteAction('SAVIEZ_VOUS', fact.id, action, {
+      text: fact.text,
+      sourceUrl: fact.sourceUrl,
+      imageFilename: fact.imageFilename,
+    })
+    setIsFavorited(!isFavorited)
+    setFavoriting(false)
+  }, [fact, isFavorited, favoriting])
+
   const absX = Math.abs(dragX)
   const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
 
@@ -141,6 +168,19 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         onRefresh={handleClick}
         loading={loading}
         shareOptions={{ onClick: share, copied, shareUrl }}
+        extraActions={
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
+            disabled={favoriting || !fact}
+            className="rounded-full p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all disabled:opacity-50"
+            title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          >
+            <Bookmark
+              className={`h-4 w-4 ${isFavorited ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
+            />
+          </button>
+        }
       />
 
       {hasImage && (

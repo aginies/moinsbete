@@ -24,6 +24,7 @@ interface CardHeaderProps {
     copied: boolean
     shareUrl: string
   }
+  extraActions?: React.ReactNode
   children?: React.ReactNode
 }
 
@@ -42,6 +43,7 @@ export function CardHeader({
   loading,
   onRefresh,
   shareOptions,
+  extraActions,
   children,
 }: CardHeaderProps) {
   return (
@@ -85,6 +87,7 @@ export function CardHeader({
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
         )}
+        {extraActions}
         {shareOptions && (
           <ShareButton onClick={shareOptions.onClick} copied={shareOptions.copied} shareUrl={shareOptions.shareUrl} />
         )}
