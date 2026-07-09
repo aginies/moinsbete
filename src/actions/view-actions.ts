@@ -31,7 +31,7 @@ export async function removeFromHistoryAction(viewedIdeaId: string, userId: stri
     throw new Error('Non autorisé')
   }
 
-  await prisma.viewedIdea.delete({
+  await prisma.viewedIdea.deleteMany({
     where: { id: viewedIdeaId, userId },
   })
 }
