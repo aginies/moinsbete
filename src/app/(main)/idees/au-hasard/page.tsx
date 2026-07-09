@@ -41,7 +41,6 @@ async function fetchRandomIdea(userId?: string, followed?: boolean): Promise<Ide
     return null
   }
   const data = await res.json()
-  console.log('[au-hasard] API response:', data)
   return data.idea
 }
 
@@ -75,9 +74,7 @@ export default function RandomIdeaClient() {
 
   useEffect(() => {
     if (!userId) return
-    console.log('[au-hasard] fetching with userId:', userId, 'followed:', followed)
     fetchRandomIdea(userId, followed).then((result) => {
-      console.log('[au-hasard] fetch result:', result)
       setIdea(result)
       if (result && userId) {
         markIdeaViewedAction(result.id, userId).catch((err) => {
