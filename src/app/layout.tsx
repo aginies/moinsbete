@@ -14,13 +14,11 @@ const revalidate = 3600
 const inter = Inter({ subsets: ['latin'] })
 
 let appVersion = 'dev'
-let buildDate = ''
 try {
   const versionFile = JSON.parse(
     readFileSync(join(process.cwd(), 'version.json'), 'utf-8')
   )
   appVersion = versionFile.version || 'dev'
-  buildDate = versionFile.buildDate ? new Date(versionFile.buildDate).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : ''
 } catch {}
 
 export const metadata: Metadata = {
@@ -91,14 +89,16 @@ export default async function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <footer className="py-6 text-center text-xs text-muted-foreground">
-            <Link href="/a-propos" className="hover:underline">À propos</Link>
-            {' · '}
-            <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
-            {' · '}
-            {ideaCount} idées · {factCount} faits · guibo ©
-            {' · '}
-            v{appVersion} · {buildDate}
-          </footer>
+             <Link href="/a-propos" className="hover:underline">À propos</Link>
+             {' · '}
+             <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
+             {' · '}
+             {ideaCount} idées · {factCount} faits
+             {' · '}
+             guibo.com ©
+             {' · '}
+             v{appVersion}
+           </footer>
           <BottomNav />
         </div>
         <Toaster />
