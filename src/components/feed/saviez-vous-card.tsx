@@ -133,7 +133,16 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
                 <EyeOff className="h-4 w-4" />
               </button>
             )}
-            <RefreshCw className={`h-4 w-4 text-blue-600 dark:text-blue-400 ${loading ? 'animate-spin' : ''}`} />
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleClick()
+              }}
+              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors cursor-pointer"
+              title="Rafraîchir"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           </div>
         </div>

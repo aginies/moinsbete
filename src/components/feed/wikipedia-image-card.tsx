@@ -159,7 +159,16 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
                 <EyeOff className="h-4 w-4" />
               </button>
             )}
-            <RefreshCw className={`h-4 w-4 text-teal-600 dark:text-teal-400 ${loading ? 'animate-spin' : ''}`} />
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                loadImage()
+              }}
+              className="text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-200 transition-colors cursor-pointer"
+              title="Rafraîchir"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           </div>
         </div>
