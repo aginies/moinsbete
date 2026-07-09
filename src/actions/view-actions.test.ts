@@ -98,19 +98,14 @@ describe('removeFromHistoryAction', () => {
 
   it('removes specific idea from history', async () => {
     const { prisma } = await import('@/lib/db')
-    vi.mocked(prisma.viewedIdea.delete).mockResolvedValue({
-      id: 'view-1',
-      userId: 'user-1',
-      ideaId: 'idea-1',
-      viewedAt: new Date(),
-    })
+    vi.mocked(prisma.viewedIdea.deleteMany).mockResolvedValue({ count: 1 })
 
     const { removeFromHistoryAction } = await import('@/actions/view-actions')
     const result = await removeFromHistoryAction('view-1', 'user-1')
 
     expect(result).toBeUndefined()
     const { prisma: p } = await import('@/lib/db')
-    expect(vi.mocked(p.viewedIdea.delete)).toHaveBeenCalledWith({
+    expect(vi.mocked(p.viewedIdea.deleteMany)).toHaveBeenCalledWith({
       where: { id: 'view-1', userId: 'user-1' },
     })
   })
