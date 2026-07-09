@@ -17,6 +17,7 @@ interface ImageData {
 interface WikipediaImageCardProps {
   fullImage?: boolean
   showLink?: boolean
+  showToggle?: boolean
 }
 
 async function fetchRandomImage(): Promise<ImageData | null> {
@@ -30,7 +31,7 @@ async function fetchRandomImage(): Promise<ImageData | null> {
   }
 }
 
-export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, showLink = true }: WikipediaImageCardProps) {
+export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, showLink = true, showToggle = true }: WikipediaImageCardProps) {
   const [image, setImage] = useState<ImageData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -113,7 +114,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
 
   return (
     <>
-      {!show && hasMounted ? (
+      {!show && hasMounted && showToggle ? (
         <div className="mb-6">
           <button
             onClick={handleToggle}
@@ -146,16 +147,18 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
             )}
           </div>
           <div className="flex items-center gap-6">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                handleToggle()
-              }}
-              className="text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-200 transition-colors"
-              title="Masquer la carte"
-            >
-              <EyeOff className="h-4 w-4" />
-            </button>
+            {showToggle && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleToggle()
+                }}
+                className="text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-200 transition-colors"
+                title="Masquer la carte"
+              >
+                <EyeOff className="h-4 w-4" />
+              </button>
+            )}
             <RefreshCw className={`h-4 w-4 text-teal-600 dark:text-teal-400 ${loading ? 'animate-spin' : ''}`} />
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           </div>
