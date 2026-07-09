@@ -20,6 +20,7 @@ interface PaginatedFavoritesListProps {
   darkTextColor?: string
   buttonColor?: string
   buttonHoverBg?: string
+  onRemoveComplete?: () => Promise<void> | void
 }
 
 const PAGE_SIZE = 10
@@ -32,6 +33,7 @@ export function PaginatedFavoritesList({
   storageKey,
   userId,
   removeFavorite,
+  onRemoveComplete,
   borderColor = 'border-purple-200',
   bgGradient = 'bg-gradient-to-br from-purple-50 to-violet-50',
   darkBorderColor = 'dark:border-purple-800',
@@ -74,6 +76,30 @@ export function PaginatedFavoritesList({
   const start = (safePage - 1) * PAGE_SIZE
   const paginatedFavorites = allFavorites.slice(start, start + PAGE_SIZE)
 
+  const handleRemove = useCallback(async (item: any) => {
+    await removeFavorite(item)
+    if (onRemoveComplete) {
+      await onRemoveComplete()
+    } else {
+      await loadFavorites()
+    }
+  }, [removeFavorite, onRemoveComplete])
+
+  const loadFavorites = useCallback(async () => {
+    try {
+      const result = await fetchFn()
+      setAllFavorites(result)
+    } catch {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null
+      setAllFavorites(stored ? JSON.parse(stored) : [])
+    }
+    setLoading(false)
+  }, [fetchFn, storageKey])
+
+  useEffect(() => {
+    loadFavorites()
+  }, [loadFavorites])
+
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
     if (page === 1) {
@@ -114,7 +140,7 @@ export function PaginatedFavoritesList({
             key={item.id || index}
             className={`group relative rounded-xl border-2 ${borderColor} ${bgGradient} p-4 ${darkBorderColor} ${darkBgGradient} hover:shadow-md transition-shadow`}
           >
-            {renderItem(item, () => removeFavorite(item))}
+            {renderItem(item, () => handleRemove(item))}
           </div>
         ))}
       </div>
