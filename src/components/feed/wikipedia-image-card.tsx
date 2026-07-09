@@ -109,6 +109,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     onSwipeLeft: loadImage,
     onSwipeRight: loadImage,
     onDragStart: prefetchNextImage,
+    onRefresh: loadImage,
     swipeable,
     resetDep: image?.imageUrl,
   })
@@ -131,19 +132,6 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
       loadImage()
     }
   }, [show, image, loadImage])
-
-  // Desktop keyboard accessibility listener
-  useEffect(() => {
-    if (!swipeable) return
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
-        if (e.key === ' ') e.preventDefault() // prevent spacebar page scroll
-        loadImage()
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [swipeable, loadImage])
 
   const handleToggle = useCallback(() => {
     setShow(prev => {

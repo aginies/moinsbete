@@ -5,6 +5,7 @@ interface UseSwipeGestureOptions {
   onSwipeLeft?: () => void
   onSwipeRight?: () => void
   onDragStart?: () => void
+  onRefresh?: () => void
   swipeable?: boolean
   triggerDistance?: number
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,6 +16,7 @@ export function useSwipeGesture({
   onSwipeLeft,
   onSwipeRight,
   onDragStart,
+  onRefresh,
   swipeable = true,
   triggerDistance = 100,
   resetDep,
@@ -91,6 +93,20 @@ export function useSwipeGesture({
       }
     }
   )
+
+  useEffect(() => {
+    if (!swipeable) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
+        if (e.key === ' ') e.preventDefault()
+        if (onRefresh) {
+          onRefresh()
+        }
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [swipeable, onRefresh])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
