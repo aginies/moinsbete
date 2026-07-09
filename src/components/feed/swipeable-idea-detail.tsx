@@ -157,6 +157,11 @@ const handleShare = useCallback(async (e: React.MouseEvent) => {
     setBookmarked(initialBookmarked || false)
   }, [initialBookmarked])
 
+  useEffect(() => {
+    setDragX(0)
+    setHint(null)
+  }, [idea.id])
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft' && prev) {
       router.push(`/idees/${prev.slug}${topic ? `?topic=${topic}` : collection ? `?collection=${collection}` : ''}`)
