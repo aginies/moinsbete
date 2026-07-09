@@ -112,7 +112,7 @@ export default async function CollectionPage({
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
       <Link
         href="/"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground hidden md:inline-flex"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:hidden"
       >
         <ArrowLeft className="h-4 w-4" />
         Accueil
