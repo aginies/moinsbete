@@ -5,6 +5,7 @@ import { SearchBar } from '@/components/search/search-bar'
 import Link from 'next/link'
 import { ArrowLeft, BookOpen, Globe, FileText, Headphones } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { mapIdeaWithTopics } from '@/lib/feed-helpers'
 
 const sourceTypeIcons: Record<string, React.ReactNode> = {
   WIKIPEDIA: <Globe className="h-4 w-4" />,
@@ -74,7 +75,7 @@ export default async function SourceDetailPage({
       url: source.url,
       coverUrl: source.coverUrl,
     },
-    topics: idea.ideaTopics.map(it => it.topic),
+    topics: mapIdeaWithTopics(idea),
   })).filter(idea => !viewedIdeaIds.has(idea.id))
 
   return (

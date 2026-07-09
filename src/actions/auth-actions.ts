@@ -8,7 +8,8 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { headers } from 'next/headers'
-import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_LOGIN_MAX, SESSION_COOKIE_MAX_AGE_MS, SESSION_MAX_AGE_SECONDS } from '@/lib/constants'
+import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_LOGIN_MAX, SESSION_COOKIE_MAX_AGE_MS, SESSION_MAX_AGE_SECONDS, MIN_PASSWORD_LENGTH } from '@/lib/constants'
+import { getClientIpFromHeaders } from '@/lib/ip'
 
 export async function isRegistrationLocked() {
   return process.env.REGISTRATION_LOCKED === 'true'
@@ -21,9 +22,7 @@ export async function registerAction(formData: {
 }) {
   const { email, password, displayName } = formData
 
-  const headersList = await headers()
-  const rawIp = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-  const clientId = rawIp.split(',')[0].trim()
+  const clientId = await getClientIpFromHeaders()
   if (!checkRateLimit(`register:${clientId}`, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_WINDOW_MS)) {
     return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
   }
@@ -54,9 +53,7 @@ export async function loginAction(formData: {
   email: string
   password: string
 }) {
-  const headersList = await headers()
-  const rawIp = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-  const clientId = rawIp.split(',')[0].trim()
+  const clientId = await getClientIpFromHeaders()
   if (!checkRateLimit(`login:${clientId}`, RATE_LIMIT_LOGIN_MAX, RATE_LIMIT_WINDOW_MS)) {
     return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
   }
@@ -121,8 +118,8 @@ export async function changePasswordAction(formData: FormData) {
   const currentPassword = formData.get('currentPassword') as string
   const newPassword = formData.get('newPassword') as string
 
-  if (newPassword.length < 8) {
-    return { error: 'Le mot de passe doit contenir au moins 8 caractères' }
+  if (newPassword.length < MIN_PASSWORD_LENGTH) {
+    return { error: `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères` }
   }
 
   const session = await getServerSession(authOptions)

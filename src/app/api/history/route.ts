@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limiter'
+import { getClientIp } from '@/lib/ip'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import { mapIdeaWithTopics } from '@/lib/feed-helpers'
 
 export async function GET(request: NextRequest) {
   const session = await getSession()
@@ -12,8 +15,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const userId = session.user.id
 
+  const clientId = getClientIp(request)
   if (!checkRateLimit(`history:${userId}`, 60, 60_000)) {
-    return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
+    return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
   }
   const page = parseInt(searchParams.get('page') || '1')
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
@@ -45,7 +49,7 @@ export async function GET(request: NextRequest) {
     const ideas = viewedIdeas.map(v => ({
       ...v.idea,
       viewedAt: v.viewedAt,
-      topics: v.idea.ideaTopics.map(it => it.topic),
+      topics: mapIdeaWithTopics(v.idea),
       id: v.idea.id,
     }))
 

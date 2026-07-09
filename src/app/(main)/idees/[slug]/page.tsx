@@ -1,14 +1,15 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-
 import { getSession } from '@/lib/auth'
 import { markIdeaViewedAction } from '@/actions/view-actions'
 import { SwipeableIdeaDetail } from '@/components/feed/swipeable-idea-detail'
 import { IdeaDetailClient } from './idea-detail-client'
+import { mapIdeaWithTopics } from '@/lib/feed-helpers'
+import type { Idea } from '@/types/idea'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapIdeaToClient(idea: any) {
+function mapIdeaToClient(idea: any): Idea | null {
   if (!idea) return null
   return {
     id: idea.id,
@@ -23,8 +24,7 @@ function mapIdeaToClient(idea: any) {
       url: idea.source.url,
       coverUrl: idea.source.coverUrl,
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    topics: idea.ideaTopics.map((it: any) => it.topic),
+    topics: mapIdeaWithTopics(idea),
   }
 }
 

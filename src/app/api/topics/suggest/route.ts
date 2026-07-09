@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db'
 import { suggestTopic } from '@/lib/llm'
 import { slugify } from '@/lib/utils'
 import { checkRateLimit } from '@/lib/rate-limiter'
+import { getClientIp } from '@/lib/ip'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
 const META_PATTERNS = [
   'Portail:',
@@ -23,10 +25,9 @@ function isMetaCategory(category: string): boolean {
 export async function POST(request: NextRequest) {
   let category: string | undefined
   try {
-    const rawIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
-    const clientId = rawIp.split(',')[0].trim()
+    const clientId = getClientIp(request)
     if (!checkRateLimit(`suggest:${clientId}`, 10, 60_000)) {
-      return NextResponse.json({ error: 'Trop de demandes. Réessayez dans 60 secondes.' }, { status: 429 })
+      return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 
     const body = await request.json()

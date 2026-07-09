@@ -6,29 +6,10 @@ import Image from 'next/image'
 import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Clock, Sparkles, Lightbulb } from 'lucide-react'
 import { toggleBookmarkAction } from '@/actions/bookmark-actions'
 import { isValidUrl } from '@/lib/utils'
+import type { Idea } from '@/types/idea'
 
 interface IdeaDetailClientProps {
-  idea: {
-    id: string
-    title: string
-    content: string
-    takeaway: string
-    slug: string
-    saviezVous: string | null
-    source: {
-      title: string
-      type: string
-      url: string | null
-      coverUrl: string | null
-    }
-    topics: Array<{
-      id: string
-      name: string
-      slug: string
-      icon: string
-      color: string
-    }>
-  }
+  idea: Idea
   prev: { slug: string; title: string } | null
   next: { slug: string; title: string } | null
   topic?: string

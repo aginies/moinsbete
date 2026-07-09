@@ -5,28 +5,7 @@ import { IdeaCard, CompactIdeaCard } from './idea-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-
-interface Idea {
-  id: string
-  title: string
-  content: string
-  takeaway: string
-  slug: string
-   source: {
-      title: string
-      type: string
-      url?: string | null
-      coverUrl?: string | null
-    }
-  topics: Array<{
-    id: string
-    name: string
-    slug: string
-    icon: string
-    color: string
-  }>
-  viewedAt?: string
-}
+import type { Idea } from '@/types/idea'
 
 interface FeedProps {
   topic?: string
