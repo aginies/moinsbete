@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { ExternalLink, X } from 'lucide-react'
+import { ExternalLink, X, ArrowUpRight } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getSaviezVousFavoritesAction, toggleSaviezVousFavoriteAction } from '@/actions/saviez-vous-bookmark-actions'
 import { FavoritesList, type FavoriteItemBase } from '@/components/feed/favorites-list'
@@ -114,6 +114,13 @@ export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
             </div>
             <div className="flex items-center gap-2">
               <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
+              <Link
+                href={`/saviez-vous/${item.id}`}
+                className="rounded-full p-1.5 text-blue-600 opacity-60 hover:opacity-100 hover:text-blue-800 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"
+                title="Voir le fait"
+              >
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
               <button
                 onClick={onRemove}
                 className="rounded-full p-1.5 text-blue-600 opacity-60 hover:opacity-100 hover:text-blue-800 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"
