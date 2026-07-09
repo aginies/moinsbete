@@ -31,13 +31,17 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
   const [error, setError] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
-  const [show, setShow] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('wikipedia_image_card_visible')
-      if (stored !== null) return stored === 'true'
+  const [show, setShow] = useState(true)
+  const [hasMounted, setHasMounted] = useState(false)
+
+  useEffect(() => {
+    setHasMounted(true)
+    const stored = localStorage.getItem('wikipedia_image_card_visible')
+    if (stored !== null) {
+      setShow(stored === 'true')
     }
-    return true
-  })
+  }, [])
+
   const [lastRefreshed, setLastRefreshed] = useState(0)
   const canRefresh = lastRefreshed === 0 || Date.now() - lastRefreshed >= 2000
   const hasLoadedRef = useRef(false)
@@ -84,7 +88,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
 
   return (
     <>
-      {!show ? (
+      {!show && hasMounted ? (
         <div className="mb-6">
           <button
             onClick={handleToggle}
