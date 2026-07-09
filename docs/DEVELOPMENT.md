@@ -81,6 +81,27 @@ sqlite3 dev.db "SELECT email, role FROM \"User\";"
 
 ## Scripts utilitaires
 
+### `scripts/change-password.ts`
+
+Change le mot de passe d'un utilisateur par email.
+
+```bash
+npx tsx scripts/change-password.ts <email> <nouveau-mot-de-passe>
+```
+
+Exemple :
+```bash
+npx tsx scripts/change-password.ts admin@example.com MyNewPassword123
+```
+
+### `scripts/rename-ideas.ts`
+
+Renomme massivement les idées génériques (Définition, Nature, Origine) en titres descriptifs via LLM. Reprend depuis un checkpoint en cas d'interruption.
+
+```bash
+npx tsx scripts/rename-ideas.ts
+```
+
 ### `scripts/scrape-saviez-vous.ts`
 
 Scrap les archives "Le saviez-vous ?" de Wikipédia (2016-2025).
@@ -146,5 +167,7 @@ src/scripts/
 ├── seed-ideas.ts          # 148+ idées manuelles
 ├── generate-ideas.ts      # Génération LLM par topic
 ├── ingest-wikipedia.ts    # Ingestion massive Wikipédia
-└── enhance-ideas.ts       # Amélioration contenu court des idées
+├── enhance-ideas.ts       # Amélioration contenu court des idées
+├── change-password.ts     # Changement mot de passe utilisateur
+└── rename-ideas.ts        # Renommage massif des idées via LLM
 ```
