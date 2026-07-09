@@ -51,6 +51,24 @@ async function fetchRawPage(title: string): Promise<string> {
   return res.text()
 }
 
+function extractFullSizeImageUrl(thumbUrl: string): string | null {
+  if (!thumbUrl) return null
+  
+  // Handle protocol-relative URLs
+  let url = thumbUrl
+  if (url.startsWith('//')) url = 'https:' + url
+  
+  // Match thumbnail URLs: /wikipedia/commons/thumb/[hash]/[hash]/[file]/[NNNpx-file]
+  // Capture: [hash]/[hash]/[file]
+  const thumbRegex = /\/wikipedia\/commons\/thumb\/([^/]+)\/([^/]+)\/(.+?)\/\d+px-.+/
+  const match = url.match(thumbRegex)
+  if (match) {
+    return `https://upload.wikimedia.org/wikipedia/commons/${match[1]}/${match[2]}/${match[3]}`
+  }
+  
+  return null
+}
+
 function parseFactsFromHtml(html: string): Fact[] {
   const facts: Fact[] = []
 
@@ -72,12 +90,17 @@ function parseFactsFromHtml(html: string): Fact[] {
       }
     )
 
-    // Extract image URL from <img> tag
+    // Extract image URL from <figure typeof="mw:File"> containing the <img>
     let imageUrl: string | null = null
-    const imgMatch = content.match(/<img[^>]+src="([^"]+)"/)
-    if (imgMatch) {
-      const url = imgMatch[1]
-      imageUrl = url.startsWith('http') ? url : `https:${url}`
+    const figureMatch = content.match(/<figure[^>]*typeof=["']?mw:File["']?[^>]*>([\s\S]*?)<\/figure>/i)
+    if (figureMatch) {
+      const figContent = figureMatch[1]
+      const imgMatch = figContent.match(/src=["']([^"']+)["']/)
+      if (imgMatch) {
+        let url = imgMatch[1]
+        url = url.startsWith('http') ? url : `https:${url}`
+        imageUrl = extractFullSizeImageUrl(url)
+      }
     }
 
     // Remove <dl><dd><small>...</small></dd></dl> display info
