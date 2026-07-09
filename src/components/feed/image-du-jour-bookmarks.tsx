@@ -9,6 +9,7 @@ import { FavoritesList, type FavoriteItemBase } from '@/components/feed/favorite
 import { getStoredFavorites, removeStoredFavorite } from '@/lib/favorite-storage'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
+import { ImageLightbox } from './image-lightbox'
 
 export interface ImageDuJourFavoriteDoc extends FavoriteItemBase {
   id: string
@@ -27,6 +28,7 @@ interface ImageDuJourBookmarksProps {
 export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
   const [favorites, setFavorites] = useState<ImageDuJourFavoriteDoc[]>([])
   const [loading, setLoading] = useState(true)
+  const [showFullImage, setShowFullImage] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadFavorites() {
@@ -85,7 +87,10 @@ export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               {isValidUrl(item.imageUrl) && (
-                <div className="mb-2 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800">
+                <div
+                  className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800"
+                  onClick={() => setShowFullImage(item.imageUrl)}
+                >
                   <img
                     src={sanitizeUrl(item.imageUrl, '')}
                     alt={item.description}
@@ -95,6 +100,7 @@ export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
                       (e.target as HTMLImageElement).style.display = 'none'
                     }}
                   />
+                  <p className="px-2 py-1 text-xs text-teal-700 dark:text-teal-300">Cliquer pour agrandir</p>
                 </div>
               )}
               <p className="text-sm leading-relaxed text-teal-900 dark:text-teal-100 mb-2">
@@ -128,5 +134,12 @@ export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
         )
       }}
     />
+    {showFullImage && (
+      <ImageLightbox
+        src={showFullImage}
+        alt="Image du jour"
+        onClose={() => setShowFullImage(null)}
+      />
+    )}
   )
 }
