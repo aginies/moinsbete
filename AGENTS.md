@@ -11,6 +11,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Avoid duplicate code
 - Find simple solution
 - Do not delete or reset DB
+- Bump version in version.json to X.X.+1 for minor fixes
 
 # Project Conventions
 
