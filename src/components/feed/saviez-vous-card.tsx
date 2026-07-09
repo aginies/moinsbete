@@ -65,7 +65,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
   }, [resolvedImageFilename, imageKey])
 
   const handleClick = useCallback(async () => {
-    if (loading || !canRefresh) return
+    if (loading) return
     setLoading(true)
     setImageError(false)
     const newFact = await fetchRandomFact()
@@ -75,7 +75,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({ id, text
     }
     setLoading(false)
     setLastRefreshed(Date.now())
-  }, [loading, canRefresh])
+  }, [loading])
 
   const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError
 
