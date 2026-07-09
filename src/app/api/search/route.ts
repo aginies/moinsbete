@@ -10,6 +10,7 @@ interface SearchCacheEntry {
   ideas: any[]
   sources: any[]
   topics: any[]
+  facts: any[]
   expiresAt: number
 }
 
@@ -28,11 +29,12 @@ function getCachedSearch(q: string) {
   return null
 }
 
-function setCachedSearch(q: string, ideas: any[], sources: any[], topics: any[]) {
+function setCachedSearch(q: string, ideas: any[], sources: any[], topics: any[], facts: any[]) {
   searchCache.set(q, {
     ideas,
     sources,
     topics,
+    facts,
     expiresAt: Date.now() + SEARCH_CACHE_TTL,
   })
 }
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest) {
     let q = searchParams.get('q')?.trim() || ''
 
     if (!q || q.length < 2) {
-      return NextResponse.json({ ideas: [], sources: [], topics: [] })
+      return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [] })
     }
 
     if (q.length > 100) {
@@ -58,11 +60,11 @@ export async function GET(request: NextRequest) {
     // Check cache
     const cached = getCachedSearch(q)
     if (cached) {
-      return NextResponse.json({ ideas: cached.ideas, sources: cached.sources, topics: cached.topics })
+      return NextResponse.json({ ideas: cached.ideas, sources: cached.sources, topics: cached.topics, facts: cached.facts })
     }
 
     const normalizedQ = normalizeAccents(q).toLowerCase()
-    const [ideas, sources, topics] = await Promise.all([
+    const [ideas, sources, topics, facts] = await Promise.all([
       prisma.idea.findMany({
         where: {
           isPublished: true,
@@ -118,6 +120,17 @@ export async function GET(request: NextRequest) {
         },
         take: 10,
       }),
+      prisma.saviezVousFact.findMany({
+        where: {
+          text: { contains: q },
+        },
+        select: {
+          id: true,
+          text: true,
+          createdAt: true,
+        },
+        take: 10,
+      }),
     ])
 
     const filteredIdeas = ideas.filter(idea =>
@@ -135,17 +148,21 @@ export async function GET(request: NextRequest) {
       normalizeAccents(topic.name).toLowerCase().includes(normalizedQ)
     )
 
+    const filteredFacts = facts.filter(fact =>
+      normalizeAccents(fact.text).toLowerCase().includes(normalizedQ)
+    )
+
     const formattedIdeas = filteredIdeas.map(idea => ({
       ...idea,
       topics: mapIdeaWithTopics(idea),
     }))
 
     // Cache results
-    setCachedSearch(normalizedQ, formattedIdeas, filteredSources, filteredTopics)
+    setCachedSearch(normalizedQ, formattedIdeas, filteredSources, filteredTopics, filteredFacts)
 
-    return NextResponse.json({ ideas: formattedIdeas, sources, topics })
+    return NextResponse.json({ ideas: formattedIdeas, sources: filteredSources, topics: filteredTopics, facts: filteredFacts })
   } catch (error) {
     console.error('Search error:', error)
-    return NextResponse.json({ ideas: [], sources: [], topics: [] })
+    return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [] })
   }
 }

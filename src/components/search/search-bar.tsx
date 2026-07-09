@@ -10,6 +10,7 @@ interface SearchResult {
   ideas: Array<{ id: string; title: string; slug: string; topics: Array<{ name: string; icon: string }> }>
   sources: Array<{ id: string; title: string; slug: string }>
   topics: Array<{ id: string; name: string; slug: string; icon: string }>
+  facts: Array<{ id: string; text: string }>
 }
 
 import React from 'react'
@@ -60,7 +61,7 @@ export const SearchBar = React.memo(function SearchBar() {
     return () => clearTimeout(timer)
   }, [query])
 
-  const hasResults = results && (results.ideas.length > 0 || results.sources.length > 0 || results.topics.length > 0)
+  const hasResults = results && (results.ideas.length > 0 || results.sources.length > 0 || results.topics.length > 0 || results.facts.length > 0)
 
   return (
     <div className="relative" ref={searchRef}>
@@ -68,7 +69,7 @@ export const SearchBar = React.memo(function SearchBar() {
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Rechercher des idées, sources, sujets..."
+          placeholder="Rechercher des idées, sources, sujets, faits..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-10 pr-10"
@@ -78,7 +79,7 @@ export const SearchBar = React.memo(function SearchBar() {
             variant="ghost"
             size="sm"
             className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0"
-            onClick={() => setQuery('')}
+            onClick={() => { setQuery(''); setIsOpen(false) }}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -123,6 +124,24 @@ export const SearchBar = React.memo(function SearchBar() {
                         {idea.topics[0].icon} {idea.topics[0].name}
                       </span>
                     )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {results.facts.length > 0 && (
+            <div className="mb-3">
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Faits</h4>
+              <div className="space-y-1">
+                {results.facts.slice(0, 10).map((fact) => (
+                  <Link
+                    key={fact.id}
+                    href="/le-saviez-vous"
+                    className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                    onClick={() => { setQuery(''); setIsOpen(false) }}
+                  >
+                    <span className="line-clamp-2">{fact.text}</span>
                   </Link>
                 ))}
               </div>
