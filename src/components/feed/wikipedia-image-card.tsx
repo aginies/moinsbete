@@ -40,6 +40,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   swipeable = false,
 }: WikipediaImageCardProps) {
   const [image, setImage] = useState<ImageData | null>(null)
+  const [nextImage, setNextImage] = useState<ImageData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [imageError, setImageError] = useState(false)
@@ -60,24 +61,43 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
 
   const hasLoadedRef = useRef(false)
 
+  // Background pre-fetching
+  const prefetchNextImage = useCallback(async () => {
+    const fetched = await fetchRandomImage()
+    if (fetched) {
+      setNextImage(fetched)
+    }
+  }, [])
+
   const loadImage = useCallback(async () => {
     if (loading) return
-    setLoading(true)
-    setError(false)
-    setImageError(false)
-    const newImage = await fetchRandomImage()
-    if (newImage) {
-      setImage(newImage)
+    
+    if (nextImage) {
+      // Instant transition!
+      setImage(nextImage)
+      setNextImage(null)
       setError(false)
+      setImageError(false)
     } else {
-      setError(true)
+      // Fallback on-demand fetch
+      setLoading(true)
+      setError(false)
+      setImageError(false)
+      const newImage = await fetchRandomImage()
+      if (newImage) {
+        setImage(newImage)
+        setError(false)
+      } else {
+        setError(true)
+      }
+      setLoading(false)
     }
-    setLoading(false)
-  }, [loading])
+  }, [loading, nextImage])
 
   const {
     bind,
     containerRef,
+    dragX,
     swipeStyle,
     isDragging,
     prefersReducedMotion,
@@ -86,6 +106,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   } = useSwipeGesture({
     onSwipeLeft: loadImage,
     onSwipeRight: loadImage,
+    onDragStart: prefetchNextImage,
     swipeable,
     resetDep: image?.imageUrl,
   })
@@ -109,6 +130,19 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     }
   }, [show, image, loadImage])
 
+  // Desktop keyboard accessibility listener
+  useEffect(() => {
+    if (!swipeable) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
+        if (e.key === ' ') e.preventDefault() // prevent spacebar page scroll
+        loadImage()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [swipeable, loadImage])
+
   const handleToggle = useCallback(() => {
     setShow(prev => {
       const next = !prev
@@ -125,6 +159,10 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     url: image.fileUrl,
   } : null
   const { share, copied, shareUrl } = useShare(shareOptions)
+
+  const absX = Math.abs(dragX)
+  const bgScale = Math.min(0.95 + (absX / 1000) * 0.05, 1)
+  const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
 
   const cardContent = (
     <div
@@ -257,6 +295,42 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
               style={{ opacity: nextHintOpacity }}
             >
               Suivant →
+            </div>
+          )}
+
+          {/* Background Card Stack (Using pre-fetched nextImage) */}
+          {nextImage && bgOpacity > 0 && (
+            <div
+              className="absolute inset-0 pointer-events-none transition-all duration-200 ease-out z-0"
+              style={{
+                transform: `scale(${bgScale})`,
+                opacity: bgOpacity,
+              }}
+            >
+              <div className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-50 p-5 dark:border-teal-700 dark:from-teal-950/30 dark:to-emerald-950/30 h-full opacity-60 overflow-hidden">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-400 dark:bg-teal-600">
+                      <Camera className="h-4 w-4 text-teal-950" />
+                    </div>
+                    <h3 className="text-sm font-bold uppercase tracking-wide text-teal-800 dark:text-teal-300">
+                      Image du jour
+                    </h3>
+                  </div>
+                </div>
+                {nextImage.imageUrl && (
+                  <div className="mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 h-48">
+                    <img
+                      src={nextImage.imageUrl}
+                      alt="Next Preview"
+                      className="w-full h-full object-cover pointer-events-none opacity-90"
+                    />
+                  </div>
+                )}
+                <p className="text-sm leading-relaxed text-teal-900 dark:text-teal-100">
+                  {nextImage.description}
+                </p>
+              </div>
             </div>
           )}
 

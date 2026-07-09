@@ -42,12 +42,26 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   swipeable = false,
 }: SaviezVousCardProps) {
   const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
+  const [nextFact, setNextFact] = useState<{ id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null>(null)
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [imageKey, setImageKey] = useState(0)
   const [showFullImage, setShowFullImage] = useState(false)
   const [show, setShow] = useState(true)
   const [hasMounted, setHasMounted] = useState(false)
+
+  // Background pre-fetching
+  const prefetchNextFact = useCallback(async () => {
+    const fetched = await fetchRandomFact()
+    if (fetched) {
+      setNextFact({
+        id: fetched.id,
+        text: fetched.text,
+        sourceUrl: fetched.sourceUrl,
+        imageFilename: fetched.imageFilename,
+      })
+    }
+  }, [])
 
   useEffect(() => {
     setHasMounted(true)
@@ -57,36 +71,31 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     }
   }, [])
 
-  const handleToggle = useCallback(() => {
-    setShow(prev => {
-      const next = !prev
-      localStorage.setItem('saviez_vous_card_visible', String(next))
-      return next
-    })
-  }, [])
-  const resolvedImageFilename = fact.imageFilename || imageFilename
-
-  const cachedImageUrl = useMemo(() => {
-    if (!resolvedImageFilename || !isValidUrlUtil(resolvedImageFilename)) return resolvedImageFilename
-    const separator = resolvedImageFilename.includes('?') ? '&' : '?'
-    return `${resolvedImageFilename}${separator}imageKey=${imageKey}`
-  }, [resolvedImageFilename, imageKey])
-
   const handleClick = useCallback(async () => {
     if (loading) return
-    setLoading(true)
-    setImageError(false)
-    const newFact = await fetchRandomFact()
-    if (newFact) {
-      setFact({ id: newFact.id, text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename })
+    
+    if (nextFact) {
+      // Instant transition!
+      setFact(nextFact)
+      setNextFact(null)
       setImageKey(prev => prev + 1)
+    } else {
+      // Fallback on-demand fetch
+      setLoading(true)
+      setImageError(false)
+      const newFact = await fetchRandomFact()
+      if (newFact) {
+        setFact({ id: newFact.id, text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename })
+        setImageKey(prev => prev + 1)
+      }
+      setLoading(false)
     }
-    setLoading(false)
-  }, [loading])
+  }, [loading, nextFact])
 
   const {
     bind,
     containerRef,
+    dragX,
     swipeStyle,
     isDragging,
     prefersReducedMotion,
@@ -95,11 +104,32 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   } = useSwipeGesture({
     onSwipeLeft: handleClick,
     onSwipeRight: handleClick,
+    onDragStart: prefetchNextFact,
     swipeable,
     resetDep: fact.id,
   })
 
+  // Desktop keyboard accessibility listener
+  useEffect(() => {
+    if (!swipeable) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
+        if (e.key === ' ') e.preventDefault() // prevent spacebar page scroll
+        handleClick()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [swipeable, handleClick])
+
+  const resolvedImageFilename = fact.imageFilename || imageFilename
   const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError
+
+  const cachedImageUrl = useMemo(() => {
+    if (!resolvedImageFilename || !isValidUrlUtil(resolvedImageFilename)) return resolvedImageFilename
+    const separator = resolvedImageFilename.includes('?') ? '&' : '?'
+    return `${resolvedImageFilename}${separator}imageKey=${imageKey}`
+  }, [resolvedImageFilename, imageKey])
 
   const shareOptions = fact.id ? {
     title: 'Le saviez-vous ?',
@@ -107,6 +137,10 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     url: `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'}/saviez-vous/${fact.id}`,
   } : null
   const { share, copied, shareUrl } = useShare(shareOptions)
+
+  const absX = Math.abs(dragX)
+  const bgScale = Math.min(0.95 + (absX / 1000) * 0.05, 1)
+  const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
 
   const cardContent = (
     <div
@@ -230,6 +264,33 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
               style={{ opacity: nextHintOpacity }}
             >
               Suivant →
+            </div>
+          )}
+
+          {/* Background Card Stack (Using pre-fetched nextFact) */}
+          {nextFact && bgOpacity > 0 && (
+            <div
+              className="absolute inset-0 pointer-events-none transition-all duration-200 ease-out z-0"
+              style={{
+                transform: `scale(${bgScale})`,
+                opacity: bgOpacity,
+              }}
+            >
+              <div className="rounded-xl border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-cyan-950/30 h-full opacity-60 overflow-hidden">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-400 dark:bg-blue-600">
+                      <Lightbulb className="h-4 w-4 text-blue-950" />
+                    </div>
+                    <h3 className="text-sm font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">
+                      Le saviez-vous ?
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
+                  {nextFact.text}
+                </p>
+              </div>
             </div>
           )}
 
