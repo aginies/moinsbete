@@ -38,6 +38,8 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
     }
     return true
   })
+  const [lastRefreshed, setLastRefreshed] = useState(0)
+  const canRefresh = lastRefreshed === 0 || Date.now() - lastRefreshed >= 2000
   const hasLoadedRef = useRef(false)
 
   const handleToggle = useCallback(() => {
@@ -49,6 +51,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
   }, [])
 
   const loadImage = useCallback(async () => {
+    if (loading || !canRefresh) return
     setLoading(true)
     setError(false)
     setImageError(false)
@@ -60,7 +63,8 @@ export const WikipediaImageCard = function WikipediaImageCardInner({ fullImage, 
       setError(true)
     }
     setLoading(false)
-  }, [])
+    setLastRefreshed(Date.now())
+  }, [loading, canRefresh])
 
   useEffect(() => {
     if (!hasLoadedRef.current) {
