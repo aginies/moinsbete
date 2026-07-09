@@ -65,19 +65,20 @@ export default async function RootLayout({
         <meta name="theme-color" content="#372773" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <script>
-          {typeof document !== 'undefined' && (function() {
-            var updateThemeColor = function() {
-              var isDark = document.documentElement.classList.contains('dark');
-              var meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
-              if (meta) meta.content = isDark ? '#372773' : '#7C6CF6';
-            };
-            updateThemeColor();
-            var observer = new MutationObserver(updateThemeColor);
-            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-            return '';
-          })()}
-        </script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function() {
+              var updateThemeColor = function() {
+                var isDark = document.documentElement.classList.contains('dark');
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.content = isDark ? '#372773' : '#7C6CF6';
+              };
+              updateThemeColor();
+              var observer = new MutationObserver(updateThemeColor);
+              observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            })();`,
+          }}
+        />
       </head>
       <body className={`${inter.className} min-h-screen bg-background antialiased`}>
         <div className="flex min-h-screen flex-col">
