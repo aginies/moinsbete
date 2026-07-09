@@ -71,6 +71,14 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     }
   }, [])
 
+  const handleToggle = useCallback(() => {
+    setShow(prev => {
+      const next = !prev
+      localStorage.setItem('saviez_vous_card_visible', String(next))
+      return next
+    })
+  }, [])
+
   const handleClick = useCallback(async () => {
     if (loading) return
     
