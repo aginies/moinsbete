@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Clock, Sparkles, Lightbulb } from 'lucide-react'
 import { toggleBookmarkAction } from '@/actions/bookmark-actions'
 import { isValidUrl } from '@/lib/utils'
+import { useShare } from '@/components/feed/use-share'
 import type { Idea } from '@/types/idea'
 
 interface IdeaDetailClientProps {
@@ -15,11 +16,6 @@ interface IdeaDetailClientProps {
   topic?: string
   collection?: string
   initialBookmarked: boolean
-}
-
-const SHARE_URL = (slug: string) => {
-  if (typeof window === 'undefined') return `/idees/${slug}`
-  return `${window.location.origin}/idees/${slug}`
 }
 
 export function IdeaDetailClient({
@@ -32,7 +28,6 @@ export function IdeaDetailClient({
 }: IdeaDetailClientProps) {
   const [isPending, startTransition] = useTransition()
   const [bookmarked, setBookmarked] = useState(initialBookmarked)
-  const [copied, setCopied] = useState(false)
 
   const handleBookmark = useCallback(async () => {
     if (isPending) return
@@ -49,32 +44,13 @@ export function IdeaDetailClient({
     })
   }, [isPending, bookmarked, idea.id])
 
-  const handleShare = useCallback(async () => {
-    const url = SHARE_URL(idea.slug)
-    const shareData = {
-      title: idea.title,
-      text: idea.takeaway,
-      url,
-    }
-
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      try {
-        await navigator.share(shareData)
-      } catch {
-        // User cancelled or share failed
-      }
-    }
-
-    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      try {
-        await navigator.clipboard.writeText(url)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      } catch {
-        // Clipboard write failed
-      }
-    }
-  }, [idea.slug, idea.title, idea.takeaway])
+  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/idees/${idea.slug}`
+  const shareOptions = {
+    title: idea.title,
+    text: idea.takeaway,
+    url: shareUrl,
+  }
+  const { share: handleShare, copied } = useShare(shareOptions)
 
   const navigationUrl = (slug: string) => {
     const params = new URLSearchParams()

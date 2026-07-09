@@ -8,6 +8,7 @@ import { BookOpen, Lock, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { MIN_PASSWORD_LENGTH } from '@/lib/constants'
 
 export default function ResetPasswordPage() {
   const params = useParams()
@@ -93,7 +94,7 @@ export default function ResetPasswordPage() {
                   type="password"
                   placeholder="••••••••"
                   required
-                  minLength={6}
+                  minLength={MIN_PASSWORD_LENGTH}
                   className="pl-10"
                 />
               </div>
@@ -109,7 +110,7 @@ export default function ResetPasswordPage() {
                   type="password"
                   placeholder="••••••••"
                   required
-                  minLength={6}
+                  minLength={MIN_PASSWORD_LENGTH}
                   className="pl-10"
                 />
               </div>
