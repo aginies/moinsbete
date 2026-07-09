@@ -31,7 +31,22 @@ interface FavoriteDoc {
   favoritedAt: string
 }
 
+interface RadioFranceCardProps {
+  initialDoc?: RadioFranceDoc
+  userId?: string
+}
+
 const FAVORITES_KEY = 'rf_favorites'
+
+function getFavorites(): FavoriteDoc[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const stored = localStorage.getItem(FAVORITES_KEY)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
 
 async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null> {
   try {

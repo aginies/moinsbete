@@ -29,7 +29,7 @@ export async function toggleRadioFavorite(userId: string, docId: string, action?
       userId,
       resourceId: docId,
       type: 'RADIO_FRANCE',
-      meta: meta || null,
+      meta: meta as any,
     },
   })
   return { bookmarked: true, wasBookmarked: false }

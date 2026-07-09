@@ -54,7 +54,7 @@ export async function getSavedIdeas() {
   }
 
   const bookmarks = await prisma.bookmark.findMany({
-    where: { userId: session.user.id },
+    where: { userId: session.user.id, type: 'IDEA' },
     include: {
       idea: {
         include: {
@@ -70,8 +70,8 @@ export async function getSavedIdeas() {
 
   return {
     ideas: bookmarks.map(b => ({
-      ...b.idea,
-      topics: mapIdeaWithTopics(b.idea),
+      ...b.idea!,
+      topics: mapIdeaWithTopics(b.idea!),
     })),
     count: bookmarks.length,
   }
