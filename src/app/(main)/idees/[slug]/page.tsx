@@ -7,6 +7,27 @@ import { markIdeaViewedAction } from '@/actions/view-actions'
 import { SwipeableIdeaDetail } from '@/components/feed/swipeable-idea-detail'
 import { IdeaDetailClient } from './idea-detail-client'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapIdeaToClient(idea: any) {
+  if (!idea) return null
+  return {
+    id: idea.id,
+    title: idea.title,
+    content: idea.content,
+    takeaway: idea.takeaway,
+    slug: idea.slug,
+    saviezVous: idea.saviezVous,
+    source: {
+      title: idea.source.title,
+      type: idea.source.type,
+      url: idea.source.url,
+      coverUrl: idea.source.coverUrl,
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    topics: idea.ideaTopics.map((it: any) => it.topic),
+  }
+}
+
 async function getPrevNext(slug: string, currentOrderIndex: number, topic?: string, collection?: string) {
   const where: { isPublished: boolean; orderIndex: { not: number }; ideaTopics?: { some: { topicId: { in: string[] } } } } = {
     isPublished: true,
@@ -46,20 +67,49 @@ async function getPrevNext(slug: string, currentOrderIndex: number, topic?: stri
     }
   }
 
-  const [prev, next] = await Promise.all([
+  const include = {
+    source: true,
+    ideaTopics: {
+      include: {
+        topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+      },
+    },
+  }
+
+  let [prev, next] = await Promise.all([
     prisma.idea.findFirst({
       where: { ...where, orderIndex: { lt: currentOrderIndex } },
       orderBy: { orderIndex: 'desc' },
-      select: { slug: true, title: true },
+      include,
     }),
     prisma.idea.findFirst({
       where: { ...where, orderIndex: { gt: currentOrderIndex } },
       orderBy: { orderIndex: 'asc' },
-      select: { slug: true, title: true },
+      include,
     }),
   ])
 
-  return { prev, next }
+  // Infinite looping support: wrap around if at the beginning or end of the queue
+  if (!prev) {
+    prev = await prisma.idea.findFirst({
+      where,
+      orderBy: { orderIndex: 'desc' },
+      include,
+    })
+  }
+
+  if (!next) {
+    next = await prisma.idea.findFirst({
+      where,
+      orderBy: { orderIndex: 'asc' },
+      include,
+    })
+  }
+
+  return {
+    prev: mapIdeaToClient(prev),
+    next: mapIdeaToClient(next),
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -157,8 +207,6 @@ export default async function IdeaDetailPage({
     )
   }
 
-  const topics = idea.ideaTopics.map(it => it.topic)
-
   let isBookmarked = false
   if (session?.user?.id) {
     const bookmark = await prisma.bookmark.findUnique({
@@ -180,21 +228,7 @@ export default async function IdeaDetailPage({
 
   const { prev, next } = await getPrevNext(slug, idea.orderIndex, topic, collection)
 
-  const ideaData = {
-    id: idea.id,
-    title: idea.title,
-    content: idea.content,
-    takeaway: idea.takeaway,
-    slug: idea.slug,
-    saviezVous: idea.saviezVous,
-    source: {
-      title: idea.source.title,
-      type: idea.source.type,
-      url: idea.source.url,
-      coverUrl: idea.source.coverUrl,
-    },
-    topics,
-  }
+  const ideaData = mapIdeaToClient(idea)!
 
   return (
     <>
