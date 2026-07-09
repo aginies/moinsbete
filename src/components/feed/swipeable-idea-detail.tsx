@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Sparkles, Lightbulb } from 'lucide-react'
-import { isValidUrl } from '@/lib/utils'
+import { isValidUrl, sanitizeUrl } from '@/lib/utils'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 
 interface Idea {
@@ -133,7 +133,7 @@ function IdeaCardContent({ idea }: { idea: Idea }) {
               <p className="text-sm font-medium text-foreground">{idea.source.title}</p>
               {idea.source.url && isValidUrl(idea.source.url) && (
                 <a
-                  href={idea.source.url.startsWith('http') ? idea.source.url : `https://${idea.source.url}`}
+                  href={sanitizeUrl(idea.source.url, idea.source.url?.startsWith('http') ? idea.source.url : `https://${idea.source.url}`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
