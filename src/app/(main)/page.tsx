@@ -66,7 +66,7 @@ export default async function HomePage() {
 
       <div className="mb-6">
         <Link
-          href={hasFollowedTopics ? '/idees/au-hasard?followed=1' : '/mon-plan'}
+          href={hasFollowedTopics ? '/idees/au-hasard?followed=1' : '/sujets'}
           className="block rounded-xl border-2 border-rose-400 bg-gradient-to-br from-rose-50 to-pink-50 p-5 dark:border-rose-600 dark:from-rose-950/30 dark:to-pink-950/30 hover:shadow-md transition-shadow"
         >
           <div className="flex items-center gap-3">
