@@ -150,17 +150,6 @@ export default function RandomIdeaClient() {
 
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
-      <div className="mb-4 flex items-center justify-end">
-        <button
-          type="button"
-          onClick={handleRefresh}
-          className="rounded-full p-2 hover:bg-muted transition-colors disabled:opacity-50"
-          disabled={loading}
-        >
-          <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-        </button>
-      </div>
-
       <SwipeableIdeaDetail
         idea={idea}
         prev={null}
@@ -170,6 +159,8 @@ export default function RandomIdeaClient() {
         showNav={false}
         onSwipeLeft={handleRefresh}
         onSwipeRight={handleRefresh}
+        onRefresh={handleRefresh}
+        isRefreshing={loading}
       />
     </div>
   )

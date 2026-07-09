@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Sparkles, Lightbulb } from 'lucide-react'
+import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Sparkles, Lightbulb, RefreshCw } from 'lucide-react'
 import { isValidUrl, sanitizeUrl } from '@/lib/utils'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { useShare } from './use-share'
@@ -22,6 +22,8 @@ interface SwipeableIdeaDetailProps {
   mobileOnly?: boolean
   onSwipeLeft?: () => void
   onSwipeRight?: () => void
+  onRefresh?: () => void
+  isRefreshing?: boolean
 }
 
 function IdeaCardContent({ idea }: { idea: Idea }) {
@@ -142,6 +144,8 @@ export function SwipeableIdeaDetail({
   mobileOnly = false,
   onSwipeLeft,
   onSwipeRight,
+  onRefresh,
+  isRefreshing,
 }: SwipeableIdeaDetailProps) {
   const router = useRouter()
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
@@ -271,6 +275,20 @@ export function SwipeableIdeaDetail({
         >
           <div className="relative rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
             <div className="absolute right-3 top-3 z-10 flex gap-2">
+              {onRefresh && (
+                <button
+                  type="button"
+                  className="rounded-full bg-card/90 p-2 backdrop-blur-sm transition-all shadow-sm hover:bg-muted hover:text-foreground disabled:opacity-50"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    onRefresh()
+                  }}
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw className={`h-5 w-5 text-muted-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
+                </button>
+              )}
               <button
                 type="button"
                 className="rounded-full bg-card/90 p-2 backdrop-blur-sm transition-all shadow-sm hover:bg-muted hover:text-foreground"
