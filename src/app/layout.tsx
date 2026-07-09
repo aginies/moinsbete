@@ -71,7 +71,8 @@ export default async function RootLayout({
         <div className="flex min-h-screen flex-col">
           {process.env.REGISTRATION_LOCKED !== 'false' && (
             <div className="bg-amber-500 text-center text-xs font-semibold text-amber-900 py-1.5 px-4">
-              AMÉLIORATION EN COURS DE LA DB des SUJETS
+              AMÉLIORATION EN COURS DE LA DB des SUJETS<br />
+              CRÉATION DE COMPTE IMPOSSIBLE
             </div>
           )}
           <Navbar />
