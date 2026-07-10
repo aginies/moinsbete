@@ -147,7 +147,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
       {cnrsEnabled && (
         <div className="mb-6">
-          <CnrsNewsCard onToggle={toggleCnrs} userId={userId} />
+          <CnrsNewsCard onToggle={toggleCnrs} userId={userId} visible={true} />
         </div>
       )}
 
@@ -184,33 +184,33 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         </Link>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
         {!saviezVousVisible && saviezVousFact && (
-          <div>
+          <div className="h-full">
             <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} />
           </div>
         )}
 
         {!wikipediaVisible && (
-          <div>
+          <div className="h-full">
             <WikipediaImageCard onToggle={toggleWikipedia} />
           </div>
         )}
 
         {!cnrsEnabled && (
-          <div>
-            <CnrsNewsCard onToggle={toggleCnrs} userId={userId} />
+          <div className="h-full">
+            <CnrsNewsCard onToggle={toggleCnrs} userId={userId} visible={false} />
           </div>
         )}
 
         {!radioFranceVisible && (
-          <div>
+          <div className="h-full">
             <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} />
           </div>
         )}
 
         {!bnfGallicaVisible && (
-          <div>
+          <div className="h-full">
             <BnFGallicaCard onToggle={toggleBnfGallica} userId={userId} />
           </div>
         )}

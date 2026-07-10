@@ -14,6 +14,7 @@ interface CnrsNewsCardProps {
   onToggle?: () => void
   userId?: string
   showToggle?: boolean
+  visible?: boolean
 }
 
 interface CnrsArticle {
@@ -56,7 +57,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
   }
 }
 
-export function CnrsNewsCard({ onToggle, userId, showToggle = true }: CnrsNewsCardProps) {
+export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: CnrsNewsCardProps) {
   const [article, setArticle] = useState<CnrsArticle | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -155,14 +156,12 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true }: CnrsNewsCa
 
   return (
     <>
-      {!show && hasMounted && showToggle ? (
-        <div className="mb-6">
-          <VisibilityButton color={buttonColor} label="Afficher Actualité CNRS" onClick={onToggle || handleToggle} />
-        </div>
-      ) : (
+      {visible === false && hasMounted ? (
+        <VisibilityButton color={buttonColor} label="Afficher Actualité CNRS" onClick={onToggle || handleToggle} />
+      ) : visible === true ? (
         <div
           onClick={loadArticle}
-          className="rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
+          className="flex h-full flex-col rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
         >
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -224,7 +223,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true }: CnrsNewsCa
               (e.target as HTMLImageElement).style.display = 'none'
             }}
           />
-        </div>
+      </div>
       )}
 
       {article && (
@@ -242,19 +241,19 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true }: CnrsNewsCa
           )}
 
           <Link
-            href={sanitizeUrl(article.link)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 hover:underline"
-          >
+             href={sanitizeUrl(article.link)}
+             target="_blank"
+             rel="noopener noreferrer"
+             onClick={(e) => e.stopPropagation()}
+             className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 hover:underline"
+           >
             Lire l'article sur CNRS Le Journal
             <ExternalLink className="h-3 w-3" />
-          </Link>
+        </Link>
         </>
-       )}
-     </div>
       )}
+      </div>
+    ) : null}
     </>
   )
 }

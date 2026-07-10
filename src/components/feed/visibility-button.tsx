@@ -45,14 +45,15 @@ const colorMap: Record<VisibilityButtonProps['color'], { border: string; bg: str
 
 export function VisibilityButton({ color, label, onClick }: VisibilityButtonProps) {
   const c = colorMap[color]
+  const shortLabel = label.replace(/^Afficher\s+/i, '')
   return (
     <button
       onClick={onClick}
-      className={`w-full rounded-xl border-2 border-dashed ${c.border} ${c.bg} p-4 ${c.darkBorder} ${c.darkBg} hover:border-teal-400 hover:bg-teal-50 dark:hover:border-teal-700 dark:hover:bg-teal-950/30 transition-colors`}
+      className={`w-full rounded-xl border-2 border-dashed ${c.border} ${c.bg} p-2 ${c.darkBorder} ${c.darkBg} hover:border-teal-400 hover:bg-teal-50 dark:hover:border-teal-700 dark:hover:bg-green-950/30 transition-colors min-h-12 flex items-center justify-center`}
     >
       <div className={`flex items-center justify-center gap-2 text-sm ${c.text} ${c.darkText}`}>
         <Eye className="h-4 w-4" />
-        <span>{label}</span>
+        <span>{shortLabel}</span>
       </div>
     </button>
   )
