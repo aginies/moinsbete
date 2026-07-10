@@ -7,10 +7,13 @@
 - **Rôles**: `USER` (default), `ADMIN` — stocké dans JWT + DB
 - **Admin RBAC**: page `/admin` et routes API vérifient `session.user.role === 'ADMIN'`
 - **CSRF**: validation par `origin` vs `request.nextUrl.origin` sur tous les endpoints POST
-- **Rate limiting**: login (5/min), register (3/min), topic suggest (10/min) — `src/lib/rate-limiter.ts`
+- **Rate limiting**: async `checkRateLimit()` avec support Redis (in-memory, ioredis, Upstash). Login (5/min), register (3/min), search (30/min), suggest (10/min) — `src/lib/rate-limiter.ts`
+- **IP resolution**: Cloudflare `cf-connecting-ip`, Next.js `request.ip`, `x-forwarded-for` avec `TRUST_PROXY` guard en production
 - **Secret**: `NEXTAUTH_SECRET` avec fallback fort généré par `openssl rand -base64 32`
 
 ## Audit de sécurité (dernière mise à jour)
+
+Voir aussi `SECURITY_REVIEW.md` pour l'audit détaillé.
 
 | Severity | Issue | Status |
 |----------|-------|--------|

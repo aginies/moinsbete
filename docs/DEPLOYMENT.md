@@ -97,6 +97,13 @@ LLM_API_KEY="votre-cle-api"
 
 # TLS (si le LLM utilise un certificat auto-signé)
 # NODE_TLS_REJECT_UNAUTHORIZED=0
+
+# Rate limiting (optionnel, pour multi-instance)
+# RATE_LIMITER_DRIVER=redis
+# REDIS_URL=redis://localhost:6379
+
+# IP proxy (définir si derrière un reverse proxy comme Apache/Nginx)
+# TRUST_PROXY=true
 ```
 
 **Points de sécurité :**

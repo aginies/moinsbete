@@ -21,16 +21,23 @@
 
 ## API
 
-| Route | Méthode | Description |
-|-------|---------|-------------|
-| `/api/feed` | GET | Liste des idées (paginé, filtrable par topic) |
-| `/api/search?q=` | GET | Recherche dans idées, topics, sources |
-| `/api/ideas/[slug]/bookmark` | POST | Toggle bookmark |
-| `/api/ideas/random` | GET | Idée aléatoire |
-| `/api/history` | GET/POST | Historique de consultation (auth requis) |
-| `/api/saviez-vous` | GET | Fait "Le saviez-vous" aléatoire |
-| `/api/auth/reset-password` | POST | Reset mot de passe |
-| `/api/auth/reset-password/generate` | POST | Générer token reset |
+| Route | Méthode | Description | Rate Limit |
+|-------|---------|-------------|------------|
+| `/api/feed` | GET | Liste des idées (paginé, filtrable par topic) | — |
+| `/api/search?q=` | GET | Recherche dans idées, topics, sources | 30/min IP |
+| `/api/ideas/[slug]/bookmark` | POST | Toggle bookmark | — |
+| `/api/ideas/random` | GET | Idée aléatoire | — |
+| `/api/ideas/[slug]/view` | POST | Marquer idée comme vue | — |
+| `/api/history` | GET | Historique de consultation (auth requis) | 60/min user |
+| `/api/saviez-vous` | GET | Fait "Le saviez-vous" aléatoire | 20/min IP |
+| `/api/radio-france` | GET | Épisodes Radio France | 30/min IP |
+| `/api/wikipedia-image` | GET | Image Wikipédia | 10/min IP |
+| `/api/topics/suggest` | POST | Suggestion de topic via LLM | 10/min IP |
+| `/api/auth/reset-password/generate` | POST | Générer token reset | 3/min IP |
+| `/api/auth/reset-password` | POST | Reset mot de passe | 5/min IP |
+| `/api/admin/suggestions/[id]/approve` | POST | Approuver suggestion (admin) | — |
+| `/api/admin/suggestions/[id]/reject` | POST | Rejeter suggestion (admin) | — |
+| `/api/admin/suggestions/[id]/merge` | POST | Fusionner suggestion (admin) | — |
 
 ## Ajouter un nouveau topic
 

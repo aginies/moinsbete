@@ -20,6 +20,9 @@
 | **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN) | variable |
 | **Bookmark** | Bookmarks utilisateur | variable |
 | **ViewedIdea** | Historique de consultation | variable |
+| **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) | variable |
+| **TopicSuggestion** | Suggestions de nouveaux topics (admin) | variable |
+| **PasswordResetToken** | Tokens de réinitialisation de mot de passe | variable |
 
 ## Gestion de la base de données
 
