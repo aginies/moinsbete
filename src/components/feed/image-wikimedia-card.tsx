@@ -43,7 +43,6 @@ const TOPICS = [
   { id: 'wwi', label: 'WWI', icon: '🎖️' },
   { id: 'wwii', label: 'WWII', icon: '🪖' },
   { id: 'art', label: 'Art', icon: '🎭' },
-  { id: 'art-nouveau', label: 'Art Nouveau', icon: '🌺' },
   { id: 'advertisements', label: 'Ads', icon: '📰' },
   { id: 'maps', label: 'Maps', icon: '🗺️' },
   { id: 'sports-car', label: 'Sports Cars', icon: '🏎️' },
