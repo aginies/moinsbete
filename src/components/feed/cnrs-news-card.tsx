@@ -7,10 +7,13 @@ import { sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 import { toggleCnrsFavoriteAction, isCnrsFavoriteAction } from '@/actions/cnrs-bookmark-actions'
+import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { VisibilityButton } from './visibility-button'
 
 interface CnrsNewsCardProps {
   onToggle?: () => void
   userId?: string
+  showToggle?: boolean
 }
 
 interface CnrsArticle {
@@ -53,11 +56,12 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
   }
 }
 
-export function CnrsNewsCard({ onToggle, userId }: CnrsNewsCardProps) {
+export function CnrsNewsCard({ onToggle, userId, showToggle = true }: CnrsNewsCardProps) {
   const [article, setArticle] = useState<CnrsArticle | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'cnrs_news_enabled' })
   const FAVORITES_KEY = 'cnrs_favorites'
 
   const getFavorites = useCallback(() => {
@@ -150,10 +154,16 @@ export function CnrsNewsCard({ onToggle, userId }: CnrsNewsCardProps) {
   const { share, copied, shareUrl } = useShare(shareOptions)
 
   return (
-    <div
-      onClick={loadArticle}
-      className="rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
-    >
+    <>
+      {!show && hasMounted && showToggle ? (
+        <div className="mb-6">
+          <VisibilityButton color={buttonColor} label="Afficher Actualité CNRS" onClick={onToggle || handleToggle} />
+        </div>
+      ) : (
+        <div
+          onClick={loadArticle}
+          className="rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
+        >
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 dark:bg-green-600">
@@ -242,7 +252,9 @@ export function CnrsNewsCard({ onToggle, userId }: CnrsNewsCardProps) {
             <ExternalLink className="h-3 w-3" />
           </Link>
         </>
+       )}
+     </div>
       )}
-    </div>
+    </>
   )
 }
