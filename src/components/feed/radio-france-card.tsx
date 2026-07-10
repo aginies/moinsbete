@@ -145,7 +145,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
   if (!show && hasMounted) {
     return (
       <div className="mb-6">
-        <VisibilityButton color={buttonColor} label="Afficher Documentaires Radio France" onClick={onToggle || handleToggle} />
+        <VisibilityButton color={buttonColor} label="Afficher Docs Radio France" onClick={onToggle || handleToggle} />
       </div>
     )
   }
@@ -159,7 +159,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
               <Lightbulb className="h-4 w-4 text-white" />
             </div>
             <h3 className="text-sm font-bold uppercase tracking-wide text-purple-800 dark:text-purple-300">
-              Documentaires Radio France
+              Docs Radio France
             </h3>
           </div>
           <div className="flex items-center gap-6">
