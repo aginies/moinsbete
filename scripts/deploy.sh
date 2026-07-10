@@ -32,7 +32,10 @@ if [ -f "$DEST/dev.db" ]; then
   echo "DB backup saved: $BACKUP_NAME"
 fi
 
+# Install deps
 cd "$DEST"
+npm ci --production
+
 npx prisma generate
 npx prisma migrate deploy
 npm run build
