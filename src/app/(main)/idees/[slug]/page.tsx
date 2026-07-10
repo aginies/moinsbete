@@ -7,6 +7,7 @@ import { SwipeableIdeaDetail } from '@/components/feed/swipeable-idea-detail'
 import { IdeaDetailClient } from './idea-detail-client'
 import { mapIdeaWithTopics } from '@/lib/feed-helpers'
 import type { Idea } from '@/types/idea'
+import { isValidUrl } from '@/lib/utils'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapIdeaToClient(idea: any): Idea | null {
@@ -128,15 +129,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!idea) {
     return { title: 'Idée introuvable | MoinsBête' }
-  }
-
-  const isValidUrl = (url: string) => {
-    try {
-      const parsed = new URL(url)
-      return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-    } catch {
-      return false
-    }
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moinsbete.guibo.com'

@@ -1,9 +1,9 @@
 import type { BookmarkType } from '@/generated/client'
 import {
-  toggleFavorite,
-  isFavorite,
-  getFavorites,
-  getFavoritesCount,
+  toggleBookmark,
+  isBookmarked,
+  getBookmarks,
+  getBookmarksCount,
 } from '@/lib/favorite'
 import type { CnrsFavoriteDoc } from '@/components/feed/cnrs-bookmarks'
 
@@ -37,20 +37,20 @@ export async function toggleCnrsFavorite(
   action?: 'add' | 'remove',
   meta?: CnrsFavoriteMeta,
 ) {
-  return toggleFavorite(userId, TYPE, articleId, action, meta as Record<string, unknown>)
+  return toggleBookmark(userId, TYPE, articleId, action, meta as Record<string, unknown>)
 }
 
 export async function isCnrsFavorite(userId: string, articleId: string): Promise<boolean> {
-  return isFavorite(userId, TYPE, articleId)
+  return isBookmarked(userId, TYPE, articleId)
 }
 
 export async function getCnrsFavorites(userId: string): Promise<CnrsFavoriteDoc[]> {
-  const items = await getFavorites(userId, TYPE)
+  const items = await getBookmarks(userId, TYPE)
   return items
     .map((item) => mapMeta(item.meta, item.resourceId || ''))
     .filter((d): d is CnrsFavoriteDoc => d !== null)
 }
 
 export async function getCnrsFavoritesCount(userId: string): Promise<number> {
-  return getFavoritesCount(userId, TYPE)
+  return getBookmarksCount(userId, TYPE)
 }

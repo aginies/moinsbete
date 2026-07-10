@@ -90,7 +90,7 @@ export function CnrsNewsCard({ onToggle, userId }: CnrsNewsCardProps) {
   useEffect(() => {
     if (userId && article) {
       isCnrsFavoriteAction(article.link).then(result => {
-        if (result.isFavorite) {
+        if (result.isBookmarked) {
           setIsFavorite(true)
         }
       }).catch(() => {})

@@ -59,8 +59,8 @@ export function ImageDuJourBookmarks({ userId, onRemoveComplete }: ImageDuJourBo
   const handleRemove = async (item: ImageDuJourFavoriteDoc) => {
     if (userId) {
       try {
-        const { toggleFavoriteAction } = await import('@/actions/favorite-actions')
-        await toggleFavoriteAction('IMAGE_DU_JOUR', item.fileUrl, 'remove')
+        const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
+        await toggleBookmarkAction('IMAGE_DU_JOUR', item.fileUrl, 'remove')
       } catch {
         // localStorage fallback
       }

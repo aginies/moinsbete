@@ -27,8 +27,8 @@ export function CnrsBookmarks({ userId, onRemoveComplete }: CnrsBookmarksProps) 
   const handleRemove = async (item: CnrsFavoriteDoc) => {
     if (userId) {
       try {
-        const { toggleFavoriteAction } = await import('@/actions/favorite-actions')
-        await toggleFavoriteAction('CNRS_NEWS', item.link, 'remove')
+        const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
+        await toggleBookmarkAction('CNRS_NEWS', item.link, 'remove')
       } catch {
         // localStorage fallback
       }

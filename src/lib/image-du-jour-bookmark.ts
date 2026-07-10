@@ -1,9 +1,9 @@
 import type { BookmarkType } from '@/generated/client'
 import {
-  toggleFavorite,
-  isFavorite,
-  getFavorites,
-  getFavoritesCount,
+  toggleBookmark,
+  isBookmarked,
+  getBookmarks,
+  getBookmarksCount,
 } from '@/lib/favorite'
 import type { ImageDuJourFavoriteDoc } from '@/components/feed/image-du-jour-bookmarks'
 
@@ -35,20 +35,20 @@ export async function toggleImageDuJourFavorite(
   action?: 'add' | 'remove',
   meta?: ImageDuJourFavoriteMeta,
 ) {
-  return toggleFavorite(userId, TYPE, docId, action, meta as Record<string, unknown>)
+  return toggleBookmark(userId, TYPE, docId, action, meta as Record<string, unknown>)
 }
 
 export async function isImageDuJourFavorite(userId: string, docId: string): Promise<boolean> {
-  return isFavorite(userId, TYPE, docId)
+  return isBookmarked(userId, TYPE, docId)
 }
 
 export async function getImageDuJourFavorites(userId: string): Promise<ImageDuJourFavoriteDoc[]> {
-  const items = await getFavorites(userId, TYPE)
+  const items = await getBookmarks(userId, TYPE)
   return items
     .map((item) => mapMeta(item.meta, item.resourceId || ''))
     .filter((d): d is ImageDuJourFavoriteDoc => d !== null)
 }
 
 export async function getImageDuJourFavoritesCount(userId: string): Promise<number> {
-  return getFavoritesCount(userId, TYPE)
+  return getBookmarksCount(userId, TYPE)
 }
