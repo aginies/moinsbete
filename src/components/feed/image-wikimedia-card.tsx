@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { BookOpen, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
+import { BookOpen, ExternalLink, RefreshCw, EyeOff, Bookmark, Filter } from 'lucide-react'
 import Link from 'next/link'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
@@ -69,13 +69,14 @@ export function ImageWikimediaCard({ userId, swipeable = false, fullImage = fals
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeTopics, setActiveTopics] = useState<string[]>(['aviation'])
+  const [showCategories, setShowCategories] = useState(true)
 
-  // Load active topics from localStorage after mounting (client-side only to prevent hydration mismatch)
+  // Load showCategories and active topics preference from localStorage after mounting
   useEffect(() => {
-    const stored = localStorage.getItem('image_wikimedia_active_topics')
-    if (stored) {
+    const storedTopics = localStorage.getItem('image_wikimedia_active_topics')
+    if (storedTopics) {
       try {
-        const parsed = JSON.parse(stored)
+        const parsed = JSON.parse(storedTopics)
         if (Array.isArray(parsed) && parsed.length > 0) {
           const valid = parsed.filter(id => TOPICS.some(t => t.id === id))
           if (valid.length > 0) {
@@ -84,6 +85,20 @@ export function ImageWikimediaCard({ userId, swipeable = false, fullImage = fals
         }
       } catch {}
     }
+
+    const storedShow = localStorage.getItem('image_wikimedia_show_categories')
+    if (storedShow !== null) {
+      setShowCategories(storedShow === 'true')
+    }
+  }, [])
+
+  const handleToggleCategories = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowCategories(prev => {
+      const next = !prev
+      localStorage.setItem('image_wikimedia_show_categories', String(next))
+      return next
+    })
   }, [])
 
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({
@@ -194,6 +209,13 @@ export function ImageWikimediaCard({ userId, swipeable = false, fullImage = fals
           </Link>
         </div>
         <div className="flex items-center gap-6">
+          <button
+            onClick={handleToggleCategories}
+            className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
+            title={showCategories ? 'Masquer les thèmes' : 'Afficher les thèmes'}
+          >
+            <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
+          </button>
            {showToggle && (
              <button
                onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
@@ -219,24 +241,26 @@ export function ImageWikimediaCard({ userId, swipeable = false, fullImage = fals
         </div>
       </div>
 
-      <div className="mb-3 flex gap-1.5 flex-wrap">
-        {TOPICS.map(topic => {
-          const isActive = activeTopics.includes(topic.id)
-          return (
-            <button
-              key={topic.id}
-              onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
-              className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
-                isActive
-                  ? 'bg-rose-600 text-white border-rose-600'
-                  : 'bg-white dark:bg-neutral-800 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:border-rose-400'
-              }`}
-            >
-              {topic.icon} {topic.label}
-            </button>
-          )
-        })}
-      </div>
+      {showCategories && (
+        <div className="mb-3 flex gap-1.5 flex-wrap">
+          {TOPICS.map(topic => {
+            const isActive = activeTopics.includes(topic.id)
+            return (
+              <button
+                key={topic.id}
+                onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
+                className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                  isActive
+                    ? 'bg-rose-600 text-white border-rose-600'
+                    : 'bg-white dark:bg-neutral-800 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:border-rose-400'
+                }`}
+              >
+                {topic.icon} {topic.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {error && !loading && (
         <div className="mb-3 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-100/50 p-3 dark:border-rose-800 dark:bg-rose-900/20">
