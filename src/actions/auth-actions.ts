@@ -23,7 +23,7 @@ export async function registerAction(formData: {
   const { email, password, displayName } = formData
 
   const clientId = await getClientIpFromHeaders()
-  if (!checkRateLimit(`register:${clientId}`, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_WINDOW_MS)) {
+  if (!(await checkRateLimit(`register:${clientId}`, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_WINDOW_MS))) {
     return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
   }
 
@@ -54,7 +54,7 @@ export async function loginAction(formData: {
   password: string
 }) {
   const clientId = await getClientIpFromHeaders()
-  if (!checkRateLimit(`login:${clientId}`, RATE_LIMIT_LOGIN_MAX, RATE_LIMIT_WINDOW_MS)) {
+  if (!(await checkRateLimit(`login:${clientId}`, RATE_LIMIT_LOGIN_MAX, RATE_LIMIT_WINDOW_MS))) {
     return { error: 'Trop de tentatives. Réessayez dans 60 secondes.' }
   }
 

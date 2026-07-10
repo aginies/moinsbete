@@ -6,7 +6,7 @@ import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
 export async function GET(request: NextRequest) {
   const clientId = getClientIp(request)
-  if (!checkRateLimit(`radio-france:${clientId}`, 30, 60_000)) {
+  if (!(await checkRateLimit(`radio-france:${clientId}`, 30, 60_000))) {
     return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
   }
 

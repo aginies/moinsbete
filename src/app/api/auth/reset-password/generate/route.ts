@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   const clientId = getClientIp(request)
-  if (!checkRateLimit(`reset-generate:${clientId}`, RATE_LIMIT_RESET_GENERATE_MAX, RATE_LIMIT_RESET_GENERATE_WINDOW_MS)) {
+  if (!(await checkRateLimit(`reset-generate:${clientId}`, RATE_LIMIT_RESET_GENERATE_MAX, RATE_LIMIT_RESET_GENERATE_WINDOW_MS))) {
     return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
   }
 

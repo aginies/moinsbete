@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   let category: string | undefined
   try {
     const clientId = getClientIp(request)
-    if (!checkRateLimit(`suggest:${clientId}`, 10, 60_000)) {
+    if (!(await checkRateLimit(`suggest:${clientId}`, 10, 60_000))) {
       return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 

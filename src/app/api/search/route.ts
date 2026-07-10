@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     }
 
     const clientId = getClientIp(request)
-    if (!checkRateLimit(`search:${clientId}`, 30, 60_000)) {
+    if (!(await checkRateLimit(`search:${clientId}`, 30, 60_000))) {
       return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 
