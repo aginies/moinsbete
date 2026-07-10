@@ -122,7 +122,7 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
   }, [userId, image])
 
   const handleBookmark = useCallback(async () => {
-    if (!image || !userId) return
+    if (!image) return
     const newFavorite = !isFavorite
 
     try {
@@ -137,7 +137,7 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
     } catch {
       setIsFavorite(prev => !prev)
     }
-  }, [image, isFavorite, userId])
+  }, [image, isFavorite])
 
   const handleTopicToggle = useCallback((topicId: string) => {
     setActiveTopics(prev => {
@@ -204,7 +204,7 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
             </button>
           )}
           <RefreshCw className={`h-4 w-4 text-rose-600 dark:text-rose-400 ${loading ? 'animate-spin' : ''}`} />
-          {image && userId && (
+          {image && (
             <button
               onClick={(e) => { e.stopPropagation(); handleBookmark() }}
               className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
