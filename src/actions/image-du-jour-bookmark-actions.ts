@@ -8,7 +8,7 @@ import type { ImageDuJourFavoriteMeta } from '@/lib/image-du-jour-bookmark'
 
 const TYPE: BookmarkType = 'IMAGE_DU_JOUR'
 
-export const imageDuJourActions = createBookmarkManagerActions(imageDuJourManager)
+const imageDuJourActions = createBookmarkManagerActions(imageDuJourManager)
 
 export async function toggleImageDuJourFavoriteAction(docId: string, action?: 'add' | 'remove', meta?: ImageDuJourFavoriteMeta) {
   return toggleBookmarkAction(TYPE, docId, action, meta as Record<string, unknown>)
