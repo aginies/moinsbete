@@ -8,7 +8,7 @@ import type { RadioFavoriteMeta } from '@/lib/radio-bookmark'
 
 const TYPE: BookmarkType = 'RADIO_FRANCE'
 
-export const radioActions = createBookmarkManagerActions(radioManager)
+const radioActions = createBookmarkManagerActions(radioManager)
 
 export async function toggleRadioFavoriteAction(docId: string, action?: 'add' | 'remove', meta?: RadioFavoriteMeta) {
   return toggleBookmarkAction(TYPE, docId, action, meta as Record<string, unknown>)

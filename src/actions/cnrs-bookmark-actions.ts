@@ -8,7 +8,7 @@ import type { CnrsFavoriteMeta } from '@/lib/cnrs-bookmark'
 
 const TYPE: BookmarkType = 'CNRS_NEWS'
 
-export const cnrsActions = createBookmarkManagerActions(cnrsManager)
+const cnrsActions = createBookmarkManagerActions(cnrsManager)
 
 export async function toggleCnrsFavoriteAction(articleId: string, action?: 'add' | 'remove', meta?: CnrsFavoriteMeta) {
   return toggleBookmarkAction(TYPE, articleId, action, meta as Record<string, unknown>)
