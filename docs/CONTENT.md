@@ -13,7 +13,6 @@
 | **Collection** | Collections d'idées |
 | **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) |
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) |
-| **CommunityArticle** | Articles communautaires |
 
 ## Topics disponibles (21)
 
