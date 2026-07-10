@@ -212,6 +212,11 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
               {image.auteur}
             </p>
           )}
+          {image.description && (
+            <p className="text-sm leading-relaxed text-rose-900 dark:text-rose-100 mb-2">
+              {image.description}
+            </p>
+          )}
           <p className="text-xs text-rose-600 dark:text-rose-400 mb-2">
             {image.droits || 'Bibliothèque nationale de France'}
           </p>

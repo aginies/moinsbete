@@ -60,6 +60,7 @@ async function fetchGalleryPage(page: number, session: string): Promise<GallicaI
         imageUrl: baseUrl,
         zoomUrl: baseUrl,
         thumbnailUrl: `${GALLERY_BASE}/wa_vignette?docid=${docid}&SID=${session}&psite=IMAGE`,
+        description: item.description?.value || '',
         link,
       }
     })
