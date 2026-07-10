@@ -57,11 +57,11 @@ export function MindMap({ nodes, links }: MindMapProps) {
     if (fgRef.current) {
       const chargeForce = fgRef.current.d3Force('charge')
       if (chargeForce) {
-        chargeForce.distanceMax(60)
+        chargeForce.distanceMax(100)
       }
       const linkForce = fgRef.current.d3Force('link')
       if (linkForce) {
-        linkForce.distance(20)
+        linkForce.distance(100)
       }
     }
   }, [nodes.length, links.length])
