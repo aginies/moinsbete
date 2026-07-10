@@ -126,7 +126,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
       {wikipediaVisible && (
         <div className="mb-6">
-          <WikipediaImageCard onToggle={toggleWikipedia} />
+          <WikipediaImageCard onToggle={toggleWikipedia} largeImage />
         </div>
       )}
 
@@ -178,7 +178,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
         {!wikipediaVisible && (
           <div className="h-full">
-            <WikipediaImageCard onToggle={toggleWikipedia} />
+<WikipediaImageCard onToggle={toggleWikipedia} largeImage />
           </div>
         )}
 
