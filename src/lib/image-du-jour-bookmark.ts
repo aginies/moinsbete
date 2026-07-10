@@ -1,11 +1,6 @@
 import type { BookmarkType } from '@/generated/client'
-import {
-  toggleBookmark,
-  isBookmarked,
-  getBookmarks,
-  getBookmarksCount,
-} from '@/lib/favorite'
 import type { ImageDuJourFavoriteDoc } from '@/components/feed/image-du-jour-bookmarks'
+import { createBookmarkManager } from '@/lib/bookmark-manager'
 
 export interface ImageDuJourFavoriteMeta {
   imageUrl?: string
@@ -16,7 +11,7 @@ export interface ImageDuJourFavoriteMeta {
 
 const TYPE: BookmarkType = 'IMAGE_DU_JOUR'
 
-function mapMeta(meta: unknown, resourceId: string): ImageDuJourFavoriteDoc | null {
+const mapMeta: (meta: unknown, resourceId: string) => ImageDuJourFavoriteDoc | null = (meta, resourceId) => {
   const m = meta as ImageDuJourFavoriteMeta | null
   if (!m) return null
   return {
@@ -29,26 +24,7 @@ function mapMeta(meta: unknown, resourceId: string): ImageDuJourFavoriteDoc | nu
   }
 }
 
-export async function toggleImageDuJourFavorite(
-  userId: string,
-  docId: string,
-  action?: 'add' | 'remove',
-  meta?: ImageDuJourFavoriteMeta,
-) {
-  return toggleBookmark(userId, TYPE, docId, action, meta as Record<string, unknown>)
-}
+export const imageDuJourManager = createBookmarkManager(TYPE, mapMeta)
 
-export async function isImageDuJourFavorite(userId: string, docId: string): Promise<boolean> {
-  return isBookmarked(userId, TYPE, docId)
-}
-
-export async function getImageDuJourFavorites(userId: string): Promise<ImageDuJourFavoriteDoc[]> {
-  const items = await getBookmarks(userId, TYPE)
-  return items
-    .map((item) => mapMeta(item.meta, item.resourceId || ''))
-    .filter((d): d is ImageDuJourFavoriteDoc => d !== null)
-}
-
-export async function getImageDuJourFavoritesCount(userId: string): Promise<number> {
-  return getBookmarksCount(userId, TYPE)
-}
+export const getImageDuJourFavorites = imageDuJourManager.getFavorites.bind(imageDuJourManager)
+export const getImageDuJourFavoritesCount = imageDuJourManager.getFavoritesCount.bind(imageDuJourManager)

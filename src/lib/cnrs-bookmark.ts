@@ -1,11 +1,6 @@
 import type { BookmarkType } from '@/generated/client'
-import {
-  toggleBookmark,
-  isBookmarked,
-  getBookmarks,
-  getBookmarksCount,
-} from '@/lib/favorite'
 import type { CnrsFavoriteDoc } from '@/components/feed/cnrs-bookmarks'
+import { createBookmarkManager } from '@/lib/bookmark-manager'
 
 export interface CnrsFavoriteMeta {
   title?: string
@@ -17,7 +12,7 @@ export interface CnrsFavoriteMeta {
 
 const TYPE: BookmarkType = 'CNRS_NEWS'
 
-function mapMeta(meta: unknown, resourceId: string): CnrsFavoriteDoc | null {
+const mapMeta: (meta: unknown, resourceId: string) => CnrsFavoriteDoc | null = (meta, resourceId) => {
   const m = meta as CnrsFavoriteMeta | null
   if (!m) return null
   return {
@@ -31,26 +26,7 @@ function mapMeta(meta: unknown, resourceId: string): CnrsFavoriteDoc | null {
   }
 }
 
-export async function toggleCnrsFavorite(
-  userId: string,
-  articleId: string,
-  action?: 'add' | 'remove',
-  meta?: CnrsFavoriteMeta,
-) {
-  return toggleBookmark(userId, TYPE, articleId, action, meta as Record<string, unknown>)
-}
+export const cnrsManager = createBookmarkManager(TYPE, mapMeta)
 
-export async function isCnrsFavorite(userId: string, articleId: string): Promise<boolean> {
-  return isBookmarked(userId, TYPE, articleId)
-}
-
-export async function getCnrsFavorites(userId: string): Promise<CnrsFavoriteDoc[]> {
-  const items = await getBookmarks(userId, TYPE)
-  return items
-    .map((item) => mapMeta(item.meta, item.resourceId || ''))
-    .filter((d): d is CnrsFavoriteDoc => d !== null)
-}
-
-export async function getCnrsFavoritesCount(userId: string): Promise<number> {
-  return getBookmarksCount(userId, TYPE)
-}
+export const getCnrsFavorites = cnrsManager.getFavorites.bind(cnrsManager)
+export const getCnrsFavoritesCount = cnrsManager.getFavoritesCount.bind(cnrsManager)
