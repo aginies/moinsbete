@@ -1,9 +1,8 @@
 import Link from 'next/link'
-import { BookOpen, LogOut, User, Clock, Bookmark } from 'lucide-react'
+import { BookOpen, User, Clock, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
 import { getSession } from '@/lib/auth'
-import { logoutAction } from '@/actions/auth-actions'
 import { SearchButton } from './search-button'
 
 export async function Navbar() {
@@ -40,18 +39,16 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
                     <span className="ml-1">Historique</span>
                   </Button>
                 </Link>
+                <Link href="/review">
+                  <Button variant="ghost" size="sm" className="hidden md:inline-flex">
+                    <BookOpen className="h-4 w-4" />
+                    <span className="ml-1">Révision</span>
+                  </Button>
+                </Link>
                 <Link href="/mon-compte" className="flex items-center gap-2 mr-2 hover:opacity-80 transition-opacity">
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">{session.user.name || session.user.email}</span>
                 </Link>
-                <form action={async () => {
-                  'use server'
-                  await logoutAction()
-                }}>
-                  <Button variant="ghost" size="sm" type="submit">
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </form>
               </>
             ) : (
               <>
