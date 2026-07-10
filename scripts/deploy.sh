@@ -34,7 +34,7 @@ fi
 
 # Install deps
 cd "$DEST"
-npm ci --production
+npm ci
 
 npx prisma generate
 npx prisma migrate deploy
