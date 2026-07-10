@@ -144,9 +144,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
 
   if (!show && hasMounted) {
     return (
-      <div className="mb-6">
-        <VisibilityButton color={buttonColor} label="Afficher Docs Radio France" onClick={onToggle || handleToggle} />
-      </div>
+      <VisibilityButton color={buttonColor} label="Afficher Docs Radio France" onClick={onToggle || handleToggle} />
     )
   }
 
