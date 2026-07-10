@@ -21,9 +21,10 @@ const FAVORITES_KEY = 'rf_favorites'
 
 interface RadioFranceFavoritesProps {
   userId?: string
+  onRemoveComplete?: () => void
 }
 
-export function RadioFranceFavorites({ userId }: RadioFranceFavoritesProps) {
+export function RadioFranceFavorites({ userId, onRemoveComplete }: RadioFranceFavoritesProps) {
   const handleRemove = async (item: FavoriteDoc) => {
     if (userId) {
       try {
@@ -37,6 +38,7 @@ export function RadioFranceFavorites({ userId }: RadioFranceFavoritesProps) {
 
   return (
     <PaginatedFavoritesList
+      onRemoveComplete={onRemoveComplete}
       fetchFn={async () => {
         if (userId) {
           const result = await getRadioFavoritesAction()

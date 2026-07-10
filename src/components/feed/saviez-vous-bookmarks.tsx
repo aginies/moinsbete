@@ -22,9 +22,10 @@ const SAVIEZ_VOUS_FAVORITES_KEY = 'saviez_vous_favorites'
 
 interface SaviezVousBookmarksProps {
   userId?: string
+  onRemoveComplete?: () => void
 }
 
-export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
+export function SaviezVousBookmarks({ userId, onRemoveComplete }: SaviezVousBookmarksProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
@@ -71,6 +72,7 @@ export function SaviezVousBookmarks({ userId }: SaviezVousBookmarksProps) {
   return (
     <>
       <PaginatedFavoritesList
+        onRemoveComplete={onRemoveComplete}
         fetchFn={async () => {
           if (userId) {
             const result = await getSaviezVousFavoritesAction()

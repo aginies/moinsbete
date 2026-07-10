@@ -23,9 +23,10 @@ const IMAGE_DU_JOUR_FAVORITES_KEY = 'image_du_jour_favorites'
 
 interface ImageDuJourBookmarksProps {
   userId?: string
+  onRemoveComplete?: () => void
 }
 
-export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
+export function ImageDuJourBookmarks({ userId, onRemoveComplete }: ImageDuJourBookmarksProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
@@ -69,6 +70,7 @@ export function ImageDuJourBookmarks({ userId }: ImageDuJourBookmarksProps) {
   return (
     <>
       <PaginatedFavoritesList
+        onRemoveComplete={onRemoveComplete}
         fetchFn={async () => {
           if (userId) {
             const result = await getImageDuJourFavoritesAction()

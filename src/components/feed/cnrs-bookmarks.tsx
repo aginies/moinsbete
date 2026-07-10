@@ -20,9 +20,10 @@ const CNRS_FAVORITES_KEY = 'cnrs_favorites'
 
 interface CnrsBookmarksProps {
   userId?: string
+  onRemoveComplete?: () => void
 }
 
-export function CnrsBookmarks({ userId }: CnrsBookmarksProps) {
+export function CnrsBookmarks({ userId, onRemoveComplete }: CnrsBookmarksProps) {
   const handleRemove = async (item: CnrsFavoriteDoc) => {
     if (userId) {
       try {
@@ -36,6 +37,7 @@ export function CnrsBookmarks({ userId }: CnrsBookmarksProps) {
 
   return (
     <PaginatedFavoritesList
+      onRemoveComplete={onRemoveComplete}
       fetchFn={async () => {
         if (userId) {
           const result = await getCnrsFavoritesAction()
