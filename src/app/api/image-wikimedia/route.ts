@@ -23,7 +23,6 @@ const TOPIC_SEARCHES: Record<string, string[]> = {
   wwi: ['World War I', 'First World War', 'Great War', '1914-1918'],
   wwii: ['World War II', 'Second World War', '1939-1945'],
   art: ['Art', 'Sculpture', 'Illustration', 'Drawing'],
-  'art-nouveau': ['Art Nouveau', 'Jugendstil', 'Alphonse Mucha', 'Belle Epoque'],
   advertisements: ['Vintage advertisement', 'Vintage ad', 'Retro ad', 'Poster advertisement'],
   maps: ['Historical map', 'Old map', 'Antique map', 'Cartography'],
   'sports-car': ['Vintage sports car', 'Classic sports car', 'Sports car', 'Racing car'],
