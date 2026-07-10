@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { BookOpen, ExternalLink, RefreshCw, EyeOff, Bookmark, Filter } from 'lucide-react'
+import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { useShare } from './use-share'
-import { ShareButton } from './share-button'
+import { CardHeader } from './card-header'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { ImageLightbox } from './image-lightbox'
@@ -29,6 +29,7 @@ interface ImageWikimediaCardProps {
   userId?: string
   swipeable?: boolean
   fullImage?: boolean
+  largeImage?: boolean
   showLink?: boolean
   showToggle?: boolean
   onToggle?: () => void
@@ -62,7 +63,7 @@ async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> 
   }
 }
 
-export function ImageWikimediaCard({ userId, swipeable = false, fullImage = false, showLink = true, showToggle = true, onToggle }: ImageWikimediaCardProps) {
+export function ImageWikimediaCard({ userId, swipeable = false, fullImage = false, largeImage = false, showLink = true, showToggle = true, onToggle }: ImageWikimediaCardProps) {
   const [image, setImage] = useState<WikimediaImage | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -195,51 +196,58 @@ export function ImageWikimediaCard({ userId, swipeable = false, fullImage = fals
       onClick={loadImage}
       className="rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-5 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30 cursor-pointer hover:shadow-md transition-shadow"
     >
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-700 dark:bg-rose-800">
-            <BookOpen className="h-4 w-4 text-white" />
-          </div>
-          <Link
-            href="/image-wikimedia"
-            onClick={(e) => e.stopPropagation()}
-            className="text-sm font-bold uppercase tracking-wide text-rose-800 dark:text-rose-300 hover:underline"
-          >
-            Wikimedia
-          </Link>
-        </div>
-        <div className="flex items-center gap-6">
-          <button
-            onClick={handleToggleCategories}
-            className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
-            title={showCategories ? 'Masquer les thèmes' : 'Afficher les thèmes'}
-          >
-            <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
-          </button>
-           {showToggle && (
-             <button
-               onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
-               className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
-               title="Masquer la carte"
-             >
-              <EyeOff className="h-4 w-4" />
-            </button>
-          )}
-          <RefreshCw className={`h-4 w-4 text-rose-600 dark:text-rose-400 ${loading ? 'animate-spin' : ''}`} />
-          {image && (
+      <CardHeader
+        icon={<BookOpen className="h-4 w-4 text-white" />}
+        iconBgColor="bg-rose-700"
+        iconDarkColor="dark:bg-rose-800"
+        title="Wikimedia"
+        titleColor="text-rose-800"
+        titleDarkColor="dark:text-rose-300"
+        linkHref={showLink ? '/image-wikimedia' : undefined}
+        showToggle={false}
+        showRefresh={false}
+        shareOptions={shareOptions ? { onClick: share, copied, shareUrl } : undefined}
+        extraActions={
+          <>
             <button
-              onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-              className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
-              title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              type="button"
+              onClick={handleToggleCategories}
+              className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
+              title={showCategories ? 'Masquer les thèmes' : 'Afficher les thèmes'}
             >
-              <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+              <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
             </button>
-          )}
-          {shareOptions && (
-            <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
-          )}
-        </div>
-      </div>
+            {showToggle && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
+                className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
+                title="Masquer la carte"
+              >
+                <EyeOff className="h-4 w-4" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); loadImage() }}
+              className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
+              title="Rafraîchir"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+            {image && userId && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
+                title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              >
+                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+              </button>
+            )}
+          </>
+        }
+      />
 
       {showCategories && (
         <div className="mb-3 flex gap-1.5 flex-wrap">
@@ -284,7 +292,7 @@ export function ImageWikimediaCard({ userId, swipeable = false, fullImage = fals
             src={image.imageUrl}
             alt={image.titre}
             loading="lazy"
-            className={`w-full transition-opacity ${fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
+            className={`w-full transition-opacity ${largeImage ? 'max-h-[50vh] object-contain bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
           {!fullImage && <ImageHint color="amber" />}
