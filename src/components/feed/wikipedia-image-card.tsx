@@ -244,9 +244,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   return (
     <>
       {!show && hasMounted && showToggle ? (
-        <div className="mb-6">
-          <VisibilityButton color={buttonColor} label="Afficher Image du jour" onClick={onToggle || handleToggle} />
-        </div>
+        <VisibilityButton color={buttonColor} label="Afficher Image du jour" onClick={onToggle || handleToggle} />
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
           {/* Prev hint overlay */}

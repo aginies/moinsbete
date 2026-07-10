@@ -227,9 +227,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   return (
     <>
       {!show && hasMounted && showToggle ? (
-        <div className="mb-6">
-          <VisibilityButton color={buttonColor} label="Afficher Le saviez-vous ?" onClick={onToggle || handleToggle} />
-        </div>
+        <VisibilityButton color={buttonColor} label="Afficher Le saviez-vous ?" onClick={onToggle || handleToggle} />
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
           {/* Prev hint overlay */}

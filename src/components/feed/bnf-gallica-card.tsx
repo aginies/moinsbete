@@ -273,9 +273,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
   return (
     <>
       {!show && hasMounted ? (
-        <div className="mb-6">
-          <VisibilityButton color={buttonColor} label="Afficher Gallica" onClick={onToggle || handleToggle} />
-        </div>
+        <VisibilityButton color={buttonColor} label="Afficher Gallica" onClick={onToggle || handleToggle} />
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
           <div
