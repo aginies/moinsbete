@@ -5,7 +5,7 @@ import { BnFGallicaCard } from '@/components/feed/bnf-gallica-card'
 export function GallicaBnfClient() {
   return (
     <div className="w-full">
-      <BnFGallicaCard swipeable={true} />
+      <BnFGallicaCard fullImage showLink={false} showToggle={false} swipeable={true} />
     </div>
   )
 }

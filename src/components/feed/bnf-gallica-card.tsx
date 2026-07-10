@@ -29,6 +29,9 @@ interface GallicaImage {
 interface BnFGallicaCardProps {
   userId?: string
   swipeable?: boolean
+  fullImage?: boolean
+  showLink?: boolean
+  showToggle?: boolean
 }
 
 async function fetchRandomImage(): Promise<GallicaImage | null> {
@@ -45,7 +48,7 @@ async function fetchRandomImage(): Promise<GallicaImage | null> {
   }
 }
 
-export function BnFGallicaCard({ userId, swipeable = false }: BnFGallicaCardProps) {
+export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, showLink = true, showToggle = true }: BnFGallicaCardProps) {
   const [image, setImage] = useState<GallicaImage | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -205,21 +208,26 @@ export function BnFGallicaCard({ userId, swipeable = false }: BnFGallicaCardProp
 
       {image?.imageUrl && (
         <div
-          className="mb-3 overflow-hidden rounded-lg border border-rose-200 dark:border-rose-800 cursor-pointer"
-          onClick={(e) => { e.stopPropagation(); setShowFullImage(true) }}
+          className={`mb-3 overflow-hidden rounded-lg border border-rose-200 dark:border-rose-800 ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}
+          onClick={(e) => {
+            if (!fullImage) {
+              e.stopPropagation()
+              setShowFullImage(true)
+            }
+          }}
         >
           <img
             src={image.imageUrl}
             alt={image.titre}
             loading="lazy"
-            className="w-full h-48 object-cover transition-opacity hover:opacity-90"
+            className={`w-full transition-opacity ${fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
-          <ImageHint color="amber" />
+          {!fullImage && <ImageHint color="amber" />}
         </div>
       )}
 
-      {image && (
+     {image && (
         <>
           <p className="text-sm font-semibold text-rose-900 dark:text-rose-100 mb-1">
             {image.titre}
@@ -232,16 +240,18 @@ export function BnFGallicaCard({ userId, swipeable = false }: BnFGallicaCardProp
           <p className="text-xs text-rose-600 dark:text-rose-400 mb-2">
             {image.droits || 'Bibliothèque nationale de France'}
           </p>
-   <Link
-      href="/gallica-bnf"
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={(e) => e.stopPropagation()}
-      className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
-    >
-      Voir sur images.bnf.fr
-      <ExternalLink className="h-3 w-3" />
-    </Link>
+          {showLink && (
+            <Link
+              href="/gallica-bnf"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
+            >
+              Voir sur images.bnf.fr
+              <ExternalLink className="h-3 w-3" />
+            </Link>
+          )}
         </>
       )}
     </div>
