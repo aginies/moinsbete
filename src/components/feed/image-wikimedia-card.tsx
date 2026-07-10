@@ -292,7 +292,7 @@ export function ImageWikimediaCard({ userId, swipeable = false, fullImage = fals
             src={image.imageUrl}
             alt={image.titre}
             loading="lazy"
-            className={`w-full transition-opacity ${largeImage ? 'h-[30vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
+            className={`w-full transition-opacity ${largeImage ? 'h-[25vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
           {!fullImage && <ImageHint color="amber" />}
