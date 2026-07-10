@@ -14,6 +14,7 @@ import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-act
 
 interface GallicaImage {
   docid: string
+  exemplaire: string
   titre: string
   auteur: string
   imageUrl: string
@@ -255,7 +256,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
           </p>
           {showLink && (
             <Link
-              href={`https://images.bnf.fr/#/home/gallery/${image.docid}`}
+              href={`https://images.bnf.fr/#/detail/${image.docid}/${image.exemplaire}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
