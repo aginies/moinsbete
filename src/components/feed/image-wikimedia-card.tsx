@@ -36,18 +36,18 @@ interface ImageWikimediaCardProps {
 }
 
 const TOPICS = [
-  { id: 'paintings', label: 'Paintings', icon: '🎨' },
+  { id: 'paintings', label: 'Peintures', icon: '🎨' },
   { id: 'aviation', label: 'Aviation', icon: '✈️' },
   { id: 'nasa', label: 'NASA', icon: '🚀' },
-  { id: 'posters', label: 'Posters', icon: '📋' },
-  { id: 'wwi', label: 'WWI', icon: '🎖️' },
-  { id: 'wwii', label: 'WWII', icon: '🪖' },
+  { id: 'posters', label: 'Affiches', icon: '📋' },
+  { id: 'wwi', label: 'Guerre 14-18', icon: '🎖️' },
+  { id: 'wwii', label: 'Guerre 39-45', icon: '🪖' },
   { id: 'art', label: 'Art', icon: '🎭' },
-  { id: 'advertisements', label: 'Ads', icon: '📰' },
-  { id: 'maps', label: 'Maps', icon: '🗺️' },
-  { id: 'sports-car', label: 'Sports Cars', icon: '🏎️' },
+  { id: 'advertisements', label: 'Publicités', icon: '📰' },
+  { id: 'maps', label: 'Cartes', icon: '🗺️' },
+  { id: 'sports-car', label: 'Voitures de sport', icon: '🏎️' },
   { id: 'design', label: 'Design', icon: '📐' },
-  { id: 'deep-space', label: 'Space', icon: '🌌' },
+  { id: 'deep-space', label: 'Espace', icon: '🌌' },
 ] as const
 
 async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> {
