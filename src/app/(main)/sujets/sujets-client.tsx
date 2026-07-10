@@ -32,6 +32,78 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
     return true
   })
 
+  const [saviezVousVisible, setSaviezVousVisible] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('saviez_vous_card_visible')
+      if (stored !== null) return stored === 'true'
+    }
+    return true
+  })
+
+  const [wikipediaVisible, setWikipediaVisible] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('wikipedia_image_card_visible')
+      if (stored !== null) return stored === 'true'
+    }
+    return true
+  })
+
+  const [radioFranceVisible, setRadioFranceVisible] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('radio_france_card_visible')
+      if (stored !== null) return stored === 'true'
+    }
+    return true
+  })
+
+  const [bnfGallicaVisible, setBnfGallicaVisible] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('bnf_gallica_card_visible')
+      if (stored !== null) return stored === 'true'
+    }
+    return true
+  })
+
+  const toggleSaviezVous = useCallback(() => {
+    setSaviezVousVisible(prev => {
+      const next = !prev
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('saviez_vous_card_visible', String(next))
+      }
+      return next
+    })
+  }, [])
+
+  const toggleWikipedia = useCallback(() => {
+    setWikipediaVisible(prev => {
+      const next = !prev
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('wikipedia_image_card_visible', String(next))
+      }
+      return next
+    })
+  }, [])
+
+  const toggleRadioFrance = useCallback(() => {
+    setRadioFranceVisible(prev => {
+      const next = !prev
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('radio_france_card_visible', String(next))
+      }
+      return next
+    })
+  }, [])
+
+  const toggleBnfGallica = useCallback(() => {
+    setBnfGallicaVisible(prev => {
+      const next = !prev
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('bnf_gallica_card_visible', String(next))
+      }
+      return next
+    })
+  }, [])
+
   const toggleCnrs = useCallback(async () => {
     setCnrsEnabled(prev => {
       const next = !prev
@@ -61,15 +133,17 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
-      {saviezVousFact && (
+      {saviezVousVisible && saviezVousFact && (
         <div className="mb-6">
-          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} />
+          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} />
         </div>
       )}
 
-      <div className="mb-6">
-        <WikipediaImageCard />
-      </div>
+      {wikipediaVisible && (
+        <div className="mb-6">
+          <WikipediaImageCard onToggle={toggleWikipedia} />
+        </div>
+      )}
 
       {cnrsEnabled && (
         <div className="mb-6">
@@ -77,27 +151,17 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         </div>
       )}
 
-      {!cnrsEnabled && (
+      {radioFranceVisible && (
         <div className="mb-6">
-          <button
-            onClick={toggleCnrs}
-            className="w-full rounded-xl border-2 border-dashed border-green-300 bg-green-50/50 p-4 dark:border-green-800 dark:bg-green-950/20 hover:border-green-400 hover:bg-green-50 dark:hover:border-green-700 dark:hover:bg-green-950/30 transition-colors"
-          >
-            <div className="flex items-center justify-center gap-2 text-sm text-green-700 dark:text-green-400">
-              <Newspaper className="h-4 w-4" />
-              <span>Afficher Actualité CNRS</span>
-            </div>
-          </button>
+          <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} />
         </div>
       )}
 
-      <div className="mb-6">
-        <RadioFranceCard userId={userId} />
-      </div>
-
-      <div className="mb-6">
-        <BnFGallicaCard userId={userId} />
-      </div>
+      {bnfGallicaVisible && (
+        <div className="mb-6">
+          <BnFGallicaCard onToggle={toggleBnfGallica} userId={userId} />
+        </div>
+      )}
 
       <div className="mb-6">
         <Link
@@ -119,6 +183,44 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
           </div>
         </Link>
       </div>
+
+      {!saviezVousVisible && saviezVousFact && (
+        <div className="mb-6">
+          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} />
+        </div>
+      )}
+
+      {!wikipediaVisible && (
+        <div className="mb-6">
+          <WikipediaImageCard onToggle={toggleWikipedia} />
+        </div>
+      )}
+
+      {!cnrsEnabled && (
+        <div className="mb-6">
+          <button
+            onClick={toggleCnrs}
+            className="w-full rounded-xl border-2 border-dashed border-green-300 bg-green-50/50 p-4 dark:border-green-800 dark:bg-green-950/20 hover:border-green-400 hover:bg-green-50 dark:hover:border-green-700 dark:hover:bg-green-950/30 transition-colors"
+          >
+            <div className="flex items-center justify-center gap-2 text-sm text-green-700 dark:text-green-400">
+              <Newspaper className="h-4 w-4" />
+              <span>Afficher Actualité CNRS</span>
+            </div>
+          </button>
+        </div>
+      )}
+
+      {!radioFranceVisible && (
+        <div className="mb-6">
+          <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} />
+        </div>
+      )}
+
+      {!bnfGallicaVisible && (
+        <div className="mb-6">
+          <BnFGallicaCard onToggle={toggleBnfGallica} userId={userId} />
+        </div>
+      )}
 
       {followedTopics.length > 0 && (
         <div className="mb-8">
