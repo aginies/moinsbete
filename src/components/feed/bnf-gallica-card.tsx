@@ -26,6 +26,7 @@ interface GallicaImage {
 
 interface BnFGallicaCardProps {
   userId?: string
+  swipeable?: boolean
 }
 
 async function fetchRandomImage(): Promise<GallicaImage | null> {
@@ -214,16 +215,16 @@ export function BnFGallicaCard({ userId }: BnFGallicaCardProps) {
           <p className="text-xs text-rose-600 dark:text-rose-400 mb-2">
             {image.droits || 'Bibliothèque nationale de France'}
           </p>
-          <Link
-            href={sanitizeUrl(image.link)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
-          >
-            Voir sur images.bnf.fr
-            <ExternalLink className="h-3 w-3" />
-          </Link>
+   <Link
+      href="/gallica-bnf"
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
+    >
+      Voir sur images.bnf.fr
+      <ExternalLink className="h-3 w-3" />
+    </Link>
         </>
       )}
     </div>
