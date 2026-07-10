@@ -5,7 +5,7 @@ const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber'> = {
    saviez_vous_card_visible: 'blue',
    cnrs_news_enabled: 'teal',
    radio_france_card_visible: 'purple',
-   bnf_gallica_card_visible: 'amber',
+   image_picryl_card_visible: 'amber',
  }
 
 interface UseCardVisibilityOptions {

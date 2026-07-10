@@ -3,24 +3,24 @@
 import Link from 'next/link'
 import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
-import { getBnFGallicaFavoritesAction } from '@/actions/bnf-gallica-bookmark-actions'
-import { type BnFGallicaFavoriteDoc } from '@/lib/bnf-gallica-bookmark'
+import { getPicrylFavoritesAction } from '@/actions/image-picryl-bookmark-actions'
+import { type ImagePicrylFavoriteDoc } from '@/lib/image-picryl-bookmark'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
 import { useState } from 'react'
 
-const BNF_GALICA_FAVORITES_KEY = 'bnf_gallica_favorites'
+const PICRYL_FAVORITES_KEY = 'image_picryl_favorites'
 
-interface BnFGallicaFavoritesProps {
+interface ImagePicrylFavoritesProps {
   userId?: string
   onRemoveComplete?: () => void
 }
 
-export function BnFGallicaFavorites({ userId, onRemoveComplete }: BnFGallicaFavoritesProps) {
+export function ImagePicrylFavorites({ userId, onRemoveComplete }: ImagePicrylFavoritesProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
 
-  const handleRemove = async (item: BnFGallicaFavoriteDoc) => {
+  const handleRemove = async (item: ImagePicrylFavoriteDoc) => {
     if (userId) {
       try {
         const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
@@ -37,11 +37,11 @@ export function BnFGallicaFavorites({ userId, onRemoveComplete }: BnFGallicaFavo
         onRemoveComplete={onRemoveComplete}
         fetchFn={async () => {
           if (userId) {
-            const result = await getBnFGallicaFavoritesAction()
-            return result.favorites as BnFGallicaFavoriteDoc[]
+            const result = await getPicrylFavoritesAction()
+            return result.favorites as ImagePicrylFavoriteDoc[]
           }
           try {
-            const stored = localStorage.getItem(BNF_GALICA_FAVORITES_KEY)
+            const stored = localStorage.getItem(PICRYL_FAVORITES_KEY)
             return stored ? JSON.parse(stored) : []
           } catch {
             return []
@@ -80,7 +80,7 @@ export function BnFGallicaFavorites({ userId, onRemoveComplete }: BnFGallicaFavo
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
                 >
-                  Voir sur images.bnf.fr
+                  Voir sur Picryl
                   <ExternalLink className="h-3 w-3" />
                 </Link>
               )}
@@ -94,9 +94,9 @@ export function BnFGallicaFavorites({ userId, onRemoveComplete }: BnFGallicaFavo
             </button>
           </div>
         )}
-        emptyTitle="Aucun favori Gallica"
+        emptyTitle="Aucun favori Picryl"
         emptyDescription="Favorisez des images depuis la page d&apos;accueil pour les voir ici."
-        storageKey={BNF_GALICA_FAVORITES_KEY}
+        storageKey={PICRYL_FAVORITES_KEY}
         userId={userId}
         removeFavorite={handleRemove}
         borderColor="border-rose-200"
@@ -111,7 +111,7 @@ export function BnFGallicaFavorites({ userId, onRemoveComplete }: BnFGallicaFavo
       {showFullImage && (
         <ImageLightbox
           src={showFullImage}
-          alt="Gallica"
+          alt="Picryl"
           onClose={() => setShowFullImage(null)}
         />
       )}

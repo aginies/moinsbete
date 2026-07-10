@@ -1,19 +1,19 @@
 import type { Metadata } from 'next'
-import { ImageDuJourClient } from './image-du-jour-client'
+import { ImagePicrylClient } from './image-picryl-client'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Image du jour | MoinsBête',
-  description: 'Découvrez une image aléatoire de Wikimedia Commons. Image du jour présentée sur MoinsBête.',
+  title: 'Images Picryl | MoinsBête',
+  description: 'Découvrez des images aléatoires de Picryl, archives publiques françaises. Images Picryl, archives numériques gratuites.',
   openGraph: {
-    title: 'Image du jour',
-    description: 'Découvrez une image aléatoire de Wikimedia Commons',
+    title: 'Images Picryl',
+    description: 'Découvrez des images aléatoires des Archives Picryl',
     type: 'website',
   },
 }
 
-export default function ImageDuJourPage() {
+export default function ImagePicrylPage() {
   return (
     <div className="mx-auto flex min-h-[90vh] w-full flex-col items-center justify-start px-4 py-8 md:max-w-4xl md:p-6">
       <Link
@@ -24,7 +24,7 @@ export default function ImageDuJourPage() {
         Retour à l&apos;accueil
       </Link>
 
-      <ImageDuJourClient />
+      <ImagePicrylClient />
     </div>
   )
 }
