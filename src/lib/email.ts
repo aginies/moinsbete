@@ -1,13 +1,14 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const EMAIL_FROM = process.env.EMAIL_FROM || 'Moins Bete <noreply@moinsbete.com>'
 
 export async function sendResetEmail(to: string, token: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password/${token}`
 
   try {
     await resend.emails.send({
-      from: 'Moins Bete <noreply@moinsbete.com>',
+      from: EMAIL_FROM,
       to,
       subject: 'Réinitialisation de votre mot de passe',
       html: `

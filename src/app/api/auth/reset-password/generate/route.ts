@@ -48,11 +48,9 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    await sendResetEmail(user.email, token).catch((err) => {
-      console.error('Email send failed:', err)
-    })
+    const emailResult = await sendResetEmail(user.email, token)
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, emailSent: emailResult.success })
   } catch (error) {
     console.error('Reset token error:', error)
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
