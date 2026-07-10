@@ -1,10 +1,12 @@
 # MoinsBête — Apprentissage rapide en français
 
-Application de découverte de connaissances bite-sized : idées, sujets, sources Wikipédia, bookmarks et plan d'apprentissage.
+Application de découverte de connaissances bite-sized : idées, sujets, sources Wikipédia, bookmarks, révision par répétition espacée et plan d'apprentissage.
 
 ## Vue d'ensemble
 
 MoinsBête propose des idées courtes et actionnables issues de Wikipédia, générées par LLM ou écrites manuellement. Chaque idée contient un titre, un contenu explicatif et un takeaway actionnable.
+
+Les idées bookmarkées entrent dans un cycle de **révision par répétition espacée** (SRS) qui optimise la mémorisation à long terme. Accédez à `/review` pour revoir les idées au moment optimal.
 
 ## Démonstration
 
@@ -32,9 +34,9 @@ moinsbete/
 │   ├── migrations/            # Migrations Prisma
 │   └── seed.ts                # Création des topics racine
 ├── src/
-│   ├── lib/                   # db, auth, llm, utils, rate-limiter
-│   ├── app/                   # Pages + API routes
-│   ├── components/            # IdeaCard, Feed, Search, Topics, UI
+│   ├── lib/                   # db, auth, llm, utils, rate-limiter, srs
+│   ├── app/                   # Pages + API routes (incl. /review)
+│   ├── components/            # IdeaCard, Feed, Search, Topics, UI, review
 │   └── scripts/               # seed-ideas, generate-ideas, ingest-wikipedia
 ├── docs/                      # Documentation détaillée
 ├── scripts/                   # scrape-saviez-vous, update
@@ -89,7 +91,7 @@ Voir [docs/DEVELOPMENT.md](./DEVELOPMENT.md) pour ajouter des topics, générer 
 
 ## Tests
 
-171 tests sur 19 fichiers (vitest).
+197 tests sur 22 fichiers (vitest).
 
 ```bash
 npm test              # Exécuter tous les tests
@@ -97,10 +99,10 @@ npm test -- --watch   # Mode watch
 ```
 
 Couverture :
-- `src/lib/` — utils, slugify, url validation, rate-limiter, csrf, auth, bookmark, feed-helpers, saviez-vous, view
-- `src/actions/` — auth-actions, bookmark-actions, topic-actions, view-actions
+- `src/lib/` — utils, slugify, url validation, rate-limiter, csrf, auth, bookmark, feed-helpers, saviez-vous, view, srs
+- `src/actions/` — auth-actions, bookmark-actions, topic-actions, view-actions, review-actions
 - `src/scripts/` — seed-ideas data validation
-- `src/app/` — robots.txt, feed helpers, pagination
+- `src/app/` — robots.txt, feed helpers, pagination, review
 
 ## Sécurité
 
