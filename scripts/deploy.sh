@@ -32,8 +32,8 @@ if [ -f "$DEST/dev.db" ]; then
   echo "DB backup saved: $BACKUP_NAME"
 fi
 
+cd "$DEST"
 ## Install deps
-#cd "$DEST"
 #npm ci
 
 npx prisma generate
