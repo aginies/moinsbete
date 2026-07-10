@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { Bookmark, X, Search } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
@@ -109,53 +109,58 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       <div className="flex gap-1 md:gap-2 mb-4 md:mb-6 border-b border-border overflow-x-auto">
         <button
           onClick={() => setActiveTab('idees')}
-          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'idees'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Idées favoris ({derivedIdeasCount})
+          <Lightbulb className="h-4 w-4" />
+          Idées ({derivedIdeasCount})
         </button>
         <button
           onClick={() => setActiveTab('image-du-jour')}
-          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'image-du-jour'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Image du jour ({imageDuJourCount})
+          <ImageIcon className="h-4 w-4" />
+          Images ({imageDuJourCount})
         </button>
         <button
           onClick={() => setActiveTab('saviez-vous')}
-          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'saviez-vous'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Le saviez-vous ? ({saviezVousCount})
+          <Info className="h-4 w-4" />
+          Saviez-vous ? ({saviezVousCount})
         </button>
         <button
           onClick={() => setActiveTab('radio-france')}
-          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'radio-france'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Documentaires Radio France ({radioCount})
+          <Radio className="h-4 w-4" />
+          Radio France ({radioCount})
         </button>
         <button
           onClick={() => setActiveTab('cnrs-news')}
-          className={`flex-shrink-0 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'cnrs-news'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Actualites CNRS ({cnrsCount})
+          <Newspaper className="h-4 w-4" />
+          CNRS ({cnrsCount})
         </button>
       </div>
 
