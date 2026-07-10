@@ -25,6 +25,13 @@ rsync -a --delete \
   --exclude='.env' \
   "$SRC/" "$DEST/"
 
+# Backup DB avant deploy (dans le répertoire courant)
+if [ -f "$DEST/dev.db" ]; then
+  BACKUP_NAME="dev.db.bck.$(date +%Y%m%d_%H%M%S)"
+  cp "$DEST/dev.db" "$BACKUP_NAME"
+  echo "DB backup saved: $BACKUP_NAME"
+fi
+
 cd "$DEST"
 npx prisma generate
 npx prisma migrate deploy
