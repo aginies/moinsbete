@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { BookOpen, Mail, ArrowLeft } from 'lucide-react'
+import { BookOpen, Mail, ArrowLeft, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -93,18 +93,26 @@ export default function ForgotPasswordPage() {
         ) : (
           <div className="space-y-4">
             <div className="rounded-lg border border-border/60 bg-card p-6 text-center">
-              <div className="mb-3 text-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </div>
-              <h2 className="mb-2 text-lg font-semibold">Token de réinitialisation généré</h2>
-              <p className="mb-4 text-sm text-muted-foreground">
-                Vérifiez votre boîte mail. Le lien de réinitialisation expire dans 1 heure.
+              <CheckCircle className="mx-auto mb-3 h-10 w-10 text-green-500" />
+              <h2 className="mb-2 text-lg font-semibold">Email envoyé</h2>
+              <p className="mb-2 text-sm text-muted-foreground">
+                Un lien de réinitialisation a été envoyé à votre adresse email.
+              </p>
+              <p className="mb-4 text-xs text-muted-foreground">
+                Le lien expire dans 1 heure. Vérifiez votre boîte de réception et vos spams.
               </p>
             </div>
 
-            <a href="/reset-password" target="_blank" rel="noopener noreferrer">
-              <Button className="w-full">Réinitialiser le mot de passe</Button>
-            </a>
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => {
+                setSuccess(false)
+                setError('')
+              }}
+            >
+              Réessayer avec un autre email
+            </Button>
           </div>
         )}
 
