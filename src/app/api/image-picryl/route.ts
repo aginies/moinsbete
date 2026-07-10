@@ -137,8 +137,7 @@ async function fetchImageInfo(filename: string): Promise<PicrylImage | null> {
 
       if (!imageUrl) return null
 
-      const filenameSlug = cleanFilename.replace(/ /g, '-').toLowerCase()
-      const picrylLink = `https://picryl.com/media/${filenameSlug}`
+      const wikimediaLink = img.descriptionurl || `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(cleanFilename)}`
 
       return {
         docid: cleanFilename,
@@ -150,7 +149,7 @@ async function fetchImageInfo(filename: string): Promise<PicrylImage | null> {
         thumbnailUrl,
         description,
         droits: licenseName || 'Wikimedia Commons',
-        link: picrylLink,
+        link: wikimediaLink,
       }
     } catch {
       await new Promise(r => setTimeout(r, 1000))
