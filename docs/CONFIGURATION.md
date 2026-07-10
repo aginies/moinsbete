@@ -48,6 +48,11 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 |----------|-------------|--------|
 | `NODE_ENV` | Environment (development/production) | development |
 | `NODE_TLS_REJECT_UNAUTHORIZED` | Désactiver TLS verification | 1 |
+| `TRUST_PROXY` | Activer les headers `x-forwarded-for` et `cf-connecting-ip` pour IP client | `false` |
+| `RATE_LIMITER_DRIVER` | Driver de rate limiting: `redis` ou `memory` | `memory` |
+| `REDIS_URL` | URL Redis pour rate limiting | `redis://localhost:6379` |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL | — |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token | — |
 | `RESEND_API_KEY` | Clé API resend pour envoi d'emails | — |
 | `EMAIL_FROM` | Adresse expéditeur des emails | `Moins Bete <noreply@moinsbete.com>` |
 
@@ -65,3 +70,57 @@ Pour activer l'envoi d'emails de réinitialisation de mot de passe :
 4. Vérifier le domaine dans le dashboard resend (obligatoire pour l'envoi)
 
 Le lien de réinitialisation pointe vers `${NEXTAUTH_URL}/reset-password/[token]`.
+
+## Rate limiting
+
+Le rate limiter supporte 3 backends:
+
+### In-memory (par défaut)
+
+Chaque instance possède sa propre mémoire. Suffisant pour déploiement single-node.
+
+```env
+RATE_LIMITER_DRIVER=memory  # défaut
+```
+
+### Redis
+
+Pour déploiement multi-instance ou load balancing.
+
+```env
+RATE_LIMITER_DRIVER=redis
+REDIS_URL=redis://localhost:6379
+```
+
+### Upstash (serverless)
+
+```env
+RATE_LIMITER_DRIVER=redis
+UPSTASH_REDIS_REST_URL=https://<region>.upstash.io
+UPSTASH_REDIS_REST_TOKEN=<token>
+```
+
+Endpoints rate limités:
+
+| Endpoint | Limite | Key |
+|----------|--------|-----|
+| `/login` | 5/min | IP client |
+| `/register` | 3/min | IP client |
+| `/api/search` | 30/min | IP client |
+| `/api/topics/suggest` | 10/min | IP client |
+| `/api/saviez-vous` | 20/min | IP client |
+| `/api/radio-france` | 30/min | IP client |
+| `/api/wikipedia-image` | 10/min | IP client |
+| `/api/history` | 60/min | User ID |
+| `/api/auth/reset-password/generate` | 3/min | IP client |
+| `/api/auth/reset-password` | 5/min | IP client |
+
+### Résolution d'IP client
+
+L'IP client est résolue dans cet ordre:
+
+1. `request.ip` (Next.js natif, Vercel/Netlify)
+2. `cf-connecting-ip` (Cloudflare, si `TRUST_PROXY=true` en prod)
+3. `x-forwarded-for` ou `x-real-ip` (dev / prod avec proxy de confiance)
+
+En production sans proxy de confiance, seuls `cf-connecting-ip` et `x-real-ip` sont utilisés.
