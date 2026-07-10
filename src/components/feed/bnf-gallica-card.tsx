@@ -31,6 +31,7 @@ interface BnFGallicaCardProps {
   fullImage?: boolean
   showLink?: boolean
   showToggle?: boolean
+  onToggle?: () => void
 }
 
 async function fetchRandomImage(): Promise<GallicaImage | null> {
@@ -47,7 +48,7 @@ async function fetchRandomImage(): Promise<GallicaImage | null> {
   }
 }
 
-export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, showLink = true, showToggle = true }: BnFGallicaCardProps) {
+export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, showLink = true, showToggle = true, onToggle }: BnFGallicaCardProps) {
   const [image, setImage] = useState<GallicaImage | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -177,11 +178,11 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
           </Link>
         </div>
         <div className="flex items-center gap-6">
-          <button
-            onClick={(e) => { e.stopPropagation(); handleToggle() }}
-            className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
-            title="Masquer la carte"
-          >
+           <button
+             onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
+             className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
+             title="Masquer la carte"
+           >
             <EyeOff className="h-4 w-4" />
           </button>
           <RefreshCw className={`h-4 w-4 text-rose-600 dark:text-rose-400 ${loading ? 'animate-spin' : ''}`} />
@@ -263,7 +264,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
     <>
       {!show && hasMounted ? (
         <div className="mb-6">
-          <VisibilityButton color={buttonColor} label="Afficher Gallica" onClick={handleToggle} />
+          <VisibilityButton color={buttonColor} label="Afficher Gallica" onClick={onToggle || handleToggle} />
         </div>
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>

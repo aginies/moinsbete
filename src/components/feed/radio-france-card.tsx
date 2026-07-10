@@ -34,6 +34,7 @@ interface FavoriteDoc {
 interface RadioFranceCardProps {
   initialDoc?: RadioFranceDoc
   userId?: string
+  onToggle?: () => void
 }
 
 const FAVORITES_KEY = 'rf_favorites'
@@ -61,7 +62,7 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
   }
 }
 
-export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
+export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCardProps) {
   const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
   const [loading, setLoading] = useState(!initialDoc)
   const [isFavorite, setIsFavorite] = useState(false)
@@ -155,7 +156,7 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
   if (!show && hasMounted) {
     return (
       <div className="mb-6">
-        <VisibilityButton color={buttonColor} label="Afficher Documentaires Radio France" onClick={handleToggle} />
+        <VisibilityButton color={buttonColor} label="Afficher Documentaires Radio France" onClick={onToggle || handleToggle} />
       </div>
     )
   }
@@ -173,9 +174,9 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
             </h3>
           </div>
           <div className="flex items-center gap-6">
-            <button
-              onClick={handleToggle}
-              className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors"
+             <button
+               onClick={onToggle || handleToggle}
+               className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors"
               title="Masquer la carte"
             >
               <EyeOff className="h-4 w-4" />

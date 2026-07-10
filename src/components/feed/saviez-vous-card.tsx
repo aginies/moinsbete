@@ -24,6 +24,7 @@ interface SaviezVousCardProps {
   showToggle?: boolean
   imageHeight?: string
   swipeable?: boolean
+  onToggle?: () => void
 }
 
 async function fetchRandomFact() {
@@ -46,6 +47,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   showToggle = true,
   imageHeight = 'h-48',
   swipeable = false,
+  onToggle,
 }: SaviezVousCardProps) {
   const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
   const [nextFact, setNextFact] = useState<{ id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null>(null)
@@ -164,7 +166,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         titleDarkColor="dark:text-blue-300"
         linkHref={showLink ? '/le-saviez-vous' : undefined}
         showToggle={showToggle}
-        onToggle={handleToggle}
+        onToggle={onToggle || handleToggle}
         onRefresh={handleClick}
         loading={loading}
         shareOptions={{ onClick: share, copied, shareUrl }}
@@ -226,7 +228,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     <>
       {!show && hasMounted && showToggle ? (
         <div className="mb-6">
-          <VisibilityButton color={buttonColor} label="Afficher Le saviez-vous ?" onClick={handleToggle} />
+          <VisibilityButton color={buttonColor} label="Afficher Le saviez-vous ?" onClick={onToggle || handleToggle} />
         </div>
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>

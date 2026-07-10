@@ -26,6 +26,7 @@ interface WikipediaImageCardProps {
   showLink?: boolean
   showToggle?: boolean
   swipeable?: boolean
+  onToggle?: () => void
 }
 
 async function fetchRandomImage(): Promise<ImageData | null> {
@@ -44,6 +45,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   showLink = true,
   showToggle = true,
   swipeable = false,
+  onToggle,
 }: WikipediaImageCardProps) {
   const [image, setImage] = useState<ImageData | null>(null)
   const [nextImage, setNextImage] = useState<ImageData | null>(null)
@@ -171,18 +173,18 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
       className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-50 p-5 dark:border-teal-700 dark:from-teal-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
     >
       <CardHeader
-        icon={<Camera className="h-4 w-4 text-teal-950" />}
-        iconBgColor="bg-teal-400"
-        iconDarkColor="dark:bg-teal-600"
-        title="Image du jour"
-        titleColor="text-teal-800"
-        titleDarkColor="dark:text-teal-300"
-        linkHref={showLink ? '/image-du-jour' : undefined}
-        showToggle={showToggle}
-        onToggle={handleToggle}
-        onRefresh={loadImage}
-        loading={loading}
-        shareOptions={{ onClick: share, copied, shareUrl }}
+         icon={<Camera className="h-4 w-4 text-teal-950" />}
+         iconBgColor="bg-teal-400"
+         iconDarkColor="dark:bg-teal-600"
+         title="Image du jour"
+         titleColor="text-teal-800"
+         titleDarkColor="dark:text-teal-300"
+         linkHref={showLink ? '/image-du-jour' : undefined}
+         showToggle={showToggle}
+         onToggle={onToggle || handleToggle}
+         onRefresh={loadImage}
+         loading={loading}
+         shareOptions={{ onClick: share, copied, shareUrl }}
       extraActions={
          image && (
            <button
@@ -256,7 +258,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     <>
       {!show && hasMounted && showToggle ? (
         <div className="mb-6">
-          <VisibilityButton color={buttonColor} label="Afficher Image du jour" onClick={handleToggle} />
+          <VisibilityButton color={buttonColor} label="Afficher Image du jour" onClick={onToggle || handleToggle} />
         </div>
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
