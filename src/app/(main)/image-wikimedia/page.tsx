@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { ImageWikimediaClient } from './image-wikimedia-client'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { getSession } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'Wikimedia | MoinsBête',
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
   },
 }
 
-export default function ImageWikimediaPage() {
+export default async function ImageWikimediaPage() {
+  const session = await getSession()
+  const userId = session?.user?.id
+
   return (
     <div className="mx-auto flex min-h-[90vh] w-full flex-col items-center justify-start px-4 py-8 md:max-w-4xl md:p-6">
       <Link
@@ -24,7 +28,7 @@ export default function ImageWikimediaPage() {
         Retour à l&apos;accueil
       </Link>
 
-      <ImageWikimediaClient />
+      <ImageWikimediaClient userId={userId} />
     </div>
   )
 }
