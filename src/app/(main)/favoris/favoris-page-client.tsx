@@ -33,6 +33,13 @@ interface FavorisPageClientProps {
 
 type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous'
 
+interface TabConfig {
+  id: Tab
+  label: string
+  Icon: React.ElementType
+  count: number
+}
+
 export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
@@ -104,64 +111,36 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     return `/favoris?page=${page}`
   }
 
+  const tabConfig: TabConfig[] = useMemo(() => [
+    { id: 'idees', label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount },
+    { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
+    { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
+    { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
+    { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
+  ], [derivedIdeasCount, imageDuJourCount, saviezVousCount, radioCount, cnrsCount])
+
+  const sortedTabs = useMemo(() =>
+    [...tabConfig].sort((a, b) => b.count - a.count),
+    [tabConfig]
+  )
+
   return (
     <div>
       <div className="flex gap-1 md:gap-2 mb-4 md:mb-6 border-b border-border overflow-x-auto">
-        <button
-          onClick={() => setActiveTab('idees')}
-          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'idees'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Lightbulb className="h-4 w-4" />
-          Idées ({derivedIdeasCount})
-        </button>
-        <button
-          onClick={() => setActiveTab('image-du-jour')}
-          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'image-du-jour'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <ImageIcon className="h-4 w-4" />
-          Images ({imageDuJourCount})
-        </button>
-        <button
-          onClick={() => setActiveTab('saviez-vous')}
-          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'saviez-vous'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Info className="h-4 w-4" />
-          Saviez-vous ? ({saviezVousCount})
-        </button>
-        <button
-          onClick={() => setActiveTab('radio-france')}
-          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'radio-france'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Radio className="h-4 w-4" />
-          Radio France ({radioCount})
-        </button>
-        <button
-          onClick={() => setActiveTab('cnrs-news')}
-          className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'cnrs-news'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Newspaper className="h-4 w-4" />
-          CNRS ({cnrsCount})
-        </button>
+        {sortedTabs.map(({ id, label, Icon, count }) => (
+          <button
+            key={id}
+            onClick={() => setActiveTab(id)}
+            className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === id
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Icon className="h-4 w-4" />
+            {label} ({count})
+          </button>
+        ))}
       </div>
 
       {activeTab === 'idees' && (
