@@ -50,9 +50,7 @@ async function fetchGalleryPage(page: number, session: string): Promise<GallicaI
       const exemplaire = item.exemplaire?.value || ''
       const reference = item.reference?.value || ''
       const baseUrl = `${GALLERY_BASE}/wa_zoom?site=IMAGE&SID=${session}&docid=${docid}&ex=${exemplaire}`
-      const link = reference
-        ? `https://gallica.bnf.fr/${reference.startsWith('ark:/') ? '' : 'ark:/12148/'}${reference}`
-        : `https://images.bnf.fr/#/home/gallery/${docid}`
+      const link = `https://images.bnf.fr/#/detail/${docid}/${exemplaire}`
       return {
         docid: String(docid),
         reference: String(reference),
