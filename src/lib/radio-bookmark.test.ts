@@ -101,7 +101,7 @@ describe('getRadioFavorites', async () => {
     const result = await getRadioFavorites('u1')
 
     expect(result).toHaveLength(1)
-    expect(result[0].id).toBe('doc-1')
+    expect(result[0].id).toBe('2024-01-01')
     expect(result[0].title).toBe('Test')
   })
 })

@@ -1,22 +1,21 @@
 'use server'
 
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
 import type { BookmarkType } from '@/generated/client'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
-import { getCnrsFavorites } from '@/lib/cnrs-bookmark'
+import { cnrsManager } from '@/lib/cnrs-bookmark'
+import { createBookmarkManagerActions } from '@/actions/bookmark-manager'
 import type { CnrsFavoriteMeta } from '@/lib/cnrs-bookmark'
 
 const TYPE: BookmarkType = 'CNRS_NEWS'
+
+export const cnrsActions = createBookmarkManagerActions(cnrsManager)
 
 export async function toggleCnrsFavoriteAction(articleId: string, action?: 'add' | 'remove', meta?: CnrsFavoriteMeta) {
   return toggleBookmarkAction(TYPE, articleId, action, meta as Record<string, unknown>)
 }
 
 export async function getCnrsFavoritesAction() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user) return { favorites: [] }
-  return { favorites: await getCnrsFavorites(session.user.id) }
+  return cnrsActions.getFavorites()
 }
 
 export async function isCnrsFavoriteAction(articleId: string) {

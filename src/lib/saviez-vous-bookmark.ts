@@ -1,11 +1,6 @@
 import type { BookmarkType } from '@/generated/client'
-import {
-  toggleBookmark,
-  isBookmarked,
-  getBookmarks,
-  getBookmarksCount,
-} from '@/lib/favorite'
 import type { SaviezVousFavoriteDoc } from '@/components/feed/saviez-vous-bookmarks'
+import { createBookmarkManager } from '@/lib/bookmark-manager'
 
 export interface SaviezVousFavoriteMeta {
   text?: string
@@ -15,7 +10,7 @@ export interface SaviezVousFavoriteMeta {
 
 const TYPE: BookmarkType = 'SAVIEZ_VOUS'
 
-function mapMeta(meta: unknown, resourceId: string): SaviezVousFavoriteDoc | null {
+const mapMeta: (meta: unknown, resourceId: string) => SaviezVousFavoriteDoc | null = (meta, resourceId) => {
   const m = meta as SaviezVousFavoriteMeta | null
   if (!m) return null
   return {
@@ -27,26 +22,7 @@ function mapMeta(meta: unknown, resourceId: string): SaviezVousFavoriteDoc | nul
   }
 }
 
-export async function toggleSaviezVousFavorite(
-  userId: string,
-  factId: string,
-  action?: 'add' | 'remove',
-  meta?: SaviezVousFavoriteMeta,
-) {
-  return toggleBookmark(userId, TYPE, factId, action, meta as Record<string, unknown>)
-}
+export const saviezVousManager = createBookmarkManager(TYPE, mapMeta)
 
-export async function isSaviezVousFavorite(userId: string, factId: string): Promise<boolean> {
-  return isBookmarked(userId, TYPE, factId)
-}
-
-export async function getSaviezVousFavorites(userId: string): Promise<SaviezVousFavoriteDoc[]> {
-  const items = await getBookmarks(userId, TYPE)
-  return items
-    .map((item) => mapMeta(item.meta, item.resourceId || ''))
-    .filter((d): d is SaviezVousFavoriteDoc => d !== null)
-}
-
-export async function getSaviezVousFavoritesCount(userId: string): Promise<number> {
-  return getBookmarksCount(userId, TYPE)
-}
+export const getSaviezVousFavorites = saviezVousManager.getFavorites.bind(saviezVousManager)
+export const getSaviezVousFavoritesCount = saviezVousManager.getFavoritesCount.bind(saviezVousManager)
