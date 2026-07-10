@@ -85,13 +85,11 @@ export function BnFGallicaCard({ userId }: BnFGallicaCardProps) {
   useEffect(() => {
     if (userId && image) {
       isBookmarkedAction('BNF_GALICA', image.docid).then(result => {
-        if (result.isBookmarked) setIsFavorite(true)
+        setIsFavorite(result.isBookmarked)
       }).catch(() => {})
     } else if (!userId && image) {
       const favorites = getFavorites()
-      if (favorites.some((f: { docid: string }) => f.docid === image.docid)) {
-        setIsFavorite(true)
-      }
+      setIsFavorite(favorites.some((f: { docid: string }) => f.docid === image.docid))
     }
   }, [userId, image, getFavorites])
 
