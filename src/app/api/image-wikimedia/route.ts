@@ -26,6 +26,7 @@ const TOPIC_SEARCHES: Record<string, string[]> = {
   advertisements: ['Vintage advertisement', 'Vintage ad', 'Retro ad', 'Poster advertisement'],
   maps: ['Historical map', 'Old map', 'Antique map', 'Cartography'],
   'sports-car': ['Vintage sports car', 'Classic sports car', 'Sports car', 'Racing car'],
+  design: ['Industrial design', 'Graphic design', 'Product design', 'Modernist design'],
 }
 
 function stripHtml(html: string): string {
