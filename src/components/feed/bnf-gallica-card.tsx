@@ -11,7 +11,6 @@ import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { VisibilityButton } from './visibility-button'
-import { SwipeBackgroundCard } from './swipe-background-card'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 
 interface GallicaImage {
@@ -148,7 +147,6 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
   const {
     bind,
     containerRef,
-    dragX,
     swipeStyle,
     isDragging,
     prefersReducedMotion,
