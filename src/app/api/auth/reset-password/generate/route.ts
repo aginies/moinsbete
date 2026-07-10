@@ -5,6 +5,7 @@ import { isCsrfValid } from '@/lib/csrf'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { RATE_LIMIT_RESET_GENERATE_MAX, RATE_LIMIT_RESET_GENERATE_WINDOW_MS, RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 import { getClientIp } from '@/lib/ip'
+import { sendResetEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   if (!(await isCsrfValid(request))) {
@@ -45,6 +46,10 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         expiresAt,
       },
+    })
+
+    await sendResetEmail(user.email, token).catch((err) => {
+      console.error('Email send failed:', err)
     })
 
     return NextResponse.json({ success: true })
