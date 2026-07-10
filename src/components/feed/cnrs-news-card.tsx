@@ -63,17 +63,6 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'cnrs_news_enabled' })
-  const FAVORITES_KEY = 'cnrs_favorites'
-
-  const getFavorites = useCallback(() => {
-    if (typeof window === 'undefined') return []
-    try {
-      const stored = localStorage.getItem(FAVORITES_KEY)
-      return stored ? JSON.parse(stored) : []
-    } catch {
-      return []
-    }
-  }, [FAVORITES_KEY])
 
   const loadArticle = useCallback(async () => {
     setLoading(true)
@@ -104,55 +93,28 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
       isCnrsFavoriteAction(article.link).then(result => {
         setIsFavorite(result.isBookmarked)
       }).catch(() => {})
-    } else if (!userId && article) {
-      const favorites = getFavorites()
-      const isFav = favorites.some((f: { link: string }) => f.link === article.link)
-      const timer = setTimeout(() => {
-        setIsFavorite(isFav)
-      }, 0)
-      return () => clearTimeout(timer)
     }
-  }, [userId, article, getFavorites])
+  }, [userId, article])
 
   const categoryStyle = article ? CATEGORY_COLORS[article.category] || { border: 'border-gray-400', bg: 'bg-gray-100', text: 'text-gray-800', darkBorder: 'dark:border-gray-700', darkBg: 'dark:bg-gray-900/40', darkText: 'dark:text-gray-300' } : null
 
   const handleBookmark = useCallback(async () => {
-    if (!article) return
+    if (!article || !userId) return
     const newFavorite = !isFavorite
 
-    if (userId) {
-      try {
-        await toggleCnrsFavoriteAction(article.link, newFavorite ? 'add' : 'remove', {
-          title: article.title,
-          category: article.category,
-          imageUrl: article.imageUrl,
-          link: article.link,
-          date: article.date,
-        })
-        setIsFavorite(newFavorite)
-      } catch {
-        setIsFavorite(prev => !prev)
-      }
-    } else {
-      const favorites = getFavorites()
-      const exists = favorites.some((f: { link: string }) => f.link === article.link)
-      if (newFavorite && !exists) {
-        const newFav = {
-          id: article.link,
-          title: article.title,
-          category: article.category,
-          imageUrl: article.imageUrl,
-          link: article.link,
-          date: article.date,
-          favoritedAt: new Date().toISOString(),
-        }
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites, newFav]))
-      } else if (!newFavorite && exists) {
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites.filter((f: { link: string }) => f.link !== article.link)))
-      }
+    try {
+      await toggleCnrsFavoriteAction(article.link, newFavorite ? 'add' : 'remove', {
+        title: article.title,
+        category: article.category,
+        imageUrl: article.imageUrl,
+        link: article.link,
+        date: article.date,
+      })
       setIsFavorite(newFavorite)
+    } catch {
+      setIsFavorite(prev => !prev)
     }
-  }, [article, isFavorite, userId, getFavorites, FAVORITES_KEY])
+  }, [article, isFavorite, userId])
 
   const shareOptions = article ? {
     title: article.title,

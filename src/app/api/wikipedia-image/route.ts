@@ -84,7 +84,7 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<any> {
 export async function GET(request: NextRequest) {
   try {
     const clientId = getClientIp(request)
-    if (!checkRateLimit(`wiki-image:${clientId}`, 10, 60_000)) {
+    if (!(await checkRateLimit(`wiki-image:${clientId}`, 10, 60_000))) {
       return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 

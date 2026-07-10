@@ -11,7 +11,7 @@ vi.mock('@/lib/db', () => ({
 }))
 
 vi.mock('@/lib/rate-limiter', () => ({
-  checkRateLimit: vi.fn(() => true),
+  checkRateLimit: vi.fn().mockResolvedValue(true),
 }))
 
 vi.mock('next-auth/next', () => ({
@@ -59,7 +59,7 @@ describe('isRegistrationLocked', () => {
 describe('registerAction', () => {
   beforeEach(async () => {
     const { checkRateLimit } = await import('@/lib/rate-limiter')
-    vi.mocked(checkRateLimit).mockReturnValue(true)
+    vi.mocked(checkRateLimit).mockResolvedValue(true)
     delete process.env.REGISTRATION_LOCKED
   })
 
@@ -135,7 +135,7 @@ describe('registerAction', () => {
 
   it('returns rate limit error', async () => {
     const { checkRateLimit } = await import('@/lib/rate-limiter')
-    vi.mocked(checkRateLimit).mockReturnValueOnce(false)
+    vi.mocked(checkRateLimit).mockResolvedValueOnce(false)
 
     const { registerAction } = await import('@/actions/auth-actions')
     const result = await registerAction({
@@ -151,7 +151,7 @@ describe('registerAction', () => {
 describe('loginAction', () => {
   beforeEach(async () => {
     const { checkRateLimit } = await import('@/lib/rate-limiter')
-    vi.mocked(checkRateLimit).mockReturnValue(true)
+    vi.mocked(checkRateLimit).mockResolvedValue(true)
   })
 
   it('returns success for valid credentials', async () => {
@@ -230,7 +230,7 @@ describe('loginAction', () => {
 
   it('returns rate limit error', async () => {
     const { checkRateLimit } = await import('@/lib/rate-limiter')
-    vi.mocked(checkRateLimit).mockReturnValueOnce(false)
+    vi.mocked(checkRateLimit).mockResolvedValueOnce(false)
 
     const { loginAction } = await import('@/actions/auth-actions')
     const result = await loginAction({

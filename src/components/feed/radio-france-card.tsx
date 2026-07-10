@@ -20,33 +20,10 @@ interface RadioFranceDoc {
   image?: string
 }
 
-interface FavoriteDoc {
-  id: string
-  title: string
-  description: string
-  url: string
-  radio: string
-  section: string
-  image?: string
-  favoritedAt: string
-}
-
 interface RadioFranceCardProps {
   initialDoc?: RadioFranceDoc
   userId?: string
   onToggle?: () => void
-}
-
-const FAVORITES_KEY = 'rf_favorites'
-
-function getFavorites(): FavoriteDoc[] {
-  if (typeof window === 'undefined') return []
-  try {
-    const stored = localStorage.getItem(FAVORITES_KEY)
-    return stored ? JSON.parse(stored) : []
-  } catch {
-    return []
-  }
 }
 
 async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null> {
@@ -104,34 +81,22 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
   }, [loading, doc])
 
   const handleBookmark = useCallback(async () => {
-    if (!doc) return
+    if (!doc || !userId) return
     const newFavorite = !isFavorite
 
-    if (userId) {
-      try {
-        await toggleRadioFavoriteAction(doc.id, newFavorite ? 'add' : 'remove', {
-          title: doc.title,
-          description: doc.description,
-          url: doc.url,
-          radio: doc.radio,
-          section: doc.section,
-          image: doc.image,
-          favoritedAt: newFavorite ? new Date().toISOString() : undefined,
-        })
-        setIsFavorite(newFavorite)
-      } catch {
-        setIsFavorite(prev => !prev)
-      }
-    } else {
-      const stored = getFavorites()
-      const exists = stored.some(f => f.id === doc.id)
-      if (newFavorite && !exists) {
-        const newFav: FavoriteDoc = { ...doc, favoritedAt: new Date().toISOString() }
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify([...stored, newFav]))
-      } else if (!newFavorite && exists) {
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify(stored.filter(f => f.id !== doc.id)))
-      }
+    try {
+      await toggleRadioFavoriteAction(doc.id, newFavorite ? 'add' : 'remove', {
+        title: doc.title,
+        description: doc.description,
+        url: doc.url,
+        radio: doc.radio,
+        section: doc.section,
+        image: doc.image,
+        favoritedAt: newFavorite ? new Date().toISOString() : undefined,
+      })
       setIsFavorite(newFavorite)
+    } catch {
+      setIsFavorite(prev => !prev)
     }
   }, [doc, isFavorite, userId])
 

@@ -54,22 +54,11 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
   const [error, setError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const FAVORITES_KEY = 'bnf_gallica_favorites'
 
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({
     storageKey: 'bnf_gallica_card_visible',
     defaultShow: true,
   })
-
-  const getFavorites = useCallback(() => {
-    if (typeof window === 'undefined') return []
-    try {
-      const stored = localStorage.getItem(FAVORITES_KEY)
-      return stored ? JSON.parse(stored) : []
-    } catch {
-      return []
-    }
-  }, [FAVORITES_KEY])
 
   const loadImage = useCallback(async () => {
     setLoading(true)
@@ -98,54 +87,26 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
       isBookmarkedAction('BNF_GALICA', image.docid).then(result => {
         setIsFavorite(result.isBookmarked)
       }).catch(() => {})
-    } else if (!userId && image) {
-      const favorites = getFavorites()
-      const isFav = favorites.some((f: { docid: string }) => f.docid === image.docid)
-      const timer = setTimeout(() => {
-        setIsFavorite(isFav)
-      }, 0)
-      return () => clearTimeout(timer)
     }
-  }, [userId, image, getFavorites])
+  }, [userId, image])
 
   const handleBookmark = useCallback(async () => {
-    if (!image) return
+    if (!image || !userId) return
     const newFavorite = !isFavorite
 
-    if (userId) {
-      try {
-        await toggleBookmarkAction('BNF_GALICA', image.docid, newFavorite ? 'add' : 'remove', {
-          titre: image.titre,
-          auteur: image.auteur,
-          imageUrl: image.imageUrl,
-          link: image.link,
-          droits: image.droits,
-        })
-        setIsFavorite(newFavorite)
-      } catch {
-        setIsFavorite(prev => !prev)
-      }
-    } else {
-      const favorites = getFavorites()
-      const exists = favorites.some((f: { docid: string }) => f.docid === image.docid)
-      if (newFavorite && !exists) {
-        const newFav = {
-          id: image.docid,
-          docid: image.docid,
-          titre: image.titre,
-          auteur: image.auteur,
-          imageUrl: image.imageUrl,
-          link: image.link,
-          droits: image.droits,
-          favoritedAt: new Date().toISOString(),
-        }
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites, newFav]))
-      } else if (!newFavorite && exists) {
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites.filter((f: { docid: string }) => f.docid !== image.docid)))
-      }
+    try {
+      await toggleBookmarkAction('BNF_GALICA', image.docid, newFavorite ? 'add' : 'remove', {
+        titre: image.titre,
+        auteur: image.auteur,
+        imageUrl: image.imageUrl,
+        link: image.link,
+        droits: image.droits,
+      })
       setIsFavorite(newFavorite)
+    } catch {
+      setIsFavorite(prev => !prev)
     }
-  }, [image, isFavorite, userId, getFavorites, FAVORITES_KEY])
+  }, [image, isFavorite, userId])
 
   const shareOptions = image ? {
     title: `Gallica - ${image.titre}`,
@@ -197,7 +158,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
             </button>
           )}
           <RefreshCw className={`h-4 w-4 text-rose-600 dark:text-rose-400 ${loading ? 'animate-spin' : ''}`} />
-          {image && (
+          {image && userId && (
             <button
               onClick={(e) => { e.stopPropagation(); handleBookmark() }}
               className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"

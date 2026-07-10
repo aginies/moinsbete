@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const userId = session.user.id
 
   const clientId = getClientIp(request)
-  if (!checkRateLimit(`history:${userId}`, 60, 60_000)) {
+  if (!(await checkRateLimit(`history:${userId}`, 60, 60_000))) {
     return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
   }
   const page = parseInt(searchParams.get('page') || '1')
