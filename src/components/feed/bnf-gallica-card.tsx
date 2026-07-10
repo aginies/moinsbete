@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { BookOpen, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
-import { sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
@@ -50,12 +49,11 @@ async function fetchRandomImage(): Promise<GallicaImage | null> {
 
 export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, showLink = true, showToggle = true, onToggle }: BnFGallicaCardProps) {
   const [image, setImage] = useState<GallicaImage | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const FAVORITES_KEY = 'bnf_gallica_favorites'
-  const loadedRef = useRef(false)
 
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({
     storageKey: 'bnf_gallica_card_visible',
@@ -86,11 +84,13 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
   }, [])
 
   useEffect(() => {
-    if (!loadedRef.current) {
-      loadedRef.current = true
-      loadImage()
+    if (hasMounted && show && !image && !loading && !error) {
+      const timer = setTimeout(() => {
+        loadImage()
+      }, 0)
+      return () => clearTimeout(timer)
     }
-  }, [])
+  }, [hasMounted, show, image, loading, error, loadImage])
 
   useEffect(() => {
     if (userId && image) {
@@ -99,7 +99,11 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
       }).catch(() => {})
     } else if (!userId && image) {
       const favorites = getFavorites()
-      setIsFavorite(favorites.some((f: { docid: string }) => f.docid === image.docid))
+      const isFav = favorites.some((f: { docid: string }) => f.docid === image.docid)
+      const timer = setTimeout(() => {
+        setIsFavorite(isFav)
+      }, 0)
+      return () => clearTimeout(timer)
     }
   }, [userId, image, getFavorites])
 
@@ -182,13 +186,15 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
           </Link>
         </div>
         <div className="flex items-center gap-6">
-           <button
-             onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
-             className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
-             title="Masquer la carte"
-           >
-            <EyeOff className="h-4 w-4" />
-          </button>
+           {showToggle && (
+             <button
+               onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
+               className="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
+               title="Masquer la carte"
+             >
+              <EyeOff className="h-4 w-4" />
+            </button>
+          )}
           <RefreshCw className={`h-4 w-4 text-rose-600 dark:text-rose-400 ${loading ? 'animate-spin' : ''}`} />
           {image && (
             <button

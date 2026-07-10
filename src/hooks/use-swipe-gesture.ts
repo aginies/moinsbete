@@ -114,10 +114,15 @@ export function useSwipeGesture({
     setHint(null)
   }, [resetDep])
 
-  const prefersReducedMotion = useMemo(() => {
-    if (typeof window === 'undefined') return false
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   }, [])
+
+  const prefersReducedMotionMemo = useMemo(() => {
+    return prefersReducedMotion
+  }, [prefersReducedMotion])
 
   const absX = Math.abs(dragX)
   const rotation = dragX * 0.04
@@ -139,7 +144,7 @@ export function useSwipeGesture({
     setHint,
     swipeStyle,
     isDragging,
-    prefersReducedMotion,
+    prefersReducedMotion: prefersReducedMotionMemo,
     prevHintOpacity,
     nextHintOpacity,
   }

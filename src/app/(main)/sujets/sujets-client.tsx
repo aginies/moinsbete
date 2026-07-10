@@ -8,10 +8,7 @@ import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
 import { CnrsNewsCard } from '@/components/feed/cnrs-news-card'
 import { RadioFranceCard } from '@/components/feed/radio-france-card'
 import { BnFGallicaCard } from '@/components/feed/bnf-gallica-card'
-import { getRandomFact } from '@/lib/saviez-vous'
-import { getRandomDoc } from '@/data/radio-france'
 import Link from 'next/link'
-import { Newspaper } from 'lucide-react'
 
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
@@ -23,46 +20,34 @@ interface SujetsClientProps {
 
 export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled, saviezVousFact, userId }: SujetsClientProps) {
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
-  const [cnrsEnabled, setCnrsEnabled] = useState(() => {
-    if (userId) return initialCnrsEnabled
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('cnrs_news_enabled')
-      if (stored !== null) return stored === 'true'
-    }
-    return true
-  })
+  const [cnrsEnabled, setCnrsEnabled] = useState(userId ? initialCnrsEnabled : true)
+  const [saviezVousVisible, setSaviezVousVisible] = useState(true)
+  const [wikipediaVisible, setWikipediaVisible] = useState(true)
+  const [radioFranceVisible, setRadioFranceVisible] = useState(true)
+  const [bnfGallicaVisible, setBnfGallicaVisible] = useState(true)
 
-  const [saviezVousVisible, setSaviezVousVisible] = useState(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('saviez_vous_card_visible')
-      if (stored !== null) return stored === 'true'
-    }
-    return true
-  })
+      const timer = setTimeout(() => {
+        if (!userId) {
+          const storedCnrs = localStorage.getItem('cnrs_news_enabled')
+          if (storedCnrs !== null) setCnrsEnabled(storedCnrs === 'true')
+        }
+        const storedSaviez = localStorage.getItem('saviez_vous_card_visible')
+        if (storedSaviez !== null) setSaviezVousVisible(storedSaviez === 'true')
 
-  const [wikipediaVisible, setWikipediaVisible] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('wikipedia_image_card_visible')
-      if (stored !== null) return stored === 'true'
-    }
-    return true
-  })
+        const storedWiki = localStorage.getItem('wikipedia_image_card_visible')
+        if (storedWiki !== null) setWikipediaVisible(storedWiki === 'true')
 
-  const [radioFranceVisible, setRadioFranceVisible] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('radio_france_card_visible')
-      if (stored !== null) return stored === 'true'
-    }
-    return true
-  })
+        const storedRadio = localStorage.getItem('radio_france_card_visible')
+        if (storedRadio !== null) setRadioFranceVisible(storedRadio === 'true')
 
-  const [bnfGallicaVisible, setBnfGallicaVisible] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('bnf_gallica_card_visible')
-      if (stored !== null) return stored === 'true'
+        const storedBnf = localStorage.getItem('bnf_gallica_card_visible')
+        if (storedBnf !== null) setBnfGallicaVisible(storedBnf === 'true')
+      }, 0)
+      return () => clearTimeout(timer)
     }
-    return true
-  })
+  }, [userId])
 
   const toggleSaviezVous = useCallback(() => {
     setSaviezVousVisible(prev => {
@@ -184,7 +169,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
         {!saviezVousVisible && saviezVousFact && (
           <div className="h-full">
             <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} />
