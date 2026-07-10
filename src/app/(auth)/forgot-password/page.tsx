@@ -34,6 +34,9 @@ export default function ForgotPasswordPage() {
 
       if (data.error) {
         setError(data.error)
+      } else if (!data.emailSent) {
+        setSuccess(true)
+        setError('Token créé mais email non envoyé. Vérifiez votre boîte spam.')
       } else {
         setSuccess(true)
       }
