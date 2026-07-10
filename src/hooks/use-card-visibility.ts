@@ -1,9 +1,10 @@
 import { useState, useCallback, useEffect } from 'react'
 
-const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple'> = {
+const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber'> = {
   wikipedia_image_card_visible: 'teal',
   saviez_vous_card_visible: 'blue',
   radio_france_card_visible: 'purple',
+  bnf_gallica_card_visible: 'amber',
 }
 
 interface UseCardVisibilityOptions {
@@ -15,7 +16,7 @@ interface UseCardVisibilityReturn {
   show: boolean
   hasMounted: boolean
   handleToggle: () => void
-  buttonColor: 'teal' | 'blue' | 'purple'
+  buttonColor: 'teal' | 'blue' | 'purple' | 'amber'
 }
 
 export function useCardVisibility({ storageKey, defaultShow = true }: UseCardVisibilityOptions): UseCardVisibilityReturn {

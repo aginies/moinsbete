@@ -18,20 +18,23 @@ import { getImageDuJourFavoritesCount } from '@/lib/image-du-jour-bookmark'
 import { getSaviezVousFavoritesCount } from '@/lib/saviez-vous-bookmark'
 import { ImageDuJourBookmarks } from '@/components/feed/image-du-jour-bookmarks'
 import { SaviezVousBookmarks } from '@/components/feed/saviez-vous-bookmarks'
+import { BnFGallicaFavorites } from './bnf-gallica-favorites'
+import { BookOpen } from 'lucide-react'
 
 interface FavorisPageClientProps {
-  ideas: CompactIdea[]
-  userId?: string
-  currentPage: number
-  totalPages: number
-  total: number
-  radioFavoritesCount: number
-  cnrsFavoritesCount: number
-  imageDuJourFavoritesCount: number
-  saviezVousFavoritesCount: number
-}
+   ideas: CompactIdea[]
+   userId?: string
+   currentPage: number
+   totalPages: number
+   total: number
+   radioFavoritesCount: number
+   cnrsFavoritesCount: number
+   imageDuJourFavoritesCount: number
+   saviezVousFavoritesCount: number
+   bnfGallicaFavoritesCount: number
+ }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'bnf-gallica'
 
 interface TabConfig {
   id: Tab
@@ -40,7 +43,7 @@ interface TabConfig {
   count: number
 }
 
-export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount }: FavorisPageClientProps) {
+export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, bnfGallicaFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
@@ -66,6 +69,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [cnrsCount, setCnrsCount] = useState(cnrsFavoritesCount)
   const [imageDuJourCount, setImageDuJourCount] = useState(imageDuJourFavoritesCount)
   const [saviezVousCount, setSaviezVousCount] = useState(saviezVousFavoritesCount)
+  const [bnfGallicaCount, setBnFGallicaCount] = useState(bnfGallicaFavoritesCount)
 
   useEffect(() => {
     setRadioCount(radioFavoritesCount)
@@ -80,8 +84,12 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   }, [imageDuJourFavoritesCount])
 
   useEffect(() => {
-    setSaviezVousCount(saviezVousFavoritesCount)
-  }, [saviezVousFavoritesCount])
+     setSaviezVousCount(saviezVousFavoritesCount)
+   }, [saviezVousFavoritesCount])
+
+   useEffect(() => {
+     setBnFGallicaCount(bnfGallicaFavoritesCount)
+   }, [bnfGallicaFavoritesCount])
 
   const handleRadioRemove = useCallback(() => {
     setRadioCount(prev => Math.max(0, prev - 1))
@@ -96,8 +104,12 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   }, [])
 
   const handleSaviezVousRemove = useCallback(() => {
-    setSaviezVousCount(prev => Math.max(0, prev - 1))
-  }, [])
+     setSaviezVousCount(prev => Math.max(0, prev - 1))
+   }, [])
+
+   const handleBnFGallicaRemove = useCallback(() => {
+     setBnFGallicaCount(prev => Math.max(0, prev - 1))
+   }, [])
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
@@ -112,12 +124,13 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   }
 
   const tabConfig: TabConfig[] = useMemo(() => [
-    { id: 'idees', label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount },
-    { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
-    { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
-    { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
-    { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
-  ], [derivedIdeasCount, imageDuJourCount, saviezVousCount, radioCount, cnrsCount])
+     { id: 'idees', label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount },
+     { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
+     { id: 'bnf-gallica', label: 'Gallica', Icon: BookOpen, count: bnfGallicaCount },
+     { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
+     { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
+     { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
+   ], [derivedIdeasCount, imageDuJourCount, bnfGallicaCount, saviezVousCount, radioCount, cnrsCount])
 
   const sortedTabs = useMemo(() =>
     [...tabConfig].sort((a, b) => b.count - a.count),
@@ -238,6 +251,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       {activeTab === 'image-du-jour' && <ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} />}
 
       {activeTab === 'saviez-vous' && <SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} />}
+
+      {activeTab === 'bnf-gallica' && <BnFGallicaFavorites userId={userId} onRemoveComplete={handleBnFGallicaRemove} />}
     </div>
   )
 }
