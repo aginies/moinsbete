@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'react'
 
 const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber'> = {
-  wikipedia_image_card_visible: 'teal',
-  saviez_vous_card_visible: 'blue',
-  radio_france_card_visible: 'purple',
-  bnf_gallica_card_visible: 'amber',
-}
+   wikipedia_image_card_visible: 'teal',
+   saviez_vous_card_visible: 'blue',
+   cnrs_news_enabled: 'teal',
+   radio_france_card_visible: 'purple',
+   bnf_gallica_card_visible: 'amber',
+ }
 
 interface UseCardVisibilityOptions {
   storageKey: string

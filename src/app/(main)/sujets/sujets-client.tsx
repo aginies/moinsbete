@@ -184,43 +184,37 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         </Link>
       </div>
 
-      {!saviezVousVisible && saviezVousFact && (
-        <div className="mb-6">
-          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} />
-        </div>
-      )}
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {!saviezVousVisible && saviezVousFact && (
+          <div>
+            <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} />
+          </div>
+        )}
 
-      {!wikipediaVisible && (
-        <div className="mb-6">
-          <WikipediaImageCard onToggle={toggleWikipedia} />
-        </div>
-      )}
+        {!wikipediaVisible && (
+          <div>
+            <WikipediaImageCard onToggle={toggleWikipedia} />
+          </div>
+        )}
 
-      {!cnrsEnabled && (
-        <div className="mb-6">
-          <button
-            onClick={toggleCnrs}
-            className="w-full rounded-xl border-2 border-dashed border-green-300 bg-green-50/50 p-4 dark:border-green-800 dark:bg-green-950/20 hover:border-green-400 hover:bg-green-50 dark:hover:border-green-700 dark:hover:bg-green-950/30 transition-colors"
-          >
-            <div className="flex items-center justify-center gap-2 text-sm text-green-700 dark:text-green-400">
-              <Newspaper className="h-4 w-4" />
-              <span>Afficher Actualité CNRS</span>
-            </div>
-          </button>
-        </div>
-      )}
+        {!cnrsEnabled && (
+          <div>
+            <CnrsNewsCard onToggle={toggleCnrs} userId={userId} />
+          </div>
+        )}
 
-      {!radioFranceVisible && (
-        <div className="mb-6">
-          <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} />
-        </div>
-      )}
+        {!radioFranceVisible && (
+          <div>
+            <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} />
+          </div>
+        )}
 
-      {!bnfGallicaVisible && (
-        <div className="mb-6">
-          <BnFGallicaCard onToggle={toggleBnfGallica} userId={userId} />
-        </div>
-      )}
+        {!bnfGallicaVisible && (
+          <div>
+            <BnFGallicaCard onToggle={toggleBnfGallica} userId={userId} />
+          </div>
+        )}
+      </div>
 
       {followedTopics.length > 0 && (
         <div className="mb-8">
