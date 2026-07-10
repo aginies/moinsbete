@@ -182,7 +182,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
             onClick={(e) => e.stopPropagation()}
             className="text-sm font-bold uppercase tracking-wide text-rose-800 dark:text-rose-300 hover:underline"
           >
-            Gallica — BnF
+            Images BNF
           </Link>
         </div>
         <div className="flex items-center gap-6">
@@ -273,7 +273,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
   return (
     <>
       {!show && hasMounted ? (
-        <VisibilityButton color={buttonColor} label="Afficher Gallica" onClick={onToggle || handleToggle} />
+        <VisibilityButton color={buttonColor} label="Afficher Images BNF" onClick={onToggle || handleToggle} />
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
           <div
