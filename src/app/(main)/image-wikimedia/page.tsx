@@ -1,19 +1,19 @@
 import type { Metadata } from 'next'
-import { ImagePicrylClient } from './image-picryl-client'
+import { ImageWikimediaClient } from './image-wikimedia-client'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Images Picryl | MoinsBête',
-  description: 'Découvrez des images aléatoires de Picryl, archives publiques françaises. Images Picryl, archives numériques gratuites.',
+  title: 'Wikimedia | MoinsBête',
+  description: 'Découvrez des images aléatoires de Wikimedia Commons. Wikimedia, archives numériques gratuites.',
   openGraph: {
-    title: 'Images Picryl',
-    description: 'Découvrez des images aléatoires des Archives Picryl',
+    title: 'Wikimedia',
+    description: 'Découvrez des images aléatoires de Wikimedia Commons',
     type: 'website',
   },
 }
 
-export default function ImagePicrylPage() {
+export default function ImageWikimediaPage() {
   return (
     <div className="mx-auto flex min-h-[90vh] w-full flex-col items-center justify-start px-4 py-8 md:max-w-4xl md:p-6">
       <Link
@@ -24,7 +24,7 @@ export default function ImagePicrylPage() {
         Retour à l&apos;accueil
       </Link>
 
-      <ImagePicrylClient />
+      <ImageWikimediaClient />
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
 import { CnrsNewsCard } from '@/components/feed/cnrs-news-card'
 import { RadioFranceCard } from '@/components/feed/radio-france-card'
-import { ImagePicrylCard } from '@/components/feed/image-picryl-card'
+import { ImageWikimediaCard } from '@/components/feed/image-wikimedia-card'
 import Link from 'next/link'
 
 interface SujetsClientProps {
@@ -24,7 +24,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
   const [saviezVousVisible, setSaviezVousVisible] = useState(true)
   const [wikipediaVisible, setWikipediaVisible] = useState(true)
   const [radioFranceVisible, setRadioFranceVisible] = useState(true)
-  const [picrylVisible, setPicrylVisible] = useState(true)
+  const [wikimediaVisible, setWikimediaVisible] = useState(true)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -42,8 +42,8 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         const storedRadio = localStorage.getItem('radio_france_card_visible')
         if (storedRadio !== null) setRadioFranceVisible(storedRadio === 'true')
 
-        const storedPicryl = localStorage.getItem('image_picryl_card_visible')
-        if (storedPicryl !== null) setPicrylVisible(storedPicryl === 'true')
+        const storedWikimedia = localStorage.getItem('image_wikimedia_card_visible')
+        if (storedWikimedia !== null) setWikimediaVisible(storedWikimedia === 'true')
       }, 0)
       return () => clearTimeout(timer)
     }
@@ -79,11 +79,11 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
     })
   }, [])
 
-  const togglePicryl = useCallback(() => {
-    setPicrylVisible(prev => {
+  const toggleWikimedia = useCallback(() => {
+    setWikimediaVisible(prev => {
       const next = !prev
       if (typeof window !== 'undefined') {
-        localStorage.setItem('image_picryl_card_visible', String(next))
+        localStorage.setItem('image_wikimedia_card_visible', String(next))
       }
       return next
     })
@@ -142,9 +142,9 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         </div>
       )}
 
-      {picrylVisible && (
+      {wikimediaVisible && (
         <div className="mb-6">
-          <ImagePicrylCard onToggle={togglePicryl} userId={userId} />
+          <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} />
         </div>
       )}
 
@@ -194,9 +194,9 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
           </div>
         )}
 
-        {!picrylVisible && (
+        {!wikimediaVisible && (
           <div className="h-full">
-            <ImagePicrylCard onToggle={togglePicryl} userId={userId} />
+            <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} />
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-interface PicrylImage {
+interface WikimediaImage {
   docid: string
   reference?: string
   titre: string
@@ -92,7 +92,7 @@ async function searchFiles(topic: string): Promise<string[]> {
   return []
 }
 
-async function fetchImageInfo(filename: string): Promise<PicrylImage | null> {
+async function fetchImageInfo(filename: string): Promise<WikimediaImage | null> {
   const cleanFilename = filename.replace(/^File:/i, '')
   for (let retry = 0; retry < 5; retry++) {
     try {
@@ -158,7 +158,7 @@ async function fetchImageInfo(filename: string): Promise<PicrylImage | null> {
   return null
 }
 
-async function fetchRandomImage(topic?: string): Promise<PicrylImage | null> {
+async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> {
   const searchTerms = topic && TOPIC_SEARCHES[topic] ? TOPIC_SEARCHES[topic] : ['France']
 
   for (const term of searchTerms) {
