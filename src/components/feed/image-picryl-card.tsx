@@ -293,7 +293,7 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
               onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
             >
-              Voir sur Picryl
+              Voir sur Wikimedia Commons
               <ExternalLink className="h-3 w-3" />
             </Link>
           )}
