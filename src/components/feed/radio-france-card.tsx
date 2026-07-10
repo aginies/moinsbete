@@ -71,7 +71,7 @@ export function RadioFranceCard({ initialDoc, userId }: RadioFranceCardProps) {
   useEffect(() => {
     if (userId && doc) {
       isRadioFavoriteAction(doc.id).then(result => {
-        if (result.isFavorite) {
+        if (result.isBookmarked) {
           setIsFavorite(true)
         }
       }).catch(() => {})

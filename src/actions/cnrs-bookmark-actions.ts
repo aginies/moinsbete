@@ -3,14 +3,14 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import type { BookmarkType } from '@/generated/client'
-import { toggleFavoriteAction, isFavoriteAction } from '@/actions/favorite-actions'
+import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { getCnrsFavorites } from '@/lib/cnrs-bookmark'
 import type { CnrsFavoriteMeta } from '@/lib/cnrs-bookmark'
 
 const TYPE: BookmarkType = 'CNRS_NEWS'
 
 export async function toggleCnrsFavoriteAction(articleId: string, action?: 'add' | 'remove', meta?: CnrsFavoriteMeta) {
-  return toggleFavoriteAction(TYPE, articleId, action, meta as Record<string, unknown>)
+  return toggleBookmarkAction(TYPE, articleId, action, meta as Record<string, unknown>)
 }
 
 export async function getCnrsFavoritesAction() {
@@ -20,5 +20,5 @@ export async function getCnrsFavoritesAction() {
 }
 
 export async function isCnrsFavoriteAction(articleId: string) {
-  return isFavoriteAction(TYPE, articleId)
+  return isBookmarkedAction(TYPE, articleId)
 }

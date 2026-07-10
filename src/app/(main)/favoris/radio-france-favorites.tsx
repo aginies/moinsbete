@@ -28,8 +28,8 @@ export function RadioFranceFavorites({ userId, onRemoveComplete }: RadioFranceFa
   const handleRemove = async (item: FavoriteDoc) => {
     if (userId) {
       try {
-        const { toggleFavoriteAction } = await import('@/actions/favorite-actions')
-        await toggleFavoriteAction('RADIO_FRANCE', item.id, 'remove')
+        const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
+        await toggleBookmarkAction('RADIO_FRANCE', item.id, 'remove')
       } catch {
         // localStorage fallback handled by re-render
       }

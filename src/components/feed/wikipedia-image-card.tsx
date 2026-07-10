@@ -12,7 +12,7 @@ import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
-import { toggleFavoriteAction, isFavoriteAction } from '@/actions/favorite-actions'
+import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 
 interface ImageData {
   imageUrl: string
@@ -142,8 +142,8 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   useEffect(() => {
     if (!imageId) return
     let mounted = true
-    isFavoriteAction('IMAGE_DU_JOUR', imageId).then((result) => {
-      if (mounted) setIsFavorited(result.isFavorite)
+    isBookmarkedAction('IMAGE_DU_JOUR', imageId).then((result) => {
+      if (mounted) setIsFavorited(result.isBookmarked)
     })
     return () => { mounted = false }
   }, [imageId])
@@ -152,7 +152,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     if (!image || favoriting) return
     setFavoriting(true)
     const action = isFavorited ? 'remove' : 'add'
-    await toggleFavoriteAction('IMAGE_DU_JOUR', image.fileUrl, action, {
+    await toggleBookmarkAction('IMAGE_DU_JOUR', image.fileUrl, action, {
       imageUrl: image.imageUrl,
       description: image.description,
       fileUrl: image.fileUrl,

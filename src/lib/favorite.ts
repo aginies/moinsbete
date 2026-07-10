@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db'
 import type { BookmarkType } from '@/generated/client'
 
-export interface FavoriteItem {
+export interface BookmarkItem {
   id: string
   resourceId: string | null
   type: BookmarkType
@@ -9,18 +9,18 @@ export interface FavoriteItem {
   createdAt: Date
 }
 
-export interface FavoriteResult {
+export interface BookmarkResult {
   bookmarked: boolean
   wasBookmarked: boolean
 }
 
-export async function toggleFavorite(
+export async function toggleBookmark(
   userId: string,
   type: BookmarkType,
   resourceId: string,
   action?: 'add' | 'remove',
   meta?: Record<string, unknown>,
-): Promise<FavoriteResult> {
+): Promise<BookmarkResult> {
   const existing = await prisma.bookmark.findFirst({
     where: { userId, resourceId, type },
   })
@@ -39,14 +39,14 @@ export async function toggleFavorite(
   return { bookmarked: true, wasBookmarked: false }
 }
 
-export async function isFavorite(userId: string, type: BookmarkType, resourceId: string): Promise<boolean> {
+export async function isBookmarked(userId: string, type: BookmarkType, resourceId: string): Promise<boolean> {
   const existing = await prisma.bookmark.findFirst({
     where: { userId, resourceId, type },
   })
   return !!existing
 }
 
-export async function getFavorites(userId: string, type: BookmarkType): Promise<FavoriteItem[]> {
+export async function getBookmarks(userId: string, type: BookmarkType): Promise<BookmarkItem[]> {
   return prisma.bookmark.findMany({
     where: { userId, type },
     orderBy: { createdAt: 'desc' },
@@ -60,6 +60,6 @@ export async function getFavorites(userId: string, type: BookmarkType): Promise<
   })
 }
 
-export async function getFavoritesCount(userId: string, type: BookmarkType): Promise<number> {
+export async function getBookmarksCount(userId: string, type: BookmarkType): Promise<number> {
   return prisma.bookmark.count({ where: { userId, type } })
 }

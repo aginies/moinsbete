@@ -13,7 +13,7 @@ import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
-import { toggleFavoriteAction, isFavoriteAction } from '@/actions/favorite-actions'
+import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 
 interface SaviezVousCardProps {
   id: string
@@ -128,8 +128,8 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   useEffect(() => {
     if (!factId) return
     let mounted = true
-    isFavoriteAction('SAVIEZ_VOUS', factId).then((result) => {
-      if (mounted) setIsFavorited(result.isFavorite)
+    isBookmarkedAction('SAVIEZ_VOUS', factId).then((result) => {
+      if (mounted) setIsFavorited(result.isBookmarked)
     })
     return () => { mounted = false }
   }, [factId])
@@ -138,7 +138,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     if (!fact || favoriting) return
     setFavoriting(true)
     const action = isFavorited ? 'remove' : 'add'
-    await toggleFavoriteAction('SAVIEZ_VOUS', fact.id, action, {
+    await toggleBookmarkAction('SAVIEZ_VOUS', fact.id, action, {
       text: fact.text,
       sourceUrl: fact.sourceUrl,
       imageFilename: fact.imageFilename,

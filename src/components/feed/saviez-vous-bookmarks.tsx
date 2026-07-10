@@ -61,8 +61,8 @@ export function SaviezVousBookmarks({ userId, onRemoveComplete }: SaviezVousBook
   const handleRemove = async (item: SaviezVousFavoriteDoc) => {
     if (userId) {
       try {
-        const { toggleFavoriteAction } = await import('@/actions/favorite-actions')
-        await toggleFavoriteAction('SAVIEZ_VOUS', item.id, 'remove')
+        const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
+        await toggleBookmarkAction('SAVIEZ_VOUS', item.id, 'remove')
       } catch {
         // localStorage fallback
       }

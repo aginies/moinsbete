@@ -3,14 +3,14 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import type { BookmarkType } from '@/generated/client'
-import { toggleFavoriteAction, isFavoriteAction } from '@/actions/favorite-actions'
+import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { getRadioFavorites } from '@/lib/radio-bookmark'
 import type { RadioFavoriteMeta } from '@/lib/radio-bookmark'
 
 const TYPE: BookmarkType = 'RADIO_FRANCE'
 
 export async function toggleRadioFavoriteAction(docId: string, action?: 'add' | 'remove', meta?: RadioFavoriteMeta) {
-  return toggleFavoriteAction(TYPE, docId, action, meta as Record<string, unknown>)
+  return toggleBookmarkAction(TYPE, docId, action, meta as Record<string, unknown>)
 }
 
 export async function getRadioFavoritesAction() {
@@ -20,5 +20,5 @@ export async function getRadioFavoritesAction() {
 }
 
 export async function isRadioFavoriteAction(docId: string) {
-  return isFavoriteAction(TYPE, docId)
+  return isBookmarkedAction(TYPE, docId)
 }

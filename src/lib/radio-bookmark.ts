@@ -1,10 +1,10 @@
 import type { BookmarkType } from '@/generated/client'
 import {
-  toggleFavorite,
-  isFavorite,
-  getFavorites,
-  getFavoritesCount,
-  type FavoriteItem,
+  toggleBookmark,
+  isBookmarked,
+  getBookmarks,
+  getBookmarksCount,
+  type BookmarkItem,
 } from '@/lib/favorite'
 import type { FavoriteDoc } from '@/app/(main)/favoris/radio-france-favorites'
 
@@ -41,15 +41,15 @@ export async function toggleRadioFavorite(
   action?: 'add' | 'remove',
   meta?: RadioFavoriteMeta,
 ) {
-  return toggleFavorite(userId, TYPE, docId, action, meta as Record<string, unknown>)
+  return toggleBookmark(userId, TYPE, docId, action, meta as Record<string, unknown>)
 }
 
 export async function isRadioFavorite(userId: string, docId: string): Promise<boolean> {
-  return isFavorite(userId, TYPE, docId)
+  return isBookmarked(userId, TYPE, docId)
 }
 
 export async function getRadioFavorites(userId: string): Promise<FavoriteDoc[]> {
-  const items = await getFavorites(userId, TYPE)
+  const items = await getBookmarks(userId, TYPE)
   return items
     .map((item) => {
       const mapped = mapMeta(item.meta)
@@ -60,5 +60,5 @@ export async function getRadioFavorites(userId: string): Promise<FavoriteDoc[]> 
 }
 
 export async function getRadioFavoritesCount(userId: string): Promise<number> {
-  return getFavoritesCount(userId, TYPE)
+  return getBookmarksCount(userId, TYPE)
 }
