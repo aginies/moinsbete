@@ -1,19 +1,19 @@
 import type { Metadata } from 'next'
-import { GallicaBnfClient } from './gallica-bnf-client'
+import { ImageBnfClient } from './image-bnf-client'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Gallica BnF | MoinsBête',
-  description: 'Découvrez des images aléatoires de la Bibliothèque nationale de France. Gallica, archives numériques gratuites.',
+  title: 'Images BNF | MoinsBête',
+  description: 'Découvrez des images aléatoires de la Bibliothèque nationale de France. Images BNF, archives numériques gratuites.',
   openGraph: {
-    title: 'Gallica BnF',
-    description: 'Découvrez des images aléatoires de Gallica — Bibliothèque nationale de France',
+    title: 'Images BNF',
+    description: 'Découvrez des images aléatoires des Archives BNF',
     type: 'website',
   },
 }
 
-export default function GallicaBnfPage() {
+export default function ImageBnfPage() {
   return (
     <div className="mx-auto flex min-h-[90vh] w-full flex-col items-center justify-start px-4 py-8 md:max-w-3xl md:p-6">
       <Link
@@ -24,7 +24,7 @@ export default function GallicaBnfPage() {
         Retour à l&apos;accueil
       </Link>
 
-      <GallicaBnfClient />
+      <ImageBnfClient />
     </div>
   )
 }

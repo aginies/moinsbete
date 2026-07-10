@@ -178,7 +178,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
             <BookOpen className="h-4 w-4 text-white" />
           </div>
           <Link
-            href="/gallica-bnf"
+            href="/image-bnf"
             onClick={(e) => e.stopPropagation()}
             className="text-sm font-bold uppercase tracking-wide text-rose-800 dark:text-rose-300 hover:underline"
           >
