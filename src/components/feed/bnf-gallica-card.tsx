@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { BookOpen, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
@@ -55,6 +55,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const FAVORITES_KEY = 'bnf_gallica_favorites'
+  const loadedRef = useRef(false)
 
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({
     storageKey: 'bnf_gallica_card_visible',
@@ -85,7 +86,10 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
   }, [])
 
   useEffect(() => {
-    loadImage()
+    if (!loadedRef.current) {
+      loadedRef.current = true
+      loadImage()
+    }
   }, [])
 
   useEffect(() => {
