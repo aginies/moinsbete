@@ -27,10 +27,9 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
             {session?.user && <SearchButton />}
             {session?.user ? (
               <>
-                <Link href="/carte-mentale">
-                  <Button variant="ghost" size="sm" className="hidden md:inline-flex">
+                    <Link href="/carte-mentale">
+                  <Button variant="ghost" size="sm" className="inline-flex md:hidden">
                     <Network className="h-4 w-4" />
-                    <span className="ml-1">Carte</span>
                   </Button>
                 </Link>
                 <Link href="/favoris">
