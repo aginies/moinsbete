@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 
 interface GallicaImage {
   docid: string
+  reference?: string
   titre: string
   auteur: string
   imageUrl: string
@@ -32,7 +33,7 @@ async function getSession(): Promise<string> {
 async function fetchGalleryPage(page: number, session: string): Promise<GallicaImage[]> {
   try {
     const res = await fetch(
-      `${GALLERY_BASE}/ws_docList?search=%2A&tbname=IMAGE&length=${PER_PAGE}&page=${page}&lang=fra&session=${session}&sort=defsortbnf&sortway=desc`,
+      `${GALLERY_BASE}/ws_docList?search=%2A&tbname=IMAGE&length=${PER_PAGE}&page=${page}&lang=fra&session=${session}&sort=defsortbnf&sortway=desc&columns=docid%20reference%20titre%20description%20annee%20sujets`,
       {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
@@ -47,15 +48,20 @@ async function fetchGalleryPage(page: number, session: string): Promise<GallicaI
     return items.map((item: Record<string, { value: string | number }>) => {
       const docid = item.docid?.value || ''
       const exemplaire = item.exemplaire?.value || ''
+      const reference = item.reference?.value || ''
       const baseUrl = `${GALLERY_BASE}/wa_zoom?site=IMAGE&SID=${session}&docid=${docid}&ex=${exemplaire}`
+      const link = reference
+        ? `https://gallica.bnf.fr/${reference.startsWith('ark:/') ? '' : 'ark:/12148/'}${reference}`
+        : `https://images.bnf.fr/#/home/gallery/${docid}`
       return {
         docid: String(docid),
+        reference: String(reference),
         titre: item.titre2?.value || '',
         auteur: item.auteur?.value || '',
         imageUrl: baseUrl,
         zoomUrl: baseUrl,
         thumbnailUrl: `${GALLERY_BASE}/wa_vignette?docid=${docid}&SID=${session}&psite=IMAGE`,
-        link: `https://images.bnf.fr/#/home/gallery/${docid}`,
+        link,
       }
     })
   } catch {
