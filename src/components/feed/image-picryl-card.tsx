@@ -12,7 +12,7 @@ import { ImageHint } from './image-hint'
 import { VisibilityButton } from './visibility-button'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 
-interface GallicaImage {
+interface PicrylImage {
   docid: string
   exemplaire: string
   titre: string
@@ -25,7 +25,7 @@ interface GallicaImage {
   link: string
 }
 
-interface BnFGallicaCardProps {
+interface ImagePicrylCardProps {
   userId?: string
   swipeable?: boolean
   fullImage?: boolean
@@ -34,36 +34,67 @@ interface BnFGallicaCardProps {
   onToggle?: () => void
 }
 
-async function fetchRandomImage(): Promise<GallicaImage | null> {
+const TOPICS = [
+  { id: 'paintings', label: 'Paintings', icon: '🎨' },
+  { id: 'aviation', label: 'Aviation', icon: '✈️' },
+  { id: 'nasa', label: 'NASA', icon: '🚀' },
+  { id: 'posters', label: 'Posters', icon: '📋' },
+  { id: 'wwi', label: 'WWI', icon: '🎖️' },
+  { id: 'wwii', label: 'WWII', icon: '🪖' },
+  { id: 'art', label: 'Art', icon: '🎭' },
+  { id: 'art-nouveau', label: 'Art Nouveau', icon: '🌺' },
+] as const
+
+async function fetchRandomImage(topic?: string): Promise<PicrylImage | null> {
   try {
-    const res = await fetch('/api/bnf-gallica', {
-      signal: AbortSignal.timeout(10000),
-      next: { revalidate: 300 },
+    const url = topic ? `/api/image-picryl?topic=${encodeURIComponent(topic)}` : '/api/image-picryl'
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(15000),
+      cache: 'no-store',
     })
+    if (!res.ok) return null
     const data = await res.json()
     if (data.error) return null
+    if (!data?.imageUrl) return null
     return data
   } catch {
     return null
   }
 }
 
-export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, showLink = true, showToggle = true, onToggle }: BnFGallicaCardProps) {
-  const [image, setImage] = useState<GallicaImage | null>(null)
+export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, showLink = true, showToggle = true, onToggle }: ImagePicrylCardProps) {
+  const [image, setImage] = useState<PicrylImage | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [activeTopics, setActiveTopics] = useState<string[]>(['paintings'])
+
+  // Load active topics from localStorage after mounting (client-side only to prevent hydration mismatch)
+  useEffect(() => {
+    const stored = localStorage.getItem('image_picryl_active_topics')
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const valid = parsed.filter(id => TOPICS.some(t => t.id === id))
+          if (valid.length > 0) {
+            setActiveTopics(valid)
+          }
+        }
+      } catch {}
+    }
+  }, [])
 
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({
-    storageKey: 'bnf_gallica_card_visible',
+    storageKey: 'image_picryl_card_visible',
     defaultShow: true,
   })
 
   const loadImage = useCallback(async () => {
     setLoading(true)
     setError(false)
-    const newImage = await fetchRandomImage()
+    const newImage = await fetchRandomImage(activeTopics.join(','))
     if (newImage) {
       setImage(newImage)
       setError(false)
@@ -71,7 +102,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
       setError(true)
     }
     setLoading(false)
-  }, [])
+  }, [activeTopics])
 
   useEffect(() => {
     if (hasMounted && show && !image && !loading && !error) {
@@ -108,9 +139,24 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
     }
   }, [image, isFavorite, userId])
 
+  const handleTopicToggle = useCallback((topicId: string) => {
+    setActiveTopics(prev => {
+      let next: string[]
+      if (prev.includes(topicId)) {
+        if (prev.length === 1) return prev
+        next = prev.filter(id => id !== topicId)
+      } else {
+        next = [...prev, topicId]
+      }
+      localStorage.setItem('image_picryl_active_topics', JSON.stringify(next))
+      return next
+    })
+    setImage(null) // Reset image to trigger a fresh load of the new topics
+  }, [])
+
   const shareOptions = image ? {
-    title: `Gallica - ${image.titre}`,
-    text: `${image.titre}\n${image.auteur || 'Bibliothèque nationale de France'}\n\n${image.droits || ''}`,
+    title: `Picryl - ${image.titre}`,
+    text: `${image.titre}\n${image.auteur || 'Picryl'}\n\n${image.droits || ''}`,
     url: image.link,
   } : null
   const { share, copied, shareUrl } = useShare(shareOptions)
@@ -140,11 +186,11 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
             <BookOpen className="h-4 w-4 text-white" />
           </div>
           <Link
-            href="/image-bnf"
+            href="/image-picryl"
             onClick={(e) => e.stopPropagation()}
             className="text-sm font-bold uppercase tracking-wide text-rose-800 dark:text-rose-300 hover:underline"
           >
-            Images BNF
+            Images Picryl
           </Link>
         </div>
         <div className="flex items-center gap-6">
@@ -171,6 +217,25 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
             <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
           )}
         </div>
+      </div>
+
+      <div className="mb-3 flex gap-1.5 flex-wrap">
+        {TOPICS.map(topic => {
+          const isActive = activeTopics.includes(topic.id)
+          return (
+            <button
+              key={topic.id}
+              onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
+              className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                isActive
+                  ? 'bg-rose-600 text-white border-rose-600'
+                  : 'bg-white dark:bg-neutral-800 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:border-rose-400'
+              }`}
+            >
+              {topic.icon} {topic.label}
+            </button>
+          )
+        })}
       </div>
 
       {error && !loading && (
@@ -218,17 +283,17 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
             </p>
           )}
           <p className="text-xs text-rose-600 dark:text-rose-400 mb-2">
-            {image.droits || 'Bibliothèque nationale de France'}
+            {image.droits || 'Picryl'}
           </p>
           {showLink && (
             <Link
-              href={`https://images.bnf.fr/#/detail/${image.docid}/${image.exemplaire}`}
+              href={image.link}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
             >
-              Voir sur images.bnf.fr
+              Voir sur Picryl
               <ExternalLink className="h-3 w-3" />
             </Link>
           )}
@@ -240,7 +305,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
   return (
     <>
       {!show && hasMounted ? (
-        <VisibilityButton color={buttonColor} label="Afficher Images BNF" onClick={onToggle || handleToggle} />
+        <VisibilityButton color={buttonColor} label="Afficher Images Picryl" onClick={onToggle || handleToggle} />
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
           <div

@@ -1,0 +1,193 @@
+import { NextRequest, NextResponse } from 'next/server'
+
+interface PicrylImage {
+  docid: string
+  reference?: string
+  titre: string
+  auteur: string
+  imageUrl: string
+  zoomUrl: string
+  thumbnailUrl: string
+  description: string
+  droits: string
+  link: string
+}
+
+const COMMONS_API = 'https://commons.wikimedia.org/w/api.php'
+
+const TOPIC_SEARCHES: Record<string, string[]> = {
+  paintings: ['Painting', 'Oil painting', 'Watercolor'],
+  aviation: ['Airplane', 'Aircraft', 'Biplane'],
+  nasa: ['NASA', 'Apollo program'],
+  posters: ['Poster', 'Movie poster'],
+  wwi: ['World War I', 'First World War', 'Great War', '1914-1918'],
+  wwii: ['World War II', 'Second World War', '1939-1945'],
+  art: ['Art', 'Sculpture', 'Illustration', 'Drawing'],
+  'art-nouveau': ['Art Nouveau', 'Jugendstil', 'Alphonse Mucha', 'Belle Epoque'],
+}
+
+function stripHtml(html: string): string {
+  const decoded = html
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+
+  // Try to find a French block: e.g. <span lang="fr">...</span>
+  const frRegex = /<([a-z1-6]+)[^>]*\blang=["']fr["'][^>]*>([\s\S]*?)<\/\1>/gi
+  const frMatch = frRegex.exec(decoded)
+  if (frMatch && frMatch[2]) {
+    return frMatch[2].replace(/<[^>]*>/g, '').trim()
+  }
+
+  // Try class="fr"
+  const frClassRegex = /<([a-z1-6]+)[^>]*\bclass=["'][^"']*\bfr\b[^"']*?["'][^>]*>([\s\S]*?)<\/\1>/gi
+  const frClassMatch = frClassRegex.exec(decoded)
+  if (frClassMatch && frClassMatch[2]) {
+    return frClassMatch[2].replace(/<[^>]*>/g, '').trim()
+  }
+
+  // Try English block: lang="en"
+  const enRegex = /<([a-z1-6]+)[^>]*\blang=["']en["'][^>]*>([\s\S]*?)<\/\1>/gi
+  const enMatch = enRegex.exec(decoded)
+  if (enMatch && enMatch[2]) {
+    return enMatch[2].replace(/<[^>]*>/g, '').trim()
+  }
+
+  // Try class="en"
+  const enClassRegex = /<([a-z1-6]+)[^>]*\bclass=["'][^"']*\ben\b[^"']*?["'][^>]*>([\s\S]*?)<\/\1>/gi
+  const enClassMatch = enClassRegex.exec(decoded)
+  if (enClassMatch && enClassMatch[2]) {
+    return enClassMatch[2].replace(/<[^>]*>/g, '').trim()
+  }
+
+  return decoded.replace(/<[^>]*>/g, '').trim()
+}
+
+async function searchFiles(topic: string): Promise<string[]> {
+  for (let retry = 0; retry < 3; retry++) {
+    try {
+      const res = await fetch(
+        `${COMMONS_API}?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=50&srnamespace=6&format=json`,
+        {
+          headers: {
+            'User-Agent': 'MoinsBeteApp/1.0 (contact@moinsbete.fr)'
+          },
+          signal: AbortSignal.timeout(10000)
+        }
+      )
+      if (res.status === 429 || res.status === 403) {
+        await new Promise(r => setTimeout(r, 1000 * (retry + 1)))
+        continue
+      }
+      if (!res.ok) return []
+      const data = await res.json()
+      return (data?.query?.search || []).map((r: any) => r.title).filter((t: string) => t.startsWith('File:'))
+    } catch {
+      await new Promise(r => setTimeout(r, 500 * (retry + 1)))
+    }
+  }
+  return []
+}
+
+async function fetchImageInfo(filename: string): Promise<PicrylImage | null> {
+  const cleanFilename = filename.replace(/^File:/i, '')
+  for (let retry = 0; retry < 5; retry++) {
+    try {
+      const res = await fetch(
+        `${COMMONS_API}?action=query&titles=File:${encodeURIComponent(cleanFilename)}&prop=imageinfo&iiprop=url|size|mime|thumburl|extmetadata&eeprop=artist|description|licensename|title|descriptionlang|descriptiontext|url&format=json`,
+        {
+          headers: {
+            'User-Agent': 'MoinsBeteApp/1.0 (contact@moinsbete.fr)'
+          },
+          signal: AbortSignal.timeout(15000)
+        }
+      )
+      if (res.status === 429 || res.status === 403) {
+        await new Promise(r => setTimeout(r, 2000 * (retry + 1)))
+        continue
+      }
+      if (!res.ok) return null
+      const data = await res.json()
+      const pages = data?.query?.pages || {}
+      const page = Object.values(pages)[0] as Record<string, any>
+      if (!page || page.error || page.missing) return null
+
+      const imageinfo = page.imageinfo || []
+      if (imageinfo.length === 0) return null
+
+      const img = imageinfo[0]
+      const extmetadata = img.extmetadata || {}
+
+      const titleEntry = extmetadata['Title'] || extmetadata['ObjectName']
+      const title = stripHtml(titleEntry?.value || cleanFilename)
+      const artist = stripHtml(extmetadata['Artist']?.value || '')
+      
+      const rawDescription = extmetadata['ImageDescription']?.value || extmetadata['Description']?.value || extmetadata['Descriptiontext']?.value || ''
+      const description = stripHtml(rawDescription)
+      
+      const licenseName = extmetadata['LicenseShortName']?.value || extmetadata['LicenseName']?.value || ''
+      const mime = img.mime || 'image/jpeg'
+
+      const isColorImage = mime.startsWith('image/') && !mime.includes('svg') && !mime.includes('pdf')
+      const imageUrl = isColorImage ? img.url : ''
+      const thumbnailUrl = img.thumburl || img.thumbnail?.url || (isColorImage ? img.url : '')
+
+      if (!imageUrl) return null
+
+      const filenameSlug = cleanFilename.replace(/ /g, '-').toLowerCase()
+      const picrylLink = `https://picryl.com/media/${filenameSlug}`
+
+      return {
+        docid: cleanFilename,
+        reference: '',
+        titre: title,
+        auteur: artist,
+        imageUrl,
+        zoomUrl: img.url || '',
+        thumbnailUrl,
+        description,
+        droits: licenseName || 'Wikimedia Commons',
+        link: picrylLink,
+      }
+    } catch {
+      await new Promise(r => setTimeout(r, 1000))
+    }
+  }
+  return null
+}
+
+async function fetchRandomImage(topic?: string): Promise<PicrylImage | null> {
+  const searchTerms = topic && TOPIC_SEARCHES[topic] ? TOPIC_SEARCHES[topic] : ['France']
+
+  for (const term of searchTerms) {
+    const files = await searchFiles(term)
+    if (files.length === 0) continue
+
+    const randomFile = files[Math.floor(Math.random() * files.length)]
+    const image = await fetchImageInfo(randomFile)
+    if (image && image.imageUrl) return image
+  }
+
+  return null
+}
+
+export async function GET(request: NextRequest) {
+  const topicParam = request.nextUrl.searchParams.get('topic') || undefined
+  
+  let topic: string | undefined = undefined
+  if (topicParam) {
+    const topics = topicParam.split(',').map(t => t.trim()).filter(Boolean)
+    if (topics.length > 0) {
+      topic = topics[Math.floor(Math.random() * topics.length)]
+    }
+  }
+
+  const image = await fetchRandomImage(topic)
+  if (!image) {
+    return NextResponse.json({ error: true })
+  }
+  return NextResponse.json(image)
+}

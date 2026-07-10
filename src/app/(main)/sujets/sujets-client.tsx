@@ -7,7 +7,7 @@ import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
 import { CnrsNewsCard } from '@/components/feed/cnrs-news-card'
 import { RadioFranceCard } from '@/components/feed/radio-france-card'
-import { BnFGallicaCard } from '@/components/feed/bnf-gallica-card'
+import { ImagePicrylCard } from '@/components/feed/image-picryl-card'
 import Link from 'next/link'
 
 interface SujetsClientProps {
@@ -24,7 +24,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
   const [saviezVousVisible, setSaviezVousVisible] = useState(true)
   const [wikipediaVisible, setWikipediaVisible] = useState(true)
   const [radioFranceVisible, setRadioFranceVisible] = useState(true)
-  const [bnfGallicaVisible, setBnfGallicaVisible] = useState(true)
+  const [picrylVisible, setPicrylVisible] = useState(true)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -42,8 +42,8 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         const storedRadio = localStorage.getItem('radio_france_card_visible')
         if (storedRadio !== null) setRadioFranceVisible(storedRadio === 'true')
 
-        const storedBnf = localStorage.getItem('bnf_gallica_card_visible')
-        if (storedBnf !== null) setBnfGallicaVisible(storedBnf === 'true')
+        const storedPicryl = localStorage.getItem('image_picryl_card_visible')
+        if (storedPicryl !== null) setPicrylVisible(storedPicryl === 'true')
       }, 0)
       return () => clearTimeout(timer)
     }
@@ -79,11 +79,11 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
     })
   }, [])
 
-  const toggleBnfGallica = useCallback(() => {
-    setBnfGallicaVisible(prev => {
+  const togglePicryl = useCallback(() => {
+    setPicrylVisible(prev => {
       const next = !prev
       if (typeof window !== 'undefined') {
-        localStorage.setItem('bnf_gallica_card_visible', String(next))
+        localStorage.setItem('image_picryl_card_visible', String(next))
       }
       return next
     })
@@ -142,9 +142,9 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         </div>
       )}
 
-      {bnfGallicaVisible && (
+      {picrylVisible && (
         <div className="mb-6">
-          <BnFGallicaCard onToggle={toggleBnfGallica} userId={userId} />
+          <ImagePicrylCard onToggle={togglePicryl} userId={userId} />
         </div>
       )}
 
@@ -194,9 +194,9 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
           </div>
         )}
 
-        {!bnfGallicaVisible && (
+        {!picrylVisible && (
           <div className="h-full">
-            <BnFGallicaCard onToggle={toggleBnfGallica} userId={userId} />
+            <ImagePicrylCard onToggle={togglePicryl} userId={userId} />
           </div>
         )}
       </div>

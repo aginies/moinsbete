@@ -1,7 +1,7 @@
 import type { BookmarkType } from '@/generated/client'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
-export interface BnFGallicaFavoriteMeta {
+export interface ImagePicrylFavoriteMeta {
   titre?: string
   auteur?: string
   imageUrl?: string
@@ -9,7 +9,7 @@ export interface BnFGallicaFavoriteMeta {
   droits?: string
 }
 
-export interface BnFGallicaFavoriteDoc {
+export interface ImagePicrylFavoriteDoc {
   id: string
   docid: string
   titre: string
@@ -22,8 +22,8 @@ export interface BnFGallicaFavoriteDoc {
 
 const TYPE: BookmarkType = 'BNF_GALICA'
 
-const mapMeta: (meta: unknown, resourceId: string) => BnFGallicaFavoriteDoc | null = (meta, resourceId) => {
-  const m = meta as BnFGallicaFavoriteMeta | null
+const mapMeta: (meta: unknown, resourceId: string) => ImagePicrylFavoriteDoc | null = (meta, resourceId) => {
+  const m = meta as ImagePicrylFavoriteMeta | null
   if (!m) return null
   return {
     id: resourceId,
@@ -37,6 +37,6 @@ const mapMeta: (meta: unknown, resourceId: string) => BnFGallicaFavoriteDoc | nu
   }
 }
 
-export const bnfGallicaManager = createBookmarkManager(TYPE, mapMeta)
-export const getBnFGallicaFavorites = bnfGallicaManager.getFavorites.bind(bnfGallicaManager)
-export const getBnFGallicaFavoritesCount = bnfGallicaManager.getFavoritesCount.bind(bnfGallicaManager)
+export const picrylManager = createBookmarkManager(TYPE, mapMeta)
+export const getPicrylFavorites = picrylManager.getFavorites.bind(picrylManager)
+export const getPicrylFavoritesCount = picrylManager.getFavoritesCount.bind(picrylManager)
