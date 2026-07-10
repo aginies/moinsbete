@@ -159,3 +159,10 @@ export async function resolveWikimediaImageUrlsViaREST(filenames: string[]): Pro
 
   return urlMap
 }
+
+export function generateImageId(fileUrl: string, date: string): string {
+  return crypto.createHash('sha256')
+    .update(fileUrl + date)
+    .digest('hex')
+    .slice(0, 8)
+}

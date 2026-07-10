@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS } from '@/lib/utils'
+import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS, generateImageId } from '@/lib/utils'
 
 describe('slugify', () => {
   it('converts to lowercase', () => {
@@ -144,5 +144,31 @@ describe('getRandomColor', () => {
   it('returns a valid hex color', () => {
     const color = getRandomColor()
     expect(color).toMatch(/^#[0-9a-f]{6}$/i)
+  })
+})
+
+describe('generateImageId', () => {
+  it('returns an 8 character hex string', () => {
+    const id = generateImageId('https://example.com/image.jpg', '2024-01-01')
+    expect(id).toMatch(/^[0-9a-f]{8}$/)
+    expect(id.length).toBe(8)
+  })
+
+  it('is deterministic for same inputs', () => {
+    const id1 = generateImageId('https://example.com/image.jpg', '2024-01-01')
+    const id2 = generateImageId('https://example.com/image.jpg', '2024-01-01')
+    expect(id1).toBe(id2)
+  })
+
+  it('returns different IDs for different fileUrls', () => {
+    const id1 = generateImageId('https://example.com/image1.jpg', '2024-01-01')
+    const id2 = generateImageId('https://example.com/image2.jpg', '2024-01-01')
+    expect(id1).not.toBe(id2)
+  })
+
+  it('returns different IDs for different dates', () => {
+    const id1 = generateImageId('https://example.com/image.jpg', '2024-01-01')
+    const id2 = generateImageId('https://example.com/image.jpg', '2024-01-02')
+    expect(id1).not.toBe(id2)
   })
 })

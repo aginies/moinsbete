@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Camera, ExternalLink, AlertCircle, Bookmark } from 'lucide-react'
 import Link from 'next/link'
-import { isValidUrl, sanitizeUrl } from '@/lib/utils'
+import { isValidUrl, sanitizeUrl, generateImageId } from '@/lib/utils'
 import { useShare } from './use-share'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
@@ -13,6 +13,7 @@ import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { encodeImageToUrl } from '@/lib/image-url-encoder'
 
 interface ImageData {
   imageUrl: string
@@ -117,12 +118,34 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
 
   const hasImage = isValidUrl(image?.imageUrl ?? '') && !imageError
 
+  const shareImageId = image ? generateImageId(image.fileUrl, image.date) : ''
+  const encodedData = image ? encodeImageToUrl({ imageUrl: image.imageUrl, description: image.description, fileUrl: image.fileUrl, date: image.date }) : ''
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+  const shareUrl = image ? `${origin}/image-du-jour/${shareImageId}?d=${encodedData}` : ''
+
   const shareOptions = image ? {
     title: `Image du jour - ${image.description}`,
     text: `${image.description}\n\nDate: ${image.date}`,
-    url: image.fileUrl,
+    url: shareUrl,
   } : null
-  const { share, copied, shareUrl } = useShare(shareOptions)
+  const { copied } = useShare(shareOptions)
+
+  const share = useCallback(async () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try {
+        await navigator.clipboard.writeText(shareUrl)
+      } catch {}
+    }
+    if (typeof navigator !== 'undefined' && navigator.share && image) {
+      try {
+        await navigator.share({
+          title: `Image du jour - ${image.description}`,
+          text: `${image.description}\n\nDate: ${image.date}`,
+          url: shareUrl,
+        })
+      } catch {}
+    }
+  }, [image, shareUrl])
 
   const [isFavorited, setIsFavorited] = useState(false)
   const [favoriting, setFavoriting] = useState(false)
