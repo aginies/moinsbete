@@ -126,7 +126,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const tabConfig: TabConfig[] = useMemo(() => [
      { id: 'idees', label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount },
      { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
-     { id: 'bnf-gallica', label: 'Gallica', Icon: BookOpen, count: bnfGallicaCount },
+     { id: 'bnf-gallica', label: 'Images BNF', Icon: BookOpen, count: bnfGallicaCount },
      { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
      { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
      { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
