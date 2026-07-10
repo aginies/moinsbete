@@ -76,15 +76,6 @@ export function PaginatedFavoritesList({
   const start = (safePage - 1) * PAGE_SIZE
   const paginatedFavorites = allFavorites.slice(start, start + PAGE_SIZE)
 
-  const handleRemove = useCallback(async (item: any) => {
-    await removeFavorite(item)
-    if (onRemoveComplete) {
-      await onRemoveComplete()
-    } else {
-      await loadFavorites()
-    }
-  }, [removeFavorite, onRemoveComplete])
-
   const loadFavorites = useCallback(async () => {
     try {
       const result = await fetchFn()
@@ -95,6 +86,14 @@ export function PaginatedFavoritesList({
     }
     setLoading(false)
   }, [fetchFn, storageKey])
+
+  const handleRemove = useCallback(async (item: any) => {
+    await removeFavorite(item)
+    await loadFavorites()
+    if (onRemoveComplete) {
+      await onRemoveComplete()
+    }
+  }, [removeFavorite, onRemoveComplete, loadFavorites])
 
   useEffect(() => {
     loadFavorites()

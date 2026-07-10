@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { Bookmark, X, Search } from 'lucide-react'
@@ -38,6 +38,60 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
 
+  // Derived count for ideas to update immediately when bookmarks are toggled
+  const originalIdsOnPage = useMemo(() => new Set(ideas.map(i => i.id)), [ideas])
+  
+  const currentBookmarkedOnPageCount = useMemo(() => {
+    let count = 0
+    for (const id of originalIdsOnPage) {
+      if (savedIdeaIds.has(id)) {
+        count++
+      }
+    }
+    return count
+  }, [originalIdsOnPage, savedIdeaIds])
+
+  const diff = currentBookmarkedOnPageCount - originalIdsOnPage.size
+  const derivedIdeasCount = total + diff
+
+  // State-based counts for other tabs to support instant/optimistic updates on removal
+  const [radioCount, setRadioCount] = useState(radioFavoritesCount)
+  const [cnrsCount, setCnrsCount] = useState(cnrsFavoritesCount)
+  const [imageDuJourCount, setImageDuJourCount] = useState(imageDuJourFavoritesCount)
+  const [saviezVousCount, setSaviezVousCount] = useState(saviezVousFavoritesCount)
+
+  useEffect(() => {
+    setRadioCount(radioFavoritesCount)
+  }, [radioFavoritesCount])
+
+  useEffect(() => {
+    setCnrsCount(cnrsFavoritesCount)
+  }, [cnrsFavoritesCount])
+
+  useEffect(() => {
+    setImageDuJourCount(imageDuJourFavoritesCount)
+  }, [imageDuJourFavoritesCount])
+
+  useEffect(() => {
+    setSaviezVousCount(saviezVousFavoritesCount)
+  }, [saviezVousFavoritesCount])
+
+  const handleRadioRemove = useCallback(() => {
+    setRadioCount(prev => Math.max(0, prev - 1))
+  }, [])
+
+  const handleCnrsRemove = useCallback(() => {
+    setCnrsCount(prev => Math.max(0, prev - 1))
+  }, [])
+
+  const handleImageDuJourRemove = useCallback(() => {
+    setImageDuJourCount(prev => Math.max(0, prev - 1))
+  }, [])
+
+  const handleSaviezVousRemove = useCallback(() => {
+    setSaviezVousCount(prev => Math.max(0, prev - 1))
+  }, [])
+
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
     const q = normalizeAccents(searchQuery).toLowerCase()
@@ -61,7 +115,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Idées favoris ({total})
+          Idées favoris ({derivedIdeasCount})
         </button>
         <button
           onClick={() => setActiveTab('image-du-jour')}
@@ -71,7 +125,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Image du jour ({imageDuJourFavoritesCount})
+          Image du jour ({imageDuJourCount})
         </button>
         <button
           onClick={() => setActiveTab('saviez-vous')}
@@ -81,7 +135,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Le saviez-vous ? ({saviezVousFavoritesCount})
+          Le saviez-vous ? ({saviezVousCount})
         </button>
         <button
           onClick={() => setActiveTab('radio-france')}
@@ -91,7 +145,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Documentaires Radio France ({radioFavoritesCount})
+          Documentaires Radio France ({radioCount})
         </button>
         <button
           onClick={() => setActiveTab('cnrs-news')}
@@ -101,7 +155,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Actualites CNRS ({cnrsFavoritesCount})
+          Actualites CNRS ({cnrsCount})
         </button>
       </div>
 
@@ -131,7 +185,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
             <p className="py-8 text-center text-sm text-muted-foreground">Aucun favori pour "{searchQuery}"</p>
           )}
 
-          {total === 0 ? (
+          {derivedIdeasCount === 0 ? (
             <div className="rounded-xl border border-border/60 bg-card p-12 text-center">
               <Bookmark className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="mb-2 text-lg font-semibold">Vos favoris sont vides</h3>
@@ -183,9 +237,9 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
                  />
                )}
 
-              {total > 0 && (
+              {derivedIdeasCount > 0 && (
                 <p className="py-4 text-center text-xs text-muted-foreground">
-                  Page {currentPage} sur {totalPages} · {total} favori{total !== 1 ? 's' : ''}
+                  Page {currentPage} sur {totalPages} · {derivedIdeasCount} favori{derivedIdeasCount !== 1 ? 's' : ''}
                 </p>
               )}
             </div>
@@ -193,13 +247,13 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         </>
       )}
 
-      {activeTab === 'radio-france' && <RadioFranceFavorites userId={userId} />}
+      {activeTab === 'radio-france' && <RadioFranceFavorites userId={userId} onRemoveComplete={handleRadioRemove} />}
 
-      {activeTab === 'cnrs-news' && <CnrsBookmarks userId={userId} />}
+      {activeTab === 'cnrs-news' && <CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} />}
 
-      {activeTab === 'image-du-jour' && <ImageDuJourBookmarks userId={userId} />}
+      {activeTab === 'image-du-jour' && <ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} />}
 
-      {activeTab === 'saviez-vous' && <SaviezVousBookmarks userId={userId} />}
+      {activeTab === 'saviez-vous' && <SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} />}
     </div>
   )
 }
