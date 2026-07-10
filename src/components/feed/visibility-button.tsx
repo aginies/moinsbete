@@ -3,7 +3,7 @@
 import { Eye } from 'lucide-react'
 
 interface VisibilityButtonProps {
-  color: 'teal' | 'blue' | 'purple'
+  color: 'teal' | 'blue' | 'purple' | 'amber'
   label: string
   onClick: () => void
 }
@@ -32,6 +32,14 @@ const colorMap: Record<VisibilityButtonProps['color'], { border: string; bg: str
     darkBg: 'dark:bg-purple-950/20',
     text: 'text-purple-700',
     darkText: 'dark:text-purple-400',
+  },
+  amber: {
+    border: 'border-amber-300',
+    bg: 'bg-amber-50/50',
+    darkBorder: 'dark:border-amber-800',
+    darkBg: 'dark:bg-amber-950/20',
+    text: 'text-amber-700',
+    darkText: 'dark:text-amber-400',
   },
 }
 

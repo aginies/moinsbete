@@ -7,6 +7,7 @@ import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
 import { CnrsNewsCard } from '@/components/feed/cnrs-news-card'
 import { RadioFranceCard } from '@/components/feed/radio-france-card'
+import { BnFGallicaCard } from '@/components/feed/bnf-gallica-card'
 import { getRandomFact } from '@/lib/saviez-vous'
 import { getRandomDoc } from '@/data/radio-france'
 import Link from 'next/link'
@@ -92,6 +93,10 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
       <div className="mb-6">
         <RadioFranceCard userId={userId} />
+      </div>
+
+      <div className="mb-6">
+        <BnFGallicaCard userId={userId} />
       </div>
 
       <div className="mb-6">
