@@ -68,7 +68,7 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
   const [error, setError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const [activeTopics, setActiveTopics] = useState<string[]>(['paintings'])
+  const [activeTopics, setActiveTopics] = useState<string[]>(['aviation'])
 
   // Load active topics from localStorage after mounting (client-side only to prevent hydration mismatch)
   useEffect(() => {
