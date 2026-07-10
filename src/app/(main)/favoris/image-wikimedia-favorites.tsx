@@ -3,24 +3,24 @@
 import Link from 'next/link'
 import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
-import { getPicrylFavoritesAction } from '@/actions/image-picryl-bookmark-actions'
-import { type ImagePicrylFavoriteDoc } from '@/lib/image-picryl-bookmark'
+import { getWikimediaFavoritesAction } from '@/actions/image-wikimedia-bookmark-actions'
+import { type WikimediaImageFavoriteDoc } from '@/lib/image-wikimedia-bookmark'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
 import { useState } from 'react'
 
-const PICRYL_FAVORITES_KEY = 'image_picryl_favorites'
+const WIKIMEDIA_FAVORITES_KEY = 'image_wikimedia_favorites'
 
-interface ImagePicrylFavoritesProps {
+interface ImageWikimediaFavoritesProps {
   userId?: string
   onRemoveComplete?: () => void
 }
 
-export function ImagePicrylFavorites({ userId, onRemoveComplete }: ImagePicrylFavoritesProps) {
+export function ImageWikimediaFavorites({ userId, onRemoveComplete }: ImageWikimediaFavoritesProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
 
-  const handleRemove = async (item: ImagePicrylFavoriteDoc) => {
+  const handleRemove = async (item: WikimediaImageFavoriteDoc) => {
     if (userId) {
       try {
         const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
@@ -37,11 +37,11 @@ export function ImagePicrylFavorites({ userId, onRemoveComplete }: ImagePicrylFa
         onRemoveComplete={onRemoveComplete}
         fetchFn={async () => {
           if (userId) {
-            const result = await getPicrylFavoritesAction()
-            return result.favorites as ImagePicrylFavoriteDoc[]
+            const result = await getWikimediaFavoritesAction()
+            return result.favorites as WikimediaImageFavoriteDoc[]
           }
           try {
-            const stored = localStorage.getItem(PICRYL_FAVORITES_KEY)
+            const stored = localStorage.getItem(WIKIMEDIA_FAVORITES_KEY)
             return stored ? JSON.parse(stored) : []
           } catch {
             return []
@@ -94,9 +94,9 @@ export function ImagePicrylFavorites({ userId, onRemoveComplete }: ImagePicrylFa
             </button>
           </div>
         )}
-        emptyTitle="Aucun favori Picryl"
+        emptyTitle="Aucun favori Wikimedia"
         emptyDescription="Favorisez des images depuis la page d&apos;accueil pour les voir ici."
-        storageKey={PICRYL_FAVORITES_KEY}
+        storageKey={WIKIMEDIA_FAVORITES_KEY}
         userId={userId}
         removeFavorite={handleRemove}
         borderColor="border-rose-200"
@@ -111,7 +111,7 @@ export function ImagePicrylFavorites({ userId, onRemoveComplete }: ImagePicrylFa
       {showFullImage && (
         <ImageLightbox
           src={showFullImage}
-          alt="Picryl"
+          alt="Wikimedia Commons"
           onClose={() => setShowFullImage(null)}
         />
       )}

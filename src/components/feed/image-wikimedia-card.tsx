@@ -12,7 +12,7 @@ import { ImageHint } from './image-hint'
 import { VisibilityButton } from './visibility-button'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 
-interface PicrylImage {
+interface WikimediaImage {
   docid: string
   exemplaire: string
   titre: string
@@ -25,7 +25,7 @@ interface PicrylImage {
   link: string
 }
 
-interface ImagePicrylCardProps {
+interface ImageWikimediaCardProps {
   userId?: string
   swipeable?: boolean
   fullImage?: boolean
@@ -45,9 +45,9 @@ const TOPICS = [
   { id: 'art-nouveau', label: 'Art Nouveau', icon: '🌺' },
 ] as const
 
-async function fetchRandomImage(topic?: string): Promise<PicrylImage | null> {
+async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> {
   try {
-    const url = topic ? `/api/image-picryl?topic=${encodeURIComponent(topic)}` : '/api/image-picryl'
+    const url = topic ? `/api/image-wikimedia?topic=${encodeURIComponent(topic)}` : '/api/image-wikimedia'
     const res = await fetch(url, {
       signal: AbortSignal.timeout(15000),
       cache: 'no-store',
@@ -62,8 +62,8 @@ async function fetchRandomImage(topic?: string): Promise<PicrylImage | null> {
   }
 }
 
-export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, showLink = true, showToggle = true, onToggle }: ImagePicrylCardProps) {
-  const [image, setImage] = useState<PicrylImage | null>(null)
+export function ImageWikimediaCard({ userId, swipeable = false, fullImage = false, showLink = true, showToggle = true, onToggle }: ImageWikimediaCardProps) {
+  const [image, setImage] = useState<WikimediaImage | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
@@ -72,7 +72,7 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
 
   // Load active topics from localStorage after mounting (client-side only to prevent hydration mismatch)
   useEffect(() => {
-    const stored = localStorage.getItem('image_picryl_active_topics')
+    const stored = localStorage.getItem('image_wikimedia_active_topics')
     if (stored) {
       try {
         const parsed = JSON.parse(stored)
@@ -87,7 +87,7 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
   }, [])
 
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({
-    storageKey: 'image_picryl_card_visible',
+    storageKey: 'image_wikimedia_card_visible',
     defaultShow: true,
   })
 
@@ -148,15 +148,15 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
       } else {
         next = [...prev, topicId]
       }
-      localStorage.setItem('image_picryl_active_topics', JSON.stringify(next))
+      localStorage.setItem('image_wikimedia_active_topics', JSON.stringify(next))
       return next
     })
     setImage(null) // Reset image to trigger a fresh load of the new topics
   }, [])
 
   const shareOptions = image ? {
-    title: `Picryl - ${image.titre}`,
-    text: `${image.titre}\n${image.auteur || 'Picryl'}\n\n${image.droits || ''}`,
+    title: `Wikimedia - ${image.titre}`,
+    text: `${image.titre}\n${image.auteur || 'Wikimedia'}\n\n${image.droits || ''}`,
     url: image.link,
   } : null
   const { share, copied, shareUrl } = useShare(shareOptions)
@@ -186,11 +186,11 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
             <BookOpen className="h-4 w-4 text-white" />
           </div>
           <Link
-            href="/image-picryl"
+            href="/image-wikimedia"
             onClick={(e) => e.stopPropagation()}
             className="text-sm font-bold uppercase tracking-wide text-rose-800 dark:text-rose-300 hover:underline"
           >
-            Images Picryl
+            Wikimedia
           </Link>
         </div>
         <div className="flex items-center gap-6">
@@ -283,7 +283,7 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
             </p>
           )}
           <p className="text-xs text-rose-600 dark:text-rose-400 mb-2">
-            {image.droits || 'Picryl'}
+            {image.droits || 'Wikimedia Commons'}
           </p>
           {showLink && (
             <Link
@@ -305,7 +305,7 @@ export function ImagePicrylCard({ userId, swipeable = false, fullImage = false, 
   return (
     <>
       {!show && hasMounted ? (
-        <VisibilityButton color={buttonColor} label="Afficher Images Picryl" onClick={onToggle || handleToggle} />
+        <VisibilityButton color={buttonColor} label="Afficher Wikimedia" onClick={onToggle || handleToggle} />
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
           <div

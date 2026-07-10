@@ -1,7 +1,7 @@
 import type { BookmarkType } from '@/generated/client'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
-export interface ImagePicrylFavoriteMeta {
+export interface WikimediaImageFavoriteMeta {
   titre?: string
   auteur?: string
   imageUrl?: string
@@ -9,7 +9,7 @@ export interface ImagePicrylFavoriteMeta {
   droits?: string
 }
 
-export interface ImagePicrylFavoriteDoc {
+export interface WikimediaImageFavoriteDoc {
   id: string
   docid: string
   titre: string
@@ -22,8 +22,8 @@ export interface ImagePicrylFavoriteDoc {
 
 const TYPE: BookmarkType = 'BNF_GALICA'
 
-const mapMeta: (meta: unknown, resourceId: string) => ImagePicrylFavoriteDoc | null = (meta, resourceId) => {
-  const m = meta as ImagePicrylFavoriteMeta | null
+const mapMeta: (meta: unknown, resourceId: string) => WikimediaImageFavoriteDoc | null = (meta, resourceId) => {
+  const m = meta as WikimediaImageFavoriteMeta | null
   if (!m) return null
   return {
     id: resourceId,
@@ -37,6 +37,6 @@ const mapMeta: (meta: unknown, resourceId: string) => ImagePicrylFavoriteDoc | n
   }
 }
 
-export const picrylManager = createBookmarkManager(TYPE, mapMeta)
-export const getPicrylFavorites = picrylManager.getFavorites.bind(picrylManager)
-export const getPicrylFavoritesCount = picrylManager.getFavoritesCount.bind(picrylManager)
+export const wikimediaManager = createBookmarkManager(TYPE, mapMeta)
+export const getWikimediaFavorites = wikimediaManager.getFavorites.bind(wikimediaManager)
+export const getWikimediaFavoritesCount = wikimediaManager.getFavoritesCount.bind(wikimediaManager)
