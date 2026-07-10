@@ -7,9 +7,11 @@ import { sanitizeUrl } from '@/lib/utils'
 import { useShare } from './use-share'
 import { ShareButton } from './share-button'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { VisibilityButton } from './visibility-button'
+import { SwipeBackgroundCard } from './swipe-background-card'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 
 interface GallicaImage {
@@ -43,7 +45,7 @@ async function fetchRandomImage(): Promise<GallicaImage | null> {
   }
 }
 
-export function BnFGallicaCard({ userId }: BnFGallicaCardProps) {
+export function BnFGallicaCard({ userId, swipeable = false }: BnFGallicaCardProps) {
   const [image, setImage] = useState<GallicaImage | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -140,6 +142,21 @@ export function BnFGallicaCard({ userId }: BnFGallicaCardProps) {
   } : null
   const { share, copied, shareUrl } = useShare(shareOptions)
 
+  const {
+    bind,
+    containerRef,
+    dragX,
+    swipeStyle,
+    isDragging,
+    prefersReducedMotion,
+  } = useSwipeGesture({
+    onSwipeLeft: loadImage,
+    onSwipeRight: loadImage,
+    onRefresh: loadImage,
+    swipeable,
+    resetDep: image?.imageUrl,
+  })
+
   const cardContent = (
     <div
       onClick={loadImage}
@@ -235,6 +252,15 @@ export function BnFGallicaCard({ userId }: BnFGallicaCardProps) {
       {!show && hasMounted ? (
         <div className="mb-6">
           <VisibilityButton color={buttonColor} label="Afficher Gallica" onClick={handleToggle} />
+        </div>
+      ) : swipeable ? (
+        <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
+          <div
+            className={`w-full relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
+            style={swipeStyle}
+          >
+            {cardContent}
+          </div>
         </div>
       ) : (
         cardContent
