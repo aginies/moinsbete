@@ -33,7 +33,7 @@ async function getSession(): Promise<string> {
 async function fetchGalleryPage(page: number, session: string): Promise<GallicaImage[]> {
   try {
     const res = await fetch(
-      `${GALLERY_BASE}/ws_docList?search=%2A&tbname=IMAGE&length=${PER_PAGE}&page=${page}&lang=fra&session=${session}&sort=defsortbnf&sortway=desc&columns=docid%20reference%20titre%20description%20annee%20sujets`,
+      `${GALLERY_BASE}/ws_docList?search=%2A&tbname=IMAGE&length=${PER_PAGE}&page=${page}&lang=fra&session=${session}&sort=defsortbnf&sortway=desc&columns=docid%20reference%20titre%20description%20annee%20sujets%20exemplaire`,
       {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
@@ -53,6 +53,7 @@ async function fetchGalleryPage(page: number, session: string): Promise<GallicaI
       const link = `https://images.bnf.fr/#/detail/${docid}/${exemplaire}`
       return {
         docid: String(docid),
+        exemplaire: String(exemplaire),
         reference: String(reference),
         titre: item.titre2?.value || '',
         auteur: item.auteur?.value || '',
