@@ -27,6 +27,7 @@ const TOPIC_SEARCHES: Record<string, string[]> = {
   maps: ['Historical map', 'Old map', 'Antique map', 'Cartography'],
   'sports-car': ['Vintage sports car', 'Classic sports car', 'Sports car', 'Racing car'],
   design: ['Industrial design', 'Graphic design', 'Product design', 'Modernist design'],
+  'deep-space': ['Deep space', 'Nebula', 'Hubble space telescope', 'Andromeda galaxy', 'Supernova'],
 }
 
 function stripHtml(html: string): string {

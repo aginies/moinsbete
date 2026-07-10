@@ -47,6 +47,7 @@ const TOPICS = [
   { id: 'maps', label: 'Maps', icon: '🗺️' },
   { id: 'sports-car', label: 'Sports Cars', icon: '🏎️' },
   { id: 'design', label: 'Design', icon: '📐' },
+  { id: 'deep-space', label: 'Space', icon: '🌌' },
 ] as const
 
 async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> {
