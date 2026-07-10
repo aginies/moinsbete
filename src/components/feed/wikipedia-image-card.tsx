@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Camera, ExternalLink, AlertCircle, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl, sanitizeUrl } from '@/lib/utils'
@@ -54,9 +54,6 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'wikipedia_image_card_visible' })
-  const prevShowRef = useRef<boolean>(true)
-
-  const hasLoadedRef = useRef(false)
 
   // Background pre-fetching
   const prefetchNextImage = useCallback(async () => {
@@ -110,23 +107,13 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   })
 
   useEffect(() => {
-    if (!hasLoadedRef.current) {
-      hasLoadedRef.current = true
-      if (show) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (hasMounted && show && !image && !loading && !error) {
+      const timer = setTimeout(() => {
         loadImage()
-      }
+      }, 0)
+      return () => clearTimeout(timer)
     }
-  }, [show, loadImage])
-
-  useEffect(() => {
-    if (!image && prevShowRef.current && !show) {
-      prevShowRef.current = show
-    } else if (!image && !prevShowRef.current && show) {
-      prevShowRef.current = show
-      loadImage()
-    }
-  }, [show, image, loadImage])
+  }, [hasMounted, show, image, loading, error, loadImage])
 
   const hasImage = isValidUrl(image?.imageUrl ?? '') && !imageError
 

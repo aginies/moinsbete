@@ -64,10 +64,9 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
 
 export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCardProps) {
   const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
-  const [loading, setLoading] = useState(!initialDoc)
+  const [loading, setLoading] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible' })
-  const prevShowRef = { current: true }
 
   useEffect(() => {
     if (userId && doc) {
@@ -80,29 +79,19 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
   }, [userId, doc])
 
   useEffect(() => {
-    if (!doc && show) {
-      fetchRandomDoc().then(d => {
-        if (d) {
-          setDoc(d)
-        }
-        setLoading(false)
-      })
+    if (hasMounted && show && !doc && !loading) {
+      const timer = setTimeout(() => {
+        setLoading(true)
+        fetchRandomDoc().then(d => {
+          if (d) {
+            setDoc(d)
+          }
+          setLoading(false)
+        })
+      }, 0)
+      return () => clearTimeout(timer)
     }
-  }, [doc, show])
-
-  useEffect(() => {
-    if (!doc && prevShowRef.current && !show) {
-      prevShowRef.current = show
-    } else if (!doc && !prevShowRef.current && show) {
-      prevShowRef.current = show
-      fetchRandomDoc().then(d => {
-        if (d) {
-          setDoc(d)
-        }
-        setLoading(false)
-      })
-    }
-  }, [show, doc])
+  }, [hasMounted, show, doc, loading])
 
   const handleRefresh = useCallback(async () => {
     if (loading) return

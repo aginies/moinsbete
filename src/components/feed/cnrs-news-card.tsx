@@ -59,7 +59,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
 
 export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: CnrsNewsCardProps) {
   const [article, setArticle] = useState<CnrsArticle | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'cnrs_news_enabled' })
@@ -88,22 +88,29 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
     setLoading(false)
   }, [])
 
+  const isCardVisible = visible !== undefined ? visible : (hasMounted && show)
+
   useEffect(() => {
-    loadArticle()
-  }, [loadArticle])
+    if (isCardVisible && !article && !loading && !error) {
+      const timer = setTimeout(() => {
+        loadArticle()
+      }, 0)
+      return () => clearTimeout(timer)
+    }
+  }, [isCardVisible, article, loading, error, loadArticle])
 
   useEffect(() => {
     if (userId && article) {
       isCnrsFavoriteAction(article.link).then(result => {
-        if (result.isBookmarked) {
-          setIsFavorite(true)
-        }
+        setIsFavorite(result.isBookmarked)
       }).catch(() => {})
     } else if (!userId && article) {
       const favorites = getFavorites()
-      if (favorites.some((f: { link: string }) => f.link === article.link)) {
-        setIsFavorite(true)
-      }
+      const isFav = favorites.some((f: { link: string }) => f.link === article.link)
+      const timer = setTimeout(() => {
+        setIsFavorite(isFav)
+      }, 0)
+      return () => clearTimeout(timer)
     }
   }, [userId, article, getFavorites])
 
@@ -173,7 +180,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
           </h3>
         </div>
         <div className="flex items-center gap-6">
-          {onToggle && (
+          {showToggle && onToggle && (
             <button
               onClick={(e) => {
                 e.stopPropagation()
@@ -207,7 +214,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
       {error && !loading && (
         <div className="mb-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-100/50 p-3 dark:border-green-800 dark:bg-green-900/20">
           <p className="text-xs text-green-700 dark:text-green-300">
-            Impossible de charger l'article. Cliquez pour réessayer.
+            Impossible de charger l&apos;article. Cliquez pour réessayer.
           </p>
         </div>
       )}
@@ -247,7 +254,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
              onClick={(e) => e.stopPropagation()}
              className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 hover:underline"
            >
-            Lire l'article sur CNRS Le Journal
+            Lire l&apos;article sur CNRS Le Journal
             <ExternalLink className="h-3 w-3" />
         </Link>
         </>
