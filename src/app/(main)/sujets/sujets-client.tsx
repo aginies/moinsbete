@@ -144,7 +144,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
       {wikimediaVisible && (
         <div className="mb-6">
-          <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} />
+          <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage />
         </div>
       )}
 
@@ -196,7 +196,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
         {!wikimediaVisible && (
           <div className="h-full">
-            <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} />
+         <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage />
           </div>
         )}
       </div>
