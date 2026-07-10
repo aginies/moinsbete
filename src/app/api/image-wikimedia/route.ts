@@ -67,13 +67,15 @@ function stripHtml(html: string): string {
 }
 
 async function searchFiles(topic: string): Promise<string[]> {
+  // Generate a random search offset to select from different pages of results
+  const offset = Math.floor(Math.random() * 250)
   for (let retry = 0; retry < 3; retry++) {
     try {
       const res = await fetch(
-        `${COMMONS_API}?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=50&srnamespace=6&format=json`,
+        `${COMMONS_API}?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=50&sroffset=${offset}&srnamespace=6&format=json`,
         {
           headers: {
-            'User-Agent': 'MoinsBeteApp/1.0 (contact@moinsbete.fr)'
+            'User-Agent': 'MoinsBeteApp/1.0 (moinsbete@ginies.org)'
           },
           signal: AbortSignal.timeout(10000)
         }
@@ -84,7 +86,27 @@ async function searchFiles(topic: string): Promise<string[]> {
       }
       if (!res.ok) return []
       const data = await res.json()
-      return (data?.query?.search || []).map((r: any) => r.title).filter((t: string) => t.startsWith('File:'))
+      const files = (data?.query?.search || []).map((r: any) => r.title).filter((t: string) => t.startsWith('File:'))
+      
+      if (files.length > 0) return files
+      
+      // If we got 0 results (because the offset was too high for a smaller topic), fallback to offset 0 (first page)
+      if (offset > 0) {
+        const fallbackRes = await fetch(
+          `${COMMONS_API}?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=50&sroffset=0&srnamespace=6&format=json`,
+          {
+            headers: {
+              'User-Agent': 'MoinsBeteApp/1.0 (moinsbete@ginies.org)'
+            },
+            signal: AbortSignal.timeout(10000)
+          }
+        )
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json()
+          return (fallbackData?.query?.search || []).map((r: any) => r.title).filter((t: string) => t.startsWith('File:'))
+        }
+      }
+      return []
     } catch {
       await new Promise(r => setTimeout(r, 500 * (retry + 1)))
     }
@@ -100,7 +122,7 @@ async function fetchImageInfo(filename: string): Promise<WikimediaImage | null> 
         `${COMMONS_API}?action=query&titles=File:${encodeURIComponent(cleanFilename)}&prop=imageinfo&iiprop=url|size|mime|thumburl|extmetadata&eeprop=artist|description|licensename|title|descriptionlang|descriptiontext|url&format=json`,
         {
           headers: {
-            'User-Agent': 'MoinsBeteApp/1.0 (contact@moinsbete.fr)'
+            'User-Agent': 'MoinsBeteApp/1.0 (moinsbete@ginies.org)'
           },
           signal: AbortSignal.timeout(15000)
         }
@@ -159,7 +181,10 @@ async function fetchImageInfo(filename: string): Promise<WikimediaImage | null> 
 }
 
 async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> {
-  const searchTerms = topic && TOPIC_SEARCHES[topic] ? TOPIC_SEARCHES[topic] : ['France']
+  const searchTerms = topic && TOPIC_SEARCHES[topic] ? [...TOPIC_SEARCHES[topic]] : ['France']
+  
+  // Shuffle search terms to avoid always hitting the first term
+  searchTerms.sort(() => Math.random() - 0.5)
 
   for (const term of searchTerms) {
     const files = await searchFiles(term)
