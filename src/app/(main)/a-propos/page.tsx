@@ -97,10 +97,24 @@ export default function AproposPage() {
             facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
             ou copier le lien directement.
           </p>
-        </section>
+       </section>
 
-       <section>
-          <h2 className="mb-3 text-xl font-semibold">100% gratuit</h2>
+        <section>
+           <h2 className="mb-3 text-xl font-semibold">Révision par répétition espacée</h2>
+           <p className="text-muted-foreground">
+             MoinsBête utilise la répétition espacée pour vous aider à retenir les idées importantes.
+             Quand vous bookmark une idée, elle entre automatiquement dans votre cycle de révision.
+           </p>
+           <p className="mt-2 text-sm text-muted-foreground">
+             Accédez à l'onglet Révision pour revoir les idées au moment optimal.
+             Chaque idée est notée selon votre niveau de mémorisation :
+             "Encore" pour celles que vous avez oubliées, "Difficile", "Bon" ou "Facile" pour celles que vous retenez.
+             L'algorithme ajuste automatiquement les intervalles entre les révisions pour optimiser la mémorisation à long terme.
+           </p>
+         </section>
+
+        <section>
+           <h2 className="mb-3 text-xl font-semibold">100% gratuit</h2>
      <p className="text-muted-foreground">
            MoinsBête est gratuit. Pas de publicité, pas d'abonnement.
              Juste de l'apprentissage de qualité, sans friction.

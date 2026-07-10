@@ -113,7 +113,7 @@ export function ReviewCard({ idea, onRemoved }: ReviewCardProps) {
         </div>
       </div>
 
-      <p className="mb-3 line-clamp-3 text-sm text-muted-foreground">
+      <p className="mb-3 text-sm text-muted-foreground">
         {idea.content}
       </p>
 
