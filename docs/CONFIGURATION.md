@@ -48,3 +48,20 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 |----------|-------------|--------|
 | `NODE_ENV` | Environment (development/production) | development |
 | `NODE_TLS_REJECT_UNAUTHORIZED` | Désactiver TLS verification | 1 |
+| `RESEND_API_KEY` | Clé API resend pour envoi d'emails | — |
+| `EMAIL_FROM` | Adresse expéditeur des emails | `Moins Bete <noreply@moinsbete.com>` |
+
+## Configuration email (réinitialisation de mot de passe)
+
+Pour activer l'envoi d'emails de réinitialisation de mot de passe :
+
+1. Créer un compte sur [resend.com](https://resend.com)
+2. Copier la clé API depuis le dashboard
+3. Ajouter dans `.env` :
+   ```env
+   RESEND_API_KEY=re_xxxxx
+   EMAIL_FROM="Moins Bete <noreply@votre-domaine.com>"
+   ```
+4. Vérifier le domaine dans le dashboard resend (obligatoire pour l'envoi)
+
+Le lien de réinitialisation pointe vers `${NEXTAUTH_URL}/reset-password/[token]`.
