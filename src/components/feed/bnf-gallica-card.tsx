@@ -168,9 +168,13 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-700 dark:bg-rose-800">
             <BookOpen className="h-4 w-4 text-white" />
           </div>
-          <h3 className="text-sm font-bold uppercase tracking-wide text-rose-800 dark:text-rose-300">
+          <Link
+            href="/gallica-bnf"
+            onClick={(e) => e.stopPropagation()}
+            className="text-sm font-bold uppercase tracking-wide text-rose-800 dark:text-rose-300 hover:underline"
+          >
             Gallica — BnF
-          </h3>
+          </Link>
         </div>
         <div className="flex items-center gap-6">
           <button
@@ -240,7 +244,7 @@ export function BnFGallicaCard({ userId, swipeable = false, fullImage = false, s
           </p>
           {showLink && (
             <Link
-              href="/gallica-bnf"
+              href={`https://images.bnf.fr/#/home/gallery/${image.docid}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}

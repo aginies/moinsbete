@@ -75,7 +75,7 @@ export function BnFGallicaFavorites({ userId, onRemoveComplete }: BnFGallicaFavo
               )}
               {isValidUrl(item.link) && (
                 <Link
-                  href={sanitizeUrl(item.link)}
+                  href={item.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
