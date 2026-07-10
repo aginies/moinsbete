@@ -26,6 +26,7 @@ const TOPIC_SEARCHES: Record<string, string[]> = {
   'art-nouveau': ['Art Nouveau', 'Jugendstil', 'Alphonse Mucha', 'Belle Epoque'],
   advertisements: ['Vintage advertisement', 'Vintage ad', 'Retro ad', 'Poster advertisement'],
   maps: ['Historical map', 'Old map', 'Antique map', 'Cartography'],
+  'sports-car': ['Vintage sports car', 'Classic sports car', 'Sports car', 'Racing car'],
 }
 
 function stripHtml(html: string): string {
