@@ -76,17 +76,20 @@ export function CardHeader({
     if (!enableAutoRefresh || !isActive || loading || !onRefresh) return
 
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          onRefresh()
-          return intervalValue
-        }
-        return prev - 1
-      })
+      setTimeLeft(prev => prev - 1)
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [enableAutoRefresh, isActive, intervalValue, loading, onRefresh])
+  }, [enableAutoRefresh, isActive, loading, onRefresh])
+
+  React.useEffect(() => {
+    if (!enableAutoRefresh || !isActive || loading || !onRefresh) return
+
+    if (timeLeft <= 0) {
+      onRefresh()
+      setTimeLeft(intervalValue)
+    }
+  }, [timeLeft, enableAutoRefresh, isActive, intervalValue, loading, onRefresh])
 
   return (
     <div className="mb-3 flex items-center justify-between">
