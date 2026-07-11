@@ -21,8 +21,27 @@ export async function isCsrfValid(request: NextRequest, overrideToken?: string):
   const origin = request.headers.get('origin') || request.headers.get('referer')
   if (origin) {
     try {
-      const originUrl = new URL(origin)
-      if (originUrl.origin.toLowerCase() === request.nextUrl.origin.toLowerCase()) {
+      const originUrl = new URL(origin).origin.toLowerCase()
+      
+      // A. Reconstruct origin from standard reverse-proxy headers (e.g. Nginx, Cloudflare)
+      const proto = request.headers.get('x-forwarded-proto') || 'http'
+      const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.host
+      const proxyOrigin = `${proto}://${host}`.toLowerCase()
+
+      // B. Parse configured NEXTAUTH_URL origin if present
+      let publicOrigin = ''
+      if (process.env.NEXTAUTH_URL) {
+        try {
+          publicOrigin = new URL(process.env.NEXTAUTH_URL).origin.toLowerCase()
+        } catch {}
+      }
+
+      // Check if browser origin matches any of our known domains/origins
+      if (
+        originUrl === request.nextUrl.origin.toLowerCase() ||
+        originUrl === proxyOrigin ||
+        (publicOrigin && originUrl === publicOrigin)
+      ) {
         return true
       }
     } catch {}
