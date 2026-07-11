@@ -37,8 +37,13 @@ function extractEntries(html: string): ImageEntry[] {
     const fileHrefMatch = afterH2.match(/href="\/wiki\/Fichier:([^"]+)"/)
 
     if (imgSrcMatch && imgAltMatch && fileHrefMatch) {
+      let imageUrl = `https:${imgSrcMatch[1]}`
+      if (imageUrl.includes('/thumb/')) {
+        imageUrl = imageUrl.replace(/\/\d+px-/, '/1280px-')
+      }
+
       entries.push({
-        imageUrl: `https:${imgSrcMatch[1]}`,
+        imageUrl,
         description: imgAltMatch[1]
           .replace(/\s*\([^)]*définition réelle[^)]*\)/, '')
           .trim(),
