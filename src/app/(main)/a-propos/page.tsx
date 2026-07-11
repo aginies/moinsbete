@@ -24,7 +24,7 @@ export default function AproposPage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">Qu&apos;est-ce que MoinsBête ?</h2>
           <p className="text-muted-foreground">
-             MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia et d&apos;articles en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder directement aux actualités du CNRS.
+            MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia, d&apos;articles scientifiques, de livres et de podcasts en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder aux actualités du CNRS, découvrir des faits surprenants, explorer des images de Wikimedia Commons et écouter des documentaires Radio France.
           </p>
         </section>
 
@@ -35,8 +35,12 @@ export default function AproposPage() {
               'Scrollez votre feed d\'idées quotidiennes',
               'Consultez votre historique de lecture',
               'Suivez des sujets qui vous passionnent',
-              'Découvrez des informations aléatoires',
-              'Actuez les actualités du CNRS dans vos préférences',
+              'Découvrez des faits surprenants dans "Le saviez-vous ?"',
+              'Explorez des images quotidiennes de Wikimedia Commons',
+              'Écoutez des documentaires Radio France',
+              'Visualisez vos sujets dans la carte mentale',
+              'Suivez votre progression avec les streaks',
+              'Partagez vos contenus favoris',
             ].map((step, i) => (
               <div key={i} className="flex items-start gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -61,43 +65,119 @@ export default function AproposPage() {
           </p>
         </section>
 
-        <section>
+       <section>
           <h2 className="mb-3 text-xl font-semibold">Source des contenus</h2>
-      <p className="text-muted-foreground">
-         Le contenu de MoinsBête provient de Wikipédia et des actualités du CNRS.
-         L'IA résume l'idée principale pour offrir un contenu clair et digeste.
-       </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Découvrez nos sources sur{' '}
-            <a
-              href="https://fr.wikipedia.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              Wikipédia en français
-            </a>
-            {' '}et{' '}
-            <a
-              href="https://lejournal.cnrs.fr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              lejournal.cnrs.fr
-            </a>
-            .
+          <p className="text-muted-foreground">
+            Le contenu de MoinsBête provient de multiples sources enrichies par l&apos;intelligence artificielle :
+            Wikipédia en français pour les idées et faits, le journal du CNRS pour les actualités scientifiques,
+            Wikimedia Commons pour les images, et Radio France pour les documentaires audio.
+            L&apos;IA analyse, résume et structure le contenu pour offrir des idées claires et digestes.
           </p>
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Wikipédia</h3>
+              <p className="text-sm text-muted-foreground">Idées et faits vérifiés</p>
+              <a
+                href="https://fr.wikipedia.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                fr.wikipedia.org →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">CNRS</h3>
+              <p className="text-sm text-muted-foreground">Actualités de la recherche</p>
+              <a
+                href="https://lejournal.cnrs.fr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                lejournal.cnrs.fr →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Wikimedia Commons</h3>
+              <p className="text-sm text-muted-foreground">Images libres de droits</p>
+              <a
+                href="https://commons.wikimedia.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                commons.wikimedia.org →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Radio France</h3>
+              <p className="text-sm text-muted-foreground">Documentaires audio</p>
+              <a
+                href="https://www.radiofrance.fr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                radiofrance.fr →
+              </a>
+            </div>
+          </div>
         </section>
 
-        <section>
+       <section>
           <h2 className="mb-3 text-xl font-semibold">Partagez tout le contenu</h2>
           <p className="text-muted-foreground">
-            Chaque idée, chaque article du CNRS et chaque page de MoinsBête peut être partagée
+            Chaque idée, fait, image, article du CNRS, documentaire Radio France et page de MoinsBête peut être partagée
             facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
             ou copier le lien directement.
           </p>
        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">Le saviez-vous ?</h2>
+          <p className="text-muted-foreground">
+            Découvrez des faits surprenants et méconnus issus de Wikipédia. Chaque jour, de nouvelles anecdotes
+            sont sélectionnées pour éveiller votre curiosité. Vous pouvez sauvegarder vos faits préférés
+            dans vos favoris et les réviser via notre système de répétition espacée.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">Images &amp; visuels</h2>
+          <p className="text-muted-foreground">
+            MoinsBête propose deux sections dédiées aux images : l&apos;Image du jour, une photo sélectionnée
+            quotidiennement depuis Wikimedia Commons, et la galerie Wikimedia pour explorer des milliers
+            d&apos;images libres de droits. Cliquez sur une image pour la voir en grand et partagez vos préférées.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">Collections</h2>
+          <p className="text-muted-foreground">
+            Explorez des collections thématiques curatées d&apos;idées sur des sujets précis.
+            Chaque collection regroupe les meilleures idées d&apos;un domaine pour un apprentissage
+            structuré et approfondi.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">Carte mentale</h2>
+          <p className="text-muted-foreground">
+            Visualisez les liens entre vos idées et vos sujets favoris grâce à la carte mentale interactive.
+            Cette représentation graphique vous aide à comprendre comment les connaissances s&apos;articulent
+            entre elles et à découvrir de nouvelles connexions.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">Suivi de progression</h2>
+          <p className="text-muted-foreground">
+            Suivez votre assiduité quotidienne avec les streaks. Chaque jour où vous consultez du contenu,
+            votre série se prolonge. Consultez votre plan de croissance pour visualiser votre progression
+            et rester motivé.
+          </p>
+        </section>
 
         <section>
            <h2 className="mb-3 text-xl font-semibold">Révision par répétition espacée</h2>
@@ -196,11 +276,11 @@ export default function AproposPage() {
           </p>
         </section>
 
-         <section>
-           <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
+        <section>
+            <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
     <p className="text-muted-foreground">
           MoinsBête a été créé par <strong>Antoine Giniès</strong>.
-            Le projet s'inspire de la philosophie Deep Stash, popularisée par 
+            Le projet s&apos;inspire de la philosophie Deep Stash, popularisée par 
             <a
               href="https://deepstash.com"
               target="_blank"
@@ -209,15 +289,17 @@ export default function AproposPage() {
             >
               Deep Stash
             </a>
-            , une méthode d'apprentissage rapide qui consiste à collecter et
-            retenir les idées clés issues de livres, d'articles et d'autres
+            , une méthode d&apos;apprentissage rapide qui consiste à collecter et
+            retenir les idées clés issues de livres, d&apos;articles et d&apos;autres
             sources de connaissance.
           </p>
           <p className="mt-3 text-muted-foreground">
-            L'objectif est de remplacer le scroll infini des réseaux sociaux par
+            L&apos;objectif est de remplacer le scroll infini des réseaux sociaux par
             un apprentissage actif et intentionnel. Chaque idée est conçue pour
             être digérée en quelques minutes, tout en restant mémorable et
-            actionnable.
+            actionnable. Le contenu est soigneusement sélectionné et enrichi depuis
+            Wikipédia, le CNRS, Wikimedia Commons, Radio France et d&apos;autres sources
+            de qualité en français.
           </p>
         </section>
 
