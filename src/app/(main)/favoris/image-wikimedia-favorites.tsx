@@ -19,7 +19,7 @@ interface ImageWikimediaFavoritesProps {
   onRemoveComplete?: () => void
 }
 
-function WikimediaFavoriteItem({ item, onRemove }: { item: WikimediaImageFavoriteDoc; onRemove: () => void }) {
+function WikimediaFavoriteItem({ item, onRemove, onShowFullImage }: { item: WikimediaImageFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void }) {
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: item.link,
     title: item.titre,
@@ -33,7 +33,7 @@ function WikimediaFavoriteItem({ item, onRemove }: { item: WikimediaImageFavorit
         {isValidUrl(item.imageUrl) && (
           <div
             className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-rose-200 dark:border-rose-800"
-            onClick={() => {}}
+            onClick={() => onShowFullImage(item.imageUrl)}
           >
             <img
               src={sanitizeUrl(item.imageUrl, '')}
@@ -110,7 +110,7 @@ export function ImageWikimediaFavorites({ userId, onRemoveComplete }: ImageWikim
           }
         }}
         renderItem={(item, onRemove) => (
-          <WikimediaFavoriteItem item={item} onRemove={onRemove} />
+          <WikimediaFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />
         )}
         emptyTitle="Aucun favori Wikimedia"
         emptyDescription="Favorisez des images depuis la page d&apos;accueil pour les voir ici."
