@@ -221,6 +221,7 @@ export function ImageWikimediaCard({
         linkHref={showLink ? '/image-wikimedia' : undefined}
         showToggle={false}
         showRefresh={false}
+        onRefresh={loadImage}
         shareOptions={shareOptions ? { onClick: share, copied, shareUrl } : undefined}
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
