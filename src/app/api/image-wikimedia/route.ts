@@ -16,17 +16,16 @@ interface WikimediaImage {
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php'
 
 const TOPIC_SEARCHES: Record<string, string[]> = {
-  paintings: ['Painting', 'Oil painting', 'Watercolor'],
-  aviation: ['Airplane', 'Aircraft', 'Biplane'],
+  paintings: ['Painting', 'Oil painting', 'Watercolor', 'Dali' ],
+  aviation: ['Avion Chasse', 'Armée Air', 'Air force'],
   nasa: ['NASA', 'Apollo program'],
   posters: ['Poster', 'Movie poster'],
-  wwi: ['World War I', 'First World War', 'Great War', '1914-1918'],
-  wwii: ['World War II', 'Second World War', '1939-1945'],
-  art: ['Art', 'Sculpture', 'Illustration', 'Drawing'],
+  ww: ['World War II', 'Second World War', '1939-1945', 'World War I', 'First World War', 'Great War', '1914-1918'],
+  art: ['Art', 'Sculpture', 'Illustration', 'Drawing', 'Musé Louvre', 'Musé Ermitage', 'Musée national de Chine', 'Metropolitan Museum of Art', 'Musées du Vatican', 'Musée national de Tokyo', 'Musée national d’anthropologie de Mexico', 'Victoria and Albert Museum'],
   advertisements: ['Vintage advertisement', 'Vintage ad', 'Retro ad', 'Poster advertisement'],
   maps: ['Historical map', 'Old map', 'Antique map', 'Cartography'],
-  'sports-car': ['Vintage sports car', 'Classic sports car', 'Sports car', 'Racing car'],
-  design: ['Industrial design', 'Graphic design', 'Product design', 'Modernist design'],
+  'sports-car': ['Classic sports car', 'Sports car', 'Racing car', 'Rolls-Royce', 'Bentley', 'Ferrari', 'Lamborghini', 'Aston Martin', 'Porsche', 'McLaren', 'Bugatti', 'Maserati', 'Jaguar', 'Land Rover', 'Lexus', 'Cadillac', 'Lincoln', 'Pagani', 'Koenigsegg', 'Lotus'],
+  design: ['Industrial design', 'Graphic design', 'Product design', 'Modernist design', 'objets design', 'architecture design', 'design industriel', 'mobilier design'],
   'deep-space': ['Deep space', 'Nebula', 'Hubble space telescope', 'Andromeda galaxy', 'Supernova'],
 }
 
