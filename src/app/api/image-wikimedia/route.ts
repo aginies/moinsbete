@@ -70,12 +70,12 @@ function stripHtml(html: string): string {
 }
 
 async function searchFiles(topic: string): Promise<string[]> {
-  // Generate a random search offset to select from different pages of results
-  const offset = Math.floor(Math.random() * 250)
+  // Generate a random search offset to select from different pages of results (up to the first 1000 items)
+  const offset = Math.floor(Math.random() * 1000)
   for (let retry = 0; retry < 3; retry++) {
     try {
       const res = await fetch(
-        `${COMMONS_API}?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=50&sroffset=${offset}&srnamespace=6&format=json`,
+        `${COMMONS_API}?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=300&sroffset=${offset}&srnamespace=6&format=json`,
         {
           headers: {
             'User-Agent': 'MoinsBeteApp/1.0 (moinsbete@ginies.org)'
@@ -96,7 +96,7 @@ async function searchFiles(topic: string): Promise<string[]> {
       // If we got 0 results (because the offset was too high for a smaller topic), fallback to offset 0 (first page)
       if (offset > 0) {
         const fallbackRes = await fetch(
-          `${COMMONS_API}?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=50&sroffset=0&srnamespace=6&format=json`,
+          `${COMMONS_API}?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=300&sroffset=0&srnamespace=6&format=json`,
           {
             headers: {
               'User-Agent': 'MoinsBeteApp/1.0 (moinsbete@ginies.org)'
