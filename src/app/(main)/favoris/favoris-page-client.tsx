@@ -20,6 +20,7 @@ import { ImageDuJourBookmarks } from '@/components/feed/image-du-jour-bookmarks'
 import { SaviezVousBookmarks } from '@/components/feed/saviez-vous-bookmarks'
 import { ImageWikimediaFavorites } from './image-wikimedia-favorites'
 import { BookOpen } from 'lucide-react'
+import { ShareButton } from '@/components/feed/share-button'
 
 interface FavorisPageClientProps {
    ideas: CompactIdea[]
@@ -47,6 +48,33 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const handleShare = useCallback(async (idea: CompactIdea) => {
+    if (copiedId === idea.id) return
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try {
+        await navigator.clipboard.writeText(`${window.location.origin}/idees/${idea.slug}`)
+        setCopiedId(idea.id)
+        setTimeout(() => setCopiedId(null), 2000)
+      } catch {
+        // Clipboard write failed
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: idea.title,
+          text: idea.title,
+          url: `${window.location.origin}/idees/${idea.slug}`,
+        })
+      } catch {
+        // User cancelled or share failed
+      }
+    }
+  }, [copiedId])
 
   // Derived count for ideas to update immediately when bookmarks are toggled
   const originalIdsOnPage = useMemo(() => new Set(ideas.map(i => i.id)), [ideas])
@@ -198,30 +226,33 @@ const handleWikimediaRemove = useCallback(() => {
               {filteredIdeas.map((idea) => (
                 <div key={idea.id} className="group relative">
                   <CompactIdeaCard idea={{ ...idea, viewedAt: new Date().toISOString() }} />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-2 z-10 rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleBookmark(idea.id)
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill={savedIdeaIds.has(idea.id) ? 'currentColor' : 'none'}
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className={`transition-colors ${savedIdeaIds.has(idea.id) ? 'text-primary' : 'text-muted-foreground'}`}
-                    >
-                      <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-                    </svg>
-                  </button>
+           <div className="absolute right-2 top-2 z-10 flex flex-col gap-2">
+              <ShareButton onClick={() => handleShare(idea)} copied={copiedId === idea.id} shareUrl={`${window.location.origin}/idees/${idea.slug}`} />
+              <button
+                type="button"
+                className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleBookmark(idea.id)
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill={savedIdeaIds.has(idea.id) ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={`transition-colors ${savedIdeaIds.has(idea.id) ? 'text-primary' : 'text-muted-foreground'}`}
+                >
+                  <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                </svg>
+              </button>
+            </div>
                 </div>
               ))}
 
