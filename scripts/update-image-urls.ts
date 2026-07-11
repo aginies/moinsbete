@@ -1,48 +1,8 @@
 import 'dotenv/config'
 import { PrismaClient } from '../src/generated/client'
+import { cleanText, extractImageFilename, extractArticleLink, fetchPage, normalize } from './wiki-text-utils'
 
 const prisma = new PrismaClient()
-
-async function fetchPage(url: string): Promise<string> {
-  const encoded = encodeURIComponent(url)
-  const rawUrl = `https://fr.wikipedia.org/w/index.php?title=${encoded}&action=raw`
-  const res = await fetch(rawUrl, {
-    headers: { 'User-Agent': 'moinsbete/1.0 (contact: antoine@ginies.org)' },
-  })
-  if (!res.ok) return ''
-  return res.text()
-}
-
-function extractImageFilename(wikiText: string): string | null {
-  const match = wikiText.match(/\[\[Fichier:([^\]]+)\]\]/)
-  if (match) return match[1].trim().split('|')[0]
-  return null
-}
-
-function extractArticleLink(wikiText: string): string | null {
-  const match = wikiText.match(/\[\[([^\]|]+)\]\]/)
-  if (match) return match[1].replace(/ /g, '_').replace(/#/g, '%23').replace(/'/g, '%27')
-  return null
-}
-
-function cleanText(wikiText: string): string {
-  let text = wikiText
-  text = text.replace(/\[\[Fichier:[^\]]*\]\]/g, '')
-  text = text.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
-  text = text.replace(/'''([^']*)'''/g, '$1')
-  text = text.replace(/''([^']*)''/g, '$1')
-  text = text.replace(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g, '$1 $2')
-  text = text.replace(/\{\{[^}]*\}\}/g, '')
-  text = text.replace(/<[^>]+>/g, '')
-  text = text.replace(/<ref[^>]*>[\s\S]*?<\/ref>/g, '')
-  text = text.replace(/\n/g, ' ')
-  text = text.replace(/\s+/g, ' ')
-  return text.trim()
-}
-
-function normalize(text: string): string {
-  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/gi, '').replace(/\s+/g, ' ').trim().toLowerCase()
-}
 
 async function main() {
   console.log('📸 Matching facts to Wikipedia images\n')
@@ -70,11 +30,11 @@ async function main() {
 
       const afterComment = line.replace(/^\*\s*<!--@ID_\d+-->\s*/, '')
       const image = extractImageFilename(afterComment)
-      const article = extractArticleLink(afterComment) || ''
+      const article = extractArticleLink(afterComment, { skipNamespaceFilter: true }) || ''
 
       if (!image) continue
 
-      const clean = cleanText(afterComment)
+      const clean = cleanText(afterComment, { skipImageRemoval: true, skipTemplateExpansions: true })
       if (clean.length < 20) continue
 
       const norm = normalize(clean)

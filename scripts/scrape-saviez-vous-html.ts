@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { PrismaClient } from '../src/generated/client'
+import { cleanText, extractImageFilename, extractArticleLink } from './wiki-text-utils'
 
 const prisma = new PrismaClient()
 
@@ -172,68 +173,6 @@ function parseFactsFromHtml(html: string): Fact[] {
   return facts
 }
 
-function cleanText(wikiText: string): string {
-  let text = wikiText
-  // Remove bullet marker first
-  text = text.replace(/^\*\s*/, '')
-  // Remove images/files
-  text = text.replace(/\[\[Fichier:[^\]]*\]\]/g, '')
-  text = text.replace(/\[\[Image:[^\]]*\]\]/g, '')
-  // Bold BEFORE italic (to avoid partial matches on ''')
-  text = text.replace(/'''((?:[^']|'(?!''))*)'''/g, '$1')
-  text = text.replace(/''([^']*)''/g, '$1')
-  // Wiki links - display text first, then bare links
-  text = text.replace(/\[\[([^\]]+)\|([^\]]+?)\]\]/g, '$2')
-  text = text.replace(/\[\[([^\]]+)\]\]/g, '$1')
-  // Templates
-  text = text.replace(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g, '$1 $2')
-  text = text.replace(/\{\{[^}]*\}\}/g, '')
-  // HTML tags
-  text = text.replace(/<[^>]+>/g, '')
-  // Language/noble templates
-  text = text.replace(/\{\{lang\|[^\}]*\}\}/g, '')
-  text = text.replace(/\{\{noble\|[^\}]*\}\}/g, '')
-  text = text.replace(/\{\{s\|[^\}]*\}\}/g, '')
-  text = text.replace(/\{\{nobr\|[^\}]*\}\}/g, '')
-  text = text.replace(/\{\{XV\}\}/g, '15')
-  text = text.replace(/\{\{VII\}\}/g, '7')
-  // References
-  text = text.replace(/<ref[^>]*>[\s\S]*?<\/ref>/g, '')
-  // Clean whitespace
-  text = text.replace(/\n/g, ' ')
-  text = text.replace(/\s+/g, ' ')
-  text = text.trim()
-  return text
-}
-
-function extractImageFilename(wikiText: string): string | null {
-  let match = wikiText.match(/\[\[Fichier:([^\]]+)\]\]/)
-  if (match) return match[1].trim().split('|')[0]
-  match = wikiText.match(/\[\[Image:([^\]]+)\]\]/)
-  if (match) return match[1].trim().split('|')[0]
-  return null
-}
-
-function extractArticleLink(wikiText: string): string | null {
-  const linkRegex = /\[\[(?!Fichier:|Image:)([^\]]+?)(\|([^]]+?))?\]\]/g
-  let match
-  while ((match = linkRegex.exec(wikiText)) !== null) {
-    const pageName = match[1]
-    if (pageName.startsWith('Catégorie:') || pageName.startsWith('Catégorie :') ||
-        pageName.startsWith('Discussion:') || pageName.startsWith('Discussion :') ||
-        pageName.startsWith('Wikipédia:') || pageName.startsWith('Wikipédia :') ||
-        pageName.startsWith('Fichier:') || pageName.startsWith('Fichier :') ||
-        pageName.startsWith('Image:') || pageName.startsWith('Image :')) {
-      continue
-    }
-    return pageName
-      .replace(/ /g, '_')
-      .replace(/#/g, '%23')
-      .replace(/'/g, "%27")
-  }
-  return null
-}
-
 function parseFactsFromRaw(wikitext: string): Fact[] {
   const facts: Fact[] = []
   const lines = wikitext.split('\n')
@@ -251,7 +190,7 @@ function parseFactsFromRaw(wikitext: string): Fact[] {
       }
     }
 
-    const text = cleanText(line)
+    const text = cleanText(line, { stripBullet: true, useDisplayText: true })
     if (!text || text.length < 20) continue
 
     const article = extractArticleLink(line)

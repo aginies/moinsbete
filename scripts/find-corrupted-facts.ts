@@ -1,11 +1,8 @@
 import 'dotenv/config'
 import { PrismaClient } from '../src/generated/client'
+import { normalize, cleanText } from './wiki-text-utils'
 
 const prisma = new PrismaClient()
-
-function normalize(text: string): string {
-  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/gi, '').replace(/\s+/g, ' ').trim().toLowerCase()
-}
 
 async function main() {
   console.log('🔍 Finding corrupted facts...\n')
@@ -68,21 +65,9 @@ async function main() {
             }
 
             // Apply the fixed cleanText
-            let cleanText = content
-            cleanText = cleanText.replace(/\[\[Fichier:[^\]]*\]\]/g, '')
-            cleanText = cleanText.replace(/\[\[Image:[^\]]*\]\]/g, '')
-            cleanText = cleanText.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
-            cleanText = cleanText.replace(/'''([^']*)'''/g, '$1')
-            cleanText = cleanText.replace(/''([^']*)''/g, '$1')
-            cleanText = cleanText.replace(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g, '$1 $2')
-            cleanText = cleanText.replace(/\{\{[^}]*\}\}/g, '')
-            cleanText = cleanText.replace(/<[^>]+>/g, '')
-            cleanText = cleanText.replace(/<ref[^>]*>[\s\S]*?<\/ref>/g, '')
-            cleanText = cleanText.replace(/\n/g, ' ')
-            cleanText = cleanText.replace(/\s+/g, ' ')
-            cleanText = cleanText.trim()
+            let cleanedText = cleanText(content, { skipTemplateExpansions: true })
 
-            console.log(`   Cleaned text: ${cleanText.substring(0, 200)}...`)
+            console.log(`   Cleaned text: ${cleanedText.substring(0, 200)}...`)
           }
         } catch (e) {
           console.log(`   Error fetching page:`, e)
