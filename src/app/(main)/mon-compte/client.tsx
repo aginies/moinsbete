@@ -6,8 +6,7 @@ import { BookOpen, Mail, User as UserIcon, Lock, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { changePasswordAction } from '@/actions/auth-actions'
-import { signOut } from 'next-auth/react'
+import { changePasswordAction, logoutAction } from '@/actions/auth-actions'
 import type { Session } from 'next-auth'
 
 export default function MonCompteClient({ session }: { session: Session }) {
@@ -32,7 +31,16 @@ export default function MonCompteClient({ session }: { session: Session }) {
   }
 
   async function handleLogout() {
-    signOut({ callbackUrl: '/' })
+    setError('')
+    setSuccess('')
+    startTransition(async () => {
+      const result = await logoutAction()
+      if (result.success) {
+        window.location.href = '/'
+      } else {
+        setError('Erreur lors de la déconnexion')
+      }
+    })
   }
 
   return (
