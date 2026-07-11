@@ -135,24 +135,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     text: `${image.description}\n\nDate: ${image.date}`,
     url: shareUrl,
   } : null
-  const { copied } = useShare(shareOptions)
-
-  const share = useCallback(async () => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      try {
-        await navigator.clipboard.writeText(shareUrl)
-      } catch {}
-    }
-    if (typeof navigator !== 'undefined' && navigator.share && image) {
-      try {
-        await navigator.share({
-          title: `Image du jour - ${image.description}`,
-          text: `${image.description}\n\nDate: ${image.date}`,
-          url: shareUrl,
-        })
-      } catch {}
-    }
-  }, [image, shareUrl])
+  const { share, copied } = useShare(shareOptions)
 
   const [isFavorited, setIsFavorited] = useState(false)
   const [favoriting, setFavoriting] = useState(false)
