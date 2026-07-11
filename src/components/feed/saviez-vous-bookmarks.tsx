@@ -26,7 +26,7 @@ interface SaviezVousBookmarksProps {
   onRemoveComplete?: () => void
 }
 
-function SaviezVousFavoriteItem({ item, onRemove }: { item: SaviezVousFavoriteDoc; onRemove: () => void }) {
+function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage }: { item: SaviezVousFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void }) {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'
   const shareUrl = `${baseUrl}/saviez-vous/${item.id}`
   const { handleShare, copied, shareUrl: itemShareUrl } = useItemShare({
@@ -42,7 +42,7 @@ function SaviezVousFavoriteItem({ item, onRemove }: { item: SaviezVousFavoriteDo
         {item.imageFilename && isValidUrl(item.imageFilename) && (
           <div
             className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-blue-200 dark:border-blue-800"
-            onClick={() => {}}
+            onClick={() => onShowFullImage(item.imageFilename || '')}
           >
             <img
               src={sanitizeUrl(item.imageFilename, '')}
@@ -123,7 +123,7 @@ export function SaviezVousBookmarks({ userId, onRemoveComplete }: SaviezVousBook
           }
         }}
         renderItem={(item, onRemove) => (
-          <SaviezVousFavoriteItem item={item} onRemove={onRemove} />
+          <SaviezVousFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />
         )}
         emptyTitle="Aucun favori Le saviez vous ?"
         emptyDescription="Favorisez des faits depuis la page d&apos;accueil pour les voir ici."

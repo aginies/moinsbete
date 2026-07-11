@@ -27,7 +27,7 @@ interface ImageDuJourBookmarksProps {
   onRemoveComplete?: () => void
 }
 
-function ImageDuJourFavoriteItem({ item, onRemove }: { item: ImageDuJourFavoriteDoc; onRemove: () => void }) {
+function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage }: { item: ImageDuJourFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void }) {
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: item.fileUrl,
     title: `Image du jour - ${item.description}`,
@@ -41,7 +41,7 @@ function ImageDuJourFavoriteItem({ item, onRemove }: { item: ImageDuJourFavorite
         {isValidUrl(item.imageUrl) && (
           <div
             className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800"
-            onClick={() => {}}
+            onClick={() => onShowFullImage(item.imageUrl)}
           >
             <img
               src={sanitizeUrl(item.imageUrl, '')}
@@ -115,7 +115,7 @@ export function ImageDuJourBookmarks({ userId, onRemoveComplete }: ImageDuJourBo
           }
         }}
         renderItem={(item, onRemove) => (
-          <ImageDuJourFavoriteItem item={item} onRemove={onRemove} />
+          <ImageDuJourFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />
         )}
         emptyTitle="Aucune image favoris"
         emptyDescription="Cliquez sur le bookmark d&apos;une image du jour pour la sauvegarder ici."
