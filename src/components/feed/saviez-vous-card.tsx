@@ -56,6 +56,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
   const [nextFact, setNextFact] = useState<{ id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [imageKey, setImageKey] = useState(0)
   const [showFullImage, setShowFullImage] = useState(false)
@@ -74,7 +75,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
 
   const handleClick = useCallback(async () => {
     if (loading) return
-    
+    setIsImageLoaded(false)
     if (nextFact) {
       // Instant transition!
       setFact(nextFact)
@@ -172,7 +173,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         showToggle={showToggle}
         onToggle={onToggle || handleToggle}
         onRefresh={handleClick}
-        loading={loading}
+        loading={loading || (hasImage ? !isImageLoaded : false)}
         shareOptions={{ onClick: share, copied, shareUrl }}
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
@@ -204,6 +205,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
             alt="Illustration"
             loading="lazy"
             className={`w-full ${imageHeight} object-contain transition-opacity hover:opacity-90 pointer-events-none bg-neutral-100 dark:bg-neutral-800`}
+            onLoad={() => setIsImageLoaded(true)}
             onError={() => setImageError(true)}
           />
           <ImageHint color="blue" />
