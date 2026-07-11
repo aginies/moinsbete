@@ -4,7 +4,7 @@ import React from 'react'
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { Lightbulb, ExternalLink, Bookmark } from 'lucide-react'
 import Link from 'next/link'
-import { isValidUrl as isValidUrlUtil, sanitizeUrl } from '@/lib/utils'
+import { isValidUrl as isValidUrlUtil, sanitizeUrl, decodeHtmlEntities } from '@/lib/utils'
 import { useShare } from './use-share'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
@@ -213,7 +213,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
       )}
 
       <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
-        {fact.text}
+        {decodeHtmlEntities(fact.text)}
       </p>
       {fact.sourceUrl && (
         <div className="mt-3">
@@ -275,7 +275,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
               textDarkColor="dark:text-blue-100"
             >
               <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
-                {nextFact.text}
+                {decodeHtmlEntities(nextFact.text)}
               </p>
             </SwipeBackgroundCard>
           )}
