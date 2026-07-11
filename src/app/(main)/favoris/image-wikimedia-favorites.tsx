@@ -24,7 +24,7 @@ export function ImageWikimediaFavorites({ userId, onRemoveComplete }: ImageWikim
 
   const handleShare = useCallback(async (item: WikimediaImageFavoriteDoc) => {
     if (copiedId === item.id) return
-    
+
     if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
       try {
         await navigator.clipboard.writeText(item.link)
@@ -116,12 +116,13 @@ export function ImageWikimediaFavorites({ userId, onRemoveComplete }: ImageWikim
             <div className="flex flex-col gap-2">
               <ShareButton onClick={() => handleShare(item)} copied={copiedId === item.id} shareUrl={item.link} />
               <button
-              onClick={onRemove}
-              className="rounded-full p-1.5 text-rose-600 opacity-60 hover:opacity-100 hover:text-rose-800 hover:bg-rose-100 dark:text-rose-400 dark:hover:text-rose-200 dark:hover:bg-rose-900/40 transition-all"
-              title="Retirer des favoris"
-            >
-              <X className="h-4 w-4" />
-            </button>
+                onClick={onRemove}
+                className="rounded-full p-1.5 text-rose-600 opacity-60 hover:opacity-100 hover:text-rose-800 hover:bg-rose-100 dark:text-rose-400 dark:hover:text-rose-200 dark:hover:bg-rose-900/40 transition-all"
+                title="Retirer des favoris"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         )}
         emptyTitle="Aucun favori Wikimedia"
