@@ -57,6 +57,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const [image, setImage] = useState<ImageData | null>(null)
   const [nextImage, setNextImage] = useState<ImageData | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [error, setError] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
@@ -72,7 +73,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
 
   const loadImage = useCallback(async () => {
     if (loading) return
-    
+    setIsImageLoaded(false)
     if (nextImage) {
       // Instant transition!
       setImage(nextImage)
@@ -199,7 +200,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
          showToggle={showToggle}
          onToggle={onToggle || handleToggle}
          onRefresh={loadImage}
-         loading={loading}
+         loading={loading || (image?.imageUrl ? !isImageLoaded : false)}
          shareOptions={{ onClick: share, copied, shareUrl }}
          enableAutoRefresh={enableAutoRefresh}
          storageKey={storageKey}
@@ -244,6 +245,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
             alt={image?.description || 'Image'}
             loading="lazy"
             className={`w-full transition-opacity ${largeImage ? 'h-[22vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
+            onLoad={() => setIsImageLoaded(true)}
             onError={() => setImageError(true)}
           />
           {!fullImage && <ImageHint color="teal" />}

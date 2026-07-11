@@ -81,6 +81,7 @@ export function ImageWikimediaCard({
 }: ImageWikimediaCardProps) {
   const [image, setImage] = useState<WikimediaImage | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [error, setError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
@@ -125,6 +126,7 @@ export function ImageWikimediaCard({
   const loadImage = useCallback(async () => {
     setLoading(true)
     setError(false)
+    setIsImageLoaded(false)
     const newImage = await fetchRandomImage(activeTopics.join(','))
     if (newImage) {
       setImage(newImage)
@@ -222,6 +224,7 @@ export function ImageWikimediaCard({
         showToggle={false}
         showRefresh={false}
         onRefresh={loadImage}
+        loading={loading || (image?.imageUrl ? !isImageLoaded : false)}
         shareOptions={shareOptions ? { onClick: share, copied, shareUrl } : undefined}
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
@@ -311,6 +314,7 @@ export function ImageWikimediaCard({
             alt={image.titre}
             loading="lazy"
             className={`w-full transition-opacity ${largeImage ? 'h-[28vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
+            onLoad={() => setIsImageLoaded(true)}
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
           {!fullImage && <ImageHint color="amber" />}
