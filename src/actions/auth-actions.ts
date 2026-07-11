@@ -106,9 +106,11 @@ export async function loginAction(formData: {
 
 export async function logoutAction(formData?: FormData) {
   const cookieStore = await cookies()
-  const cookieName = process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
   
-  cookieStore.delete(cookieName)
+  // Force-delete development session cookie
+  cookieStore.set('next-auth.session-token', '', { path: '/', maxAge: 0 })
+  // Force-delete production session cookie
+  cookieStore.set('__Secure-next-auth.session-token', '', { path: '/', maxAge: 0, secure: true })
   
   return { success: true }
 }
