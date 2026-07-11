@@ -171,15 +171,6 @@ export default function AproposPage() {
         </section>
 
         <section>
-          <h2 className="mb-3 text-xl font-semibold">Suivi de progression</h2>
-          <p className="text-muted-foreground">
-            Suivez votre assiduité quotidienne avec les streaks. Chaque jour où vous consultez du contenu,
-            votre série se prolonge. Consultez votre plan de croissance pour visualiser votre progression
-            et rester motivé.
-          </p>
-        </section>
-
-        <section>
            <h2 className="mb-3 text-xl font-semibold">Révision par répétition espacée</h2>
            <p className="text-muted-foreground">
              MoinsBête utilise la répétition espacée pour vous aider à retenir les idées importantes.
