@@ -156,7 +156,15 @@ async function fetchImageInfo(filename: string): Promise<WikimediaImage | null> 
       const licenseName = extmetadata['LicenseShortName']?.value || extmetadata['LicenseName']?.value || ''
       const mime = img.mime || 'image/jpeg'
 
-      const isColorImage = mime.startsWith('image/') && !mime.includes('svg') && !mime.includes('pdf')
+      // Only accept browser-compatible image formats (exclude TIFFs, PDFs, SVGs, etc. which fail to load in browser <img> tags)
+      const isColorImage =
+        mime === 'image/jpeg' ||
+        mime === 'image/jpg' ||
+        mime === 'image/png' ||
+        mime === 'image/gif' ||
+        mime === 'image/webp' ||
+        mime === 'image/bmp' ||
+        mime === 'image/avif'
       const imageUrl = isColorImage ? img.url : ''
       const thumbnailUrl = img.thumburl || img.thumbnail?.url || (isColorImage ? img.url : '')
 
@@ -193,9 +201,18 @@ async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> 
     const files = await searchFiles(term)
     if (files.length === 0) continue
 
-    const randomFile = files[Math.floor(Math.random() * files.length)]
-    const image = await fetchImageInfo(randomFile)
-    if (image && image.imageUrl) return image
+    // Shuffle the files list and try up to 5 different candidate files in sequence
+    // to find one that successfully resolves a valid, browser-compatible image.
+    const shuffledFiles = [...files].sort(() => Math.random() - 0.5)
+    const maxAttempts = Math.min(shuffledFiles.length, 5)
+
+    for (let i = 0; i < maxAttempts; i++) {
+      const randomFile = shuffledFiles[i]
+      const image = await fetchImageInfo(randomFile)
+      if (image && image.imageUrl) {
+        return image
+      }
+    }
   }
 
   return null
