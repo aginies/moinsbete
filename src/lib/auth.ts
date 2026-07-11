@@ -30,21 +30,20 @@ export const authOptions: AuthOptions = {
           where: { email },
         })
 
-        if (!user) {
-          return null
-        }
-
-        const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
+        // Timing-constant: always run bcrypt.compare
+        const defaultHash = '$2a$12$' + '0'.repeat(53)
+        const compareHash = user?.passwordHash ?? defaultHash
+        const isPasswordValid = await bcrypt.compare(password, compareHash)
 
         if (!isPasswordValid) {
           return null
         }
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.displayName,
-          role: user.role,
+          id: user!.id,
+          email: user!.email,
+          name: user!.displayName,
+          role: user!.role,
         }
       },
     }),
@@ -107,6 +106,10 @@ export async function getSession() {
       return null
     }
 
+    const expires = (session.exp && typeof session.exp === 'number')
+      ? new Date(session.exp * 1000).toISOString()
+      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+
     return {
       user: {
         id: user.id,
@@ -114,7 +117,7 @@ export async function getSession() {
         name: user.displayName,
         role: user.role,
       },
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      expires,
     }
   } catch {
     return null

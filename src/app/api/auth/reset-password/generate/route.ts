@@ -29,23 +29,22 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user) {
-      return NextResponse.json({ success: true })
+      return NextResponse.json({ success: true, emailSent: true })
     }
 
     const token = crypto.randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + 3600000)
 
-    await prisma.passwordResetToken.deleteMany({
-      where: { userId: user.id },
-    })
-
-    await prisma.passwordResetToken.create({
-      data: {
-        token,
-        email: user.email,
-        userId: user.id,
-        expiresAt,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.passwordResetToken.deleteMany({ where: { userId: user.id } })
+      await tx.passwordResetToken.create({
+        data: {
+          token,
+          email: user.email,
+          userId: user.id,
+          expiresAt,
+        },
+      })
     })
 
     const emailResult = await sendResetEmail(user.email, token)
