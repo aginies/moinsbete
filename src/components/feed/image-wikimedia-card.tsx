@@ -33,11 +33,13 @@ interface ImageWikimediaCardProps {
   showLink?: boolean
   showToggle?: boolean
   onToggle?: () => void
+  enableAutoRefresh?: boolean
+  storageKey?: string
 }
 
 const TOPICS = [
   { id: 'paintings', label: 'Peintures', icon: '🎨' },
-  { id: 'aviation', label: 'Aviation', icon: '✈️' },
+  { id: 'aviation', label: 'Aviation Militaire', icon: '✈️' },
   { id: 'nasa', label: 'NASA', icon: '🚀' },
   { id: 'posters', label: 'Affiches', icon: '📋' },
   { id: 'ww', label: 'Guerre', icon: '🪖' },
@@ -66,7 +68,17 @@ async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> 
   }
 }
 
-export function ImageWikimediaCard({ userId, swipeable = false, fullImage = false, largeImage = false, showLink = true, showToggle = true, onToggle }: ImageWikimediaCardProps) {
+export function ImageWikimediaCard({
+  userId,
+  swipeable = false,
+  fullImage = false,
+  largeImage = false,
+  showLink = true,
+  showToggle = true,
+  onToggle,
+  enableAutoRefresh = false,
+  storageKey = 'wikimedia',
+}: ImageWikimediaCardProps) {
   const [image, setImage] = useState<WikimediaImage | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -210,6 +222,8 @@ export function ImageWikimediaCard({ userId, swipeable = false, fullImage = fals
         showToggle={false}
         showRefresh={false}
         shareOptions={shareOptions ? { onClick: share, copied, shareUrl } : undefined}
+        enableAutoRefresh={enableAutoRefresh}
+        storageKey={storageKey}
         extraActions={
           <>
             <button

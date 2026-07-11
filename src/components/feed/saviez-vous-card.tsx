@@ -25,6 +25,8 @@ interface SaviezVousCardProps {
   imageHeight?: string
   swipeable?: boolean
   onToggle?: () => void
+  enableAutoRefresh?: boolean
+  storageKey?: string
 }
 
 async function fetchRandomFact() {
@@ -48,6 +50,8 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   imageHeight = 'h-48',
   swipeable = false,
   onToggle,
+  enableAutoRefresh = false,
+  storageKey = 'saviez_vous',
 }: SaviezVousCardProps) {
   const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
   const [nextFact, setNextFact] = useState<{ id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null>(null)
@@ -170,6 +174,8 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         onRefresh={handleClick}
         loading={loading}
         shareOptions={{ onClick: share, copied, shareUrl }}
+        enableAutoRefresh={enableAutoRefresh}
+        storageKey={storageKey}
         extraActions={
           <button
             type="button"
