@@ -21,6 +21,7 @@ import { SaviezVousBookmarks } from '@/components/feed/saviez-vous-bookmarks'
 import { ImageWikimediaFavorites } from './image-wikimedia-favorites'
 import { BookOpen } from 'lucide-react'
 import { ShareButton } from '@/components/feed/share-button'
+import { useItemShare } from '@/components/feed/use-item-share'
 
 interface FavorisPageClientProps {
    ideas: CompactIdea[]
@@ -44,37 +45,23 @@ interface TabConfig {
   count: number
 }
 
+function IdeaShareButton({ idea }: { idea: CompactIdea }) {
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const shareUrl = `${baseUrl}/idees/${idea.slug}`
+  const { handleShare, copied } = useItemShare({
+    shareUrl,
+    title: idea.title,
+    text: idea.title,
+    itemId: idea.id,
+  })
+
+  return <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
+}
+
 export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
-  const [copiedId, setCopiedId] = useState<string | null>(null)
-
-  const handleShare = useCallback(async (idea: CompactIdea) => {
-    if (copiedId === idea.id) return
-
-    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      try {
-        await navigator.clipboard.writeText(`${window.location.origin}/idees/${idea.slug}`)
-        setCopiedId(idea.id)
-        setTimeout(() => setCopiedId(null), 2000)
-      } catch {
-        // Clipboard write failed
-      }
-    }
-
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      try {
-        await navigator.share({
-          title: idea.title,
-          text: idea.title,
-          url: `${window.location.origin}/idees/${idea.slug}`,
-        })
-      } catch {
-        // User cancelled or share failed
-      }
-    }
-  }, [copiedId])
 
   // Derived count for ideas to update immediately when bookmarks are toggled
   const originalIdsOnPage = useMemo(() => new Set(ideas.map(i => i.id)), [ideas])
@@ -227,8 +214,8 @@ const handleWikimediaRemove = useCallback(() => {
                 <div key={idea.id} className="group relative">
                   <CompactIdeaCard idea={{ ...idea, viewedAt: new Date().toISOString() }} />
            <div className="absolute right-2 top-2 z-10 flex flex-col gap-2">
-              <ShareButton onClick={() => handleShare(idea)} copied={copiedId === idea.id} shareUrl={`${window.location.origin}/idees/${idea.slug}`} />
-              <button
+               <IdeaShareButton idea={idea} />
+               <button
                 type="button"
                 className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
                 onClick={(e) => {
