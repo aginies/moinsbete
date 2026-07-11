@@ -51,8 +51,8 @@ export function CardHeader({
   storageKey = 'card_auto',
 }: CardHeaderProps) {
   const [isActive, setIsActive] = React.useState(false)
-  const [intervalValue, setIntervalValue] = React.useState(5)
-  const [timeLeft, setTimeLeft] = React.useState(5)
+  const [intervalValue, setIntervalValue] = React.useState(10)
+  const [timeLeft, setTimeLeft] = React.useState(10)
 
   React.useEffect(() => {
     if (!enableAutoRefresh) return
