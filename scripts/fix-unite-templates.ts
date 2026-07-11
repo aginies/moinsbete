@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { PrismaClient } from '../src/generated/client'
+import { cleanText, extractImageFilename, extractArticleLink, fetchPage, parseFacts, normalize } from './wiki-text-utils'
 
 const prisma = new PrismaClient()
 
@@ -20,76 +21,6 @@ const PAGES = [
   'Wikipédia:Le_saviez-vous_?/Archives/2016',
 ]
 
-function cleanText(wikiText: string): string {
-  let text = wikiText
-  text = text.replace(/\[\[Fichier:[^\]]*\]\]/g, '')
-  text = text.replace(/\[\[Image:[^\]]*\]\]/g, '')
-  text = text.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
-  text = text.replace(/'''([^']*)'''/g, '$1')
-  text = text.replace(/''([^']*)''/g, '$1')
-  // FIX: Handle {{unité|value|unit}} before stripping templates
-  text = text.replace(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g, '$1 $2')
-  text = text.replace(/\{\{[^}]*\}\}/g, '')
-  text = text.replace(/<[^>]+>/g, '')
-  text = text.replace(/<ref[^>]*>[\s\S]*?<\/ref>/g, '')
-  text = text.replace(/\n/g, ' ')
-  text = text.replace(/\s+/g, ' ')
-  text = text.trim()
-  return text
-}
-
-function extractImageFilename(wikiText: string): string | null {
-  const match = wikiText.match(/\[\[Fichier:([^\]]+)\]\]/)
-  if (match) {
-    return match[1].trim().split('|')[0]
-  }
-  return null
-}
-
-function extractArticleLink(wikiText: string): string | null {
-  const match = wikiText.match(/\[\[([^\]|]+)\]\]/)
-  if (match) {
-    return match[1]
-      .replace(/ /g, '_')
-      .replace(/#/g, '%23')
-      .replace(/'/g, '%27')
-  }
-  return null
-}
-
-async function fetchPage(url: string): Promise<string> {
-  const encoded = encodeURIComponent(url)
-  const rawUrl = `https://fr.wikipedia.org/w/index.php?title=${encoded}&action=raw`
-  const res = await fetch(rawUrl, {
-    headers: { 'User-Agent': 'moinsbete/1.0 (contact: antoine@ginies.org)' },
-  })
-  if (!res.ok) {
-    console.log(`  ⚠️ Failed to fetch: ${url} (${res.status})`)
-    return ''
-  }
-  return res.text()
-}
-
-async function parseFacts(wikitext: string): Promise<Array<{ text: string; image: string | null; article: string }>> {
-  const facts: Array<{ text: string; image: string | null; article: string }> = []
-
-  const lines = wikitext.split('\n')
-  for (const line of lines) {
-    if (!line.match(/^\*\s*<!--@ID_\d+-->/)) continue
-
-    const afterComment = line.replace(/^\*\s*<!--@ID_\d+-->\s*/, '')
-    const text = cleanText(afterComment)
-    if (!text || text.length < 20) continue
-
-    const image = extractImageFilename(afterComment)
-    const article = extractArticleLink(afterComment)
-
-    facts.push({ text, image: image || null, article: article || '' })
-  }
-
-  return facts
-}
-
 async function main() {
   console.log('📚 Re-scraping Wikipedia Le saviez-vous ? archives with fixed cleanText\n')
 
@@ -97,10 +28,6 @@ async function main() {
     select: { id: true, text: true, sourceUrl: true, imageFilename: true },
   })
   const existingByNormalized = new Map<string, { id: string; text: string; sourceUrl: string | null; imageFilename: string | null }>()
-
-  function normalize(text: string): string {
-    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/gi, '').replace(/\s+/g, ' ').trim().toLowerCase()
-  }
 
   for (const fact of existingFacts) {
     const key = fact.text  // Use exact text for comparison
@@ -120,7 +47,11 @@ async function main() {
     const wikitext = await fetchPage(page)
     if (!wikitext) continue
 
-    const facts = await parseFacts(wikitext)
+    const facts = await parseFacts(wikitext, {
+      cleanOptions: { skipTemplateExpansions: true },
+      imageOptions: { alsoTryImage: false },
+      articleOptions: { skipNamespaceFilter: true },
+    })
     console.log(`  Found ${facts.length} facts\n`)
 
     for (const fact of facts) {

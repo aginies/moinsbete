@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { PrismaClient } from '../src/generated/client'
+import { parseFacts, fetchPage } from './wiki-text-utils'
 
 const prisma = new PrismaClient()
 
@@ -21,125 +22,6 @@ const PAGES = [
   'Wikipédia:Le_saviez-vous_?/Archives/2016',
 ]
 
-function cleanText(wikiText: string): string {
-  let text = wikiText
-  // Remove images/files FIRST (before other replacements)
-  text = text.replace(/\[\[Fichier:[^\]]*\]\]/g, '')
-  text = text.replace(/\[\[Image:[^\]]*\]\]/g, '')
-  // Remove wiki links [[...]] - use display text when available
-  text = text.replace(/\[\[([^\]|]+)\|([^]]*?)\]\]/g, '$2')
-  text = text.replace(/\[\[([^\]|]+)\]\]/g, '$1')
-  // Remove bold/italic - handle apostrophes in bold text
-  text = text.replace(/'''((?:[^']|'(?!''))*)'''/g, '$1')
-  text = text.replace(/''([^']*)''/g, '$1')
-  // Remove templates {{...}}
-  text = text.replace(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g, '$1 $2')
-  text = text.replace(/\{\{[^}]*\}\}/g, '')
-  // Remove HTML tags
-  text = text.replace(/<[^>]+>/g, '')
-  // Remove language tags
-  text = text.replace(/\{\{lang\|[^\}]*\}\}/g, '')
-  text = text.replace(/\{\{noble\|[^\}]*\}\}/g, '')
-  text = text.replace(/\{\{s\|[^\}]*\}\}/g, '')
-  text = text.replace(/\{\{nobr\|[^\}]*\}\}/g, '')
-  text = text.replace(/\{\{XV\}\}/g, '15')
-  text = text.replace(/\{\{VII\}\}/g, '7')
-  // Remove references <ref>
-  text = text.replace(/<ref[^>]*>[\s\S]*?<\/ref>/g, '')
-  // Clean whitespace
-  text = text.replace(/\n/g, ' ')
-  text = text.replace(/\s+/g, ' ')
-  text = text.trim()
-  return text
-}
-
-function extractImageFilename(wikiText: string): string | null {
-  // Try Fichier: first (French Wikipedia), then Image:
-  let match = wikiText.match(/\[\[Fichier:([^\]]+)\]\]/)
-  if (match) {
-    return match[1].trim().split('|')[0]
-  }
-  match = wikiText.match(/\[\[Image:([^\]]+)\]\]/)
-  if (match) {
-    return match[1].trim().split('|')[0]
-  }
-  return null
-}
-
-function filenameToFullSizeUrl(filename: string): string | null {
-  if (!filename) return null
-  // Construct full-size URL from filename
-  // Handle multi-part filenames with slashes
-  const parts = filename.split('/')
-  if (parts.length >= 2) {
-    const hash = parts[0]
-    const fileName = parts.slice(1).join('/')
-    return `https://upload.wikimedia.org/wikipedia/commons/${hash}/${fileName}`
-  }
-  // Single-part filename: try to find it on Wikimedia
-  // Use Special:FilePath as fallback
-  return `https://upload.wikimedia.org/wikipedia/commons/${filename}`
-}
-
-function extractArticleLink(wikiText: string): string | null {
-  // Match all wiki links, skip Fichier:/Image: links
-  const linkRegex = /\[\[(?!Fichier:|Image:)([^\]|]+)(\|([^]]*?))?\]\]/g
-  let match
-  while ((match = linkRegex.exec(wikiText)) !== null) {
-    const pageName = match[1]
-    // Skip category links and other special namespaces
-    if (pageName.startsWith('Catégorie:') || pageName.startsWith('Catégorie :') ||
-        pageName.startsWith('Discussion:') || pageName.startsWith('Discussion :') ||
-        pageName.startsWith('Wikipédia:') || pageName.startsWith('Wikipédia :') ||
-        pageName.startsWith('Fichier:') || pageName.startsWith('Fichier :') ||
-        pageName.startsWith('Image:') || pageName.startsWith('Image :')) {
-      continue
-    }
-    return pageName
-      .replace(/ /g, '_')
-      .replace(/#/g, '%23')
-      .replace(/'/g, '%27')
-  }
-  return null
-}
-
-async function fetchPage(url: string): Promise<string> {
-  const encoded = encodeURIComponent(url)
-  const rawUrl = `https://fr.wikipedia.org/w/index.php?title=${encoded}&action=raw`
-  const res = await fetch(rawUrl, {
-    headers: { 'User-Agent': 'moinsbete/1.0 (contact: antoine@ginies.org)' },
-  })
-  if (!res.ok) {
-    console.log(`  ⚠️ Failed to fetch: ${url} (${res.status})`)
-    return ''
-  }
-  return res.text()
-}
-
-async function parseFacts(wikitext: string): Promise<Array<{ text: string; image: string | null; article: string }>> {
-  const facts: Array<{ text: string; image: string | null; article: string }> = []
-
-  const lines = wikitext.split('\n')
-  for (const line of lines) {
-    // Match fact lines: * <!--@ID_xxxxx-->fact text
-    if (!line.match(/^\*\s*<!--@ID_\d+-->/)) continue
-
-    // Remove the ID comment
-    const afterComment = line.replace(/^\*\s*<!--@ID_\d+-->\s*/, '')
-
-    const text = cleanText(afterComment)
-    if (!text || text.length < 20) continue
-
-    const imageFilename = extractImageFilename(afterComment)
-    const article = extractArticleLink(afterComment)
-    const imageUrl = imageFilename ? filenameToFullSizeUrl(imageFilename) : null
-
-    facts.push({ text, image: imageUrl ?? null, article: article || '' })
-  }
-
-  return facts
-}
-
 async function main() {
   console.log('📚 Scraping Wikipedia Le saviez-vous ? archives\n')
 
@@ -160,7 +42,9 @@ async function main() {
     const wikitext = await fetchPage(page)
     if (!wikitext) continue
 
-    const facts = await parseFacts(wikitext)
+    const facts = await parseFacts(wikitext, {
+      cleanOptions: { useDisplayText: true },
+    })
     console.log(`  Found ${facts.length} facts\n`)
 
     for (const fact of facts) {

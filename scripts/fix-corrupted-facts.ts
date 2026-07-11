@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { PrismaClient } from '../src/generated/client'
+import { cleanText } from './wiki-text-utils'
 
 const prisma = new PrismaClient()
 
@@ -48,19 +49,7 @@ async function main() {
             const content = page.revisions[0]['*']
 
             // Apply fixed cleanText
-            let clean = content
-            clean = clean.replace(/\[\[Fichier:[^\]]*\]\]/g, '')
-            clean = clean.replace(/\[\[Image:[^\]]*\]\]/g, '')
-            clean = clean.replace(/\[\[([^\]|]+)(\|[^\]]*)?\]\]/g, '$1')
-            clean = clean.replace(/'''([^']*)'''/g, '$1')
-            clean = clean.replace(/''([^']*)''/g, '$1')
-            clean = clean.replace(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g, '$1 $2')
-            clean = clean.replace(/\{\{[^}]*\}\}/g, '')
-            clean = clean.replace(/<[^>]+>/g, '')
-            clean = clean.replace(/<ref[^>]*>[\s\S]*?<\/ref>/g, '')
-            clean = clean.replace(/\n/g, ' ')
-            clean = clean.replace(/\s+/g, ' ')
-            clean = clean.trim()
+            const cleaned = cleanText(content, { skipTemplateExpansions: true })
 
             // Find {{unité|...}} in original
             const uniteMatches = content.match(/\{\{unité\|([^|]*)\|([^}]*)\}\}/g)
@@ -75,7 +64,7 @@ async function main() {
 
             for (const keyword of keywords) {
               const regex = new RegExp(`[^\\.]*${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^\\.]*`, 'gi')
-              const match = clean.match(regex)
+              const match = cleaned.match(regex)
               if (match) {
                 foundSentence = match[0]
                 console.log(`   Found sentence with '${keyword}': ${foundSentence.substring(0, 150)}...`)
