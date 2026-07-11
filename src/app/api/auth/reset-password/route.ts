@@ -31,33 +31,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Le mot de passe est trop long' }, { status: 400 })
     }
 
-    // Find valid token
-    const resetToken = await prisma.passwordResetToken.findUnique({
-      where: { token },
-    })
-
-    if (!resetToken) {
-      return NextResponse.json({ error: 'Token invalide' }, { status: 400 })
-    }
-
-    // Check if token is expired
-    if (resetToken.expiresAt < new Date()) {
-      return NextResponse.json({ error: 'Token expiré' }, { status: 400 })
-    }
-
     // Hash new password
     const passwordHash = await bcrypt.hash(newPassword, 12)
 
-    // Update user password
-    await prisma.user.update({
-      where: { id: resetToken.userId },
-      data: { passwordHash },
+    // Find valid token and update password atomically
+    const result = await prisma.$transaction(async (tx) => {
+      const resetToken = await tx.passwordResetToken.findUnique({ where: { token } })
+      if (!resetToken || resetToken.expiresAt < new Date()) {
+        return { status: 'invalid' as const }
+      }
+
+      await tx.passwordResetToken.delete({ where: { id: resetToken.id } })
+
+      await tx.user.update({
+        where: { id: resetToken.userId },
+        data: { passwordHash },
+      })
+
+      return { status: 'ok' as const }
     })
 
-    // Delete used token
-    await prisma.passwordResetToken.delete({
-      where: { id: resetToken.id },
-    })
+    if (result.status === 'invalid') {
+      return NextResponse.json({ error: 'Token invalide ou expiré' }, { status: 400 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

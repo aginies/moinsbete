@@ -60,11 +60,10 @@ export async function loginAction(formData: {
 
   const user = await prisma.user.findUnique({ where: { email: formData.email } })
 
-  if (!user) {
-    return { error: 'Email ou mot de passe incorrect' }
-  }
-
-  const isValid = await bcrypt.compare(formData.password, user.passwordHash)
+  // Timing-constant: always run bcrypt.compare
+  const defaultHash = '$2a$12$' + '0'.repeat(53)
+  const compareHash = user?.passwordHash ?? defaultHash
+  const isValid = await bcrypt.compare(formData.password, compareHash)
 
   if (!isValid) {
     return { error: 'Email ou mot de passe incorrect' }
@@ -72,17 +71,17 @@ export async function loginAction(formData: {
 
   const secret = process.env.NEXTAUTH_SECRET
   if (!secret) {
-    throw new Error('NEXTAUTH_SECRET environment variable is missing!')
+    return { error: 'Erreur de configuration serveur' }
   }
 
-  // Create JWT token
+  // Create JWT token (user is guaranteed to exist since isValid is true)
   const token = await encode({
     token: {
-      id: user.id,
-      name: user.displayName,
-      email: user.email,
+      id: user!.id,
+      name: user!.displayName,
+      email: user!.email,
       picture: undefined,
-      sub: user.id,
+      sub: user!.id,
     },
     secret,
     maxAge: SESSION_MAX_AGE_SECONDS,
