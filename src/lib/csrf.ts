@@ -16,6 +16,19 @@ export async function getCsrfToken(): Promise<string | null> {
 }
 
 export async function isCsrfValid(request: NextRequest, overrideToken?: string): Promise<boolean> {
+  // 1. Same-Origin Check (OWASP recommended & browser-enforced security)
+  // Trust requests originating directly from our own domain (client-side form posts)
+  const origin = request.headers.get('origin') || request.headers.get('referer')
+  if (origin) {
+    try {
+      const originUrl = new URL(origin)
+      if (originUrl.origin.toLowerCase() === request.nextUrl.origin.toLowerCase()) {
+        return true
+      }
+    } catch {}
+  }
+
+  // 2. Token-based Check (Fallback for non-standard or custom API clients)
   const cookieToken = overrideToken ?? ((await (await import('next/headers')).cookies()).get(CSRF_COOKIE_NAME)?.value)
 
   if (!cookieToken) return false
@@ -23,9 +36,7 @@ export async function isCsrfValid(request: NextRequest, overrideToken?: string):
   const headerToken = request.headers.get(CSRF_HEADER_NAME)
   if (!headerToken || headerToken !== cookieToken) return false
 
-  const origin = request.headers.get('origin')
-  if (!origin) return false
-  return origin.toLowerCase() === request.nextUrl.origin.toLowerCase()
+  return true
 }
 
 export async function setCsrfTokenCookie(token: string) {
