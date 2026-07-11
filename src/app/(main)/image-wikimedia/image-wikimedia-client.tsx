@@ -9,7 +9,7 @@ interface ImageWikimediaClientProps {
 export function ImageWikimediaClient({ userId }: ImageWikimediaClientProps) {
   return (
     <div className="w-full">
-      <ImageWikimediaCard fullImage showToggle={false} swipeable={true} userId={userId} />
+      <ImageWikimediaCard fullImage showToggle={false} swipeable={true} userId={userId} enableAutoRefresh={true} />
     </div>
   )
 }

@@ -91,6 +91,7 @@ export default async function SaviezVousPage({
         text={fact.text}
         sourceUrl={fact.sourceUrl}
         imageFilename={fact.imageFilename}
+        enableAutoRefresh={true}
       />
     </div>
   )

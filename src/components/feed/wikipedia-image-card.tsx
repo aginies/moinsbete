@@ -29,6 +29,8 @@ interface WikipediaImageCardProps {
   showToggle?: boolean
   swipeable?: boolean
   onToggle?: () => void
+  enableAutoRefresh?: boolean
+  storageKey?: string
 }
 
 async function fetchRandomImage(): Promise<ImageData | null> {
@@ -49,6 +51,8 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   showToggle = true,
   swipeable = false,
   onToggle,
+  enableAutoRefresh = false,
+  storageKey = 'image_du_jour',
 }: WikipediaImageCardProps) {
   const [image, setImage] = useState<ImageData | null>(null)
   const [nextImage, setNextImage] = useState<ImageData | null>(null)
@@ -197,6 +201,8 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
          onRefresh={loadImage}
          loading={loading}
          shareOptions={{ onClick: share, copied, shareUrl }}
+         enableAutoRefresh={enableAutoRefresh}
+         storageKey={storageKey}
       extraActions={
          image && (
            <button
