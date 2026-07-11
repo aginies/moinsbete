@@ -37,33 +37,35 @@ export async function POST(
 
     let topic
 
-    if (suggestion.parentId) {
-      topic = await prisma.topic.create({
-        data: {
-          name: suggestion.categoryName,
-          slug: slugify(suggestion.categoryName),
-          icon: suggestion.icon,
-          color: getRandomColor(),
-          parentId: suggestion.parentId,
-        },
-      })
-    } else {
-      topic = await prisma.topic.create({
-        data: {
-          name: suggestion.categoryName,
-          slug: slugify(suggestion.categoryName),
-          icon: suggestion.icon,
-          color: getRandomColor(),
-        },
-      })
-    }
+    await prisma.$transaction(async (tx) => {
+      if (suggestion.parentId) {
+        topic = await tx.topic.create({
+          data: {
+            name: suggestion.categoryName,
+            slug: slugify(suggestion.categoryName),
+            icon: suggestion.icon,
+            color: getRandomColor(),
+            parentId: suggestion.parentId,
+          },
+        })
+      } else {
+        topic = await tx.topic.create({
+          data: {
+            name: suggestion.categoryName,
+            slug: slugify(suggestion.categoryName),
+            icon: suggestion.icon,
+            color: getRandomColor(),
+          },
+        })
+      }
 
-    await prisma.topicSuggestion.update({
-      where: { id },
-      data: {
-        status: 'APPROVED',
-        mergedIntoId: topic.id,
-      },
+      await tx.topicSuggestion.update({
+        where: { id },
+        data: {
+          status: 'APPROVED',
+          mergedIntoId: topic.id,
+        },
+      })
     })
 
     return NextResponse.json({ success: true, topic })

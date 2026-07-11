@@ -1,11 +1,11 @@
 import { prisma } from '@/lib/db'
 
-const today = new Date()
-today.setHours(0, 0, 0, 0)
-const yesterday = new Date(today)
-yesterday.setDate(yesterday.getDate() - 1)
-
 export async function markIdeaViewed(userId: string, ideaId: string) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
   await prisma.$transaction(async (tx) => {
     await tx.viewedIdea.upsert({
       where: { userId_ideaId: { userId, ideaId } },
