@@ -8,7 +8,8 @@ import { type WikimediaImageFavoriteDoc } from '@/lib/image-wikimedia-bookmark'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
-import { useState } from 'react'
+import { ShareButton } from '@/components/feed/share-button'
+import { useState, useCallback } from 'react'
 
 const WIKIMEDIA_FAVORITES_KEY = 'image_wikimedia_favorites'
 
@@ -19,6 +20,33 @@ interface ImageWikimediaFavoritesProps {
 
 export function ImageWikimediaFavorites({ userId, onRemoveComplete }: ImageWikimediaFavoritesProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const handleShare = useCallback(async (item: WikimediaImageFavoriteDoc) => {
+    if (copiedId === item.id) return
+    
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try {
+        await navigator.clipboard.writeText(item.link)
+        setCopiedId(item.id)
+        setTimeout(() => setCopiedId(null), 2000)
+      } catch {
+        // Clipboard write failed
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: item.titre,
+          text: item.auteur ? `Par ${item.auteur}` : '',
+          url: item.link,
+        })
+      } catch {
+        // User cancelled or share failed
+      }
+    }
+  }, [copiedId])
 
   const handleRemove = async (item: WikimediaImageFavoriteDoc) => {
     if (userId) {
@@ -85,7 +113,9 @@ export function ImageWikimediaFavorites({ userId, onRemoveComplete }: ImageWikim
                 </Link>
               )}
             </div>
-            <button
+            <div className="flex flex-col gap-2">
+              <ShareButton onClick={() => handleShare(item)} copied={copiedId === item.id} shareUrl={item.link} />
+              <button
               onClick={onRemove}
               className="rounded-full p-1.5 text-rose-600 opacity-60 hover:opacity-100 hover:text-rose-800 hover:bg-rose-100 dark:text-rose-400 dark:hover:text-rose-200 dark:hover:bg-rose-900/40 transition-all"
               title="Retirer des favoris"
