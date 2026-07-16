@@ -3,8 +3,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockUser = {
   id: 'user-1',
   email: 'test@example.com',
+  passwordHash: 'hash',
   displayName: 'Test User',
   role: 'USER' as const,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  cnrsNewsEnabled: true,
+  wikipediaImageCardVisible: true,
+  saviezVousCardVisible: true,
+  radioFranceCardVisible: true,
+  imageWikimediaCardVisible: true,
+  imageWikimediaShowCategories: true,
 }
 
 vi.mock('@/lib/db', () => ({

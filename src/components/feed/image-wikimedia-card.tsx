@@ -108,17 +108,17 @@ export function ImageWikimediaCard({
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeTopics, setActiveTopics] = useState<string[]>(['aviation'])
-  const [showCategories, setShowCategories] = useState(true)
   const [allTopics, setAllTopics] = useState<Topic[]>(DEFAULT_TOPICS)
   const [modalOpen, setModalOpen] = useState(false)
 
-  // Load showCategories and active topics preference from DB after mounting
-  useEffect(() => {
-    const storedShow = localStorage.getItem('image_wikimedia_show_categories')
-    if (storedShow !== null) {
-      setShowCategories(storedShow === 'true')
-    }
+  const { show: showCategories, handleToggle: toggleCategories } = useCardVisibility({
+    storageKey: 'image_wikimedia_show_categories',
+    defaultShow: true,
+    userId,
+  })
 
+  // Load active topics preference from DB after mounting
+  useEffect(() => {
     if (userId) {
       fetchTopics(userId).then(loadedTopics => {
         setAllTopics(loadedTopics)
@@ -130,12 +130,8 @@ export function ImageWikimediaCard({
 
   const handleToggleCategories = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    setShowCategories(prev => {
-      const next = !prev
-      localStorage.setItem('image_wikimedia_show_categories', String(next))
-      return next
-    })
-  }, [])
+    toggleCategories()
+  }, [toggleCategories])
 
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({
     storageKey: 'image_wikimedia_card_visible',

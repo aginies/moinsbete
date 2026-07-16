@@ -74,12 +74,12 @@ describe('registerAction', () => {
       role: 'USER' as const,
       createdAt: new Date(),
       updatedAt: new Date(),
-      bookmarks: [],
-      growthPlan: null,
-      resetTokens: [],
-      viewedIdeas: [],
-      following: [],
       cnrsNewsEnabled: true,
+      wikipediaImageCardVisible: true,
+      saviezVousCardVisible: true,
+      radioFranceCardVisible: true,
+      imageWikimediaCardVisible: true,
+      imageWikimediaShowCategories: true,
     })
 
     const { registerAction } = await import('@/actions/auth-actions')
@@ -102,12 +102,12 @@ describe('registerAction', () => {
       role: 'USER' as const,
       createdAt: new Date(),
       updatedAt: new Date(),
-      bookmarks: [],
-      growthPlan: null,
-      resetTokens: [],
-      viewedIdeas: [],
-      following: [],
       cnrsNewsEnabled: true,
+      wikipediaImageCardVisible: true,
+      saviezVousCardVisible: true,
+      radioFranceCardVisible: true,
+      imageWikimediaCardVisible: true,
+      imageWikimediaShowCategories: true,
     })
 
     const { registerAction } = await import('@/actions/auth-actions')
@@ -165,12 +165,12 @@ describe('loginAction', () => {
       role: 'USER' as const,
       createdAt: new Date(),
       updatedAt: new Date(),
-      bookmarks: [],
-      growthPlan: null,
-      resetTokens: [],
-      viewedIdeas: [],
-      following: [],
       cnrsNewsEnabled: true,
+      wikipediaImageCardVisible: true,
+      saviezVousCardVisible: true,
+      radioFranceCardVisible: true,
+      imageWikimediaCardVisible: true,
+      imageWikimediaShowCategories: true,
     }
     const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser)
@@ -209,12 +209,12 @@ describe('loginAction', () => {
       role: 'USER' as const,
       createdAt: new Date(),
       updatedAt: new Date(),
-      bookmarks: [],
-      growthPlan: null,
-      resetTokens: [],
-      viewedIdeas: [],
-      following: [],
       cnrsNewsEnabled: true,
+      wikipediaImageCardVisible: true,
+      saviezVousCardVisible: true,
+      radioFranceCardVisible: true,
+      imageWikimediaCardVisible: true,
+      imageWikimediaShowCategories: true,
     }
     const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser)
