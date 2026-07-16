@@ -124,7 +124,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   }, [resolvedImageFilename, imageKey])
 
   const shareUrl = fact.id ? `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'}/saviez-vous/${fact.id}` : ''
-  const { share, copied, shareUrl: shareUrlResult } = useItemShare({
+  const { handleShare, copied, shareUrl: shareUrlResult } = useItemShare({
     shareUrl,
     title: 'Le saviez-vous ?',
     text: fact.text,
@@ -176,7 +176,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         onToggle={onToggle || handleToggle}
         onRefresh={handleClick}
         loading={loading || (hasImage ? !isImageLoaded : false)}
-        shareOptions={{ onClick: share, copied, shareUrl: shareUrlResult }}
+        shareOptions={{ onClick: handleShare, copied, shareUrl: shareUrlResult }}
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={

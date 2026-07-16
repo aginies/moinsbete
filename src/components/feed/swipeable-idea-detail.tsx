@@ -152,7 +152,7 @@ export function SwipeableIdeaDetail({
 
   const getShareUrl = useCallback((slug: string) => `${typeof window !== 'undefined' ? window.location.origin : ''}/idees/${slug}`, [])
 
-  const { share: handleShare, copied } = useItemShare({
+  const { handleShare, copied } = useItemShare({
     shareUrl: getShareUrl(idea.slug),
     title: idea.title,
     text: idea.takeaway,

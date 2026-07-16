@@ -132,7 +132,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
   const shareUrl = image ? `${origin}/image-du-jour/${shareImageId}?d=${encodedData}` : ''
 
-  const { share, copied } = useItemShare({
+  const { handleShare, copied } = useItemShare({
     shareUrl,
     title: image ? `Image du jour - ${image.description}` : '',
     text: image ? `${image.description}\n\nDate: ${image.date}` : '',
@@ -185,7 +185,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
          onToggle={onToggle || handleToggle}
          onRefresh={loadImage}
          loading={loading || (image?.imageUrl ? !isImageLoaded : false)}
-         shareOptions={{ onClick: share, copied, shareUrl }}
+         shareOptions={{ onClick: handleShare, copied, shareUrl }}
          enableAutoRefresh={enableAutoRefresh}
          storageKey={storageKey}
       extraActions={

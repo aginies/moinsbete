@@ -45,7 +45,7 @@ export function IdeaDetailClient({
   }, [isPending, bookmarked, idea.id])
 
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/idees/${idea.slug}`
-  const { share: handleShare, copied } = useItemShare({
+  const { handleShare, copied } = useItemShare({
     shareUrl,
     title: idea.title,
     text: idea.takeaway,
