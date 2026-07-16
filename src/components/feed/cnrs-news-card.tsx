@@ -116,7 +116,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
     }
   }, [article, isFavorite, userId])
 
-  const { share, copied, shareUrl } = useItemShare({
+  const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: article?.link ?? '',
     title: article?.title ?? '',
     text: article ? `${article.title}\n\nCatégorie: ${article.category || 'Sciences'}` : '',
@@ -166,9 +166,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
               <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
             </button>
           )}
-          {shareOptions && (
-            <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
-          )}
+          <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
         </div>
       </div>
 

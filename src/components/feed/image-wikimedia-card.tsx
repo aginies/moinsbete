@@ -218,7 +218,7 @@ export function ImageWikimediaCard({
     }
   }, [userId])
 
-  const { share, copied, shareUrl } = useItemShare({
+  const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: image?.link ?? '',
     title: `Wikimedia - ${image?.titre ?? ''}`,
     text: `${image?.titre ?? ''}\n${image?.auteur ?? 'Wikimedia'}\n\n${image?.droits ?? ''}`,
@@ -238,6 +238,8 @@ export function ImageWikimediaCard({
     resetDep: image?.imageUrl,
   })
 
+  const shareOptions = image ? { onClick: handleShare, copied, shareUrl } : undefined
+
   const cardContent = (
     <div
       onClick={loadImage}
@@ -255,7 +257,7 @@ export function ImageWikimediaCard({
         showRefresh={false}
         onRefresh={loadImage}
         loading={loading || (image?.imageUrl ? !isImageLoaded : false)}
-        shareOptions={shareOptions ? { onClick: share, copied, shareUrl } : undefined}
+        shareOptions={shareOptions ? { onClick: handleShare, copied, shareUrl } : undefined}
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={

@@ -100,7 +100,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
     }
   }, [doc, isFavorite, userId])
 
-  const { share, copied, shareUrl } = useItemShare({
+  const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: doc?.url ?? '',
     title: doc?.title ?? '',
     text: doc ? `${doc.description}\n\n${doc.radio} · ${doc.section}` : '',
@@ -145,9 +145,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
             >
               <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
             </button>
-            {shareOptions && (
-              <ShareButton onClick={share} copied={copied} shareUrl={shareUrl} />
-            )}
+            <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
           </div>
         </div>
 

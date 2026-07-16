@@ -1,12 +1,13 @@
 'use client'
 
 import { useCallback } from 'react'
+import type { BookmarkType } from '@/generated/client'
 
 interface UseFavoritesListOptions<Doc extends { id: string }> {
   userId?: string
   storageKey: string
   resourceIdGetter: (item: Doc) => string
-  bookmarkType: string
+  bookmarkType: BookmarkType
 }
 
 export function useFavoritesList<Doc extends { id: string }>({
