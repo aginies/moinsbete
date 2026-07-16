@@ -43,7 +43,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
   const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
   const [loading, setLoading] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible' })
+  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible', userId })
 
   useEffect(() => {
     if (userId && doc) {

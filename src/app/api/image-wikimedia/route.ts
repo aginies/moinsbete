@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
 
 interface WikimediaImage {
   docid: string
@@ -15,18 +16,50 @@ interface WikimediaImage {
 
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php'
 
-const TOPIC_SEARCHES: Record<string, string[]> = {
-  paintings: ['Painting', 'Oil painting', 'Watercolor', 'Dali' ],
+const DEFAULT_TOPIC_SEARCHES: Record<string, string[]> = {
+  paintings: ['Painting', 'Oil painting', 'Watercolor', 'Dali'],
   aviation: ['Avion Chasse', 'Armée Air', 'Air force'],
   nasa: ['NASA', 'Apollo program'],
   posters: ['Poster', 'Movie poster'],
   ww: ['World War II', 'Second World War', '1939-1945', 'World War I', 'First World War', 'Great War', '1914-1918'],
-  art: ['Art', 'Sculpture', 'Illustration', 'Drawing', 'Musé Louvre', 'Musé Ermitage', 'Musée national de Chine', 'Metropolitan Museum of Art', 'Musées du Vatican', 'Musée national de Tokyo', 'Musée national d’anthropologie de Mexico', 'Victoria and Albert Museum'],
+  art: ['Art', 'Sculpture', 'Illustration', 'Drawing', 'Musé Louvre', 'Musé Ermitage', 'Musée national de Chine', 'Metropolitan Museum of Art', 'Musées du Vatican'],
   advertisements: ['Vintage advertisement', 'Vintage ad', 'Retro ad', 'Poster advertisement'],
   maps: ['Historical map', 'Old map', 'Antique map', 'Cartography'],
-  'sports-car': ['Classic sports car', 'Sports car', 'Racing car', 'Rolls-Royce', 'Bentley', 'Ferrari', 'Lamborghini', 'Aston Martin', 'Porsche', 'McLaren', 'Bugatti', 'Maserati', 'Jaguar', 'Land Rover', 'Lexus', 'Cadillac', 'Lincoln', 'Pagani', 'Koenigsegg', 'Lotus', 'goodwood festival', 'goodwood revival'],
-  design: ['Industrial design', 'Graphic design', 'Product design', 'Modernist design', 'objets design', 'architecture design', 'design industriel', 'mobilier design'],
+  'sports-car': ['Classic sports car', 'Sports car', 'Racing car', 'Rolls-Royce', 'Bentley', 'Ferrari', 'Lamborghini', 'Porsche'],
+  design: ['Industrial design', 'Graphic design', 'Product design', 'Modernist design', 'objets design', 'architecture design'],
   'deep-space': ['Deep space', 'Nebula', 'Hubble space telescope', 'Andromeda galaxy', 'Supernova'],
+}
+
+const DEFAULT_TOPIC_IDS = [
+  'paintings', 'aviation', 'nasa', 'posters', 'ww', 'art',
+  'advertisements', 'maps', 'sports-car', 'design', 'deep-space',
+]
+
+async function getTopicSearches(): Promise<Record<string, string[]>> {
+  const searches: Record<string, string[]> = { ...DEFAULT_TOPIC_SEARCHES }
+  
+  const dbTopics = await prisma.userWikimediaTopic.findMany({})
+  
+  for (const dbTopic of dbTopics as any) {
+    let searchTerms: string[] = []
+    if (dbTopic.searchTerms) {
+      try {
+        const raw = dbTopic.searchTerms
+        if (Array.isArray(raw)) {
+          searchTerms = raw
+        } else if (typeof raw === 'string') {
+          searchTerms = JSON.parse(raw)
+        }
+      } catch {
+        searchTerms = []
+      }
+    }
+    if (searchTerms.length > 0) {
+      searches[dbTopic.topicId] = searchTerms
+    }
+  }
+  
+  return searches
 }
 
 function stripHtml(html: string): string {
@@ -192,7 +225,8 @@ async function fetchImageInfo(filename: string): Promise<WikimediaImage | null> 
 }
 
 async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> {
-  const searchTerms = topic && TOPIC_SEARCHES[topic] ? [...TOPIC_SEARCHES[topic]] : ['France']
+  const searches = await getTopicSearches()
+  const searchTerms = topic && searches[topic] ? [...searches[topic]] : ['France']
   
   // Shuffle search terms to avoid always hitting the first term
   searchTerms.sort(() => Math.random() - 0.5)

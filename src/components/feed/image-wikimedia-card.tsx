@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw } from 'lucide-react'
+import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { useShare } from './use-share'
 import { CardHeader } from './card-header'
@@ -11,6 +11,7 @@ import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { VisibilityButton } from './visibility-button'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { WikimediaTopicsModal } from './wikimedia-topics-modal'
 
 interface WikimediaImage {
   docid: string
@@ -37,19 +38,40 @@ interface ImageWikimediaCardProps {
   storageKey?: string
 }
 
-const TOPICS = [
-  { id: 'paintings', label: 'Peintures', icon: '🎨' },
-  { id: 'aviation', label: 'Aviation Militaire', icon: '✈️' },
-  { id: 'nasa', label: 'NASA', icon: '🚀' },
-  { id: 'posters', label: 'Affiches', icon: '📋' },
-  { id: 'ww', label: 'Guerre', icon: '🪖' },
-  { id: 'art', label: 'Art', icon: '🎭' },
-  { id: 'advertisements', label: 'Publicités', icon: '📰' },
-  { id: 'maps', label: 'Cartes', icon: '🗺️' },
-  { id: 'sports-car', label: 'Voitures de sport', icon: '🏎️' },
-  { id: 'design', label: 'Design', icon: '📐' },
-  { id: 'deep-space', label: 'Espace', icon: '🌌' },
-] as const
+interface Topic {
+  id: string
+  label: string
+  icon: string
+  searchTerms: string[]
+  enabled: boolean
+  active: boolean
+  default: boolean
+}
+
+const DEFAULT_TOPICS: Topic[] = [
+  { id: 'paintings', label: 'Peintures', icon: '🎨', searchTerms: ['Painting', 'Oil painting', 'Watercolor', 'Dali'], enabled: true, active: false, default: true },
+  { id: 'aviation', label: 'Aviation Militaire', icon: '✈️', searchTerms: ['Avion Chasse', 'Armée Air', 'Air force'], enabled: true, active: true, default: true },
+  { id: 'nasa', label: 'NASA', icon: '🚀', searchTerms: ['NASA', 'Apollo program'], enabled: true, active: false, default: true },
+  { id: 'posters', label: 'Affiches', icon: '📋', searchTerms: ['Poster', 'Movie poster'], enabled: true, active: false, default: true },
+  { id: 'ww', label: 'Guerre', icon: '🪖', searchTerms: ['World War II', 'Second World War', '1939-1945', 'World War I', 'First World War', 'Great War', '1914-1918'], enabled: true, active: false, default: true },
+  { id: 'art', label: 'Art', icon: '🎭', searchTerms: ['Art', 'Sculpture', 'Illustration', 'Drawing', 'Musé Louvre', 'Musé Ermitage', 'Musée national de Chine', 'Metropolitan Museum of Art', 'Musées du Vatican'], enabled: true, active: false, default: true },
+  { id: 'advertisements', label: 'Publicités', icon: '📰', searchTerms: ['Vintage advertisement', 'Vintage ad', 'Retro ad', 'Poster advertisement'], enabled: true, active: false, default: true },
+  { id: 'maps', label: 'Cartes', icon: '🗺️', searchTerms: ['Historical map', 'Old map', 'Antique map', 'Cartography'], enabled: true, active: false, default: true },
+  { id: 'sports-car', label: 'Voitures de sport', icon: '🏎️', searchTerms: ['Classic sports car', 'Sports car', 'Racing car', 'Rolls-Royce', 'Bentley', 'Ferrari', 'Lamborghini', 'Porsche'], enabled: true, active: false, default: true },
+  { id: 'design', label: 'Design', icon: '📐', searchTerms: ['Industrial design', 'Graphic design', 'Product design', 'Modernist design', 'objets design', 'architecture design'], enabled: true, active: false, default: true },
+  { id: 'deep-space', label: 'Espace', icon: '🌌', searchTerms: ['Deep space', 'Nebula', 'Hubble space telescope', 'Andromeda galaxy', 'Supernova'], enabled: true, active: false, default: true },
+]
+
+async function fetchTopics(userId: string): Promise<Topic[]> {
+  try {
+    const res = await fetch('/api/wikimedia-topics')
+    if (!res.ok) return DEFAULT_TOPICS
+    const data = await res.json()
+    return data.topics?.length > 0 ? data.topics : DEFAULT_TOPICS
+  } catch {
+    return DEFAULT_TOPICS
+  }
+}
 
 async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> {
   try {
@@ -87,27 +109,26 @@ export function ImageWikimediaCard({
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeTopics, setActiveTopics] = useState<string[]>(['aviation'])
   const [showCategories, setShowCategories] = useState(true)
+  const [allTopics, setAllTopics] = useState<Topic[]>(DEFAULT_TOPICS)
+  const [modalOpen, setModalOpen] = useState(false)
 
-  // Load showCategories and active topics preference from localStorage after mounting
+  // Load showCategories and active topics preference from DB after mounting
   useEffect(() => {
-    const storedTopics = localStorage.getItem('image_wikimedia_active_topics')
-    if (storedTopics) {
-      try {
-        const parsed = JSON.parse(storedTopics)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const valid = parsed.filter(id => TOPICS.some(t => t.id === id))
-          if (valid.length > 0) {
-            setActiveTopics(valid)
-          }
-        }
-      } catch {}
-    }
-
     const storedShow = localStorage.getItem('image_wikimedia_show_categories')
     if (storedShow !== null) {
       setShowCategories(storedShow === 'true')
     }
-  }, [])
+
+    if (userId) {
+      fetchTopics(userId).then(loadedTopics => {
+        setAllTopics(loadedTopics)
+        const active = loadedTopics.filter(t => t.active).map(t => t.id)
+        if (active.length > 0) {
+          setActiveTopics(active)
+        }
+      })
+    }
+  }, [userId])
 
   const handleToggleCategories = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
@@ -121,13 +142,18 @@ export function ImageWikimediaCard({
   const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({
     storageKey: 'image_wikimedia_card_visible',
     defaultShow: true,
+    userId,
   })
 
   const loadImage = useCallback(async () => {
     setLoading(true)
     setError(false)
     setIsImageLoaded(false)
-    const newImage = await fetchRandomImage(activeTopics.join(','))
+    const activeTopicIds = activeTopics.filter(id => {
+      const topic = allTopics.find(t => t.id === id)
+      return topic?.enabled
+    })
+    const newImage = await fetchRandomImage(activeTopicIds.join(','))
     if (newImage) {
       setImage(newImage)
       setError(false)
@@ -135,7 +161,7 @@ export function ImageWikimediaCard({
       setError(true)
     }
     setLoading(false)
-  }, [activeTopics])
+  }, [activeTopics, allTopics])
 
   useEffect(() => {
     if (hasMounted && show && !image && !loading && !error) {
@@ -172,20 +198,31 @@ export function ImageWikimediaCard({
     }
   }, [image, isFavorite])
 
-  const handleTopicToggle = useCallback((topicId: string) => {
-    setActiveTopics(prev => {
-      let next: string[]
-      if (prev.includes(topicId)) {
-        if (prev.length === 1) return prev
-        next = prev.filter(id => id !== topicId)
-      } else {
-        next = [...prev, topicId]
-      }
-      localStorage.setItem('image_wikimedia_active_topics', JSON.stringify(next))
-      return next
-    })
-    setImage(null) // Reset image to trigger a fresh load of the new topics
-  }, [])
+  const handleTopicToggle = useCallback(async (topicId: string) => {
+    const isActive = activeTopics.includes(topicId)
+    
+    setActiveTopics(prev =>
+      isActive
+        ? prev.filter(id => id !== topicId)
+        : [...prev, topicId]
+    )
+    
+    if (userId) {
+      fetch('/api/wikimedia-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_active', topicId, active: isActive }),
+      }).catch(() => {})
+    }
+    setImage(null)
+  }, [activeTopics, userId])
+
+  const refreshTopics = useCallback(async () => {
+    if (userId) {
+      const topics = await fetchTopics(userId)
+      setAllTopics(topics)
+    }
+  }, [userId])
 
   const shareOptions = image ? {
     title: `Wikimedia - ${image.titre}`,
@@ -232,6 +269,14 @@ export function ImageWikimediaCard({
           <>
             <button
               type="button"
+              onClick={(e) => { e.stopPropagation(); setModalOpen(true) }}
+              className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
+              title="Gérer les catégories"
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
               onClick={handleToggleCategories}
               className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
               title={showCategories ? 'Masquer les thèmes' : 'Afficher les thèmes'}
@@ -272,7 +317,7 @@ export function ImageWikimediaCard({
 
       {showCategories && (
         <div className="mb-3 flex gap-1.5 flex-wrap">
-          {TOPICS.map(topic => {
+          {allTopics.filter(t => t.enabled).map(topic => {
             const isActive = activeTopics.includes(topic.id)
             return (
               <button
@@ -380,6 +425,17 @@ export function ImageWikimediaCard({
           onClose={() => setShowFullImage(false)}
         />
       )}
+
+      <WikimediaTopicsModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        topics={allTopics}
+        activeTopics={activeTopics}
+        userId={userId}
+        onActiveTopicsChange={setActiveTopics}
+        onToggleActive={handleTopicToggle}
+        onRefresh={refreshTopics}
+      />
     </>
   )
 }

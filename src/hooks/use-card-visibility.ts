@@ -8,9 +8,18 @@ const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber'> = {
    image_wikimedia_card_visible: 'amber',
  }
 
+const DB_FIELD_MAP: Record<string, string> = {
+   wikipedia_image_card_visible: 'wikipediaImageCardVisible',
+   saviez_vous_card_visible: 'saviezVousCardVisible',
+   radio_france_card_visible: 'radioFranceCardVisible',
+   image_wikimedia_card_visible: 'imageWikimediaCardVisible',
+   cnrs_news_enabled: 'cnrsNewsEnabled',
+ }
+
 interface UseCardVisibilityOptions {
   storageKey: string
   defaultShow?: boolean
+  userId?: string
 }
 
 interface UseCardVisibilityReturn {
@@ -20,31 +29,55 @@ interface UseCardVisibilityReturn {
   buttonColor: 'teal' | 'blue' | 'purple' | 'amber'
 }
 
-export function useCardVisibility({ storageKey, defaultShow = true }: UseCardVisibilityOptions): UseCardVisibilityReturn {
+export function useCardVisibility({ storageKey, defaultShow = true, userId }: UseCardVisibilityOptions): UseCardVisibilityReturn {
   const [show, setShow] = useState(defaultShow)
   const [hasMounted, setHasMounted] = useState(false)
   const buttonColor = COLOR_MAP[storageKey] || 'blue'
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasMounted(true)
+    
+    if (userId) {
+      const dbField = DB_FIELD_MAP[storageKey]
+      if (dbField) {
+        fetch(`/api/user-card-visibility?field=${dbField}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data[dbField] !== undefined) {
+              setShow(data[dbField])
+            }
+          })
+          .catch(() => {})
+        return
+      }
+    }
+    
     if (typeof window !== 'undefined') {
       const stored = window.localStorage.getItem(storageKey)
       if (stored !== null) {
         setShow(stored === 'true')
       }
     }
-  }, [storageKey])
+  }, [storageKey, userId])
 
-  const handleToggle = useCallback(() => {
+  const handleToggle = useCallback(async () => {
     setShow(prev => {
       const next = !prev
-      if (typeof window !== 'undefined') {
+      if (userId) {
+        const dbField = DB_FIELD_MAP[storageKey]
+        if (dbField) {
+          fetch(`/api/user-card-visibility`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ field: dbField, value: next }),
+          }).catch(() => {})
+        }
+      } else if (typeof window !== 'undefined') {
         window.localStorage.setItem(storageKey, String(next))
       }
       return next
     })
-  }, [storageKey])
+  }, [storageKey, userId])
 
   return { show, hasMounted, handleToggle, buttonColor }
 }
