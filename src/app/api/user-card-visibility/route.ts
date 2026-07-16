@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
       saviezVousCardVisible: true,
       radioFranceCardVisible: true,
       imageWikimediaCardVisible: true,
+      imageWikimediaShowCategories: true,
       cnrsNewsEnabled: true,
     },
   })
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
     'saviezVousCardVisible',
     'radioFranceCardVisible',
     'imageWikimediaCardVisible',
+    'imageWikimediaShowCategories',
     'cnrsNewsEnabled',
   ]
 
