@@ -18,11 +18,16 @@ model User {
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   cnrsNewsEnabled Boolean              @default(true)
+  wikipediaImageCardVisible Boolean     @default(true)
+  saviezVousCardVisible Boolean         @default(true)
+  radioFranceCardVisible Boolean        @default(true)
+  imageWikimediaCardVisible Boolean     @default(true)
   bookmarks       Bookmark[]
   growthPlan      GrowthPlan?
   resetTokens     PasswordResetToken[]
   viewedIdeas     ViewedIdea[]
   following       Topic[]              @relation("UserFollowing")
+  wikimediaTopics UserWikimediaTopic[]
 }
 
 model Topic {
@@ -202,6 +207,21 @@ model SaviezVousFact {
   imageFilename String?
 
   @@index([createdAt])
+}
+
+model UserWikimediaTopic {
+  id          String   @id @default(cuid())
+  userId      String
+  topicId     String
+  enabled     Boolean  @default(true)
+  active      Boolean  @default(false)
+  label       String?
+  icon        String?
+  searchTerms Json?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+  @@index([userId])
 }
 
 enum UserRole {

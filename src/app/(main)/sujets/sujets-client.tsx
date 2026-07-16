@@ -18,76 +18,113 @@ interface SujetsClientProps {
   userId?: string
 }
 
+interface CardVisibility {
+  saviezVous: boolean
+  wikipedia: boolean
+  radioFrance: boolean
+  wikimedia: boolean
+}
+
+async function loadCardVisibility(userId: string): Promise<CardVisibility> {
+  try {
+    const res = await fetch('/api/user-card-visibility')
+    if (!res.ok) return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true }
+    const data = await res.json()
+    return {
+      saviezVous: data.saviezVousCardVisible ?? true,
+      wikipedia: data.wikipediaImageCardVisible ?? true,
+      radioFrance: data.radioFranceCardVisible ?? true,
+      wikimedia: data.imageWikimediaCardVisible ?? true,
+    }
+  } catch {
+    return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true }
+  }
+}
+
+async function updateCardVisibility(field: string, value: boolean) {
+  await fetch('/api/user-card-visibility', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ field, value }),
+  }).catch(() => {})
+}
+
 export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled, saviezVousFact, userId }: SujetsClientProps) {
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
   const [cnrsEnabled, setCnrsEnabled] = useState(userId ? initialCnrsEnabled : true)
-  const [saviezVousVisible, setSaviezVousVisible] = useState(true)
-  const [wikipediaVisible, setWikipediaVisible] = useState(true)
-  const [radioFranceVisible, setRadioFranceVisible] = useState(true)
-  const [wikimediaVisible, setWikimediaVisible] = useState(true)
+  const [visibility, setVisibility] = useState<CardVisibility>({ saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true })
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const timer = setTimeout(() => {
-        if (!userId) {
-          const storedCnrs = localStorage.getItem('cnrs_news_enabled')
-          if (storedCnrs !== null) setCnrsEnabled(storedCnrs === 'true')
+      const timer = setTimeout(async () => {
+        if (userId) {
+          const vis = await loadCardVisibility(userId)
+          setVisibility(vis)
+        } else {
+          const storedSaviez = localStorage.getItem('saviez_vous_card_visible')
+          if (storedSaviez !== null) setVisibility(prev => ({ ...prev, saviezVous: storedSaviez === 'true' }))
+
+          const storedWiki = localStorage.getItem('wikipedia_image_card_visible')
+          if (storedWiki !== null) setVisibility(prev => ({ ...prev, wikipedia: storedWiki === 'true' }))
+
+          const storedRadio = localStorage.getItem('radio_france_card_visible')
+          if (storedRadio !== null) setVisibility(prev => ({ ...prev, radioFrance: storedRadio === 'true' }))
+
+          const storedWikimedia = localStorage.getItem('image_wikimedia_card_visible')
+          if (storedWikimedia !== null) setVisibility(prev => ({ ...prev, wikimedia: storedWikimedia === 'true' }))
         }
-        const storedSaviez = localStorage.getItem('saviez_vous_card_visible')
-        if (storedSaviez !== null) setSaviezVousVisible(storedSaviez === 'true')
-
-        const storedWiki = localStorage.getItem('wikipedia_image_card_visible')
-        if (storedWiki !== null) setWikipediaVisible(storedWiki === 'true')
-
-        const storedRadio = localStorage.getItem('radio_france_card_visible')
-        if (storedRadio !== null) setRadioFranceVisible(storedRadio === 'true')
-
-        const storedWikimedia = localStorage.getItem('image_wikimedia_card_visible')
-        if (storedWikimedia !== null) setWikimediaVisible(storedWikimedia === 'true')
       }, 0)
       return () => clearTimeout(timer)
     }
   }, [userId])
 
-  const toggleSaviezVous = useCallback(() => {
-    setSaviezVousVisible(prev => {
-      const next = !prev
-      if (typeof window !== 'undefined') {
+  const toggleSaviezVous = useCallback(async () => {
+    setVisibility(prev => {
+      const next = !prev.saviezVous
+      if (userId) {
+        updateCardVisibility('saviezVousCardVisible', next)
+      } else {
         localStorage.setItem('saviez_vous_card_visible', String(next))
       }
-      return next
+      return { ...prev, saviezVous: next }
     })
-  }, [])
+  }, [userId])
 
-  const toggleWikipedia = useCallback(() => {
-    setWikipediaVisible(prev => {
-      const next = !prev
-      if (typeof window !== 'undefined') {
+  const toggleWikipedia = useCallback(async () => {
+    setVisibility(prev => {
+      const next = !prev.wikipedia
+      if (userId) {
+        updateCardVisibility('wikipediaImageCardVisible', next)
+      } else {
         localStorage.setItem('wikipedia_image_card_visible', String(next))
       }
-      return next
+      return { ...prev, wikipedia: next }
     })
-  }, [])
+  }, [userId])
 
-  const toggleRadioFrance = useCallback(() => {
-    setRadioFranceVisible(prev => {
-      const next = !prev
-      if (typeof window !== 'undefined') {
+  const toggleRadioFrance = useCallback(async () => {
+    setVisibility(prev => {
+      const next = !prev.radioFrance
+      if (userId) {
+        updateCardVisibility('radioFranceCardVisible', next)
+      } else {
         localStorage.setItem('radio_france_card_visible', String(next))
       }
-      return next
+      return { ...prev, radioFrance: next }
     })
-  }, [])
+  }, [userId])
 
-  const toggleWikimedia = useCallback(() => {
-    setWikimediaVisible(prev => {
-      const next = !prev
-      if (typeof window !== 'undefined') {
+  const toggleWikimedia = useCallback(async () => {
+    setVisibility(prev => {
+      const next = !prev.wikimedia
+      if (userId) {
+        updateCardVisibility('imageWikimediaCardVisible', next)
+      } else {
         localStorage.setItem('image_wikimedia_card_visible', String(next))
       }
-      return next
+      return { ...prev, wikimedia: next }
     })
-  }, [])
+  }, [userId])
 
   const toggleCnrs = useCallback(async () => {
     setCnrsEnabled(prev => {
@@ -118,15 +155,15 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
-      {saviezVousVisible && saviezVousFact && (
+      {visibility.saviezVous && saviezVousFact && (
         <div className="mb-6">
-          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} />
+          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} />
         </div>
       )}
 
-      {wikipediaVisible && (
+      {visibility.wikipedia && (
         <div className="mb-6">
-          <WikipediaImageCard onToggle={toggleWikipedia} largeImage />
+          <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} />
         </div>
       )}
 
@@ -136,13 +173,13 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         </div>
       )}
 
-      {radioFranceVisible && (
+      {visibility.radioFrance && (
         <div className="mb-6">
           <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} />
         </div>
       )}
 
-      {wikimediaVisible && (
+      {visibility.wikimedia && (
         <div className="mb-6">
           <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage />
         </div>
@@ -170,15 +207,15 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
-        {!saviezVousVisible && saviezVousFact && (
+        {!visibility.saviezVous && saviezVousFact && (
           <div className="h-full">
-            <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} />
+            <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} />
           </div>
         )}
 
-        {!wikipediaVisible && (
+        {!visibility.wikipedia && (
           <div className="h-full">
-<WikipediaImageCard onToggle={toggleWikipedia} largeImage />
+            <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} />
           </div>
         )}
 
@@ -188,15 +225,15 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
           </div>
         )}
 
-        {!radioFranceVisible && (
+        {!visibility.radioFrance && (
           <div className="h-full">
             <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} />
           </div>
         )}
 
-        {!wikimediaVisible && (
+        {!visibility.wikimedia && (
           <div className="h-full">
-         <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage />
+            <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage />
           </div>
         )}
       </div>
