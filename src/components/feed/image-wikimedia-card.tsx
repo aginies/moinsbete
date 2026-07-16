@@ -123,9 +123,7 @@ export function ImageWikimediaCard({
       fetchTopics(userId).then(loadedTopics => {
         setAllTopics(loadedTopics)
         const active = loadedTopics.filter(t => t.active).map(t => t.id)
-        if (active.length > 0) {
-          setActiveTopics(active)
-        }
+        setActiveTopics(active.length > 0 ? active : ['aviation'])
       })
     }
   }, [userId])
