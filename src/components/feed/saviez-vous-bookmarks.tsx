@@ -6,6 +6,7 @@ import { ExternalLink, X, ArrowUpRight } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getSaviezVousFavoritesAction } from '@/actions/saviez-vous-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
+import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { ShareButton } from './share-button'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
@@ -94,17 +95,12 @@ function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage }: { item: Sav
 
 export function SaviezVousBookmarks({ userId, onRemoveComplete }: SaviezVousBookmarksProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
-
-  const handleRemove = async (item: SaviezVousFavoriteDoc) => {
-    if (userId) {
-      try {
-        const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
-        await toggleBookmarkAction('SAVIEZ_VOUS', item.id, 'remove')
-      } catch {
-        // localStorage fallback
-      }
-    }
-  }
+  const { handleRemove, getFavorites } = useFavoritesList<SaviezVousFavoriteDoc>({
+    userId,
+    storageKey: SAVIEZ_VOUS_FAVORITES_KEY,
+    resourceIdGetter: (item) => item.id,
+    bookmarkType: 'SAVIEZ_VOUS',
+  })
 
   return (
     <>
@@ -115,12 +111,7 @@ export function SaviezVousBookmarks({ userId, onRemoveComplete }: SaviezVousBook
             const result = await getSaviezVousFavoritesAction()
             return result.favorites as SaviezVousFavoriteDoc[]
           }
-          try {
-            const stored = localStorage.getItem(SAVIEZ_VOUS_FAVORITES_KEY)
-            return stored ? JSON.parse(stored) : []
-          } catch {
-            return []
-          }
+          return getFavorites()
         }}
         renderItem={(item, onRemove) => (
           <SaviezVousFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />

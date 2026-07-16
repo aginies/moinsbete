@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Clock, Sparkles, Lightbulb } from 'lucide-react'
 import { toggleBookmarkAction } from '@/actions/bookmark-actions'
 import { isValidUrl } from '@/lib/utils'
-import { useShare } from '@/components/feed/use-share'
+import { useItemShare } from '@/components/feed/use-item-share'
 import type { Idea } from '@/types/idea'
 
 interface IdeaDetailClientProps {
@@ -45,12 +45,11 @@ export function IdeaDetailClient({
   }, [isPending, bookmarked, idea.id])
 
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/idees/${idea.slug}`
-  const shareOptions = {
+  const { share: handleShare, copied } = useItemShare({
+    shareUrl,
     title: idea.title,
     text: idea.takeaway,
-    url: shareUrl,
-  }
-  const { share: handleShare, copied } = useShare(shareOptions)
+  })
 
   const navigationUrl = (slug: string) => {
     const params = new URLSearchParams()

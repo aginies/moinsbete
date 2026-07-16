@@ -5,7 +5,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react'
 import { Lightbulb, ExternalLink, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl as isValidUrlUtil, sanitizeUrl, decodeHtmlEntities } from '@/lib/utils'
-import { useShare } from './use-share'
+import { useItemShare } from './use-item-share'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { ImageLightbox } from './image-lightbox'
@@ -123,12 +123,12 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     return `${resolvedImageFilename}${separator}imageKey=${imageKey}`
   }, [resolvedImageFilename, imageKey])
 
-  const shareOptions = fact.id ? {
+  const shareUrl = fact.id ? `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'}/saviez-vous/${fact.id}` : ''
+  const { share, copied, shareUrl: shareUrlResult } = useItemShare({
+    shareUrl,
     title: 'Le saviez-vous ?',
     text: fact.text,
-    url: `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'}/saviez-vous/${fact.id}`,
-  } : null
-  const { share, copied, shareUrl } = useShare(shareOptions)
+  })
 
   const [isFavorited, setIsFavorited] = useState(false)
   const [favoriting, setFavoriting] = useState(false)
@@ -176,7 +176,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         onToggle={onToggle || handleToggle}
         onRefresh={handleClick}
         loading={loading || (hasImage ? !isImageLoaded : false)}
-        shareOptions={{ onClick: share, copied, shareUrl }}
+        shareOptions={{ onClick: share, copied, shareUrl: shareUrlResult }}
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={

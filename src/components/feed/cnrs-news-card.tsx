@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
-import { useShare } from './use-share'
+import { useItemShare } from './use-item-share'
 import { ShareButton } from './share-button'
 import { toggleCnrsFavoriteAction, isCnrsFavoriteAction } from '@/actions/cnrs-bookmark-actions'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
@@ -116,12 +116,11 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
     }
   }, [article, isFavorite, userId])
 
-  const shareOptions = article ? {
-    title: article.title,
-    text: `${article.title}\n\nCatégorie: ${article.category || 'Sciences'}`,
-    url: article.link,
-  } : null
-  const { share, copied, shareUrl } = useShare(shareOptions)
+  const { share, copied, shareUrl } = useItemShare({
+    shareUrl: article?.link ?? '',
+    title: article?.title ?? '',
+    text: article ? `${article.title}\n\nCatégorie: ${article.category || 'Sciences'}` : '',
+  })
 
   return (
     <>

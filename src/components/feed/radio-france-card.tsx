@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Lightbulb, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
-import { useShare } from './use-share'
+import { useItemShare } from './use-item-share'
 import { ShareButton } from './share-button'
 import { sanitizeUrl } from '@/lib/utils'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
@@ -100,12 +100,11 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
     }
   }, [doc, isFavorite, userId])
 
-  const shareOptions = doc ? {
-    title: doc.title,
-    text: `${doc.description}\n\n${doc.radio} · ${doc.section}`,
-    url: doc.url,
-  } : null
-  const { share, copied, shareUrl } = useShare(shareOptions)
+  const { share, copied, shareUrl } = useItemShare({
+    shareUrl: doc?.url ?? '',
+    title: doc?.title ?? '',
+    text: doc ? `${doc.description}\n\n${doc.radio} · ${doc.section}` : '',
+  })
 
   if (!show && hasMounted) {
     return (

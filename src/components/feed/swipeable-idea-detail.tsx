@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Sparkles, Lightbulb, RefreshCw } from 'lucide-react'
 import { isValidUrl, sanitizeUrl } from '@/lib/utils'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
-import { useShare } from './use-share'
+import { useItemShare } from './use-item-share'
 import type { Idea } from '@/types/idea'
 
 interface SwipeableIdeaDetailProps {
@@ -152,12 +152,11 @@ export function SwipeableIdeaDetail({
 
   const getShareUrl = useCallback((slug: string) => `${typeof window !== 'undefined' ? window.location.origin : ''}/idees/${slug}`, [])
 
-  const shareOptions = {
+  const { share: handleShare, copied } = useItemShare({
+    shareUrl: getShareUrl(idea.slug),
     title: idea.title,
     text: idea.takeaway,
-    url: getShareUrl(idea.slug),
-  }
-  const { share: handleShare, copied } = useShare(shareOptions)
+  })
 
   const handleBookmark = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
