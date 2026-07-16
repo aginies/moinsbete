@@ -6,31 +6,16 @@ import { checkRateLimit } from '@/lib/rate-limiter'
 import { resolveWikimediaImageUrlsViaREST } from '@/lib/utils'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import { createTtlCache } from '@/lib/ttl-cache'
 
-interface ImageCacheEntry {
-  url: string
-  expiresAt: number
-}
-
-const imageCache = new Map<string, ImageCacheEntry>()
-const IMAGE_CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
+const imageCache = createTtlCache<string>({ ttlMs: 24 * 60 * 60 * 1000 })
 
 function getCachedImageUrl(imageFilename: string): string | null {
-  const cached = imageCache.get(imageFilename)
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached.url
-  }
-  if (cached) {
-    imageCache.delete(imageFilename)
-  }
-  return null
+  return imageCache.get(imageFilename)
 }
 
 function setCachedImageUrl(imageFilename: string, url: string) {
-  imageCache.set(imageFilename, {
-    url,
-    expiresAt: Date.now() + IMAGE_CACHE_TTL,
-  })
+  imageCache.set(imageFilename, url)
 }
 
 export async function GET(request: NextRequest) {

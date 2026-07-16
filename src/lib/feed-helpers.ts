@@ -1,20 +1,17 @@
 import { prisma } from '@/lib/db'
 import type { IdeaTopic, IdeaSource } from '@/types/idea'
+import { createTtlCache } from '@/lib/ttl-cache'
 
-export const topicCache = new Map<string, { children: string[]; expiresAt: number }>()
-const COLLECTION_CACHE_TTL = 5 * 60 * 1000
+export const topicCache = createTtlCache<string[]>({ ttlMs: 5 * 60 * 1000 })
 
 function setTopicChildren(topicId: string, children: string[]) {
-  topicCache.set(topicId, {
-    children,
-    expiresAt: Date.now() + COLLECTION_CACHE_TTL,
-  })
+  topicCache.set(topicId, children)
 }
 
 export async function getAllDescendantTopicIds(topicSlug: string): Promise<string[]> {
   const cached = topicCache.get(topicSlug)
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached.children
+  if (cached !== null) {
+    return cached
   }
 
   const topicRecord = await prisma.topic.findUnique({
@@ -46,8 +43,8 @@ export async function getAllDescendantTopicIds(topicSlug: string): Promise<strin
 export async function getAllDescendantCollectionTopicIds(collectionSlug: string): Promise<string[]> {
   const cachedKey = `collection:${collectionSlug}`
   const cached = topicCache.get(cachedKey)
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached.children
+  if (cached !== null) {
+    return cached
   }
 
   const collectionRecord = await prisma.collection.findUnique({

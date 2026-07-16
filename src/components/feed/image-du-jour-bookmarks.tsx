@@ -6,6 +6,7 @@ import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getImageDuJourFavoritesAction } from '@/actions/image-du-jour-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
+import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { ShareButton } from './share-button'
@@ -86,17 +87,12 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage }: { item: Im
 
 export function ImageDuJourBookmarks({ userId, onRemoveComplete }: ImageDuJourBookmarksProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
-
-  const handleRemove = async (item: ImageDuJourFavoriteDoc) => {
-    if (userId) {
-      try {
-        const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
-        await toggleBookmarkAction('IMAGE_DU_JOUR', item.fileUrl, 'remove')
-      } catch {
-        // localStorage fallback
-      }
-    }
-  }
+  const { handleRemove, getFavorites } = useFavoritesList<ImageDuJourFavoriteDoc>({
+    userId,
+    storageKey: IMAGE_DU_JOUR_FAVORITES_KEY,
+    resourceIdGetter: (item) => item.fileUrl,
+    bookmarkType: 'IMAGE_DU_JOUR',
+  })
 
   return (
     <>
@@ -107,12 +103,7 @@ export function ImageDuJourBookmarks({ userId, onRemoveComplete }: ImageDuJourBo
             const result = await getImageDuJourFavoritesAction()
             return result.favorites as ImageDuJourFavoriteDoc[]
           }
-          try {
-            const stored = localStorage.getItem(IMAGE_DU_JOUR_FAVORITES_KEY)
-            return stored ? JSON.parse(stored) : []
-          } catch {
-            return []
-          }
+          return getFavorites()
         }}
         renderItem={(item, onRemove) => (
           <ImageDuJourFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />

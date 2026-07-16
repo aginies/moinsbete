@@ -5,6 +5,7 @@ import { ExternalLink, X, Camera } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getCnrsFavoritesAction } from '@/actions/cnrs-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
+import { useFavoritesList } from '@/components/feed/use-favorites-list'
 
 export interface CnrsFavoriteDoc {
   id: string
@@ -24,16 +25,12 @@ interface CnrsBookmarksProps {
 }
 
 export function CnrsBookmarks({ userId, onRemoveComplete }: CnrsBookmarksProps) {
-  const handleRemove = async (item: CnrsFavoriteDoc) => {
-    if (userId) {
-      try {
-        const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
-        await toggleBookmarkAction('CNRS_NEWS', item.link, 'remove')
-      } catch {
-        // localStorage fallback
-      }
-    }
-  }
+  const { handleRemove, getFavorites } = useFavoritesList<CnrsFavoriteDoc>({
+    userId,
+    storageKey: CNRS_FAVORITES_KEY,
+    resourceIdGetter: (item) => item.link,
+    bookmarkType: 'CNRS_NEWS',
+  })
 
   return (
     <PaginatedFavoritesList
@@ -43,12 +40,7 @@ export function CnrsBookmarks({ userId, onRemoveComplete }: CnrsBookmarksProps) 
           const result = await getCnrsFavoritesAction()
           return result.favorites as CnrsFavoriteDoc[]
         }
-        try {
-          const stored = localStorage.getItem(CNRS_FAVORITES_KEY)
-          return stored ? JSON.parse(stored) : []
-        } catch {
-          return []
-        }
+        return getFavorites()
       }}
       renderItem={(item, onRemove) => (
         <div className="flex items-start justify-between gap-4">

@@ -2,16 +2,17 @@
 
 import { useState, useCallback } from 'react'
 
-interface UseItemShareOptions {
+interface UseShareOptions {
   shareUrl: string
   title: string
   text: string
-  itemId: string
+  itemId?: string
 }
 
-export function useItemShare({ shareUrl, title, text, itemId }: UseItemShareOptions) {
+export function useItemShare(options: UseShareOptions) {
+  const { shareUrl, title, text, itemId } = options
   const [copiedItemId, setCopiedItemId] = useState<string | null>(null)
-  const isCopied = copiedItemId === itemId
+  const isCopied = itemId ? copiedItemId === itemId : false
 
   const handleShare = useCallback(async () => {
     if (isCopied) return
@@ -19,8 +20,10 @@ export function useItemShare({ shareUrl, title, text, itemId }: UseItemShareOpti
     if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
       try {
         await navigator.clipboard.writeText(shareUrl)
-        setCopiedItemId(itemId)
-        setTimeout(() => setCopiedItemId(null), 2000)
+        if (itemId) {
+          setCopiedItemId(itemId)
+          setTimeout(() => setCopiedItemId(null), 2000)
+        }
       } catch {
         // Clipboard write failed
       }

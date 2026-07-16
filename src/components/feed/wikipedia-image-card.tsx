@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Camera, ExternalLink, AlertCircle, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl, sanitizeUrl, generateImageId } from '@/lib/utils'
-import { useShare } from './use-share'
+import { useItemShare } from './use-item-share'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { ImageLightbox } from './image-lightbox'
@@ -132,12 +132,11 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
   const shareUrl = image ? `${origin}/image-du-jour/${shareImageId}?d=${encodedData}` : ''
 
-  const shareOptions = image ? {
-    title: `Image du jour - ${image.description}`,
-    text: `${image.description}\n\nDate: ${image.date}`,
-    url: shareUrl,
-  } : null
-  const { share, copied } = useShare(shareOptions)
+  const { share, copied } = useItemShare({
+    shareUrl,
+    title: image ? `Image du jour - ${image.description}` : '',
+    text: image ? `${image.description}\n\nDate: ${image.date}` : '',
+  })
 
   const [isFavorited, setIsFavorited] = useState(false)
   const [favoriting, setFavoriting] = useState(false)

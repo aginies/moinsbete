@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Settings } from 'lucide-react'
 import Link from 'next/link'
-import { useShare } from './use-share'
+import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
@@ -218,12 +218,11 @@ export function ImageWikimediaCard({
     }
   }, [userId])
 
-  const shareOptions = image ? {
-    title: `Wikimedia - ${image.titre}`,
-    text: `${image.titre}\n${image.auteur || 'Wikimedia'}\n\n${image.droits || ''}`,
-    url: image.link,
-  } : null
-  const { share, copied, shareUrl } = useShare(shareOptions)
+  const { share, copied, shareUrl } = useItemShare({
+    shareUrl: image?.link ?? '',
+    title: `Wikimedia - ${image?.titre ?? ''}`,
+    text: `${image?.titre ?? ''}\n${image?.auteur ?? 'Wikimedia'}\n\n${image?.droits ?? ''}`,
+  })
 
   const {
     bind,
