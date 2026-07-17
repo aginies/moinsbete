@@ -24,7 +24,6 @@ export async function toggleBookmark(
   const existing = await prisma.bookmark.findFirst({
     where: { userId, resourceId, type },
   })
-  console.log('[toggleBookmark] userId:', userId, 'type:', type, 'resourceId:', resourceId, 'action:', action, 'existing:', existing?.id)
 
   if (existing) {
     if (action === 'add') return { bookmarked: false, wasBookmarked: true }
@@ -37,7 +36,6 @@ export async function toggleBookmark(
   await prisma.bookmark.create({
     data: { userId, resourceId, type, meta: meta as any },
   })
-  console.log('[toggleBookmark] Created bookmark:', { userId, resourceId, type })
   return { bookmarked: true, wasBookmarked: false }
 }
 
@@ -49,7 +47,7 @@ export async function isBookmarked(userId: string, type: BookmarkType, resourceI
 }
 
 export async function getBookmarks(userId: string, type: BookmarkType): Promise<BookmarkItem[]> {
-  const bookmarks = await prisma.bookmark.findMany({
+  return prisma.bookmark.findMany({
     where: { userId, type },
     orderBy: { createdAt: 'desc' },
     select: {
@@ -60,8 +58,6 @@ export async function getBookmarks(userId: string, type: BookmarkType): Promise<
       createdAt: true,
     },
   })
-  console.log('[getBookmarks] userId:', userId, 'type:', type, 'count:', bookmarks.length)
-  return bookmarks
 }
 
 export async function getBookmarksCount(userId: string, type: BookmarkType): Promise<number> {
