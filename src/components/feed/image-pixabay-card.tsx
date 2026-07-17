@@ -29,14 +29,13 @@ interface Category {
 }
 
 const DEFAULT_CATEGORIES: Category[] = [
-  { id: 'forest', label: 'Forêt', icon: '🌲' },
-  { id: 'sunset', label: 'Coucher de soleil', icon: '🌅' },
-  { id: 'landscape', label: 'Paysage', icon: '🏔️' },
+  { id: 'nature', label: 'Nature', icon: '🌿' },
+  { id: 'rain', label: 'Pluie', icon: '🌧️' },
   { id: 'sky', label: 'Ciel', icon: '☁️' },
-  { id: 'beach', label: 'Plage', icon: '🏖️' },
-  { id: 'cat', label: 'Chat', icon: '🐱' },
-  { id: 'dog', label: 'Chien', icon: '🐶' },
-  { id: 'flowers', label: 'Fleurs', icon: '🌸' },
+  { id: 'sunset', label: 'Coucher de soleil', icon: '🌅' },
+  { id: 'forest', label: 'Forêt', icon: '🌲' },
+  { id: 'ocean', label: 'Océan', icon: '🌊' },
+  { id: 'space', label: 'Espace', icon: '🌌' },
 ]
 
 async function fetchRandomVideo(category?: string): Promise<PixabayVideo | null> {
