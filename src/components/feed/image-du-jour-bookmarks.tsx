@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
@@ -94,17 +94,19 @@ export function ImageDuJourBookmarks({ userId, onRemoveComplete }: ImageDuJourBo
     bookmarkType: 'IMAGE_DU_JOUR',
   })
 
+  const fetchFn = useCallback(async () => {
+    if (userId) {
+      const result = await getImageDuJourFavoritesAction()
+      return result.favorites as ImageDuJourFavoriteDoc[]
+    }
+    return getFavorites()
+  }, [userId, getFavorites])
+
   return (
     <>
       <PaginatedFavoritesList
         onRemoveComplete={onRemoveComplete}
-        fetchFn={async () => {
-          if (userId) {
-            const result = await getImageDuJourFavoritesAction()
-            return result.favorites as ImageDuJourFavoriteDoc[]
-          }
-          return getFavorites()
-        }}
+        fetchFn={fetchFn}
         renderItem={(item, onRemove) => (
           <ImageDuJourFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />
         )}

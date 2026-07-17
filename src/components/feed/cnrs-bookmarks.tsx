@@ -1,7 +1,8 @@
 'use client'
 
+import { useCallback } from 'react'
 import Link from 'next/link'
-import { ExternalLink, X, Camera } from 'lucide-react'
+import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getCnrsFavoritesAction } from '@/actions/cnrs-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
@@ -32,16 +33,18 @@ export function CnrsBookmarks({ userId, onRemoveComplete }: CnrsBookmarksProps) 
     bookmarkType: 'CNRS_NEWS',
   })
 
+  const fetchFn = useCallback(async () => {
+    if (userId) {
+      const result = await getCnrsFavoritesAction()
+      return result.favorites as CnrsFavoriteDoc[]
+    }
+    return getFavorites()
+  }, [userId, getFavorites])
+
   return (
     <PaginatedFavoritesList
       onRemoveComplete={onRemoveComplete}
-      fetchFn={async () => {
-        if (userId) {
-          const result = await getCnrsFavoritesAction()
-          return result.favorites as CnrsFavoriteDoc[]
-        }
-        return getFavorites()
-      }}
+      fetchFn={fetchFn}
       renderItem={(item, onRemove) => (
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">

@@ -95,10 +95,6 @@ export function PaginatedFavoritesList({
     }
   }, [removeFavorite, onRemoveComplete, loadFavorites])
 
-  useEffect(() => {
-    loadFavorites()
-  }, [loadFavorites])
-
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
     if (page === 1) {

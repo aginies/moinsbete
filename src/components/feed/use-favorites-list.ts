@@ -32,7 +32,7 @@ export function useFavoritesList<Doc extends { id: string }>({
       return null // caller should fetch from DB via action
     }
     try {
-      const stored = localStorage.getItem(storageKey)
+      const stored = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null
       return stored ? JSON.parse(stored) : []
     } catch {
       return []

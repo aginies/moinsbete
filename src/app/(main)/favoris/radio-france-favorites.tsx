@@ -5,6 +5,8 @@ import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
 import { getRadioFavoritesAction } from '@/actions/radio-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
+import { useFavoritesList } from '@/components/feed/use-favorites-list'
+import { useCallback } from 'react'
 
 export interface FavoriteDoc {
   id: string
@@ -25,32 +27,25 @@ interface RadioFranceFavoritesProps {
 }
 
 export function RadioFranceFavorites({ userId, onRemoveComplete }: RadioFranceFavoritesProps) {
-  const handleRemove = async (item: FavoriteDoc) => {
+  const { handleRemove, getFavorites } = useFavoritesList<FavoriteDoc>({
+    userId,
+    storageKey: FAVORITES_KEY,
+    resourceIdGetter: (item) => item.id,
+    bookmarkType: 'RADIO_FRANCE',
+  })
+
+  const fetchFn = useCallback(async () => {
     if (userId) {
-      try {
-        const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
-        await toggleBookmarkAction('RADIO_FRANCE', item.id, 'remove')
-      } catch {
-        // localStorage fallback handled by re-render
-      }
+      const result = await getRadioFavoritesAction()
+      return result.favorites as FavoriteDoc[]
     }
-  }
+    return getFavorites()
+  }, [userId, getFavorites])
 
   return (
     <PaginatedFavoritesList
       onRemoveComplete={onRemoveComplete}
-      fetchFn={async () => {
-        if (userId) {
-          const result = await getRadioFavoritesAction()
-          return result.favorites as FavoriteDoc[]
-        }
-        try {
-          const stored = localStorage.getItem(FAVORITES_KEY)
-          return stored ? JSON.parse(stored) : []
-        } catch {
-          return []
-        }
-      }}
+      fetchFn={fetchFn}
       renderItem={(item, onRemove) => (
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -101,7 +96,7 @@ export function RadioFranceFavorites({ userId, onRemoveComplete }: RadioFranceFa
         </div>
       )}
       emptyTitle="Aucun favori Radio France"
-      emptyDescription="Favorise des documentaires depuis la page d&apos;accueil pour les voir ici."
+      emptyDescription="Favorisez des documentaires depuis la page d&apos;accueil pour les voir ici."
       storageKey={FAVORITES_KEY}
       userId={userId}
       removeFavorite={handleRemove}
