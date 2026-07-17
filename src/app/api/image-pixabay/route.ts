@@ -14,17 +14,6 @@ interface PixabayVideo {
 const PIXABAY_API = 'https://pixabay.com/api/videos/'
 const API_KEY = process.env.PIXABAY_API_KEY
 
-const CATEGORIES = [
-  { id: 'forest', label: 'Forêt', icon: '🌲' },
-  { id: 'sunset', label: 'Coucher de soleil', icon: '🌅' },
-  { id: 'landscape', label: 'Paysage', icon: '🏔️' },
-  { id: 'sky', label: 'Ciel', icon: '☁️' },
-  { id: 'beach', label: 'Plage', icon: '🏖️' },
-  { id: 'cat', label: 'Chat', icon: '🐱' },
-  { id: 'dog', label: 'Chien', icon: '🐶' },
-  { id: 'flowers', label: 'Fleurs', icon: '🌸' },
-]
-
 async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> {
   if (!API_KEY) {
     return null
