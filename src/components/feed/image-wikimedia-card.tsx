@@ -107,7 +107,6 @@ export function ImageWikimediaCard({
   const [error, setError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const [activeTopics, setActiveTopics] = useState<string[]>(['aviation'])
   const [allTopics, setAllTopics] = useState<Topic[]>(DEFAULT_TOPICS)
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -122,8 +121,6 @@ export function ImageWikimediaCard({
     if (userId) {
       fetchTopics(userId).then(loadedTopics => {
         setAllTopics(loadedTopics)
-        const active = loadedTopics.filter(t => t.active).map(t => t.id)
-        setActiveTopics(active.length > 0 ? active : ['aviation'])
       })
     }
   }, [userId])
@@ -143,10 +140,7 @@ export function ImageWikimediaCard({
     setLoading(true)
     setError(false)
     setIsImageLoaded(false)
-    const activeTopicIds = activeTopics.filter(id => {
-      const topic = allTopics.find(t => t.id === id)
-      return topic?.enabled
-    })
+    const activeTopicIds = allTopics.filter(t => t.active).map(t => t.id)
     const newImage = await fetchRandomImage(activeTopicIds.join(','))
     if (newImage) {
       setImage(newImage)
@@ -155,7 +149,7 @@ export function ImageWikimediaCard({
       setError(true)
     }
     setLoading(false)
-  }, [activeTopics, allTopics])
+  }, [allTopics])
 
   useEffect(() => {
     if (hasMounted && show && !image && !loading && !error) {
@@ -192,31 +186,24 @@ export function ImageWikimediaCard({
     }
   }, [image, isFavorite])
 
-  const handleTopicToggle = useCallback(async (topicId: string) => {
-    const isActive = activeTopics.includes(topicId)
-    
-    setActiveTopics(prev =>
-      isActive
-        ? prev.filter(id => id !== topicId)
-        : [...prev, topicId]
-    )
-    
-    if (userId) {
-      fetch('/api/wikimedia-topics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'toggle_active', topicId, active: isActive }),
-      }).catch(() => {})
-    }
-    setImage(null)
-  }, [activeTopics, userId])
-
   const refreshTopics = useCallback(async () => {
     if (userId) {
       const topics = await fetchTopics(userId)
       setAllTopics(topics)
     }
   }, [userId])
+
+  const handleTopicToggle = useCallback(async (topicId: string) => {
+    if (userId) {
+      fetch('/api/wikimedia-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_active', topicId }),
+      }).catch(() => {})
+      refreshTopics()
+    }
+    setImage(null)
+  }, [userId, refreshTopics])
 
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: image?.link ?? '',
@@ -312,22 +299,19 @@ export function ImageWikimediaCard({
 
       {showCategories && (
         <div className="mb-3 flex gap-1.5 flex-wrap">
-          {allTopics.filter(t => t.enabled).map(topic => {
-            const isActive = activeTopics.includes(topic.id)
-            return (
-              <button
-                key={topic.id}
-                onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
-                className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
-                  isActive
-                    ? 'bg-rose-600 text-white border-rose-600'
-                    : 'bg-white dark:bg-neutral-800 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:border-rose-400'
-                }`}
-              >
-                {topic.icon} {topic.label}
-              </button>
-            )
-          })}
+          {allTopics.filter(t => t.enabled).map(topic => (
+            <button
+              key={topic.id}
+              onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
+              className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                topic.active
+                  ? 'bg-rose-600 text-white border-rose-600'
+                  : 'bg-white dark:bg-neutral-800 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:border-rose-400'
+              }`}
+            >
+              {topic.icon} {topic.label}
+            </button>
+          ))}
         </div>
       )}
 
@@ -433,9 +417,7 @@ export function ImageWikimediaCard({
         open={modalOpen}
         onOpenChange={setModalOpen}
         topics={allTopics}
-        activeTopics={activeTopics}
         userId={userId}
-        onActiveTopicsChange={setActiveTopics}
         onToggleActive={handleTopicToggle}
         onRefresh={refreshTopics}
       />

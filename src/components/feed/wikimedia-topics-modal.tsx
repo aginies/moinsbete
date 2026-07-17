@@ -26,9 +26,7 @@ interface WikimediaTopicsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   topics: Topic[]
-  activeTopics: string[]
   userId?: string
-  onActiveTopicsChange: (topics: string[]) => void
   onToggleActive: (topicId: string) => void
   onRefresh?: () => Promise<void>
 }
@@ -37,9 +35,7 @@ export function WikimediaTopicsModal({
   open,
   onOpenChange,
   topics,
-  activeTopics,
   userId,
-  onActiveTopicsChange,
   onToggleActive,
   onRefresh,
 }: WikimediaTopicsModalProps) {
@@ -59,11 +55,9 @@ export function WikimediaTopicsModal({
   const toggleActive = async (topicId: string) => {
     markChanged()
     onToggleActive(topicId)
-    onActiveTopicsChange(
-      activeTopics.includes(topicId)
-        ? activeTopics.filter(id => id !== topicId)
-        : [...activeTopics, topicId]
-    )
+    if (onRefresh) {
+      await onRefresh()
+    }
   }
 
   const toggleEnabled = async (topicId: string) => {
@@ -85,6 +79,9 @@ export function WikimediaTopicsModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'toggle_enabled', topicId, enabled: topic.enabled }),
       }).catch(() => {})
+      if (onRefresh) {
+        await onRefresh()
+      }
     }
   }
 
@@ -100,8 +97,9 @@ export function WikimediaTopicsModal({
       })
       if (res.ok) {
         markChanged()
-        const data = await res.json()
-        setLocalTopics(data.topics)
+        if (onRefresh) {
+          await onRefresh()
+        }
         setNewLabel('')
         setNewSearchTerms('')
         setShowAddForm(false)
@@ -135,6 +133,9 @@ export function WikimediaTopicsModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete_custom', topicId }),
       }).catch(() => {})
+      if (onRefresh) {
+        await onRefresh()
+      }
     }
   }
 
@@ -177,11 +178,11 @@ export function WikimediaTopicsModal({
                   type="button"
                   onClick={() => toggleActive(topic.id)}
                   className={`p-1.5 rounded-md transition-colors ${
-                    activeTopics.includes(topic.id)
+                    topic.active
                       ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'
                       : 'text-muted-foreground hover:bg-muted'
                   }`}
-                  title={activeTopics.includes(topic.id) ? 'Actif — cliquer pour désactiver' : 'Inactif — cliquer pour activer'}
+                  title={topic.active ? 'Actif — cliquer pour désactiver' : 'Inactif — cliquer pour activer'}
                 >
                   <Check className="h-4 w-4" />
                 </button>
