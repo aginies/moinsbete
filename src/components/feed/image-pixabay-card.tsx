@@ -136,9 +136,10 @@ export function ImagePixabayCard({
 
   const togglePlay = useCallback(() => {
     const el = videoRef.current
+    console.log('togglePlay called, el:', el, 'paused:', el?.paused)
     if (!el) return
     if (el.paused) {
-      el.play().catch(() => {})
+      el.play().then(() => console.log('video playing')).catch(e => console.log('play failed:', e))
     } else {
       el.pause()
     }
@@ -295,9 +296,9 @@ export function ImagePixabayCard({
             loop
             playsInline
             autoPlay
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onEnded={() => setIsPlaying(false)}
+            onPlay={() => { console.log('video onPlay'); setIsPlaying(true) }}
+            onPause={() => { console.log('video onPause'); setIsPlaying(false) }}
+            onEnded={() => { console.log('video onEnded'); setIsPlaying(false) }}
             className={`w-full ${largeImage ? 'h-[28vh] object-cover bg-black' : fullImage ? 'max-h-[60vh] object-contain bg-black' : 'h-48 object-cover'}`}
             onClick={(e) => {
               e.stopPropagation()
@@ -308,6 +309,7 @@ export function ImagePixabayCard({
             <div
               className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
               onClick={(e) => {
+                console.log('overlay onClick, isPlaying:', isPlaying)
                 e.stopPropagation()
                 togglePlay()
               }}
