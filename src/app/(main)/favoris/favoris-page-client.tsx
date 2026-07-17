@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
