@@ -42,6 +42,17 @@ vi.mock('next-auth/jwt', () => ({
   decode: vi.fn().mockResolvedValue({ sub: 'user-1' }),
 }))
 
+const originalFetch = global.fetch
+beforeEach(() => {
+  global.fetch = vi.fn().mockResolvedValue({
+    json: vi.fn().mockResolvedValue({ success: true }),
+  })
+})
+
+afterEach(() => {
+  global.fetch = originalFetch
+})
+
 describe('isRegistrationLocked', () => {
   it('returns true when REGISTRATION_LOCKED is true', async () => {
     process.env.REGISTRATION_LOCKED = 'true'
@@ -87,6 +98,7 @@ describe('registerAction', () => {
       email: 'new@example.com',
       password: 'password123',
       displayName: 'New User',
+      cfToken: 'test-token',
     })
 
     expect(result).toEqual({ success: true })
@@ -145,6 +157,38 @@ describe('registerAction', () => {
     })
 
     expect(result).toEqual({ error: 'Trop de tentatives. Réessayez dans 60 secondes.' })
+  })
+
+  it('returns error when Turnstile fails', async () => {
+    delete process.env.REGISTRATION_LOCKED
+    process.env.TURNSTILE_SECRET_KEY = 'test-secret'
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      json: vi.fn().mockResolvedValue({ success: false }),
+    })
+
+    const { registerAction } = await import('@/actions/auth-actions')
+    const result = await registerAction({
+      email: 'new@example.com',
+      password: 'password123',
+      displayName: 'New User',
+      cfToken: 'bad-token',
+    })
+
+    expect(result).toEqual({ error: 'Vérification humaine échouée. Réessayez.' })
+  })
+
+  it('returns error when cfToken missing but secret configured', async () => {
+    delete process.env.REGISTRATION_LOCKED
+    process.env.TURNSTILE_SECRET_KEY = 'test-secret'
+
+    const { registerAction } = await import('@/actions/auth-actions')
+    const result = await registerAction({
+      email: 'new@example.com',
+      password: 'password123',
+      displayName: 'New User',
+    })
+
+    expect(result).toEqual({ error: 'Vérification humaine requise.' })
   })
 })
 
