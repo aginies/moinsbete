@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { Topic } from '@/generated/client'
 import { TopicGrid } from '@/components/topics/topic-grid'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
@@ -26,23 +26,6 @@ interface CardVisibility {
   cnrs: boolean
 }
 
-async function loadCardVisibility(userId: string): Promise<CardVisibility> {
-  try {
-    const res = await fetch('/api/user-card-visibility', { credentials: 'include' })
-    if (!res.ok) return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true }
-    const data = await res.json()
-    return {
-      saviezVous: data.saviezVousCardVisible ?? true,
-      wikipedia: data.wikipediaImageCardVisible ?? true,
-      radioFrance: data.radioFranceCardVisible ?? true,
-      wikimedia: data.imageWikimediaCardVisible ?? true,
-      cnrs: data.cnrsNewsEnabled ?? true,
-    }
-  } catch {
-    return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true }
-  }
-}
-
 async function updateCardVisibility(field: string, value: boolean) {
   await fetch('/api/user-card-visibility', {
     method: 'POST',
@@ -53,18 +36,15 @@ async function updateCardVisibility(field: string, value: boolean) {
 }
 
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility }: SujetsClientProps) {
-  const isAllSelected = allTopics.length > 0 && allTopics.every(t => initialFollowedIds.includes(t.id))
+  const isAllSelected = useMemo(
+    () => allTopics.length > 0 && allTopics.every(t => initialFollowedIds.includes(t.id)),
+    [allTopics, initialFollowedIds],
+  )
   const [followedIds, setFollowedIds] = useState<string[]>(isAllSelected ? [] : initialFollowedIds)
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
     saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true,
   })
-
-  useEffect(() => {
-    if (userId && !initialVisibility) {
-      loadCardVisibility(userId).then(setVisibility).catch(() => {})
-    }
-  }, [userId, initialVisibility])
 
   const toggleVisibility = useCallback((field: string, key: keyof CardVisibility) => {
     setVisibility(prev => {
@@ -92,8 +72,14 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     }
   }
 
-  const followedTopics = allTopics.filter(t => isAllSelected || followedIds.includes(t.id))
-  const unfollowedTopics = allTopics.filter(t => !isAllSelected && !followedIds.includes(t.id))
+  const followedTopics = useMemo(
+    () => allTopics.filter(t => isAllSelected || followedIds.includes(t.id)),
+    [allTopics, isAllSelected, followedIds],
+  )
+  const unfollowedTopics = useMemo(
+    () => allTopics.filter(t => !isAllSelected && !followedIds.includes(t.id)),
+    [allTopics, isAllSelected, followedIds],
+  )
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
