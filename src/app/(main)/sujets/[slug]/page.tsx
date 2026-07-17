@@ -20,7 +20,6 @@ export default async function SujetDetailPage({
   const topic = await prisma.topic.findUnique({
     where: { slug },
     include: {
-      _count: { select: { ideaTopics: true } },
       children: true,
     },
   })
