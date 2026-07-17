@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useSearchParams, useRouter, usePathname } from 'next/navigation'
+import { useSearchParams, usePathname } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 
 interface PaginatedFavoritesListProps {
@@ -44,7 +44,6 @@ export function PaginatedFavoritesList({
   buttonHoverBg = 'hover:bg-purple-100',
 }: PaginatedFavoritesListProps) {
   const searchParams = useSearchParams()
-  const router = useRouter()
   const pathname = usePathname()
   const [allFavorites, setAllFavorites] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -95,21 +94,6 @@ export function PaginatedFavoritesList({
     }
   }, [removeFavorite, onRemoveComplete, loadFavorites])
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page)
-    if (page === 1) {
-      router.push(pathname)
-    } else {
-      router.push(`${pathname}?page=${page}`)
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [router, pathname])
-
-  const pageUrl = (page: number) => {
-    if (page === 1) return pathname
-    return `${pathname}?page=${page}`
-  }
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -144,8 +128,10 @@ export function PaginatedFavoritesList({
         <Pagination
           currentPage={safePage}
           totalPages={totalPages}
-          onPageChange={handlePageChange}
-          pageUrl={pageUrl}
+          pageUrl={(page) => {
+            if (page === 1) return pathname
+            return `${pathname}?page=${page}`
+          }}
         />
       )}
 
