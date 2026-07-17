@@ -45,9 +45,8 @@ const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string
 
 async function fetchRandomArticle(): Promise<CnrsArticle | null> {
   try {
-    const res = await fetch('/api/cnrs-news', {
+    const res = await fetch(`/api/cnrs-news?t=${Date.now()}`, {
       signal: AbortSignal.timeout(10000),
-      next: { revalidate: 3600 },
     })
     const data = await res.json()
     if (data.error) return null
