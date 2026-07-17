@@ -253,3 +253,43 @@ enum BookmarkType {
   SAVIEZ_VOUS
   IMAGE_WIKIMEDIA
 }
+
+model CachedCnrsArticle {
+  id         String   @id @default(cuid())
+  title      String
+  link       String   @unique
+  imageUrl   String
+  category   String
+  scrapedAt  DateTime @default(now())
+  expiresAt  DateTime
+
+  @@index([expiresAt])
+}
+
+model CachedRadioEpisode {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  link        String   @unique
+  imageUrl    String?
+  audioUrl    String?
+  radio       String
+  scrapedAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
+
+model CachedWikipediaImage {
+  id          String   @id @default(cuid())
+  imageUrl    String
+  description String
+  fileUrl     String
+  date        String
+  archive     String
+  scrapedAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+  @@unique([imageUrl, date])
+}

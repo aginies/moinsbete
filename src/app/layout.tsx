@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import '@/lib/cron-runner'
 
 const revalidate = 3600
 
