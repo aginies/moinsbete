@@ -345,3 +345,20 @@ describe('changePasswordAction', () => {
     expect(result).toEqual({ error: 'Non connecté' })
   })
 })
+
+describe('getTurnstileSiteKey', () => {
+  it('returns the configured site key or empty string', async () => {
+    const originalKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = 'test-site-key'
+
+    const { getTurnstileSiteKey } = await import('@/actions/auth-actions')
+    const result = await getTurnstileSiteKey()
+    expect(result).toBe('test-site-key')
+
+    if (originalKey !== undefined) {
+      process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = originalKey
+    } else {
+      delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+    }
+  })
+})

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Script from 'next/script'
-import { registerAction, isRegistrationLocked } from '@/actions/auth-actions'
+import { registerAction, isRegistrationLocked, getTurnstileSiteKey } from '@/actions/auth-actions'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { BookOpen, Mail, Lock, User, CheckCircle } from 'lucide-react'
@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 declare global {
   interface Window {
     turnstile?: {
-      render: (selector: string, config?: { sitekey?: string; theme?: string }) => string
+      render: (container: string | HTMLElement, config?: { sitekey?: string; theme?: string; callback?: (token: string) => void }) => string
       reset?: (widgetId: string) => void
       getResponse?: (widgetId: string) => string
     }
@@ -22,29 +22,71 @@ declare global {
 
 export default function RegisterPage() {
   const [registrationLocked, setRegistrationLocked] = useState(false)
+  const [siteKey, setSiteKey] = useState<string | null>(null)
 
   useEffect(() => {
     isRegistrationLocked().then(setRegistrationLocked)
+    getTurnstileSiteKey().then(setSiteKey)
   }, [])
 
-  return <RegisterForm registrationLocked={registrationLocked} />
+  return <RegisterForm registrationLocked={registrationLocked} siteKey={siteKey} />
 }
 
-function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
+function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boolean; siteKey: string | null }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
   const [widgetId, setWidgetId] = useState<string | null>(null)
+  const hasRenderedRef = useRef(false)
+
+  const renderTurnstile = useCallback(() => {
+    if (!siteKey || hasRenderedRef.current || typeof window === 'undefined' || !window.turnstile) return
+    const container = document.getElementById('turnstile-container')
+    if (!container) return
+    try {
+      container.innerHTML = ''
+      hasRenderedRef.current = true
+      const id = window.turnstile.render(container, {
+        sitekey: siteKey,
+        theme: 'light',
+        callback: (token: string) => {
+          setTurnstileToken(token)
+        },
+      })
+      setWidgetId(id)
+    } catch (e) {
+      hasRenderedRef.current = false
+      console.error('Turnstile render error:', e)
+    }
+  }, [siteKey])
 
   useEffect(() => {
-    if (widgetId || typeof window === 'undefined' || !window.turnstile) return
-    const id = window.turnstile.render('.cf-turnstile', {
-      sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
-      theme: 'light',
-    })
-    setWidgetId(id)
+    if (typeof window !== 'undefined' && window.turnstile && siteKey) {
+      const timer = setTimeout(() => {
+        renderTurnstile()
+      }, 0)
+      return () => clearTimeout(timer)
+    }
+  }, [renderTurnstile, siteKey])
+
+  // Reset flag if siteKey changes
+  useEffect(() => {
+    hasRenderedRef.current = false
+  }, [siteKey])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (widgetId && typeof window !== 'undefined' && window.turnstile?.reset) {
+        try {
+          window.turnstile.reset(widgetId)
+        } catch {
+          // ignore
+        }
+      }
+    }
   }, [widgetId])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -52,12 +94,9 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
     setLoading(true)
     setError('')
 
-    let token = turnstileToken
-    if (!token && typeof window !== 'undefined' && window.turnstile && widgetId) {
-      token = window.turnstile?.getResponse!(widgetId)
-    }
-
     const formData = new FormData(e.currentTarget)
+    const token = turnstileToken || (formData.get('cf-turnstile-response') as string) || ''
+
     const result = await registerAction({
       email: formData.get('email') as string,
       password: formData.get('password') as string,
@@ -111,7 +150,7 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="displayName">Nom d'affichage</Label>
+            <Label htmlFor="displayName">Nom d&apos;affichage</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -159,14 +198,14 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
             </div>
           </div>
 
-          <div
-            className="cf-turnstile"
-            data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-            data-theme="light"
-          />
+          {siteKey && (
+            <div id="turnstile-container" className="my-4 flex justify-center" />
+          )}
+
           <Script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
             strategy="afterInteractive"
+            onLoad={renderTurnstile}
           />
 
           <Button type="submit" className="w-full" disabled={loading || registrationLocked}>
