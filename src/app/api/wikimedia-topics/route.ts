@@ -101,53 +101,43 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
 
   if (body.action === 'toggle_active') {
-    const isDefault = DEFAULT_TOPIC_IDS.includes(body.topicId)
+    const defaultTopic = DEFAULT_TOPICS.find(t => t.id === body.topicId)
+    const current = await prisma.userWikimediaTopic.findUnique({
+      where: { userId_topicId: { userId: session.user.id, topicId: body.topicId } },
+    })
     
-    if (isDefault) {
-      const current = await prisma.userWikimediaTopic.findUnique({
-        where: { userId_topicId: { userId: session.user.id, topicId: body.topicId } },
-      })
-      const newActive = current ? !current.active : true
-      
-      await prisma.userWikimediaTopic.upsert({
-        where: { userId_topicId: { userId: session.user.id, topicId: body.topicId } },
-        create: {
-          userId: session.user.id,
-          topicId: body.topicId,
-          enabled: true,
-          active: newActive,
-        },
-        update: { active: newActive },
-      })
-    } else {
-      const current = await prisma.userWikimediaTopic.findUnique({
-        where: { userId_topicId: { userId: session.user.id, topicId: body.topicId } },
-      })
-      const newActive = current ? !current.active : true
-      
-      await prisma.userWikimediaTopic.upsert({
-        where: { userId_topicId: { userId: session.user.id, topicId: body.topicId } },
-        create: {
-          userId: session.user.id,
-          topicId: body.topicId,
-          enabled: true,
-          active: newActive,
-          label: body.label || 'Custom',
-          icon: body.icon || '📌',
-          searchTerms: JSON.stringify(body.searchTerms || []),
-        },
-        update: { active: newActive },
-      })
-    }
+    const currentActive = current ? current.active : (defaultTopic ? defaultTopic.active : false)
+    const newActive = !currentActive
+
+    const currentEnabled = current ? current.enabled : (defaultTopic ? defaultTopic.enabled : true)
+    
+    await prisma.userWikimediaTopic.upsert({
+      where: { userId_topicId: { userId: session.user.id, topicId: body.topicId } },
+      create: {
+        userId: session.user.id,
+        topicId: body.topicId,
+        enabled: currentEnabled,
+        active: newActive,
+        label: body.label || defaultTopic?.label || 'Custom',
+        icon: body.icon || defaultTopic?.icon || '📌',
+        searchTerms: defaultTopic ? JSON.stringify(defaultTopic.searchTerms) : JSON.stringify(body.searchTerms || []),
+      },
+      update: { active: newActive },
+    })
     
     return NextResponse.json({ success: true })
   }
 
   if (body.action === 'toggle_enabled') {
+    const defaultTopic = DEFAULT_TOPICS.find(t => t.id === body.topicId)
     const current = await prisma.userWikimediaTopic.findUnique({
       where: { userId_topicId: { userId: session.user.id, topicId: body.topicId } },
     })
-    const newEnabled = current ? !current.enabled : true
+    
+    const currentEnabled = current ? current.enabled : (defaultTopic ? defaultTopic.enabled : true)
+    const newEnabled = !currentEnabled
+
+    const currentActive = current ? current.active : (defaultTopic ? defaultTopic.active : false)
     
     await prisma.userWikimediaTopic.upsert({
       where: { userId_topicId: { userId: session.user.id, topicId: body.topicId } },
@@ -155,10 +145,10 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         topicId: body.topicId,
         enabled: newEnabled,
-        active: body.active ?? false,
-        label: body.label || 'Custom',
-        icon: body.icon || '📌',
-        searchTerms: JSON.stringify(body.searchTerms || []),
+        active: currentActive,
+        label: body.label || defaultTopic?.label || 'Custom',
+        icon: body.icon || defaultTopic?.icon || '📌',
+        searchTerms: defaultTopic ? JSON.stringify(defaultTopic.searchTerms) : JSON.stringify(body.searchTerms || []),
       },
       update: { enabled: newEnabled },
     })

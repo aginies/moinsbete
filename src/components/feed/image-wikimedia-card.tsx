@@ -194,13 +194,26 @@ export function ImageWikimediaCard({
   }, [userId])
 
   const handleTopicToggle = useCallback(async (topicId: string) => {
+    // Optimistically update parent state first
+    setAllTopics(prev =>
+      prev.map(t =>
+        t.id === topicId
+          ? { ...t, active: !t.active }
+          : t
+      )
+    )
+
     if (userId) {
-      fetch('/api/wikimedia-topics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'toggle_active', topicId }),
-      }).catch(() => {})
-      refreshTopics()
+      try {
+        await fetch('/api/wikimedia-topics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'toggle_active', topicId }),
+        })
+      } catch (error) {
+        console.error('Failed to toggle topic active status:', error)
+      }
+      await refreshTopics()
     }
     setImage(null)
   }, [userId, refreshTopics])
