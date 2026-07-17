@@ -125,8 +125,8 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     }
   }
 
-  const followedTopics = allTopics.filter(t => allSelected || followedIds.includes(t.id))
-  const unfollowedTopics = allTopics.filter(t => !allSelected && !followedIds.includes(t.id))
+  const followedTopics = allTopics.filter(t => isAllSelected || followedIds.includes(t.id))
+  const unfollowedTopics = allTopics.filter(t => !isAllSelected && !followedIds.includes(t.id))
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
