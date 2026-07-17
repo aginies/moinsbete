@@ -4,16 +4,6 @@ import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
-interface RadioFranceDoc {
-  id: string
-  title: string
-  description: string
-  url: string
-  radio: string
-  section: string
-  image?: string
-}
-
 export async function GET(request: NextRequest) {
   const clientId = getClientIp(request)
   if (!(await checkRateLimit(`radio-france:${clientId}`, 30, 60_000))) {
@@ -59,18 +49,27 @@ export async function GET(request: NextRequest) {
   const { radioFranceDocs } = await import('@/data/radio-france')
   const filtered = excludeId ? radioFranceDocs.filter(d => d.id !== excludeId) : radioFranceDocs
   
-  if (filtered.length === 0) {
-    return NextResponse.json({ error: true }, { status: 502 })
+  if (filtered.length > 0) {
+    const doc = filtered[Math.floor(Math.random() * filtered.length)]
+    return NextResponse.json({
+      id: doc.id,
+      title: doc.title,
+      description: doc.description,
+      url: doc.url,
+      radio: doc.radio,
+      section: doc.section,
+      image: doc.image,
+    })
   }
 
-  const doc = filtered[Math.floor(Math.random() * filtered.length)]
+  // Last resort fallback
   return NextResponse.json({
-    id: doc.id,
-    title: doc.title,
-    description: doc.description,
-    url: doc.url,
-    radio: doc.radio,
-    section: doc.section,
-    image: doc.image,
+    id: 'fallback',
+    title: 'Documentaire France Culture',
+    description: 'Écoutez les documentaires de France Culture',
+    url: 'https://www.radiofrance.fr/franceculture/podcasts',
+    radio: 'France Culture',
+    section: 'Documentaires',
+    image: '',
   })
 }

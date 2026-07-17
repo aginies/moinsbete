@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { sleep } from '@/lib/cache-helpers'
 
 const NEWSROOM_BASE = 'https://www.cnrs.fr'
 
-interface CachedCnrsArticle {
+interface CnrsArticle {
   title: string
   imageUrl: string
   link: string
@@ -12,8 +11,8 @@ interface CachedCnrsArticle {
   date: string
 }
 
-async function scrapeFreshArticles(): Promise<CachedCnrsArticle[]> {
-  const articles: CachedCnrsArticle[] = []
+async function scrapeFreshArticles(): Promise<CnrsArticle[]> {
+  const articles: CnrsArticle[] = []
   
   for (let page = 1; page <= 10; page++) {
     try {
@@ -69,7 +68,7 @@ async function scrapeFreshArticles(): Promise<CachedCnrsArticle[]> {
   return articles
 }
 
-async function upsertFreshArticles(articles: CachedCnrsArticle[]) {
+async function upsertFreshArticles(articles: CnrsArticle[]) {
   if (articles.length === 0) return
   
   const now = new Date()
@@ -86,6 +85,7 @@ async function upsertFreshArticles(articles: CachedCnrsArticle[]) {
 
 export async function GET() {
   try {
+    // Try cache first
     const cached = await prisma.cachedCnrsArticle.findMany({
       where: { expiresAt: { gte: new Date() } },
       orderBy: { scrapedAt: 'desc' },
@@ -103,7 +103,7 @@ export async function GET() {
       })
     }
 
-    // Cache empty or expired — scrape fresh
+    // Cache empty — scrape fresh
     const articles = await scrapeFreshArticles()
     if (articles.length > 0) {
       await upsertFreshArticles(articles)
@@ -117,9 +117,22 @@ export async function GET() {
       })
     }
 
-    return NextResponse.json({ error: true })
+    // Scrape failed — return placeholder
+    return NextResponse.json({
+      title: 'Actualit\u00e9 CNRS',
+      imageUrl: '',
+      link: 'https://www.cnrs.fr/fr/newsroom',
+      category: 'Sciences',
+      date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+    })
   } catch (error) {
     console.error('CNRS error:', error)
-    return NextResponse.json({ error: true })
+    return NextResponse.json({
+      title: 'Actualit\u00e9 CNRS',
+      imageUrl: '',
+      link: 'https://www.cnrs.fr/fr/newsroom',
+      category: 'Sciences',
+      date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+    })
   }
 }
