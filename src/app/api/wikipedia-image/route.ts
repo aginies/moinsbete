@@ -12,8 +12,8 @@ interface ImageEntry {
 }
 
 const MONTHS = [
-  'janvier', 'f\u00e9vrier', 'mars', 'avril', 'mai', 'juin',
-  'juillet', 'ao\u00fbt', 'septembre', 'octobre', 'novembre', 'd\u00e9cembre',
+  'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+  'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre',
 ]
 
 const archives = MONTHS.flatMap((m) =>
@@ -46,7 +46,7 @@ function extractEntries(html: string): ImageEntry[] {
       entries.push({
         imageUrl,
         description: imgAltMatch[1]
-          .replace(/\s*\([^)]*d\u00e9finition r\u00e9elle[^)]*\)/, '')
+          .replace(/\s*\([^)]*définition réelle[^)]*\)/, '')
           .trim(),
         fileUrl: `https://fr.wikipedia.org/wiki/Fichier:${fileHrefMatch[1]}`,
         date,
@@ -134,20 +134,30 @@ export async function GET(request: NextRequest) {
       if (entries.length > 0) break
     }
 
-    if (entries.length === 0) {
-      return NextResponse.json({ error: true })
+    if (entries.length > 0) {
+      const randomEntry = entries[Math.floor(Math.random() * entries.length)]
+      return NextResponse.json({
+        imageUrl: randomEntry.imageUrl,
+        description: randomEntry.description,
+        fileUrl: randomEntry.fileUrl,
+        date: randomEntry.date,
+      })
     }
 
-    const randomEntry = entries[Math.floor(Math.random() * entries.length)]
-
+    // All failed — return placeholder
     return NextResponse.json({
-      imageUrl: randomEntry.imageUrl,
-      description: randomEntry.description,
-      fileUrl: randomEntry.fileUrl,
-      date: randomEntry.date,
+      imageUrl: '',
+      description: 'Image du jour — Wikipédia',
+      fileUrl: 'https://fr.wikipedia.org/wiki/Wikipédia:Image_du_jour',
+      date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
     })
   } catch (error) {
     console.error('Wikipedia image error:', error)
-    return NextResponse.json({ error: true })
+    return NextResponse.json({
+      imageUrl: '',
+      description: 'Image du jour — Wikipédia',
+      fileUrl: 'https://fr.wikipedia.org/wiki/Wikipédia:Image_du_jour',
+      date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+    })
   }
 }
