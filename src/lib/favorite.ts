@@ -24,6 +24,7 @@ export async function toggleBookmark(
   const existing = await prisma.bookmark.findFirst({
     where: { userId, resourceId, type },
   })
+  console.log('[toggleBookmark] userId:', userId, 'type:', type, 'resourceId:', resourceId, 'action:', action, 'existing:', existing?.id)
 
   if (existing) {
     if (action === 'add') return { bookmarked: false, wasBookmarked: true }
@@ -36,6 +37,7 @@ export async function toggleBookmark(
   await prisma.bookmark.create({
     data: { userId, resourceId, type, meta: meta as any },
   })
+  console.log('[toggleBookmark] Created bookmark:', { userId, resourceId, type })
   return { bookmarked: true, wasBookmarked: false }
 }
 
