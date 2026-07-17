@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play } from 'lucide-react'
+import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play, Volume2, VolumeX } from 'lucide-react'
 import Link from 'next/link'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
@@ -64,6 +64,16 @@ function formatDuration(seconds: number): string {
   return `0:${secs.toString().padStart(2, '0')}`
 }
 
+function formatTime(seconds: number): string {
+  if (!seconds || seconds <= 0) return '0:00'
+  const minutes = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  if (minutes > 0) {
+    return `${minutes}:${secs.toString().padStart(2, '0')}`
+  }
+  return `0:${secs.toString().padStart(2, '0')}`
+}
+
 export function ImagePixabayCard({
   userId,
   swipeable = false,
@@ -91,6 +101,8 @@ export function ImagePixabayCard({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isMuted, setIsMuted] = useState(true)
+  const [currentTime, setCurrentTime] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string>('forest')
   const [showCategories, setShowCategories] = useState(true)
@@ -137,13 +149,21 @@ export function ImagePixabayCard({
 
   const togglePlay = useCallback(() => {
     const el = videoRef.current
-    console.log('togglePlay called, el:', el, 'paused:', el?.paused)
     if (!el) return
     if (el.paused) {
-      el.play().then(() => console.log('video playing')).catch(e => console.log('play failed:', e))
+      el.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
     } else {
       el.pause()
+      setIsPlaying(false)
     }
+  }, [])
+
+  const toggleMute = useCallback(() => {
+    const el = videoRef.current
+    if (!el) return
+    const newMuted = !el.muted
+    el.muted = newMuted
+    setIsMuted(newMuted)
   }, [])
 
   const handleBookmark = useCallback(async () => {
@@ -225,16 +245,24 @@ export function ImagePixabayCard({
             >
               <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
             </button>
-            {showToggle && (
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
+                onClick={(e) => { e.stopPropagation(); toggleMute() }}
                 className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
-                title="Masquer la carte"
+                title={isMuted ? 'Activer le son' : 'Couper le son'}
               >
-                <EyeOff className="h-4 w-4" />
+                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
               </button>
-            )}
+              {showToggle && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
+                  className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
+                  title="Masquer la carte"
+                >
+                  <EyeOff className="h-4 w-4" />
+                </button>
+              )}
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); loadVideo() }}
@@ -293,13 +321,17 @@ export function ImagePixabayCard({
             ref={videoRef}
             src={video.videoUrl}
             poster={video.thumbnailUrl}
-            muted
+            muted={isMuted}
             loop
             playsInline
             autoPlay
-            onPlay={() => { console.log('video onPlay'); setIsPlaying(true) }}
-            onPause={() => { console.log('video onPause'); setIsPlaying(false) }}
-            onEnded={() => { console.log('video onEnded'); setIsPlaying(false) }}
+            onTimeUpdate={() => {
+              const el = videoRef.current
+              if (el) setCurrentTime(el.currentTime)
+            }}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onEnded={() => setIsPlaying(false)}
             className={`w-full ${largeImage ? 'h-[28vh] object-cover bg-black' : fullImage ? 'max-h-[60vh] object-contain bg-black' : 'h-48 object-cover'}`}
             onClick={(e) => {
               e.stopPropagation()
@@ -310,7 +342,6 @@ export function ImagePixabayCard({
             <div
               className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
               onClick={(e) => {
-                console.log('overlay onClick, isPlaying:', isPlaying)
                 e.stopPropagation()
                 togglePlay()
               }}
@@ -319,8 +350,8 @@ export function ImagePixabayCard({
             </div>
           )}
           {video.duration > 0 && (
-            <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded">
-              {formatDuration(video.duration)}
+            <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded">
+              {formatTime(currentTime)} / {formatDuration(video.duration)}
             </div>
           )}
         </div>
