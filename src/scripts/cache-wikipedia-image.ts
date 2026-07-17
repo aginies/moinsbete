@@ -147,9 +147,7 @@ export async function scrapeAndCacheWikipediaImages(count: number = 1): Promise<
     const entries = await fetchArchive(archiveName)
     
     if (entries && entries.length > 0) {
-      if (i === 0) {
-        console.log(`  ${archiveName}: ${entries.length} images`)
-      }
+      console.log(`  ${archiveName}: ${entries.length} images`)
       
       const now2 = new Date()
       const expiresAt = new Date(now2.getTime() + 30 * 24 * 60 * 60 * 1000)
@@ -171,9 +169,7 @@ export async function scrapeAndCacheWikipediaImages(count: number = 1): Promise<
         create: { key: 'lastFetchedWikipediaMonth', value: archiveName },
       })
     } else {
-      if (i === 0) {
-        console.log(`  ${archiveName}: aucune donnée`)
-      }
+      console.log(`  ${archiveName}: aucune donnée`)
     }
     
     lastFetched = { month: nextMonth, year: nextYear }
