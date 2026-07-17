@@ -34,7 +34,7 @@ fi
 
 cd "$DEST"
 ## Install deps
-#npm ci
+npm ci --production
 
 npx prisma generate
 npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
