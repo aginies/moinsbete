@@ -4,10 +4,11 @@ import { ReviewQueue } from '@/components/admin/review-queue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
 import { Topic } from '@/generated/client'
+import { SuggestionStatus } from '@/generated/client'
 
 interface AdminContentProps {
   topics: Array<{ id: string } & Topic>
-  suggestions: Array<{ id: string; status: string; categoryName: string; icon: string; articleCount: number; confidence: number; parentId: string | null; createdAt: Date; mergedIntoId: string | null }> & { parentTopic?: { name: string } | null }
+  suggestions: Array<{ id: string; status: SuggestionStatus; categoryName: string; icon: string; articleCount: number; confidence: number; parentId: string | null; createdAt: Date; mergedIntoId: string | null }> & { parentTopic?: { name: string } | null }
   onApprove: (id: string) => Promise<{ success?: boolean; error?: string; topicId?: string }>
   onReject: (id: string) => Promise<{ success?: boolean; error?: string }>
   onMerge: (id: string, mergedInto: string) => Promise<{ success?: boolean; error?: string; mergedInto?: any }>
