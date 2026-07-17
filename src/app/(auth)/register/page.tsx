@@ -13,9 +13,10 @@ import { Label } from '@/components/ui/label'
 declare global {
   interface Window {
     turnstile?: {
-      render: (selector: string, config: { sitekey: string | undefined; callback: (token: string) => void; theme: string }) => string
+      render: (selector: string, config: { sitekey: string | undefined; callback: string | ((token: string) => void); theme: string }) => string
       reset?: (widgetId: string) => void
     }
+    turnstileCallback?: (token: string) => void
   }
 }
 
@@ -39,7 +40,7 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
 
   const handleTurnstileCallback = useCallback((token: string) => {
     setTurnstileToken(token)
-  }, [])
+  }, [setTurnstileToken])
 
   useEffect(() => {
     if (widgetId || typeof window === 'undefined' || !window.turnstile) return
@@ -49,7 +50,7 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
       theme: 'light',
     })
     setWidgetId(id)
-  }, [handleTurnstileCallback])
+  }, [handleTurnstileCallback, widgetId])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -161,16 +162,22 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
           <div
             className="cf-turnstile"
             data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+            data-callback="turnstileCallback"
             data-theme="light"
           />
           <Script
             src="https://challenges.cloudflare.com/turnstile/v0/api.js"
             strategy="afterInteractive"
             onLoad={() => {
+              if (typeof window !== 'undefined' && window.turnstile && !window.turnstileCallback) {
+                window.turnstileCallback = (token: string) => {
+                  setTurnstileToken(token)
+                }
+              }
               if (typeof window !== 'undefined' && window.turnstile && !widgetId) {
                 const id = window.turnstile.render('.cf-turnstile', {
                   sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
-                  callback: handleTurnstileCallback,
+                  callback: 'turnstileCallback',
                   theme: 'light',
                 })
                 setWidgetId(id)
