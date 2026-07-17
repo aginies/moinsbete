@@ -6,17 +6,17 @@ import React from 'react'
 
 interface TopicGridProps {
   topics: Array<{ id: string } & Topic>
-  followedIds?: string[]
+  followedIdsSet?: Set<string>
   onToggle?: (topicId: string, isFollowing: boolean) => void
   isAuthenticated?: boolean
   allSelected?: boolean
 }
 
-export const TopicGrid = React.memo(function TopicGrid({ topics, followedIds = [], onToggle, isAuthenticated, allSelected }: TopicGridProps) {
+export const TopicGrid = React.memo(function TopicGrid({ topics, followedIdsSet = new Set(), onToggle, isAuthenticated, allSelected }: TopicGridProps) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {topics.map((topic) => {
-        const isFollowing = allSelected || followedIds.includes(topic.id)
+        const isFollowing = allSelected || followedIdsSet.has(topic.id)
         return (
           <TopicCard
             key={topic.id}

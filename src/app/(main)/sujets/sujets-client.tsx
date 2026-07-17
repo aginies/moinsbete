@@ -36,11 +36,13 @@ async function updateCardVisibility(field: string, value: boolean) {
 }
 
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility }: SujetsClientProps) {
+  const initialFollowedIdsSet = useMemo(() => new Set(initialFollowedIds), [initialFollowedIds])
   const isAllSelected = useMemo(
-    () => allTopics.length > 0 && allTopics.every(t => initialFollowedIds.includes(t.id)),
-    [allTopics, initialFollowedIds],
+    () => allTopics.length > 0 && allTopics.every(t => initialFollowedIdsSet.has(t.id)),
+    [allTopics, initialFollowedIdsSet],
   )
   const [followedIds, setFollowedIds] = useState<string[]>(isAllSelected ? [] : initialFollowedIds)
+  const followedIdsSet = useMemo(() => new Set(followedIds), [followedIds])
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
     saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true,
@@ -65,7 +67,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const handleToggle = (topicId: string, _isFollowing: boolean) => {
     if (isAllSelected) {
       setFollowedIds([topicId])
-    } else if (followedIds.includes(topicId)) {
+    } else if (followedIdsSet.has(topicId)) {
       setFollowedIds(prev => prev.filter(id => id !== topicId))
     } else {
       setFollowedIds(prev => [...prev, topicId])
@@ -73,12 +75,12 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   }
 
   const followedTopics = useMemo(
-    () => allTopics.filter(t => isAllSelected || followedIds.includes(t.id)),
-    [allTopics, isAllSelected, followedIds],
+    () => allTopics.filter(t => isAllSelected || followedIdsSet.has(t.id)),
+    [allTopics, isAllSelected, followedIdsSet],
   )
   const unfollowedTopics = useMemo(
-    () => allTopics.filter(t => !isAllSelected && !followedIds.includes(t.id)),
-    [allTopics, isAllSelected, followedIds],
+    () => allTopics.filter(t => !isAllSelected && !followedIdsSet.has(t.id)),
+    [allTopics, isAllSelected, followedIdsSet],
   )
 
   return (
@@ -168,11 +170,11 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
       {followedTopics.length > 0 && (
         <div className="mb-8">
-          <TopicGrid topics={followedTopics} followedIds={followedIds} onToggle={handleToggle} isAuthenticated={!!userId} allSelected={isAllSelected} />
+          <TopicGrid topics={followedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} allSelected={isAllSelected} />
         </div>
       )}
 
-      <TopicGrid topics={unfollowedTopics} followedIds={followedIds} onToggle={handleToggle} isAuthenticated={!!userId} allSelected={isAllSelected} />
+      <TopicGrid topics={unfollowedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} allSelected={isAllSelected} />
     </div>
   )
 }
