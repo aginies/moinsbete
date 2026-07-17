@@ -175,7 +175,7 @@ export async function scrapeAndCacheWikipediaImages(count: number = 1): Promise<
     lastFetched = { month: nextMonth, year: nextYear }
     
     if (i < count - 1) {
-      await sleep(2000)
+      await sleep(3000)
     }
   }
   
