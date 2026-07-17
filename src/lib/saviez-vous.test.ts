@@ -41,6 +41,7 @@ describe('getRandomFact', () => {
       text: 'Test fact',
       sourceUrl: 'https://example.com',
       imageFilename: null,
+      createdAt: new Date(),
     }
     const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.saviezVousFact.count).mockResolvedValue(1)
@@ -60,6 +61,7 @@ describe('getRandomFact', () => {
       text: 'Cached fact',
       sourceUrl: null,
       imageFilename: null,
+      createdAt: new Date(),
     }
     const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.saviezVousFact.count).mockResolvedValue(1)
