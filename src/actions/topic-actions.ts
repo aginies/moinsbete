@@ -3,7 +3,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { slugify } from '@/lib/utils'
+import { slugify, getRandomIcon, getRandomColor } from '@/lib/utils'
 
 export async function createTopicAction(data: {
   name: string
@@ -90,7 +90,7 @@ export async function approveSuggestionAction(id: string) {
     return { error: 'Suggestion already processed' }
   }
 
-  let topic
+  let topic: { id: string }
   await prisma.$transaction(async (tx) => {
     if (suggestion.parentId) {
       topic = await tx.topic.create({
@@ -118,7 +118,7 @@ export async function approveSuggestionAction(id: string) {
     })
   })
 
-  return { success: true, topicId: topic.id }
+  return { success: true, topicId: topic!.id }
 }
 
 export async function rejectSuggestionAction(id: string) {
