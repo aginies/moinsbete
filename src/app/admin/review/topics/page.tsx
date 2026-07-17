@@ -4,29 +4,7 @@ import { TopicSuggestion } from '@/generated/client'
 import { ReviewQueue } from '@/components/admin/review-queue'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-
-async function handleApprove(id: string) {
-  'use server'
-  await fetch(`${process.env.NEXTAUTH_URL}/api/admin/suggestions/${id}/approve`, {
-    method: 'POST',
-  })
-}
-
-async function handleReject(id: string) {
-  'use server'
-  await fetch(`${process.env.NEXTAUTH_URL}/api/admin/suggestions/${id}/reject`, {
-    method: 'POST',
-  })
-}
-
-async function handleMerge(id: string, mergedIntoId: string) {
-  'use server'
-  await fetch(`${process.env.NEXTAUTH_URL}/api/admin/suggestions/${id}/merge`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mergedIntoId }),
-  })
-}
+import { approveSuggestionAction, rejectSuggestionAction, mergeSuggestionAction } from '@/actions/topic-actions'
 
 export default async function AdminReviewPage() {
   const session = await getSession()
@@ -82,9 +60,9 @@ export default async function AdminReviewPage() {
       ) : (
         <ReviewQueue
           suggestions={suggestions}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          onMerge={handleMerge}
+          onApprove={approveSuggestionAction}
+          onReject={rejectSuggestionAction}
+          onMerge={mergeSuggestionAction}
           availableTopics={topics}
         />
       )}
