@@ -36,6 +36,7 @@ interface ImageWikimediaCardProps {
   onToggle?: () => void
   enableAutoRefresh?: boolean
   storageKey?: string
+  isVisible?: boolean
 }
 
 interface Topic {
@@ -100,6 +101,7 @@ export function ImageWikimediaCard({
   onToggle,
   enableAutoRefresh = false,
   storageKey = 'wikimedia',
+  isVisible,
 }: ImageWikimediaCardProps) {
   const [image, setImage] = useState<WikimediaImage | null>(null)
   const [loading, setLoading] = useState(false)
@@ -130,11 +132,12 @@ export function ImageWikimediaCard({
     toggleCategories()
   }, [toggleCategories])
 
-  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({
+  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({
     storageKey: 'image_wikimedia_card_visible',
     defaultShow: true,
     userId,
   })
+  const show = isVisible !== undefined ? isVisible : true
 
   const loadImage = useCallback(async () => {
     setLoading(true)

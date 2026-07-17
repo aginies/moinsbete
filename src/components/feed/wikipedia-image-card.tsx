@@ -32,6 +32,7 @@ interface WikipediaImageCardProps {
   enableAutoRefresh?: boolean
   storageKey?: string
   userId?: string
+  isVisible?: boolean
 }
 
 async function fetchRandomImage(): Promise<ImageData | null> {
@@ -55,6 +56,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   enableAutoRefresh = false,
   storageKey = 'image_du_jour',
   userId,
+  isVisible,
 }: WikipediaImageCardProps) {
   const [image, setImage] = useState<ImageData | null>(null)
   const [nextImage, setNextImage] = useState<ImageData | null>(null)
@@ -63,7 +65,8 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const [error, setError] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
-  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'wikipedia_image_card_visible', userId })
+  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'wikipedia_image_card_visible', userId })
+  const show = isVisible !== undefined ? isVisible : true
 
   // Background pre-fetching
   const prefetchNextImage = useCallback(async () => {
