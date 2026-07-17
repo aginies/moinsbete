@@ -12,6 +12,7 @@ export async function toggleBookmarkAction(
   meta?: Record<string, unknown>,
 ) {
   const session = await getServerSession(authOptions)
+  console.log('[toggleBookmarkAction] session:', session?.user?.id, 'type:', type, 'resourceId:', resourceId, 'action:', action)
   if (!session?.user) return { error: 'Non authentifié' }
   return await toggleBookmark(session.user.id, type, resourceId, action, meta)
 }
