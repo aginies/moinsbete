@@ -1,3 +1,5 @@
+'use client'
+
 import { Topic } from '@/generated/client'
 import { TopicCard } from './topic-card'
 import React from 'react'
