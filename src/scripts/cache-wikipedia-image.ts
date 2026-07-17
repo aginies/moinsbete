@@ -96,7 +96,7 @@ function nameToMonth(name: string): { month: number; year: number } | null {
   return { month: monthIdx, year }
 }
 
-export async function scrapeAndCacheWikipediaImages(): Promise<void> {
+export async function scrapeAndCacheWikipediaImages(count: number = 1): Promise<void> {
   console.log('📸 Scraping Wikipedia Image du Jour...')
   
   // Get last fetched month from config
@@ -111,58 +111,78 @@ export async function scrapeAndCacheWikipediaImages(): Promise<void> {
     lastFetched = { month: 0, year: START_YEAR }
   }
   
-  // Calculate next month
-  let nextMonth = lastFetched.month + 1
-  let nextYear = lastFetched.year
+  let totalImages = 0
   
-  if (nextMonth > 11) {
-    nextMonth = 0
-    nextYear++
-  }
-  
-  // If we've gone past END_YEAR, reset to START_YEAR
-  if (nextYear > END_YEAR) {
-    nextMonth = 0
-    nextYear = START_YEAR
-  }
-  
-  const archiveName = monthToName(nextMonth, nextYear)
-  
-  console.log(`  Fetching: ${archiveName} (après ${config?.value || 'janvier 2015'})`)
-  
-  const entries = await fetchArchive(archiveName)
-  
-  if (entries && entries.length > 0) {
-    console.log(`  ${archiveName}: ${entries.length} images`)
+  for (let i = 0; i < count; i++) {
+    // Calculate next month
+    let nextMonth = lastFetched.month + 1
+    let nextYear = lastFetched.year
     
-    const now2 = new Date()
-    const expiresAt = new Date(now2.getTime() + 30 * 24 * 60 * 60 * 1000)
-    
-    for (const image of entries) {
-      await prisma.cachedWikipediaImage.upsert({
-        where: { imageUrl_date: { imageUrl: image.imageUrl, date: image.date } },
-        update: { ...image, scrapedAt: now2, expiresAt },
-        create: { ...image, scrapedAt: now2, expiresAt },
-      })
+    if (nextMonth > 11) {
+      nextMonth = 0
+      nextYear++
     }
     
-    // Update last fetched month
-    await prisma.cachedConfig.upsert({
-      where: { key: 'lastFetchedWikipediaMonth' },
-      update: { value: archiveName },
-      create: { key: 'lastFetchedWikipediaMonth', value: archiveName },
-    })
+    // If we've gone past END_YEAR, reset to START_YEAR
+    if (nextYear > END_YEAR) {
+      nextMonth = 0
+      nextYear = START_YEAR
+    }
     
-    console.log(`  ✅ ${entries.length} images upserted`)
-  } else {
-    console.log(`  ${archiveName}: aucune donnée`)
+    const archiveName = monthToName(nextMonth, nextYear)
+    
+    if (i > 0) {
+      console.log(`  Fetching: ${archiveName}`)
+    }
+    
+    const entries = await fetchArchive(archiveName)
+    
+    if (entries && entries.length > 0) {
+      if (i === 0) {
+        console.log(`  ${archiveName}: ${entries.length} images`)
+      }
+      
+      const now2 = new Date()
+      const expiresAt = new Date(now2.getTime() + 30 * 24 * 60 * 60 * 1000)
+      
+      for (const image of entries) {
+        await prisma.cachedWikipediaImage.upsert({
+          where: { imageUrl_date: { imageUrl: image.imageUrl, date: image.date } },
+          update: { ...image, scrapedAt: now2, expiresAt },
+          create: { ...image, scrapedAt: now2, expiresAt },
+        })
+      }
+      
+      totalImages += entries.length
+      
+      // Update last fetched month
+      await prisma.cachedConfig.upsert({
+        where: { key: 'lastFetchedWikipediaMonth' },
+        update: { value: archiveName },
+        create: { key: 'lastFetchedWikipediaMonth', value: archiveName },
+      })
+    } else {
+      if (i === 0) {
+        console.log(`  ${archiveName}: aucune donnée`)
+      }
+    }
+    
+    lastFetched = { month: nextMonth, year: nextYear }
+  }
+  
+  if (totalImages > 0) {
+    console.log(`  ✅ ${totalImages} images upserted au total`)
   }
   
   await cleanupExpired()
 }
 
 if (process.argv[1]?.includes('cache-wikipedia-image')) {
-  scrapeAndCacheWikipediaImages()
+  const monthsArg = process.argv.includes('--months')
+    ? parseInt(process.argv[process.argv.indexOf('--months') + 1], 10)
+    : 1
+  
+  scrapeAndCacheWikipediaImages(monthsArg || 1)
     .then(() => {
       console.log('Done!')
       process.exit(0)
