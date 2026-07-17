@@ -10,6 +10,24 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (selector: string, config: { sitekey: string | undefined; callback: (token: string) => void; theme: string }) => string
+      reset?: (widgetId: string) => void
+    }
+  }
+}
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (selector: string, config: { sitekey: string | undefined; callback: (token: string) => void; theme: string }) => string
+      reset?: (widgetId: string) => void
+    }
+  }
+}
+
 export default function RegisterPage() {
   const [registrationLocked, setRegistrationLocked] = useState(false)
 
@@ -25,6 +43,23 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const [widgetId, setWidgetId] = useState<string | null>(null)
+
+  const handleTurnstileCallback = (token: string) => {
+    setTurnstileToken(token)
+  }
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.turnstile) {
+      const id = window.turnstile.render('.cf-turnstile', {
+        sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+        callback: handleTurnstileCallback,
+        theme: 'light',
+      })
+      setWidgetId(id)
+    }
+  }, [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -36,7 +71,7 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
       displayName: formData.get('displayName') as string,
-      cfToken: formData.get('cf-turnstile-response') as string,
+      cfToken: turnstileToken,
     })
 
     if (result.error) {
@@ -141,6 +176,16 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
           <Script
             src="https://challenges.cloudflare.com/turnstile/v0/api.js"
             strategy="afterInteractive"
+            onLoad={() => {
+              if (typeof window !== 'undefined' && window.turnstile && !widgetId) {
+                const id = window.turnstile.render('.cf-turnstile', {
+                  sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+                  callback: handleTurnstileCallback,
+                  theme: 'light',
+                })
+                setWidgetId(id)
+              }
+            }}
           />
 
           <Button type="submit" className="w-full" disabled={loading || registrationLocked}>

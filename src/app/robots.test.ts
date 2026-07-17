@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 
 describe('robots.txt', () => {
   beforeEach(() => {
@@ -10,7 +10,7 @@ describe('robots.txt', () => {
     const defaultFn = robots.default
     const result = defaultFn()
 
-    expect(result.rules.allow).toBe('/')
+    expect((result.rules as any).allow).toBe('/')
   })
 
   it('disallows admin and api paths', async () => {
@@ -18,8 +18,8 @@ describe('robots.txt', () => {
     const defaultFn = robots.default
     const result = defaultFn()
 
-    expect(result.rules.disallow).toContain('/admin')
-    expect(result.rules.disallow).toContain('/api/')
+    expect((result.rules as any).disallow).toContain('/admin')
+    expect((result.rules as any).disallow).toContain('/api/')
   })
 
   it('includes sitemap URL', async () => {

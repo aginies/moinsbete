@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('@/lib/db', () => ({
   prisma: {
@@ -44,9 +44,19 @@ vi.mock('next-auth/jwt', () => ({
 
 const originalFetch = global.fetch
 beforeEach(() => {
-  global.fetch = vi.fn().mockResolvedValue({
+  const mockResponse = {
+    ok: true,
+    status: 200,
+    statusText: 'OK',
+    headers: new Map(),
     json: vi.fn().mockResolvedValue({ success: true }),
-  })
+    redirected: false,
+    url: '',
+    type: 'basic',
+    body: null,
+    bodyUsed: false,
+  } as unknown as Response
+  global.fetch = vi.fn().mockResolvedValue(mockResponse)
 })
 
 afterEach(() => {
@@ -162,9 +172,19 @@ describe('registerAction', () => {
   it('returns error when Turnstile fails', async () => {
     delete process.env.REGISTRATION_LOCKED
     process.env.TURNSTILE_SECRET_KEY = 'test-secret'
-    vi.mocked(global.fetch).mockResolvedValueOnce({
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      headers: new Map(),
       json: vi.fn().mockResolvedValue({ success: false }),
-    })
+      redirected: false,
+      url: '',
+      type: 'basic',
+      body: null,
+      bodyUsed: false,
+    } as unknown as Response
+    vi.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
 
     const { registerAction } = await import('@/actions/auth-actions')
     const result = await registerAction({

@@ -28,12 +28,15 @@ describe('toggleRadioFavorite', async () => {
     vi.mocked(prisma.bookmark.create).mockResolvedValue({
       id: 'bm-1',
       userId: 'u1',
+      ideaId: null,
       resourceId: 'doc-1',
       type: 'RADIO_FRANCE',
       meta: null,
       createdAt: new Date(),
-      idea: null,
-      user: { id: 'u1' } as any,
+      lastReviewAt: null,
+      nextReviewAt: null,
+      reviewCount: 0,
+      easeFactor: 2.5,
     })
 
     const { toggleRadioFavorite } = await import('@/lib/radio-bookmark')
@@ -51,22 +54,28 @@ describe('toggleRadioFavorite', async () => {
     vi.mocked(prisma.bookmark.findFirst).mockResolvedValue({
       id: 'bm-1',
       userId: 'u1',
-      ideaId: 'doc-1',
+      ideaId: null,
+      resourceId: 'doc-1',
       type: 'RADIO_FRANCE',
       meta: null,
       createdAt: new Date(),
-      idea: null,
-      user: { id: 'u1' } as any,
+      lastReviewAt: null,
+      nextReviewAt: null,
+      reviewCount: 0,
+      easeFactor: 2.5,
     })
     vi.mocked(prisma.bookmark.delete).mockResolvedValue({
       id: 'bm-1',
       userId: 'u1',
-      ideaId: 'doc-1',
+      ideaId: null,
+      resourceId: 'doc-1',
       type: 'RADIO_FRANCE',
       meta: null,
       createdAt: new Date(),
-      idea: null,
-      user: { id: 'u1' } as any,
+      lastReviewAt: null,
+      nextReviewAt: null,
+      reviewCount: 0,
+      easeFactor: 2.5,
     })
 
     const { toggleRadioFavorite } = await import('@/lib/radio-bookmark')
@@ -92,8 +101,15 @@ describe('getRadioFavorites', async () => {
       {
         id: 'bm-1',
         resourceId: 'doc-1',
+        userId: 'u1',
+        ideaId: null,
+        type: 'RADIO_FRANCE',
         meta: { title: 'Test', description: 'Desc', url: 'http://test.com', radio: 'France Culture', section: 'Docs', image: 'img.jpg', favoritedAt: '2024-01-01' },
         createdAt: new Date('2024-01-01'),
+        lastReviewAt: null,
+        nextReviewAt: null,
+        reviewCount: 0,
+        easeFactor: 2.5,
       },
     ])
 

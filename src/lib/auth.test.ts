@@ -25,7 +25,7 @@ vi.mock('@/lib/db', () => ({
 }))
 
 vi.mock('next/headers', () => ({
-  cookies: vi.fn(() => ({
+  cookies: vi.fn(() => Promise.resolve({
     get: vi.fn((name: string) => {
       if (name === '__Secure-next-auth.session-token') {
         return { value: 'mock-session-token' }
@@ -51,9 +51,18 @@ describe('getSession', () => {
 
   it('returns null when no session cookie', async () => {
     const { cookies } = await import('next/headers')
-    vi.mocked(cookies).mockImplementationOnce(() => ({
+    vi.mocked(cookies).mockImplementationOnce(async () => ({
       get: vi.fn(() => undefined),
-    }))
+      has: vi.fn(() => false),
+      getAll: vi.fn(() => []),
+      set: vi.fn(),
+      delete: vi.fn(),
+      clear: vi.fn(),
+      size: 0,
+      [Symbol.iterator]: () => ({
+        next: () => Promise.resolve({ done: true, value: undefined }),
+      }),
+    }) as any)
 
     const { getSession } = await import('@/lib/auth')
     const result = await getSession()

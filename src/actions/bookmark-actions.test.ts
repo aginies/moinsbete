@@ -33,7 +33,14 @@ describe('bookmarkAction - add', () => {
       id: 'bm-1',
       userId: 'user-1',
       ideaId: 'idea-1',
+      resourceId: null,
+      type: 'IDEA' as const,
+      meta: null,
       createdAt: new Date(),
+      lastReviewAt: null,
+      nextReviewAt: null,
+      reviewCount: 0,
+      easeFactor: 2.5,
     })
   })
 
@@ -68,7 +75,14 @@ describe('bookmarkAction - remove', () => {
       id: 'bm-1',
       userId: 'user-1',
       ideaId: 'idea-1',
+      resourceId: null,
+      type: 'IDEA' as const,
+      meta: null,
       createdAt: new Date(),
+      lastReviewAt: null,
+      nextReviewAt: null,
+      reviewCount: 0,
+      easeFactor: 2.5,
     })
   })
 
@@ -138,7 +152,14 @@ describe('getSavedIdeas', () => {
       id: 'bm-1',
       userId: 'user-1',
       ideaId: 'idea-1',
+      resourceId: null,
+      type: 'IDEA' as const,
+      meta: null,
       createdAt: new Date(),
+      lastReviewAt: null,
+      nextReviewAt: null,
+      reviewCount: 0,
+      easeFactor: 2.5,
       idea: {
         id: 'idea-1',
         title: 'Test Idea',
