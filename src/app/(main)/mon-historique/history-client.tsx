@@ -181,7 +181,6 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={goToPage}
               pageUrl={(page) => {
                 const params = new URLSearchParams(searchParams.toString())
                 if (page > 1) {

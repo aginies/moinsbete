@@ -7,7 +7,6 @@ import { Button } from './button'
 interface PaginationProps {
   currentPage: number
   totalPages: number
-  onPageChange: (page: number) => void
   pageUrl: (page: number) => string
 }
 
@@ -37,7 +36,7 @@ function generatePageNumbers(currentPage: number, totalPages: number) {
   return pages
 }
 
-export function Pagination({ currentPage, totalPages, onPageChange, pageUrl }: PaginationProps) {
+export function Pagination({ currentPage, totalPages, pageUrl }: PaginationProps) {
   if (totalPages <= 1) return null
 
   const pages = generatePageNumbers(currentPage, totalPages)

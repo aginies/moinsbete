@@ -13,13 +13,9 @@ import { RadioFranceFavorites } from './radio-france-favorites'
 import { CnrsBookmarks } from '@/components/feed/cnrs-bookmarks'
 import { type CompactIdea } from '@/types/idea'
 import { normalizeAccents } from '@/lib/utils'
-import { getRadioFavoritesCount } from '@/lib/radio-bookmark'
-import { getImageDuJourFavoritesCount } from '@/lib/image-du-jour-bookmark'
-import { getSaviezVousFavoritesCount } from '@/lib/saviez-vous-bookmark'
 import { ImageDuJourBookmarks } from '@/components/feed/image-du-jour-bookmarks'
 import { SaviezVousBookmarks } from '@/components/feed/saviez-vous-bookmarks'
 import { ImageWikimediaFavorites } from './image-wikimedia-favorites'
-import { BookOpen } from 'lucide-react'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 
@@ -107,12 +103,12 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   }, [])
 
   const handleSaviezVousRemove = useCallback(() => {
-     setSaviezVousCount(prev => Math.max(0, prev - 1))
-   }, [])
+    setSaviezVousCount(prev => Math.max(0, prev - 1))
+  }, [])
 
-const handleWikimediaRemove = useCallback(() => {
-     setWikimediaCount(prev => Math.max(0, prev - 1))
-   }, [])
+  const handleWikimediaRemove = useCallback(() => {
+    setWikimediaCount(prev => Math.max(0, prev - 1))
+  }, [])
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
@@ -225,7 +221,6 @@ const handleWikimediaRemove = useCallback(() => {
                  <Pagination
                    currentPage={currentPage}
                    totalPages={totalPages}
-                   onPageChange={() => {}}
                    pageUrl={pageUrl}
                  />
                )}
