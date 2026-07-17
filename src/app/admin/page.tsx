@@ -8,6 +8,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { approveSuggestionAction, rejectSuggestionAction, mergeSuggestionAction } from '@/actions/topic-actions'
 
+export const revalidate = 3600
+
 export default async function AdminPage() {
   const session = await getSession()
   if (!session?.user) {
@@ -50,6 +52,30 @@ export default async function AdminPage() {
   })
 
   return (
+    <AdminContent
+      topics={topics}
+      suggestions={suggestions}
+      onApprove={approveSuggestionAction}
+      onReject={rejectSuggestionAction}
+      onMerge={mergeSuggestionAction}
+    />
+  )
+}
+
+async function AdminContent({
+  topics,
+  suggestions,
+  onApprove,
+  onReject,
+  onMerge,
+}: {
+  topics: Array<{ id: string } & import('@/generated/client').Topic>
+  suggestions: Array<{ id: string; status: string; categoryName: string; icon: string; articleCount: number; confidence: number; parentId: string | null }> & { parentTopic?: { name: string } | null }
+  onApprove: (id: string) => Promise<{ success?: boolean; error?: string; topicId?: string }>
+  onReject: (id: string) => Promise<{ success?: boolean; error?: string }>
+  onMerge: (id: string, mergedInto: string) => Promise<{ success?: boolean; error?: string; mergedInto?: any }>
+}) {
+  return (
     <div className="mx-auto max-w-4xl p-4 md:p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -86,9 +112,9 @@ export default async function AdminPage() {
         <TabsContent value="review">
           <ReviewQueue
             suggestions={suggestions}
-            onApprove={approveSuggestionAction}
-            onReject={rejectSuggestionAction}
-            onMerge={mergeSuggestionAction}
+            onApprove={onApprove}
+            onReject={onReject}
+            onMerge={onMerge}
             availableTopics={topics}
           />
         </TabsContent>
