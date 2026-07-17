@@ -39,7 +39,7 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
                     <span className="ml-1">Historique</span>
                   </Button>
                 </Link>
-                <Link href="/review">
+                <Link href="/review" className="hidden">
                   <Button variant="ghost" size="sm" className="hidden md:inline-flex">
                     <BookOpen className="h-4 w-4" />
                     <span className="ml-1">Révision</span>
