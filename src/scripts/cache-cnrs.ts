@@ -87,19 +87,15 @@ export async function scrapeAndCacheCnrs(): Promise<void> {
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
   
-  let created = 0
-  let updated = 0
   for (const article of allArticles) {
-    const result = await prisma.cachedCnrsArticle.upsert({
+    await prisma.cachedCnrsArticle.upsert({
       where: { link: article.link },
       update: { ...article, scrapedAt: now, expiresAt },
       create: { ...article, scrapedAt: now, expiresAt },
     })
-    if (result.count === 0) created++
-    else updated++
   }
   
-  console.log(`  ✅ ${created} créés, ${updated} mis à jour`)
+  console.log(`  ✅ ${allArticles.length} articles upserted`)
   await cleanupExpired()
 }
 
