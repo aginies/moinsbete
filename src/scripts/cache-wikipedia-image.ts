@@ -115,8 +115,16 @@ export async function scrapeAndCacheWikipediaImages(count: number = 1): Promise<
   
   for (let i = 0; i < count; i++) {
     // Calculate next month
-    let nextMonth = lastFetched.month + 1
-    let nextYear = lastFetched.year
+    let nextMonth: number
+    let nextYear: number
+    
+    if (lastFetched) {
+      nextMonth = lastFetched.month + 1
+      nextYear = lastFetched.year
+    } else {
+      nextMonth = 0
+      nextYear = START_YEAR
+    }
     
     if (nextMonth > 11) {
       nextMonth = 0
