@@ -147,7 +147,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
       { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
       { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
-    ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, saviezVousCount, radioCount, cnrsCount])
+    ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, saviezVousCount, radioCount, cnrsCount])
 
   const sortedTabs = useMemo(() =>
     [...tabConfig].sort((a, b) => b.count - a.count),

@@ -43,7 +43,7 @@ function WikimediaFavoriteItem({ item, onRemove, onShowFullImage }: { item: Wiki
               className="w-full h-32 object-cover transition-opacity hover:opacity-90"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />
-            <ImageHint color="amber" />
+            <ImageHint color="rose" />
           </div>
         )}
         <h3 className="text-sm font-semibold text-rose-900 dark:text-rose-100 mb-1">

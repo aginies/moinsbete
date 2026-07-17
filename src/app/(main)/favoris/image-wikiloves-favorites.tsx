@@ -44,7 +44,7 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage }: WikiLovesFav
               className="w-full h-32 object-cover transition-opacity hover:opacity-90"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />
-            <ImageHint color="amber" />
+            <ImageHint color="cyan" />
           </div>
         )}
         <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
@@ -118,7 +118,7 @@ export function ImageWikiLovesFavorites({ userId, onRemoveComplete }: { userId?:
         darkBgGradient="dark:from-indigo-950/20 dark:to-emerald-950/20"
         textColor="text-indigo-900"
         darkTextColor="dark:text-indigo-100"
-        buttonColor="text-indigo-600"
+        buttonColor="text-purple-600"
         buttonHoverBg="hover:bg-indigo-100"
       />
       {showFullImage && (

@@ -1,15 +1,17 @@
 import { useState, useCallback, useEffect } from 'react'
 
-const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber'> = {
+const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange'> = {
    wikipedia_image_card_visible: 'teal',
    saviez_vous_card_visible: 'blue',
-   cnrs_news_enabled: 'teal',
+   cnrs_news_enabled: 'green',
    radio_france_card_visible: 'purple',
-   image_wikimedia_card_visible: 'amber',
-   image_wikimedia_show_categories: 'amber',
-   image_pixabay_card_visible: 'amber',
-   image_pixabay_show_categories: 'amber',
- }
+   image_wikimedia_card_visible: 'rose',
+   image_wikimedia_show_categories: 'rose',
+   image_pixabay_card_visible: 'orange',
+   image_pixabay_show_categories: 'orange',
+   image_wikiloves_card_visible: 'purple',
+   image_wikiloves_show_categories: 'purple',
+  }
 
 const DB_FIELD_MAP: Record<string, string> = {
    wikipedia_image_card_visible: 'wikipediaImageCardVisible',
@@ -32,7 +34,7 @@ interface UseCardVisibilityReturn {
   show: boolean
   hasMounted: boolean
   handleToggle: () => void
-  buttonColor: 'teal' | 'blue' | 'purple' | 'amber'
+  buttonColor: 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange'
 }
 
 export function useCardVisibility({ storageKey, defaultShow = true, userId }: UseCardVisibilityOptions): UseCardVisibilityReturn {
