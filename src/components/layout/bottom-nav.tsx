@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { href: '/sujets', label: 'Accueil', icon: Home },
   { href: '/favoris', label: 'Favoris', icon: Bookmark },
-  { href: '/review', label: 'Révision', icon: BookOpen },
+  { href: '/review', label: 'Révision', icon: BookOpen, hidden: true },
   { href: '/carte-mentale', label: 'Carte', icon: Network },
   { href: '/mon-historique', label: 'Historique', icon: Clock },
 ]
@@ -19,7 +19,7 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
       <div className="flex items-center justify-around px-1 py-0">
-        {navItems.map((item) => {
+        {navItems.filter(item => !item.hidden).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href ||
             pathname?.startsWith(item.href)
