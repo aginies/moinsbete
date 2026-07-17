@@ -49,7 +49,7 @@ export async function isBookmarked(userId: string, type: BookmarkType, resourceI
 }
 
 export async function getBookmarks(userId: string, type: BookmarkType): Promise<BookmarkItem[]> {
-  return prisma.bookmark.findMany({
+  const bookmarks = await prisma.bookmark.findMany({
     where: { userId, type },
     orderBy: { createdAt: 'desc' },
     select: {
@@ -60,6 +60,8 @@ export async function getBookmarks(userId: string, type: BookmarkType): Promise<
       createdAt: true,
     },
   })
+  console.log('[getBookmarks] userId:', userId, 'type:', type, 'count:', bookmarks.length)
+  return bookmarks
 }
 
 export async function getBookmarksCount(userId: string, type: BookmarkType): Promise<number> {
