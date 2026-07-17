@@ -33,12 +33,10 @@ export default function RegisterPage() {
 }
 
 function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boolean; siteKey: string | null }) {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
-  const [widgetId, setWidgetId] = useState<string | null>(null)
   const hasRenderedRef = useRef(false)
 
   const renderTurnstile = useCallback(() => {
@@ -48,14 +46,13 @@ function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boo
     try {
       container.innerHTML = ''
       hasRenderedRef.current = true
-      const id = window.turnstile.render(container, {
+      window.turnstile.render(container, {
         sitekey: siteKey,
         theme: 'light',
         callback: (token: string) => {
           setTurnstileToken(token)
         },
       })
-      setWidgetId(id)
     } catch (e) {
       hasRenderedRef.current = false
       console.error('Turnstile render error:', e)
@@ -70,24 +67,6 @@ function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boo
       return () => clearTimeout(timer)
     }
   }, [renderTurnstile, siteKey])
-
-  // Reset flag if siteKey changes
-  useEffect(() => {
-    hasRenderedRef.current = false
-  }, [siteKey])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (widgetId && typeof window !== 'undefined' && window.turnstile?.reset) {
-        try {
-          window.turnstile.reset(widgetId)
-        } catch {
-          // ignore
-        }
-      }
-    }
-  }, [widgetId])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
