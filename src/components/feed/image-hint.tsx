@@ -3,7 +3,7 @@
 import { ImageIcon } from 'lucide-react'
 
 interface ImageHintProps {
-  color: 'teal' | 'blue' | 'purple' | 'green' | 'amber'
+  color: 'teal' | 'blue' | 'purple' | 'green' | 'amber' | 'rose' | 'orange' | 'cyan'
 }
 
 const colorMap: Record<ImageHintProps['color'], { bg: string; darkBg: string; text: string; darkText: string }> = {
@@ -12,6 +12,9 @@ const colorMap: Record<ImageHintProps['color'], { bg: string; darkBg: string; te
   purple: { bg: 'bg-purple-100/80', darkBg: 'dark:bg-purple-900/40', text: 'text-purple-600', darkText: 'dark:text-purple-400' },
   green: { bg: 'bg-green-100/80', darkBg: 'dark:bg-green-900/40', text: 'text-green-600', darkText: 'dark:text-green-400' },
   amber: { bg: 'bg-amber-100/80', darkBg: 'dark:bg-amber-900/40', text: 'text-amber-600', darkText: 'dark:text-amber-400' },
+  rose: { bg: 'bg-rose-100/80', darkBg: 'dark:bg-rose-900/40', text: 'text-rose-600', darkText: 'dark:text-rose-400' },
+  orange: { bg: 'bg-orange-100/80', darkBg: 'dark:bg-orange-900/40', text: 'text-orange-600', darkText: 'dark:text-orange-400' },
+  cyan: { bg: 'bg-cyan-100/80', darkBg: 'dark:bg-cyan-900/40', text: 'text-cyan-600', darkText: 'dark:text-cyan-400' },
 }
 
 export function ImageHint({ color = 'teal' }: ImageHintProps) {

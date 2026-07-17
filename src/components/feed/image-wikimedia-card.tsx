@@ -366,7 +366,7 @@ export function ImageWikimediaCard({
             onLoad={() => setIsImageLoaded(true)}
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
-          {!fullImage && <ImageHint color="amber" />}
+          {!fullImage && <ImageHint color="rose" />}
         </div>
       )}
 

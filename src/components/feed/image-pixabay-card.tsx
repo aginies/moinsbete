@@ -204,9 +204,10 @@ export function ImagePixabayCard({
   }, [video, isFavorite])
 
   const handleCategorySelect = useCallback((categoryId: string) => {
+    if (!show) return
     setActiveCategory(categoryId)
     loadVideo()
-  }, [loadVideo])
+  }, [loadVideo, show])
 
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: video?.pageURL ?? '',
@@ -222,9 +223,9 @@ export function ImagePixabayCard({
     isDragging,
     prefersReducedMotion,
   } = useSwipeGesture({
-    onSwipeLeft: loadVideo,
-    onSwipeRight: loadVideo,
-    onRefresh: loadVideo,
+    onSwipeLeft: show ? loadVideo : undefined,
+    onSwipeRight: show ? loadVideo : undefined,
+    onRefresh: show ? loadVideo : undefined,
     swipeable,
     resetDep: video?.videoUrl,
   })

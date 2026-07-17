@@ -112,7 +112,7 @@ export function PixabayFavorites({ userId, onRemoveComplete }: { userId?: string
       darkBgGradient="dark:from-amber-950/20 dark:to-yellow-950/20"
       textColor="text-amber-900"
       darkTextColor="dark:text-amber-100"
-      buttonColor="text-amber-600"
+      buttonColor="text-orange-600"
       buttonHoverBg="hover:bg-amber-100"
     />
   )
