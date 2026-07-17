@@ -1,7 +1,5 @@
 'use client'
 
-import { TopicGrid } from '@/components/topics/topic-grid'
-import { TopicForm } from '@/components/admin/topic-form'
 import { ReviewQueue } from '@/components/admin/review-queue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
@@ -28,9 +26,8 @@ export function AdminContent({ topics, suggestions, onApprove, onReject, onMerge
         </Link>
       </div>
 
-      <Tabs defaultValue="topics" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="topics">Sujets</TabsTrigger>
+      <Tabs defaultValue="review" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="review">
             Suggestions
             {suggestions.length > 0 && (
@@ -41,14 +38,6 @@ export function AdminContent({ topics, suggestions, onApprove, onReject, onMerge
           </TabsTrigger>
           <TabsTrigger value="content">Contenu</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="topics">
-          <TopicForm topics={topics} topic={null} onSubmit={() => {}} />
-          <div className="mt-6">
-            <h2 className="mb-3 text-lg font-semibold">Tous les sujets</h2>
-            <TopicGrid topics={topics} />
-          </div>
-        </TabsContent>
 
         <TabsContent value="review">
           <ReviewQueue
