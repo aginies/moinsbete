@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import HistoryPageClient from './history-client'
 
-export default async function HistoryPage() {
+export default async function HistoryPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const params = await searchParams
+  const q = params.q
   const session = await getSession()
   const cookieStore = await cookies()
 
@@ -32,12 +34,15 @@ export default async function HistoryPage() {
     headers['cookie'] = `${sessionCookie.name}=${sessionCookie.value}`
   }
 
-  const historyRes = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/history?page=1&limit=50`, {
+  const historyRes = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/history?page=1&limit=50&q=${encodeURIComponent(q || '')}`, {
     headers,
   })
+  if (!historyRes.ok) {
+    return <HistoryPageClient initialIdeas={[]} total={0} totalIdeas={0} userId={userId} q={q || null} />
+  }
   const { ideas, total } = await historyRes.json()
 
   const totalIdeas = await prisma.idea.count({ where: { isPublished: true } })
 
-  return <HistoryPageClient initialIdeas={ideas} total={total} totalIdeas={totalIdeas} userId={userId} />
+  return <HistoryPageClient initialIdeas={ideas} total={total} totalIdeas={totalIdeas} userId={userId} q={q || null} />
 }
