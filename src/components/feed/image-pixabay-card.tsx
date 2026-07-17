@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react'
+import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play, Maximize, Minimize } from 'lucide-react'
 import Link from 'next/link'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
@@ -101,7 +101,6 @@ export function ImagePixabayCard({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(true)
   const [currentTime, setCurrentTime] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
@@ -156,14 +155,6 @@ export function ImagePixabayCard({
       el.pause()
       setIsPlaying(false)
     }
-  }, [])
-
-  const toggleMute = useCallback(() => {
-    const el = videoRef.current
-    if (!el) return
-    const newMuted = !el.muted
-    el.muted = newMuted
-    setIsMuted(newMuted)
   }, [])
 
   const toggleFullscreen = useCallback(() => {
@@ -264,14 +255,6 @@ export function ImagePixabayCard({
             >
               <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
             </button>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); toggleMute() }}
-                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
-                title={isMuted ? 'Activer le son' : 'Couper le son'}
-              >
-                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-              </button>
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
