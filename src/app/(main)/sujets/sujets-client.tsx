@@ -52,32 +52,28 @@ async function updateCardVisibility(field: string, value: boolean) {
 
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId }: SujetsClientProps) {
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
-  const [visibility, setVisibility] = useState<CardVisibility>({ saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true })
+
+  const getLocalStorageVisibility = (): CardVisibility => {
+    const storedSaviez = typeof window !== 'undefined' ? localStorage.getItem('saviez_vous_card_visible') : null
+    const storedWiki = typeof window !== 'undefined' ? localStorage.getItem('wikipedia_image_card_visible') : null
+    const storedRadio = typeof window !== 'undefined' ? localStorage.getItem('radio_france_card_visible') : null
+    const storedWikimedia = typeof window !== 'undefined' ? localStorage.getItem('image_wikimedia_card_visible') : null
+    const storedCnrs = typeof window !== 'undefined' ? localStorage.getItem('cnrs_news_enabled') : null
+
+    return {
+      saviezVous: storedSaviez !== null ? storedSaviez === 'true' : true,
+      wikipedia: storedWiki !== null ? storedWiki === 'true' : true,
+      radioFrance: storedRadio !== null ? storedRadio === 'true' : true,
+      wikimedia: storedWikimedia !== null ? storedWikimedia === 'true' : true,
+      cnrs: storedCnrs !== null ? storedCnrs === 'true' : true,
+    }
+  }
+
+  const [visibility, setVisibility] = useState<CardVisibility>(getLocalStorageVisibility())
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const timer = setTimeout(async () => {
-        if (userId) {
-          const vis = await loadCardVisibility(userId)
-          setVisibility(vis)
-        } else {
-          const storedSaviez = localStorage.getItem('saviez_vous_card_visible')
-          if (storedSaviez !== null) setVisibility(prev => ({ ...prev, saviezVous: storedSaviez === 'true' }))
-
-          const storedWiki = localStorage.getItem('wikipedia_image_card_visible')
-          if (storedWiki !== null) setVisibility(prev => ({ ...prev, wikipedia: storedWiki === 'true' }))
-
-          const storedRadio = localStorage.getItem('radio_france_card_visible')
-          if (storedRadio !== null) setVisibility(prev => ({ ...prev, radioFrance: storedRadio === 'true' }))
-
-          const storedWikimedia = localStorage.getItem('image_wikimedia_card_visible')
-          if (storedWikimedia !== null) setVisibility(prev => ({ ...prev, wikimedia: storedWikimedia === 'true' }))
-
-          const storedCnrs = localStorage.getItem('cnrs_news_enabled')
-          if (storedCnrs !== null) setVisibility(prev => ({ ...prev, cnrs: storedCnrs === 'true' }))
-        }
-      }, 0)
-      return () => clearTimeout(timer)
+    if (userId) {
+      loadCardVisibility(userId).then(setVisibility).catch(() => {})
     }
   }, [userId])
 
@@ -85,7 +81,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     setVisibility(prev => {
       const next = !prev.saviezVous
       if (userId) {
-        updateCardVisibility('saviezVousCardVisible', next)
+        updateCardVisibility('saviezVousCardVisible', next).catch(() => {})
       } else {
         localStorage.setItem('saviez_vous_card_visible', String(next))
       }
@@ -97,7 +93,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     setVisibility(prev => {
       const next = !prev.wikipedia
       if (userId) {
-        updateCardVisibility('wikipediaImageCardVisible', next)
+        updateCardVisibility('wikipediaImageCardVisible', next).catch(() => {})
       } else {
         localStorage.setItem('wikipedia_image_card_visible', String(next))
       }
@@ -109,7 +105,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     setVisibility(prev => {
       const next = !prev.radioFrance
       if (userId) {
-        updateCardVisibility('radioFranceCardVisible', next)
+        updateCardVisibility('radioFranceCardVisible', next).catch(() => {})
       } else {
         localStorage.setItem('radio_france_card_visible', String(next))
       }
@@ -121,7 +117,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     setVisibility(prev => {
       const next = !prev.wikimedia
       if (userId) {
-        updateCardVisibility('imageWikimediaCardVisible', next)
+        updateCardVisibility('imageWikimediaCardVisible', next).catch(() => {})
       } else {
         localStorage.setItem('image_wikimedia_card_visible', String(next))
       }
@@ -133,7 +129,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     setVisibility(prev => {
       const next = !prev.cnrs
       if (userId) {
-        updateCardVisibility('cnrsNewsEnabled', next)
+        updateCardVisibility('cnrsNewsEnabled', next).catch(() => {})
       } else {
         localStorage.setItem('cnrs_news_enabled', String(next))
       }

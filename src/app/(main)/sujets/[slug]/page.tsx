@@ -6,6 +6,8 @@ import { getSession } from '@/lib/auth'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
+import { sanitizeUrl } from '@/lib/utils'
+
 export default async function SujetDetailPage({
   params,
 }: {
@@ -37,9 +39,24 @@ export default async function SujetDetailPage({
   }
 
   const ideasRes = await fetch(
-    `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/feed?topic=${slug}&page=1&limit=10${userId ? `&userId=${userId}` : ''}`,
+    `${sanitizeUrl(process.env.NEXTAUTH_URL, 'http://localhost:3000')}/api/feed?topic=${slug}&page=1&limit=10${userId ? `&userId=${userId}` : ''}`,
   )
-  const { ideas, hasMore } = await ideasRes.json()
+
+  if (!ideasRes.ok) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Erreur de chargement</h1>
+          <Link href="/sujets" className="mt-4 text-primary hover:underline">
+            ← Retour aux sujets
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const data = await ideasRes.json()
+  const { ideas, hasMore } = data
 
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
