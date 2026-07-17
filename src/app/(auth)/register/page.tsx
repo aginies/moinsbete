@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Script from 'next/script'
 import { registerAction, isRegistrationLocked } from '@/actions/auth-actions'
 import { useRouter } from 'next/navigation'
@@ -9,15 +9,6 @@ import { BookOpen, Mail, Lock, User, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
-declare global {
-  interface Window {
-    turnstile?: {
-      render: (selector: string, config: { sitekey: string | undefined; callback: (token: string) => void; theme: string }) => string
-      reset?: (widgetId: string) => void
-    }
-  }
-}
 
 declare global {
   interface Window {
@@ -46,20 +37,19 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
   const [turnstileToken, setTurnstileToken] = useState('')
   const [widgetId, setWidgetId] = useState<string | null>(null)
 
-  const handleTurnstileCallback = (token: string) => {
+  const handleTurnstileCallback = useCallback((token: string) => {
     setTurnstileToken(token)
-  }
+  }, [])
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.turnstile) {
-      const id = window.turnstile.render('.cf-turnstile', {
-        sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
-        callback: handleTurnstileCallback,
-        theme: 'light',
-      })
-      setWidgetId(id)
-    }
-  }, [])
+    if (widgetId || typeof window === 'undefined' || !window.turnstile) return
+    const id = window.turnstile.render('.cf-turnstile', {
+      sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+      callback: handleTurnstileCallback,
+      theme: 'light',
+    })
+    setWidgetId(id)
+  }, [handleTurnstileCallback])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
