@@ -156,6 +156,10 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     setFavoriting(false)
   }, [fact, isFavorited, favoriting])
 
+  if (!hasMounted) {
+    return null
+  }
+
   const absX = Math.abs(dragX)
   const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
 

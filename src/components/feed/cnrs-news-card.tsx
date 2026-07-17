@@ -121,6 +121,10 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true }: CnrsNewsCa
     text: article ? `${article.title}\n\nCatégorie: ${article.category || 'Sciences'}` : '',
   })
 
+  if (!hasMounted) {
+    return null
+  }
+
   return (
     <>
       {!show && hasMounted ? (

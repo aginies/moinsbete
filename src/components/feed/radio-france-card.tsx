@@ -106,6 +106,10 @@ export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCar
     text: doc ? `${doc.description}\n\n${doc.radio} · ${doc.section}` : '',
   })
 
+  if (!hasMounted) {
+    return null
+  }
+
   if (!show && hasMounted) {
     return (
       <VisibilityButton color={buttonColor} label="Afficher Docs Radio France" onClick={onToggle || handleToggle} />
