@@ -1,15 +1,14 @@
 'use client'
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Trash2, X, Search } from 'lucide-react'
-import { clearHistoryAction, removeFromHistoryAction } from '@/actions/view-actions'
+import { clearHistoryAction } from '@/actions/view-actions'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
-import { normalizeAccents } from '@/lib/utils'
 import type { CompactIdea } from '@/types/idea'
 
 interface HistoryPageClientProps {
@@ -17,11 +16,12 @@ interface HistoryPageClientProps {
   total: number
   totalIdeas: number
   userId: string
+  q?: string | null
 }
 
 const PAGE_SIZE = 50
 
-export default function HistoryPageClient({ initialIdeas, total: initialTotal, totalIdeas: initialTotalIdeas, userId }: HistoryPageClientProps) {
+export default function HistoryPageClient({ initialIdeas, total: initialTotal, totalIdeas: initialTotalIdeas, userId, q: initialQ }: HistoryPageClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [ideas, setIdeas] = useState(initialIdeas)
@@ -30,23 +30,27 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
   const [removing, setRemoving] = useState<string | null>(null)
   const [total, setTotal] = useState(initialTotal)
   const [totalIdeas] = useState(initialTotalIdeas)
-  const [searchQuery, setSearchQuery] = useState('')
-
-  const filteredIdeas = useMemo(() => {
-    if (!searchQuery.trim()) return ideas
-    const q = normalizeAccents(searchQuery).toLowerCase()
-    return ideas.filter(idea => normalizeAccents(idea.title).toLowerCase().includes(q))
-  }, [ideas, searchQuery])
+  const [searchQuery, setSearchQuery] = useState(initialQ || '')
 
   const currentPage = parseInt(searchParams.get('page') || '1') || 1
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
-  const fetchHistory = useCallback(async (page: number) => {
+  const fetchHistory = useCallback(async (page: number, q?: string) => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/history?page=${page}&limit=${PAGE_SIZE}`)
+      const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) })
+      if (q?.trim()) {
+        params.set('q', q.trim())
+      }
+      const res = await fetch(`/api/history?${params.toString()}`)
+      if (!res.ok) {
+        setIdeas([])
+        setTotal(0)
+        return
+      }
       const data = await res.json()
       setIdeas(data.ideas)
+      setTotal(data.total)
     } catch (err) {
       console.error('History fetch error:', err)
     } finally {
@@ -56,9 +60,19 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (currentPage === 1) return
-    fetchHistory(currentPage)
-  }, [currentPage, fetchHistory])
+    if (currentPage === 1 && !searchQuery) {
+      setIdeas(initialIdeas)
+      setTotal(initialTotal)
+      return
+    }
+    if (currentPage === 1) {
+      const timer = setTimeout(() => {
+        fetchHistory(1, searchQuery)
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+    fetchHistory(currentPage, searchQuery)
+  }, [currentPage, searchQuery, fetchHistory, initialIdeas, initialTotal])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const goToPage = useCallback((page: number) => {
@@ -68,8 +82,11 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
     } else {
       params.delete('page')
     }
+    if (searchQuery) {
+      params.set('q', searchQuery)
+    }
     router.push(`/mon-historique?${params.toString()}`)
-  }, [router, searchParams])
+  }, [router, searchParams, searchQuery])
 
   const handleClearHistory = useCallback(async () => {
     if (!window.confirm('Vider tout l\'historique ?')) {
@@ -88,17 +105,35 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
 
   const handleRemove = useCallback(async (viewedIdeaId: string) => {
     setRemoving(viewedIdeaId)
+    const removedIdea = ideas.find(i => i.id === viewedIdeaId)
+    const wasLastOnPage = ideas.length === 1
     setIdeas(prev => prev.filter(idea => idea.id !== viewedIdeaId))
     try {
-      await removeFromHistoryAction(viewedIdeaId, userId)
-      setTotal(prev => prev - 1)
+      const res = await fetch('/api/history', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ viewedIdeaId, userId }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setTotal(data.total)
+        if (wasLastOnPage && currentPage > 1) {
+          goToPage(currentPage - 1)
+        }
+      } else {
+        if (removedIdea) {
+          setIdeas(prev => [...prev, removedIdea])
+        }
+      }
     } catch (err) {
       console.error('Error removing from history:', err)
-      fetchHistory(currentPage)
+      if (removedIdea) {
+        setIdeas(prev => [...prev, removedIdea])
+      }
     } finally {
       setRemoving(null)
     }
-  }, [userId, currentPage, fetchHistory])
+  }, [userId, currentPage, ideas, goToPage])
 
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
@@ -150,18 +185,16 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
         </div>
       ) : ideas.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-muted-foreground">Aucun historique</p>
-        </div>
-      ) : searchQuery && filteredIdeas.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-muted-foreground">Aucun résultat pour "{searchQuery}"</p>
+          <p className="text-muted-foreground">
+            {searchQuery ? `Aucun résultat pour "${searchQuery}"` : 'Aucun historique'}
+          </p>
         </div>
       ) : (
         <>
           <div className="space-y-3">
-            {filteredIdeas.map((idea) => (
+            {ideas.map((idea) => (
               <div key={idea.id} className="group relative">
-                <CompactIdeaCard idea={idea as typeof idea & { viewedAt: string }} />
+                <CompactIdeaCard idea={idea} />
                 <button
                   onClick={(e) => {
                     e.preventDefault()
@@ -187,6 +220,9 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
                   params.set('page', String(page))
                 } else {
                   params.delete('page')
+                }
+                if (searchQuery) {
+                  params.set('q', searchQuery)
                 }
                 return `/mon-historique?${params.toString()}`
               }}
