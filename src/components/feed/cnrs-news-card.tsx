@@ -14,7 +14,6 @@ interface CnrsNewsCardProps {
   onToggle?: () => void
   userId?: string
   showToggle?: boolean
-  visible?: boolean
 }
 
 interface CnrsArticle {
@@ -57,7 +56,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
   }
 }
 
-export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: CnrsNewsCardProps) {
+export function CnrsNewsCard({ onToggle, userId, showToggle = true }: CnrsNewsCardProps) {
   const [article, setArticle] = useState<CnrsArticle | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -77,7 +76,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
     setLoading(false)
   }, [])
 
-  const isCardVisible = visible !== undefined ? visible : (hasMounted && show)
+  const isCardVisible = hasMounted && show
 
   useEffect(() => {
     if (isCardVisible && !article && !loading && !error) {
@@ -124,9 +123,9 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
 
   return (
     <>
-      {visible === false && hasMounted ? (
+      {!show && hasMounted ? (
         <VisibilityButton color={buttonColor} label="Afficher Actualité CNRS" onClick={onToggle || handleToggle} />
-      ) : visible === true ? (
+      ) : (
         <div
           onClick={loadArticle}
           className="flex h-full flex-col rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
@@ -219,7 +218,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, visible }: C
         </>
       )}
       </div>
-    ) : null}
+    )}
     </>
   )
 }
