@@ -94,6 +94,13 @@ export function sanitizeUrl(url: string | null | undefined, fallback: string = '
   return fallback
 }
 
+export function isValidEmail(email: string | null | undefined): boolean {
+  if (typeof email !== 'string' || !email) return false
+  const trimmed = email.trim()
+  if (trimmed.length > 254) return false
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)
+}
+
 export async function resolveWikimediaImageUrls(facts: Array<{ id: string; imageFilename: string | null }>) {
   const pending = facts
     .filter(f => f.imageFilename && !f.imageFilename.startsWith('http'))

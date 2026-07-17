@@ -7,6 +7,8 @@ import { RATE_LIMIT_RESET_GENERATE_MAX, RATE_LIMIT_RESET_GENERATE_WINDOW_MS, RAT
 import { getClientIp } from '@/lib/ip'
 import { sendResetEmail } from '@/lib/email'
 
+import { isValidEmail } from '@/lib/utils'
+
 export async function POST(request: NextRequest) {
   if (!(await isCsrfValid(request))) {
     return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
@@ -22,6 +24,10 @@ export async function POST(request: NextRequest) {
 
     if (!email) {
       return NextResponse.json({ error: 'Email requis' }, { status: 400 })
+    }
+
+    if (!isValidEmail(email)) {
+      return NextResponse.json({ error: 'Format email invalide' }, { status: 400 })
     }
 
     const user = await prisma.user.findUnique({
