@@ -28,7 +28,8 @@ function extractEntries(html: string, archive: string): ImageEntry[] {
     if (!dateMatch) continue
 
     const date = dateMatch[1].replace(/<[^>]*>/g, '').trim()
-    const afterH2 = html.slice(h2Match.index + h2Match[0].length)
+    // Search in a larger context after the h2 tag
+    const afterH2 = html.slice(h2Match.index + h2Match[0].length, h2Match.index + h2Match[0].length + 5000)
 
     const imgSrcMatch = afterH2.match(/src="(\/\/upload\.wikimedia\.org[^"]+)"/)
     const imgAltMatch = afterH2.match(/alt="([^"]+)"/)
