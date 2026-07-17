@@ -24,17 +24,17 @@ import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 
 interface FavorisPageClientProps {
-   ideas: CompactIdea[]
-   userId?: string
-   currentPage: number
-   totalPages: number
-   total: number
-   radioFavoritesCount: number
-   cnrsFavoritesCount: number
-   imageDuJourFavoritesCount: number
-   saviezVousFavoritesCount: number
+  ideas: CompactIdea[]
+  userId?: string
+  currentPage: number
+  totalPages: number
+  total: number
+  radioFavoritesCount: number
+  cnrsFavoritesCount: number
+  imageDuJourFavoritesCount: number
+  saviezVousFavoritesCount: number
   wikimediaFavoritesCount: number
-   }
+}
 
 type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia'
 
@@ -88,23 +88,11 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   useEffect(() => {
     setRadioCount(radioFavoritesCount)
-  }, [radioFavoritesCount])
-
-  useEffect(() => {
     setCnrsCount(cnrsFavoritesCount)
-  }, [cnrsFavoritesCount])
-
-  useEffect(() => {
     setImageDuJourCount(imageDuJourFavoritesCount)
-  }, [imageDuJourFavoritesCount])
-
-  useEffect(() => {
-     setSaviezVousCount(saviezVousFavoritesCount)
-   }, [saviezVousFavoritesCount])
-
-  useEffect(() => {
+    setSaviezVousCount(saviezVousFavoritesCount)
     setWikimediaCount(wikimediaFavoritesCount)
-  }, [wikimediaFavoritesCount])
+  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount])
 
   const handleRadioRemove = useCallback(() => {
     setRadioCount(prev => Math.max(0, prev - 1))
@@ -133,10 +121,10 @@ const handleWikimediaRemove = useCallback(() => {
   }, [ideas, searchQuery])
 
 
-  const pageUrl = (page: number) => {
+  const pageUrl = useMemo(() => (page: number) => {
     if (page === 1) return '/favoris'
     return `/favoris?page=${page}`
-  }
+  }, [])
 
   const tabConfig: TabConfig[] = useMemo(() => [
      { id: 'idees', label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount },
@@ -154,10 +142,13 @@ const handleWikimediaRemove = useCallback(() => {
 
   return (
     <div>
-      <div className="flex gap-1 md:gap-2 mb-4 md:mb-6 border-b border-border overflow-x-auto">
+      <div className="flex gap-1 md:gap-2 mb-4 md:mb-6 border-b border-border overflow-x-auto" role="tablist" aria-label="Favoris">
         {sortedTabs.map(({ id, label, Icon, count }) => (
           <button
             key={id}
+            role="tab"
+            aria-selected={activeTab === id}
+            aria-controls={`panel-${id}`}
             onClick={() => setActiveTab(id)}
             className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === id
@@ -172,7 +163,7 @@ const handleWikimediaRemove = useCallback(() => {
       </div>
 
       {activeTab === 'idees' && (
-        <>
+        <div role="tabpanel" id="panel-idees" className="mt-4">
           <div className="relative mb-6">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -213,20 +204,20 @@ const handleWikimediaRemove = useCallback(() => {
               {filteredIdeas.map((idea) => (
                 <div key={idea.id} className="group relative">
                   <CompactIdeaCard idea={{ ...idea, viewedAt: new Date().toISOString() }} />
-           <div className="absolute right-2 top-2 z-10 flex flex-col gap-2">
-               <IdeaShareButton idea={idea} />
-               <button
-                type="button"
-                className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleBookmark(idea.id)
-                }}
-              >
-                <X className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
-              </button>
-            </div>
+            <div className="absolute right-2 top-2 z-10 flex flex-col gap-2">
+                <IdeaShareButton idea={idea} />
+                <button
+                 type="button"
+                 className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
+                 onClick={(e) => {
+                   e.preventDefault()
+                   e.stopPropagation()
+                   handleBookmark(idea.id)
+                 }}
+               >
+                 <X className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
+               </button>
+             </div>
                 </div>
               ))}
 
@@ -246,18 +237,18 @@ const handleWikimediaRemove = useCallback(() => {
               )}
             </div>
           )}
-        </>
+        </div>
       )}
 
-      {activeTab === 'radio-france' && <RadioFranceFavorites userId={userId} onRemoveComplete={handleRadioRemove} />}
+      {activeTab === 'radio-france' && <div role="tabpanel" id="panel-radio-france"><RadioFranceFavorites userId={userId} onRemoveComplete={handleRadioRemove} /></div>}
 
-      {activeTab === 'cnrs-news' && <CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} />}
+      {activeTab === 'cnrs-news' && <div role="tabpanel" id="panel-cnrs-news"><CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} /></div>}
 
-      {activeTab === 'image-du-jour' && <ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} />}
+      {activeTab === 'image-du-jour' && <div role="tabpanel" id="panel-image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} /></div>}
 
-      {activeTab === 'saviez-vous' && <SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} />}
+      {activeTab === 'saviez-vous' && <div role="tabpanel" id="panel-saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} /></div>}
 
-      {activeTab === 'image-wikimedia' && <ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} />}
+      {activeTab === 'image-wikimedia' && <div role="tabpanel" id="panel-image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} /></div>}
     </div>
   )
 }

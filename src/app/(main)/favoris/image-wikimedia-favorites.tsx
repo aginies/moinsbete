@@ -6,10 +6,11 @@ import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getWikimediaFavoritesAction } from '@/actions/image-wikimedia-bookmark-actions'
 import { type WikimediaImageFavoriteDoc } from '@/lib/image-wikimedia-bookmark'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
+import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
 import { ShareButton } from '@/components/feed/share-button'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useItemShare } from '@/components/feed/use-item-share'
 
 const WIKIMEDIA_FAVORITES_KEY = 'image_wikimedia_favorites'
@@ -82,33 +83,26 @@ function WikimediaFavoriteItem({ item, onRemove, onShowFullImage }: { item: Wiki
 export function ImageWikimediaFavorites({ userId, onRemoveComplete }: ImageWikimediaFavoritesProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
 
-  const handleRemove = async (item: WikimediaImageFavoriteDoc) => {
+  const { handleRemove, getFavorites } = useFavoritesList<WikimediaImageFavoriteDoc>({
+    userId,
+    storageKey: WIKIMEDIA_FAVORITES_KEY,
+    resourceIdGetter: (item) => item.docid,
+    bookmarkType: 'BNF_GALICA',
+  })
+
+  const fetchFn = useCallback(async () => {
     if (userId) {
-      try {
-        const { toggleBookmarkAction } = await import('@/actions/favorite-actions')
-        await toggleBookmarkAction('BNF_GALICA', item.docid, 'remove')
-      } catch {
-        // localStorage fallback
-      }
+      const result = await getWikimediaFavoritesAction()
+      return result.favorites as WikimediaImageFavoriteDoc[]
     }
-  }
+    return getFavorites()
+  }, [userId, getFavorites])
 
   return (
     <>
       <PaginatedFavoritesList
         onRemoveComplete={onRemoveComplete}
-        fetchFn={async () => {
-          if (userId) {
-            const result = await getWikimediaFavoritesAction()
-            return result.favorites as WikimediaImageFavoriteDoc[]
-          }
-          try {
-            const stored = localStorage.getItem(WIKIMEDIA_FAVORITES_KEY)
-            return stored ? JSON.parse(stored) : []
-          } catch {
-            return []
-          }
-        }}
+        fetchFn={fetchFn}
         renderItem={(item, onRemove) => (
           <WikimediaFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />
         )}

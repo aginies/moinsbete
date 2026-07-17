@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { ExternalLink, X, ArrowUpRight } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
@@ -102,17 +102,19 @@ export function SaviezVousBookmarks({ userId, onRemoveComplete }: SaviezVousBook
     bookmarkType: 'SAVIEZ_VOUS',
   })
 
+  const fetchFn = useCallback(async () => {
+    if (userId) {
+      const result = await getSaviezVousFavoritesAction()
+      return result.favorites as SaviezVousFavoriteDoc[]
+    }
+    return getFavorites()
+  }, [userId, getFavorites])
+
   return (
     <>
       <PaginatedFavoritesList
         onRemoveComplete={onRemoveComplete}
-        fetchFn={async () => {
-          if (userId) {
-            const result = await getSaviezVousFavoritesAction()
-            return result.favorites as SaviezVousFavoriteDoc[]
-          }
-          return getFavorites()
-        }}
+        fetchFn={fetchFn}
         renderItem={(item, onRemove) => (
           <SaviezVousFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />
         )}
