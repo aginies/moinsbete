@@ -16,7 +16,7 @@ export const TopicGrid = React.memo(function TopicGrid({ topics, followedIds = [
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {topics.map((topic) => {
-        const isFollowing = allSelected ? false : followedIds.includes(topic.id)
+        const isFollowing = allSelected || followedIds.includes(topic.id)
         return (
           <TopicCard
             key={topic.id}
