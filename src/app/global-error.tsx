@@ -15,8 +15,11 @@ export default function GlobalError() {
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 max-w-md text-center">
             <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-red-400" />
             <h2 className="mb-2 text-2xl font-bold text-white">Une erreur est survenue</h2>
-            <p className="mb-6 text-sm text-white/80">
+            <p className="mb-2 text-sm text-white/80">
               La page n&apos;a pas pu se charger. Veuillez réessayer.
+            </p>
+            <p className="mb-6 text-sm font-medium text-amber-300">
+              Déploiement ou Mise à Jour en cours
             </p>
             <Button onClick={handleReset} className="bg-white/20 hover:bg-white/30 text-white border-white/30">
               <RefreshCw className="mr-2 h-4 w-4" />
