@@ -299,7 +299,10 @@ export function ImagePixabayCard({
             onPause={() => setIsPlaying(false)}
             onEnded={() => setIsPlaying(false)}
             className={`w-full ${largeImage ? 'h-[28vh] object-cover bg-black' : fullImage ? 'max-h-[60vh] object-contain bg-black' : 'h-48 object-cover'}`}
-            onClick={togglePlay}
+            onClick={(e) => {
+              e.stopPropagation()
+              togglePlay()
+            }}
           />
           {!isPlaying && (
             <div
