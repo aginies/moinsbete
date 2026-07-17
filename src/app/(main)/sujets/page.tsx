@@ -12,17 +12,29 @@ export default async function SujetsPage() {
   const followedTopicIds = userId
     ? await prisma.user.findUnique({
         where: { id: userId },
-        select: { following: { select: { id: true } }, cnrsNewsEnabled: true },
+        select: {
+          following: { select: { id: true } },
+          saviezVousCardVisible: true,
+          wikipediaImageCardVisible: true,
+          radioFranceCardVisible: true,
+          imageWikimediaCardVisible: true,
+          cnrsNewsEnabled: true,
+        },
       }).then(u => ({
         topicIds: u?.following.map((t: { id: string }) => t.id) || [],
-        cnrsNewsEnabled: u?.cnrsNewsEnabled ?? true,
+        visibility: u ? {
+          saviezVous: u.saviezVousCardVisible ?? true,
+          wikipedia: u.wikipediaImageCardVisible ?? true,
+          radioFrance: u.radioFranceCardVisible ?? true,
+          wikimedia: u.imageWikimediaCardVisible ?? true,
+          cnrs: u.cnrsNewsEnabled ?? true,
+        } : undefined,
       }))
     : null
 
   const allTopics = await prisma.topic.findMany({
     where: { parentId: null },
     include: {
-      _count: { select: { ideaTopics: true } },
       children: true,
     },
     orderBy: { name: 'asc' },
@@ -33,6 +45,8 @@ export default async function SujetsPage() {
   const followedTopicIdsFinal = followedTopicIds
     ? followedTopicIds.topicIds
     : allTopicIds
+
+  const initialVisibility = followedTopicIds?.visibility
 
   const saviezVousFact = await getRandomFact()
 
@@ -57,6 +71,7 @@ export default async function SujetsPage() {
         initialFollowedIds={followedTopicIdsFinal}
         saviezVousFact={saviezVousFact}
         userId={userId}
+        initialVisibility={initialVisibility}
       />
     </>
   )

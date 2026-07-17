@@ -15,6 +15,7 @@ interface SujetsClientProps {
   initialFollowedIds: string[]
   saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null
   userId?: string
+  initialVisibility?: CardVisibility
 }
 
 interface CardVisibility {
@@ -51,69 +52,35 @@ async function updateCardVisibility(field: string, value: boolean) {
   }).catch(() => {})
 }
 
-export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId }: SujetsClientProps) {
+export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility }: SujetsClientProps) {
   const isAllSelected = allTopics.length > 0 && allTopics.every(t => initialFollowedIds.includes(t.id))
   const [followedIds, setFollowedIds] = useState<string[]>(isAllSelected ? [] : initialFollowedIds)
 
-  const [visibility, setVisibility] = useState<CardVisibility>(() => {
-    return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true }
+  const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
+    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true,
   })
 
   useEffect(() => {
-    if (userId) {
+    if (userId && !initialVisibility) {
       loadCardVisibility(userId).then(setVisibility).catch(() => {})
     }
-  }, [userId])
+  }, [userId, initialVisibility])
 
-  const toggleSaviezVous = useCallback(async () => {
+  const toggleVisibility = useCallback((field: string, key: keyof CardVisibility) => {
     setVisibility(prev => {
-      const next = !prev.saviezVous
+      const next = !prev[key]
       if (userId) {
-        updateCardVisibility('saviezVousCardVisible', next).catch(() => {})
+        updateCardVisibility(field, next).catch(() => {})
       }
-      return { ...prev, saviezVous: next }
+      return { ...prev, [key]: next }
     })
   }, [userId])
 
-  const toggleWikipedia = useCallback(async () => {
-    setVisibility(prev => {
-      const next = !prev.wikipedia
-      if (userId) {
-        updateCardVisibility('wikipediaImageCardVisible', next).catch(() => {})
-      }
-      return { ...prev, wikipedia: next }
-    })
-  }, [userId])
-
-  const toggleRadioFrance = useCallback(async () => {
-    setVisibility(prev => {
-      const next = !prev.radioFrance
-      if (userId) {
-        updateCardVisibility('radioFranceCardVisible', next).catch(() => {})
-      }
-      return { ...prev, radioFrance: next }
-    })
-  }, [userId])
-
-  const toggleWikimedia = useCallback(async () => {
-    setVisibility(prev => {
-      const next = !prev.wikimedia
-      if (userId) {
-        updateCardVisibility('imageWikimediaCardVisible', next).catch(() => {})
-      }
-      return { ...prev, wikimedia: next }
-    })
-  }, [userId])
-
-  const toggleCnrs = useCallback(async () => {
-    setVisibility(prev => {
-      const next = !prev.cnrs
-      if (userId) {
-        updateCardVisibility('cnrsNewsEnabled', next).catch(() => {})
-      }
-      return { ...prev, cnrs: next }
-    })
-  }, [userId])
+  const toggleSaviezVous = useCallback(() => toggleVisibility('saviezVousCardVisible', 'saviezVous'), [toggleVisibility])
+  const toggleWikipedia = useCallback(() => toggleVisibility('wikipediaImageCardVisible', 'wikipedia'), [toggleVisibility])
+  const toggleRadioFrance = useCallback(() => toggleVisibility('radioFranceCardVisible', 'radioFrance'), [toggleVisibility])
+  const toggleWikimedia = useCallback(() => toggleVisibility('imageWikimediaCardVisible', 'wikimedia'), [toggleVisibility])
+  const toggleCnrs = useCallback(() => toggleVisibility('cnrsNewsEnabled', 'cnrs'), [toggleVisibility])
 
   const handleToggle = (topicId: string, _isFollowing: boolean) => {
     if (isAllSelected) {
