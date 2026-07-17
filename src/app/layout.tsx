@@ -89,7 +89,7 @@ export default async function RootLayout({
           )}
           <Navbar />
           <main className="flex-1">{children}</main>
-          <footer className="py-6 text-center text-xs text-muted-foreground">
+          <footer className="py-6 pb-16 md:pb-0 text-center text-xs text-muted-foreground">
              <Link href="/a-propos" className="hover:underline">À propos</Link>
              {' · '}
              <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
