@@ -304,7 +304,10 @@ export function ImagePixabayCard({
           {!isPlaying && (
             <div
               className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
-              onClick={togglePlay}
+              onClick={(e) => {
+                e.stopPropagation()
+                togglePlay()
+              }}
             >
               <Play className="h-12 w-12 text-white/80" />
             </div>
