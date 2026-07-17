@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play, Pause } from 'lucide-react'
+import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play } from 'lucide-react'
 import Link from 'next/link'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
@@ -93,7 +93,6 @@ export function ImagePixabayCard({
   const [error, setError] = useState(false)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isFavorite, setIsFavorite] = useState(false)
-  const [allCategories, setAllCategories] = useState<Category[]>(DEFAULT_CATEGORIES)
   const [activeCategory, setActiveCategory] = useState<string>('forest')
   const [showCategories, setShowCategories] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -103,10 +102,6 @@ export function ImagePixabayCard({
     defaultShow: true,
     userId,
   })
-
-  useEffect(() => {
-    setShowCategories(true)
-  }, [])
 
   const show = isVisible !== undefined ? isVisible : true
 
@@ -276,7 +271,7 @@ export function ImagePixabayCard({
 
       {showCategories && (
         <div className="mb-3 flex gap-1.5 flex-wrap">
-          {allCategories.map(category => (
+          {DEFAULT_CATEGORIES.map(category => (
             <button
               key={category.id}
               onClick={(e) => { e.stopPropagation(); handleCategorySelect(category.id) }}
