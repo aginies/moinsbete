@@ -27,7 +27,7 @@ interface WikimediaTopicsModalProps {
   onOpenChange: (open: boolean) => void
   topics: Topic[]
   userId?: string
-  onToggleActive: (topicId: string) => void
+  onToggleActive: (topicId: string) => void | Promise<void>
   onRefresh?: () => Promise<void>
 }
 
@@ -54,7 +54,17 @@ export function WikimediaTopicsModal({
 
   const toggleActive = async (topicId: string) => {
     markChanged()
-    onToggleActive(topicId)
+    
+    // Optimistic update of localTopics active status to ensure immediate visual response
+    setLocalTopics(prev =>
+      prev.map(t =>
+        t.id === topicId
+          ? { ...t, active: !t.active }
+          : t
+      )
+    )
+
+    await onToggleActive(topicId)
     if (onRefresh) {
       await onRefresh()
     }
@@ -65,20 +75,25 @@ export function WikimediaTopicsModal({
     const topic = localTopics.find(t => t.id === topicId)
     if (!topic) return
     
+    const newEnabled = !topic.enabled
     setLocalTopics(prev =>
       prev.map(t =>
         t.id === topicId
-          ? { ...t, enabled: !t.enabled }
+          ? { ...t, enabled: newEnabled }
           : t
       )
     )
     
     if (userId) {
-      fetch('/api/wikimedia-topics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'toggle_enabled', topicId, enabled: topic.enabled }),
-      }).catch(() => {})
+      try {
+        await fetch('/api/wikimedia-topics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'toggle_enabled', topicId, enabled: newEnabled }),
+        })
+      } catch (error) {
+        console.error('Failed to toggle topic enabled status:', error)
+      }
       if (onRefresh) {
         await onRefresh()
       }
