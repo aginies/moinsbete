@@ -59,7 +59,8 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
         videoUrl: mediumVideo.url,
         tags: randomVideo.tags || '',
       }
-    } catch {
+    } catch (e) {
+      console.log('fetchRandomVideo error:', e)
       await new Promise(r => setTimeout(r, 500 * (retry + 1)))
     }
   }
@@ -71,6 +72,7 @@ export async function GET(request: NextRequest) {
   const categoryParam = request.nextUrl.searchParams.get('category') || 'nature'
 
   const video = await fetchRandomVideo(categoryParam)
+  console.log('API returning video:', video?.videoUrl)
   if (!video) {
     return NextResponse.json({ error: true })
   }
