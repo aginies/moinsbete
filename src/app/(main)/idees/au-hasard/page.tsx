@@ -74,7 +74,7 @@ export default function RandomIdeaClient() {
   }, [])
 
   useEffect(() => {
-    if (!userId) return
+    if (!userId && !followed) return
     fetchRandomIdea(userId, followed).then((result) => {
       setIdea(result)
       if (result && userId) {
