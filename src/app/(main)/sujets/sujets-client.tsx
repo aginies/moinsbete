@@ -53,12 +53,14 @@ async function updateCardVisibility(field: string, value: boolean) {
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId }: SujetsClientProps) {
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
 
+  const [isMounted, setIsMounted] = useState(false)
+
   const getLocalStorageVisibility = (): CardVisibility => {
-    const storedSaviez = typeof window !== 'undefined' ? localStorage.getItem('saviez_vous_card_visible') : null
-    const storedWiki = typeof window !== 'undefined' ? localStorage.getItem('wikipedia_image_card_visible') : null
-    const storedRadio = typeof window !== 'undefined' ? localStorage.getItem('radio_france_card_visible') : null
-    const storedWikimedia = typeof window !== 'undefined' ? localStorage.getItem('image_wikimedia_card_visible') : null
-    const storedCnrs = typeof window !== 'undefined' ? localStorage.getItem('cnrs_news_enabled') : null
+    const storedSaviez = localStorage.getItem('saviez_vous_card_visible')
+    const storedWiki = localStorage.getItem('wikipedia_image_card_visible')
+    const storedRadio = localStorage.getItem('radio_france_card_visible')
+    const storedWikimedia = localStorage.getItem('image_wikimedia_card_visible')
+    const storedCnrs = localStorage.getItem('cnrs_news_enabled')
 
     return {
       saviezVous: storedSaviez !== null ? storedSaviez === 'true' : true,
@@ -69,7 +71,18 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     }
   }
 
-  const [visibility, setVisibility] = useState<CardVisibility>(getLocalStorageVisibility())
+  const [visibility, setVisibility] = useState<CardVisibility>(() => {
+    // Default to server values (all true) to match SSR
+    // After mount, sync with localStorage if user has custom values
+    return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true }
+  })
+
+  useEffect(() => {
+    setIsMounted(true)
+    if (isMounted) {
+      setVisibility(getLocalStorageVisibility())
+    }
+  }, [])
 
   useEffect(() => {
     if (userId) {
