@@ -238,6 +238,10 @@ export function ImageWikimediaCard({
     resetDep: image?.imageUrl,
   })
 
+  if (!hasMounted) {
+    return null
+  }
+
   const shareOptions = image ? { onClick: handleShare, copied, shareUrl } : undefined
 
   const cardContent = (
