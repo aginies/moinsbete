@@ -34,7 +34,7 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage }: WikiLovesFav
       <div className="flex-1">
         {isValidUrl(item.imageUrl) && (
           <div
-            className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-green-200 dark:border-green-800"
+            className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-indigo-200 dark:border-indigo-800"
             onClick={() => onShowFullImage(item.imageUrl)}
           >
             <img
@@ -47,11 +47,11 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage }: WikiLovesFav
             <ImageHint color="amber" />
           </div>
         )}
-        <h3 className="text-sm font-semibold text-green-900 dark:text-green-100 mb-1">
+        <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
           {item.titre}
         </h3>
         {item.auteur && (
-          <p className="text-xs text-green-700 dark:text-green-300 mb-1">
+          <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-1">
             {item.auteur}
           </p>
         )}
@@ -60,7 +60,7 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage }: WikiLovesFav
             href={item.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 hover:underline"
+            className="inline-flex items-center gap-1 text-xs text-indigo-700 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 hover:underline"
           >
             Voir sur Wikimedia Commons
             <ExternalLink className="h-3 w-3" />
@@ -71,7 +71,7 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage }: WikiLovesFav
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
         <button
           onClick={onRemove}
-          className="rounded-full p-1.5 text-green-600 opacity-60 hover:opacity-100 hover:text-green-800 hover:bg-green-100 dark:text-green-400 dark:hover:text-green-200 dark:hover:bg-green-900/40 transition-all"
+          className="rounded-full p-1.5 text-indigo-600 opacity-60 hover:opacity-100 hover:text-indigo-800 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:text-indigo-200 dark:hover:bg-indigo-900/40 transition-all"
           title="Retirer des favoris"
         >
           <X className="h-4 w-4" />
@@ -112,14 +112,14 @@ export function ImageWikiLovesFavorites({ userId, onRemoveComplete }: { userId?:
         storageKey={WIKILOVES_FAVORITES_KEY}
         userId={userId}
         removeFavorite={handleRemove}
-        borderColor="border-green-200"
-        bgGradient="bg-gradient-to-br from-green-50 to-emerald-50"
-        darkBorderColor="dark:border-green-800"
-        darkBgGradient="dark:from-green-950/20 dark:to-emerald-950/20"
-        textColor="text-green-900"
-        darkTextColor="dark:text-green-100"
-        buttonColor="text-green-600"
-        buttonHoverBg="hover:bg-green-100"
+        borderColor="border-indigo-200"
+        bgGradient="bg-gradient-to-br from-indigo-50 to-emerald-50"
+        darkBorderColor="dark:border-indigo-800"
+        darkBgGradient="dark:from-indigo-950/20 dark:to-emerald-950/20"
+        textColor="text-indigo-900"
+        darkTextColor="dark:text-indigo-100"
+        buttonColor="text-indigo-600"
+        buttonHoverBg="hover:bg-indigo-100"
       />
       {showFullImage && (
         <ImageLightbox

@@ -193,15 +193,15 @@ export function ImageWikiLovesCard({
   const cardContent = (
     <div
       onClick={loadImage}
-      className="rounded-xl border-2 border-green-800 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-900 dark:from-green-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
+      className="rounded-xl border-2 border-indigo-800 bg-gradient-to-br from-indigo-50 to-emerald-50 p-5 dark:border-indigo-900 dark:from-indigo-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
     >
       <CardHeader
         icon={<BookOpen className="h-4 w-4 text-white" />}
-        iconBgColor="bg-green-700"
-        iconDarkColor="dark:bg-green-800"
+        iconBgColor="bg-indigo-700"
+        iconDarkColor="dark:bg-indigo-800"
         title="Wiki Loves"
-        titleColor="text-green-800"
-        titleDarkColor="dark:text-green-300"
+        titleColor="text-indigo-800"
+        titleDarkColor="dark:text-indigo-300"
         linkHref={showLink ? '/image-wikiloves' : undefined}
         showToggle={false}
         showRefresh={false}
@@ -215,7 +215,7 @@ export function ImageWikiLovesCard({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setModalOpen(true) }}
-              className="text-green-800 hover:text-green-900 dark:text-green-300 dark:hover:text-green-100 transition-colors"
+              className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors"
               title="Gérer les événements"
             >
               <Settings className="h-4 w-4" />
@@ -223,7 +223,7 @@ export function ImageWikiLovesCard({
             <button
               type="button"
               onClick={handleToggleCategories}
-              className="text-green-800 hover:text-green-900 dark:text-green-300 dark:hover:text-green-100 transition-colors"
+              className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors"
               title={showCategories ? 'Masquer les événements' : 'Afficher les événements'}
             >
               <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
@@ -232,7 +232,7 @@ export function ImageWikiLovesCard({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
-                className="text-green-800 hover:text-green-900 dark:text-green-300 dark:hover:text-green-100 transition-colors"
+                className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors"
                 title="Masquer la carte"
               >
                 <EyeOff className="h-4 w-4" />
@@ -241,7 +241,7 @@ export function ImageWikiLovesCard({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); loadImage() }}
-              className="text-green-800 hover:text-green-900 dark:text-green-300 dark:hover:text-green-100 transition-colors"
+              className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors"
               title="Rafraîchir"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -250,7 +250,7 @@ export function ImageWikiLovesCard({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                className="text-green-800 hover:text-green-900 dark:text-green-300 dark:hover:text-green-100 transition-colors"
+                className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors"
                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               >
                 <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
@@ -268,8 +268,8 @@ export function ImageWikiLovesCard({
               onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
               className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
                 topic.active
-                  ? 'bg-green-600 text-white border-green-600'
-                  : 'bg-white dark:bg-neutral-800 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 hover:border-green-400'
+                  ? 'bg-indigo-600 text-white border-indigo-600'
+                  : 'bg-white dark:bg-neutral-800 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:border-indigo-400'
               }`}
             >
               {topic.icon} {topic.label}
@@ -279,8 +279,8 @@ export function ImageWikiLovesCard({
       )}
 
       {error && !loading && (
-        <div className="mb-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-100/50 p-3 dark:border-green-800 dark:bg-green-900/20">
-          <p className="text-xs text-green-700 dark:text-green-300">
+        <div className="mb-3 flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-100/50 p-3 dark:border-indigo-800 dark:bg-indigo-900/20">
+          <p className="text-xs text-indigo-700 dark:text-indigo-300">
             Impossible de charger l&apos;image. Cliquez pour réessayer.
           </p>
         </div>
@@ -290,7 +290,7 @@ export function ImageWikiLovesCard({
 
       {image?.imageUrl && !loading && (
         <div
-          className={`mb-3 overflow-hidden rounded-lg border border-green-200 dark:border-green-800 ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}
+          className={`mb-3 overflow-hidden rounded-lg border border-indigo-200 dark:border-indigo-800 ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}
           onClick={(e) => {
             if (!fullImage) {
               e.stopPropagation()
@@ -312,20 +312,20 @@ export function ImageWikiLovesCard({
 
       {image && (
         <>
-          <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-1">
+          <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
             {image.titre}
           </p>
           {image.auteur && (
-            <p className="text-xs text-green-700 dark:text-green-300 mb-1">
+            <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-1">
               {image.auteur}
             </p>
           )}
           {image.description && (
-            <p className="text-sm leading-relaxed text-green-900 dark:text-green-100 mb-2">
+            <p className="text-sm leading-relaxed text-indigo-900 dark:text-indigo-100 mb-2">
               {image.description}
             </p>
           )}
-          <p className="text-xs text-green-600 dark:text-green-400 mb-2">
+          <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-2">
             {image.droits || 'Wikimedia Commons'}
           </p>
           {showLink && (
@@ -334,7 +334,7 @@ export function ImageWikiLovesCard({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 hover:underline"
+              className="inline-flex items-center gap-1 text-xs text-indigo-700 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 hover:underline"
             >
               Voir sur Wikimedia Commons
               <ExternalLink className="h-3 w-3" />
@@ -413,7 +413,7 @@ function WikiLovesTopicsModal({
               onClick={() => toggle(topic.id)}
               className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
                 topic.active
-                  ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
+                  ? 'bg-indigo-100 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700'
                   : 'bg-white dark:bg-neutral-800 border-gray-200 dark:border-gray-700 opacity-60'
               }`}
             >
