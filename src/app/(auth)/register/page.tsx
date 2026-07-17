@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Script from 'next/script'
 import { registerAction, isRegistrationLocked } from '@/actions/auth-actions'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -35,6 +36,7 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
       displayName: formData.get('displayName') as string,
+      cfToken: formData.get('cf-turnstile-response') as string,
     })
 
     if (result.error) {
@@ -130,6 +132,16 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
               />
             </div>
           </div>
+
+          <div
+            className="cf-turnstile"
+            data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+            data-theme="light"
+          />
+          <Script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            strategy="afterInteractive"
+          />
 
           <Button type="submit" className="w-full" disabled={loading || registrationLocked}>
             {loading ? 'Création...' : 'Créer mon compte'}

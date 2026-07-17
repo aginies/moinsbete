@@ -11,6 +11,29 @@ import { headers } from 'next/headers'
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_LOGIN_MAX, SESSION_COOKIE_MAX_AGE_MS, SESSION_MAX_AGE_SECONDS, MIN_PASSWORD_LENGTH } from '@/lib/constants'
 import { getClientIpFromHeaders } from '@/lib/ip'
 
+async function verifyTurnstile(token: string, remoteIp: string): Promise<boolean> {
+  if (!process.env.TURNSTILE_SECRET_KEY) {
+    return true
+  }
+
+  try {
+    const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        secret: process.env.TURNSTILE_SECRET_KEY,
+        response: token,
+        remoteip: remoteIp,
+      }),
+    })
+
+    const data = await result.json()
+    return data.success === true
+  } catch {
+    return false
+  }
+}
+
 export async function isRegistrationLocked() {
   return process.env.REGISTRATION_LOCKED === 'true'
 }
@@ -19,8 +42,9 @@ export async function registerAction(formData: {
   email: string
   password: string
   displayName: string
+  cfToken?: string
 }) {
-  const { email, password, displayName } = formData
+  const { email, password, displayName, cfToken } = formData
 
   const clientId = await getClientIpFromHeaders()
   if (!(await checkRateLimit(`register:${clientId}`, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_WINDOW_MS))) {
@@ -29,6 +53,17 @@ export async function registerAction(formData: {
 
   if (process.env.REGISTRATION_LOCKED === 'true') {
     return { error: 'Inscriptions temporairement fermées pendant la mise à jour de la base de données.' }
+  }
+
+  if (process.env.TURNSTILE_SECRET_KEY && !cfToken) {
+    return { error: 'Vérification humaine requise.' }
+  }
+
+  if (process.env.TURNSTILE_SECRET_KEY && cfToken) {
+    const turnstileOk = await verifyTurnstile(cfToken, clientId)
+    if (!turnstileOk) {
+      return { error: 'Vérification humaine échouée. Réessayez.' }
+    }
   }
 
   const existing = await prisma.user.findUnique({ where: { email } })
