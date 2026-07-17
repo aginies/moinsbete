@@ -105,7 +105,6 @@ export async function GET(request: NextRequest) {
   const categoryParam = request.nextUrl.searchParams.get('category') || 'nature'
 
   const video = await fetchRandomVideo(categoryParam)
-  console.log('API returning video:', video?.videoUrl)
   if (!video) {
     return NextResponse.json({ error: true })
   }
