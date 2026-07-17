@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FavorisPageClient } from './favoris-page-client'
+import { PixabayFavorites } from './pixabay-favorites'
 import { mapIdeaWithSourceAndTopics } from '@/lib/feed-helpers'
 
 const PAGE_SIZE = 20
@@ -36,7 +37,7 @@ export default async function FavorisPage({
   const currentPage = Math.max(1, parseInt((await searchParams).page || '1', 10))
   const skip = (currentPage - 1) * PAGE_SIZE
 
-  const [bookmarks, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount] = await Promise.all([
+  const [bookmarks, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount] = await Promise.all([
     prisma.bookmark.findMany({
       where: { userId: session.user.id, type: 'IDEA' },
       include: {
@@ -76,6 +77,9 @@ export default async function FavorisPage({
     prisma.bookmark.count({
       where: { userId: session.user.id, type: 'IMAGE_WIKILOVES' },
     }),
+    prisma.bookmark.count({
+      where: { userId: session.user.id, type: 'IMAGE_PIXABAY' },
+    }),
   ])
 
   const ideas = bookmarks.map(b => mapIdeaWithSourceAndTopics(b.idea!))
@@ -109,6 +113,7 @@ export default async function FavorisPage({
         saviezVousFavoritesCount={saviezVousFavoritesCount}
         wikimediaFavoritesCount={wikimediaFavoritesCount}
         wikilovesFavoritesCount={wikilovesFavoritesCount}
+        pixabayFavoritesCount={pixabayFavoritesCount}
       />
     </div>
   )

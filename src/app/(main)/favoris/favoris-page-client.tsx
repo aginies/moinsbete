@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
@@ -17,6 +17,7 @@ import { ImageDuJourBookmarks } from '@/components/feed/image-du-jour-bookmarks'
 import { SaviezVousBookmarks } from '@/components/feed/saviez-vous-bookmarks'
 import { ImageWikimediaFavorites } from './image-wikimedia-favorites'
 import { ImageWikiLovesFavorites } from './image-wikiloves-favorites'
+import { PixabayFavorites } from './pixabay-favorites'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 
@@ -32,9 +33,10 @@ interface FavorisPageClientProps {
   saviezVousFavoritesCount: number
   wikimediaFavoritesCount: number
   wikilovesFavoritesCount: number
+  pixabayFavoritesCount: number
 }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay'
 
 interface TabConfig {
   id: Tab
@@ -56,7 +58,7 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
   return <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
 }
 
-export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount }: FavorisPageClientProps) {
+export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
@@ -84,6 +86,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [saviezVousCount, setSaviezVousCount] = useState(saviezVousFavoritesCount)
   const [wikimediaCount, setWikimediaCount] = useState(wikimediaFavoritesCount)
   const [wikilovesCount, setWikilovesCount] = useState(wikilovesFavoritesCount)
+  const [pixabayCount, setPixabayCount] = useState(pixabayFavoritesCount)
 
   useEffect(() => {
     setRadioCount(radioFavoritesCount)
@@ -92,7 +95,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     setSaviezVousCount(saviezVousFavoritesCount)
     setWikimediaCount(wikimediaFavoritesCount)
     setWikilovesCount(wikilovesFavoritesCount)
-  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount])
+    setPixabayCount(pixabayFavoritesCount)
+  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount])
 
   const handleRadioRemove = useCallback(() => {
     setRadioCount(prev => Math.max(0, prev - 1))
@@ -118,6 +122,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     setWikilovesCount(prev => Math.max(0, prev - 1))
   }, [])
 
+  const handlePixabayRemove = useCallback(() => {
+    setPixabayCount(prev => Math.max(0, prev - 1))
+  }, [])
+
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
     const q = normalizeAccents(searchQuery).toLowerCase()
@@ -134,7 +142,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       { id: 'idees', label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount },
       { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
       { id: 'image-wikimedia', label: 'Wikimedia', Icon: BookOpen, count: wikimediaCount },
-      { id: 'image-wikiloves', label: 'Wiki Loves', Icon: Earth, count: wikilovesCount },
+       { id: 'image-wikiloves', label: 'Wiki Loves', Icon: Earth, count: wikilovesCount },
+       { id: 'image-pixabay', label: 'Pixabay', Icon: Video, count: pixabayCount },
       { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
       { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
       { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
@@ -255,6 +264,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       {activeTab === 'image-wikimedia' && <div role="tabpanel" id="panel-image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} /></div>}
 
       {activeTab === 'image-wikiloves' && <div role="tabpanel" id="panel-image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} /></div>}
+
+      {activeTab === 'image-pixabay' && <div role="tabpanel" id="panel-image-pixabay"><PixabayFavorites userId={userId} onRemoveComplete={handlePixabayRemove} /></div>}
     </div>
   )
 }

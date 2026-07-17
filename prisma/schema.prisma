@@ -25,6 +25,8 @@ model User {
   imageWikiLovesCardVisible Boolean     @default(true)
   imageWikiLovesShowCategories Boolean  @default(true)
   imageWikimediaShowCategories Boolean  @default(true)
+  imagePixabayCardVisible      Boolean  @default(true)
+  imagePixabayShowCategories   Boolean  @default(true)
   bookmarks       Bookmark[]
   growthPlan      GrowthPlan?
   resetTokens     PasswordResetToken[]
@@ -255,6 +257,7 @@ enum BookmarkType {
   SAVIEZ_VOUS
   IMAGE_WIKIMEDIA
   IMAGE_WIKILOVES
+  IMAGE_PIXABAY
 }
 
 model CachedCnrsArticle {
