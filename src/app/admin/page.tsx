@@ -6,6 +6,7 @@ import { ReviewQueue } from '@/components/admin/review-queue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { approveSuggestionAction, rejectSuggestionAction, mergeSuggestionAction } from '@/actions/topic-actions'
 
 export default async function AdminPage() {
   const session = await getSession()
@@ -85,27 +86,9 @@ export default async function AdminPage() {
         <TabsContent value="review">
           <ReviewQueue
             suggestions={suggestions}
-            onApprove={async (id) => {
-              'use server'
-              const res = await fetch(`${process.env.NEXTAUTH_URL}/api/admin/suggestions/${id}/approve`, {
-                method: 'POST',
-              })
-              return res.json()
-            }}
-            onReject={async (id) => {
-              'use server'
-              await fetch(`${process.env.NEXTAUTH_URL}/api/admin/suggestions/${id}/reject`, {
-                method: 'POST',
-              })
-            }}
-            onMerge={async (id, mergedInto) => {
-              'use server'
-              await fetch(`${process.env.NEXTAUTH_URL}/api/admin/suggestions/${id}/merge`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mergedIntoId: mergedInto }),
-              })
-            }}
+            onApprove={approveSuggestionAction}
+            onReject={rejectSuggestionAction}
+            onMerge={mergeSuggestionAction}
             availableTopics={topics}
           />
         </TabsContent>
