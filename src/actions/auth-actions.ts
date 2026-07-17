@@ -141,11 +141,27 @@ export async function loginAction(formData: {
 
 export async function logoutAction(formData?: FormData) {
   const cookieStore = await cookies()
+  const cookieName = process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
   
-  // Force-delete development session cookie
-  cookieStore.set('next-auth.session-token', '', { path: '/', maxAge: 0 })
-  // Force-delete production session cookie
-  cookieStore.set('__Secure-next-auth.session-token', '', { path: '/', maxAge: 0, secure: true })
+  // Set both cookies to expired
+  const pastDate = new Date('1970-01-01T00:00:00Z')
+  
+  cookieStore.set(cookieName, '', {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    expires: pastDate,
+  })
+  
+  const altCookieName = cookieName === '__Secure-next-auth.session-token' ? 'next-auth.session-token' : '__Secure-next-auth.session-token'
+  cookieStore.set(altCookieName, '', {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    expires: pastDate,
+  })
   
   return { success: true }
 }
