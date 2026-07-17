@@ -165,7 +165,7 @@ export function ImageWikimediaCard({
 
   useEffect(() => {
     if (userId && image) {
-      isBookmarkedAction('BNF_GALICA', image.docid).then(result => {
+      isBookmarkedAction('IMAGE_WIKIMEDIA', image.docid).then(result => {
         setIsFavorite(result.isBookmarked)
       }).catch(() => {})
     }
@@ -176,7 +176,7 @@ export function ImageWikimediaCard({
     const newFavorite = !isFavorite
 
     try {
-      await toggleBookmarkAction('BNF_GALICA', image.docid, newFavorite ? 'add' : 'remove', {
+      await toggleBookmarkAction('IMAGE_WIKIMEDIA', image.docid, newFavorite ? 'add' : 'remove', {
         titre: image.titre,
         auteur: image.auteur,
         imageUrl: image.imageUrl,

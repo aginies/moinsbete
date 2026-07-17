@@ -20,7 +20,7 @@ export interface WikimediaImageFavoriteDoc {
   favoritedAt: string
 }
 
-const TYPE: BookmarkType = 'BNF_GALICA'
+const TYPE: BookmarkType = 'IMAGE_WIKIMEDIA'
 
 const mapMeta: (meta: unknown, resourceId: string) => WikimediaImageFavoriteDoc | null = (meta, resourceId) => {
   const m = meta as WikimediaImageFavoriteMeta | null

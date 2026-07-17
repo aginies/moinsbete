@@ -71,7 +71,7 @@ export default async function FavorisPage({
       where: { userId: session.user.id, type: 'SAVIEZ_VOUS' },
     }),
     prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'BNF_GALICA' },
+      where: { userId: session.user.id, type: 'IMAGE_WIKIMEDIA' },
     }),
   ])
 
