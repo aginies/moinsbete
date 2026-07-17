@@ -293,3 +293,8 @@ model CachedWikipediaImage {
   @@index([expiresAt])
   @@unique([imageUrl, date])
 }
+
+model CachedConfig {
+  key   String @id
+  value String
+}
