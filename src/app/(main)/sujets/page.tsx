@@ -17,7 +17,7 @@ export default async function SujetsPage() {
         topicIds: u?.following.map((t: { id: string }) => t.id) || [],
         cnrsNewsEnabled: u?.cnrsNewsEnabled ?? true,
       }))
-    : { topicIds: [] as string[], cnrsNewsEnabled: true }
+    : null
 
   const allTopics = await prisma.topic.findMany({
     where: { parentId: null },
@@ -27,6 +27,12 @@ export default async function SujetsPage() {
     },
     orderBy: { name: 'asc' },
   })
+
+  const allTopicIds = allTopics.map(t => t.id)
+
+  const followedTopicIdsFinal = followedTopicIds
+    ? followedTopicIds.topicIds
+    : allTopicIds
 
   const saviezVousFact = await getRandomFact()
 
@@ -48,7 +54,7 @@ export default async function SujetsPage() {
 
       <SujetsClient
         allTopics={allTopics}
-        initialFollowedIds={followedTopicIds.topicIds}
+        initialFollowedIds={followedTopicIdsFinal}
         saviezVousFact={saviezVousFact}
         userId={userId}
       />

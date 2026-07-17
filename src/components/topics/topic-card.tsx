@@ -15,9 +15,10 @@ interface TopicCardProps {
   isFollowing?: boolean
   onToggle?: () => void
   isAuthenticated?: boolean
+  allSelected?: boolean
 }
 
-export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing: initialFollowing = false, onToggle, isAuthenticated }: TopicCardProps) {
+export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing: initialFollowing = false, onToggle, isAuthenticated, allSelected }: TopicCardProps) {
   const [following, setFollowing] = useState(initialFollowing)
   const [loading, setLoading] = useState(false)
 
@@ -35,7 +36,7 @@ export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing
       return
     }
     setLoading(true)
-    const newState = !following
+    const newState = allSelected ? false : !following
     setFollowing(newState)
     
     const result = await toggleTopic(topic.id)

@@ -52,7 +52,8 @@ async function updateCardVisibility(field: string, value: boolean) {
 }
 
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId }: SujetsClientProps) {
-  const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
+  const isAllSelected = allTopics.length > 0 && allTopics.every(t => initialFollowedIds.includes(t.id))
+  const [followedIds, setFollowedIds] = useState<string[]>(isAllSelected ? [] : initialFollowedIds)
 
   const [visibility, setVisibility] = useState<CardVisibility>(() => {
     return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true }
@@ -114,8 +115,10 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     })
   }, [userId])
 
-  const handleToggle = (topicId: string, isFollowing: boolean) => {
-    if (isFollowing) {
+  const handleToggle = (topicId: string, _isFollowing: boolean) => {
+    if (isAllSelected) {
+      setFollowedIds([topicId])
+    } else if (followedIds.includes(topicId)) {
       setFollowedIds(prev => prev.filter(id => id !== topicId))
     } else {
       setFollowedIds(prev => [...prev, topicId])
@@ -212,11 +215,11 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
       {followedTopics.length > 0 && (
         <div className="mb-8">
-          <TopicGrid topics={followedTopics} followedIds={followedIds} onToggle={handleToggle} isAuthenticated={!!userId} />
+          <TopicGrid topics={followedTopics} followedIds={followedIds} onToggle={handleToggle} isAuthenticated={!!userId} allSelected={isAllSelected} />
         </div>
       )}
 
-      <TopicGrid topics={unfollowedTopics} followedIds={followedIds} onToggle={handleToggle} isAuthenticated={!!userId} />
+      <TopicGrid topics={unfollowedTopics} followedIds={followedIds} onToggle={handleToggle} isAuthenticated={!!userId} allSelected={isAllSelected} />
     </div>
   )
 }
