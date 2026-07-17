@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isValidUrl, sanitizeUrl } from '@/lib/utils'
+import { isValidUrl, sanitizeUrl, isValidEmail } from '@/lib/utils'
 
 describe('isValidUrl', () => {
   it('accepts http URLs', () => {
@@ -90,5 +90,49 @@ describe('sanitizeUrl', () => {
 
   it('returns fallback for undefined', () => {
     expect(sanitizeUrl(undefined)).toBe('/')
+  })
+})
+
+describe('isValidEmail', () => {
+  it('accepts valid email', () => {
+    expect(isValidEmail('user@example.com')).toBe(true)
+  })
+
+  it('accepts email with dots, plus, digits', () => {
+    expect(isValidEmail('user.name+tag@example.co.uk')).toBe(true)
+  })
+
+  it('rejects missing @', () => {
+    expect(isValidEmail('userexample.com')).toBe(false)
+  })
+
+  it('rejects missing domain', () => {
+    expect(isValidEmail('user@')).toBe(false)
+  })
+
+  it('rejects empty string', () => {
+    expect(isValidEmail('')).toBe(false)
+  })
+
+  it('rejects null', () => {
+    expect(isValidEmail(null)).toBe(false)
+  })
+
+  it('rejects undefined', () => {
+    expect(isValidEmail(undefined)).toBe(false)
+  })
+
+  it('rejects whitespace in email', () => {
+    expect(isValidEmail('user @example.com')).toBe(false)
+  })
+
+  it('accepts leading/trailing spaces (trims)', () => {
+    expect(isValidEmail(' user@example.com')).toBe(true)
+    expect(isValidEmail('user@example.com ')).toBe(true)
+  })
+
+  it('rejects email over 254 chars', () => {
+    const longEmail = 'a'.repeat(245) + '@example.com'
+    expect(isValidEmail(longEmail)).toBe(false)
   })
 })
