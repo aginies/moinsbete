@@ -122,7 +122,6 @@ export function ImagePixabayCard({
     setError(false)
     const newVideo = await fetchRandomVideo(activeCategory)
     if (newVideo) {
-      console.log('loaded video:', newVideo.videoUrl)
       setVideo(newVideo)
       setError(false)
     } else {
