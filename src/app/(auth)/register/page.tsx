@@ -13,10 +13,10 @@ import { Label } from '@/components/ui/label'
 declare global {
   interface Window {
     turnstile?: {
-      render: (selector: string, config: { sitekey: string | undefined; callback: string | ((token: string) => void); theme: string }) => string
+      render: (selector: string, config?: { sitekey?: string; theme?: string }) => string
       reset?: (widgetId: string) => void
+      getResponse?: (widgetId: string) => string
     }
-    turnstileCallback?: (token: string) => void
   }
 }
 
@@ -38,31 +38,31 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
   const [turnstileToken, setTurnstileToken] = useState('')
   const [widgetId, setWidgetId] = useState<string | null>(null)
 
-  const handleTurnstileCallback = useCallback((token: string) => {
-    setTurnstileToken(token)
-  }, [setTurnstileToken])
-
   useEffect(() => {
     if (widgetId || typeof window === 'undefined' || !window.turnstile) return
     const id = window.turnstile.render('.cf-turnstile', {
       sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
-      callback: handleTurnstileCallback,
       theme: 'light',
     })
     setWidgetId(id)
-  }, [handleTurnstileCallback, widgetId])
+  }, [widgetId])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setError('')
 
+    let token = turnstileToken
+    if (!token && typeof window !== 'undefined' && window.turnstile && widgetId) {
+      token = window.turnstile?.getResponse!(widgetId)
+    }
+
     const formData = new FormData(e.currentTarget)
     const result = await registerAction({
       email: formData.get('email') as string,
       password: formData.get('password') as string,
       displayName: formData.get('displayName') as string,
-      cfToken: turnstileToken,
+      cfToken: token,
     })
 
     if (result.error) {
@@ -162,27 +162,11 @@ function RegisterForm({ registrationLocked }: { registrationLocked: boolean }) {
           <div
             className="cf-turnstile"
             data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-            data-callback="turnstileCallback"
             data-theme="light"
           />
           <Script
             src="https://challenges.cloudflare.com/turnstile/v0/api.js"
             strategy="afterInteractive"
-            onLoad={() => {
-              if (typeof window !== 'undefined' && window.turnstile && !window.turnstileCallback) {
-                window.turnstileCallback = (token: string) => {
-                  setTurnstileToken(token)
-                }
-              }
-              if (typeof window !== 'undefined' && window.turnstile && !widgetId) {
-                const id = window.turnstile.render('.cf-turnstile', {
-                  sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
-                  callback: 'turnstileCallback',
-                  theme: 'light',
-                })
-                setWidgetId(id)
-              }
-            }}
           />
 
           <Button type="submit" className="w-full" disabled={loading || registrationLocked}>
