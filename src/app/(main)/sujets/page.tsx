@@ -18,6 +18,7 @@ export default async function SujetsPage() {
           wikipediaImageCardVisible: true,
           radioFranceCardVisible: true,
           imageWikimediaCardVisible: true,
+          imageWikiLovesCardVisible: true,
           cnrsNewsEnabled: true,
         },
       }).then(u => ({
@@ -27,6 +28,7 @@ export default async function SujetsPage() {
           wikipedia: u.wikipediaImageCardVisible ?? true,
           radioFrance: u.radioFranceCardVisible ?? true,
           wikimedia: u.imageWikimediaCardVisible ?? true,
+          wikiloves: u.imageWikiLovesCardVisible ?? true,
           cnrs: u.cnrsNewsEnabled ?? true,
         } : undefined,
       }))

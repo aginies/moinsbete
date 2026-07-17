@@ -22,6 +22,8 @@ model User {
   saviezVousCardVisible Boolean         @default(true)
   radioFranceCardVisible Boolean        @default(true)
   imageWikimediaCardVisible Boolean     @default(true)
+  imageWikiLovesCardVisible Boolean     @default(true)
+  imageWikiLovesShowCategories Boolean  @default(true)
   imageWikimediaShowCategories Boolean  @default(true)
   bookmarks       Bookmark[]
   growthPlan      GrowthPlan?
@@ -252,6 +254,7 @@ enum BookmarkType {
   IMAGE_DU_JOUR
   SAVIEZ_VOUS
   IMAGE_WIKIMEDIA
+  IMAGE_WIKILOVES
 }
 
 model CachedCnrsArticle {
@@ -297,4 +300,21 @@ model CachedWikipediaImage {
 model CachedConfig {
   key   String @id
   value String
+}
+
+model CachedWikiLovesImage {
+  id         String   @id @default(cuid())
+  docid      String   @unique
+  title      String
+  author     String
+  imageUrl   String
+  commonsUrl String?
+  license    String
+  year       Int
+  source     String
+  scrapedAt  DateTime @default(now())
+  expiresAt  DateTime
+
+  @@index([expiresAt])
+  @@index([source, year])
 }

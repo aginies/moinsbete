@@ -82,6 +82,7 @@ describe('registerAction', () => {
     const { checkRateLimit } = await import('@/lib/rate-limiter')
     vi.mocked(checkRateLimit).mockResolvedValue(true)
     delete process.env.REGISTRATION_LOCKED
+    delete process.env.TURNSTILE_SECRET_KEY
   })
 
   it('returns success for valid registration', async () => {
@@ -100,6 +101,8 @@ describe('registerAction', () => {
       saviezVousCardVisible: true,
       radioFranceCardVisible: true,
       imageWikimediaCardVisible: true,
+      imageWikiLovesCardVisible: true,
+      imageWikiLovesShowCategories: true,
       imageWikimediaShowCategories: true,
     })
 
@@ -129,6 +132,8 @@ describe('registerAction', () => {
       saviezVousCardVisible: true,
       radioFranceCardVisible: true,
       imageWikimediaCardVisible: true,
+      imageWikiLovesCardVisible: true,
+      imageWikiLovesShowCategories: true,
       imageWikimediaShowCategories: true,
     })
 
@@ -234,6 +239,8 @@ describe('loginAction', () => {
       saviezVousCardVisible: true,
       radioFranceCardVisible: true,
       imageWikimediaCardVisible: true,
+      imageWikiLovesCardVisible: true,
+      imageWikiLovesShowCategories: true,
       imageWikimediaShowCategories: true,
     }
     const { prisma } = await import('@/lib/db')
@@ -278,6 +285,8 @@ describe('loginAction', () => {
       saviezVousCardVisible: true,
       radioFranceCardVisible: true,
       imageWikimediaCardVisible: true,
+      imageWikiLovesCardVisible: true,
+      imageWikiLovesShowCategories: true,
       imageWikimediaShowCategories: true,
     }
     const { prisma } = await import('@/lib/db')
