@@ -56,7 +56,7 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
         authorProfileUrl: `https://pixabay.com/users/${randomVideo.user}-${randomVideo.user_id}/`,
         duration: randomVideo.duration || 0,
         thumbnailUrl: mediumVideo.thumbnail || '',
-        videoUrl: mediumVideo.url,
+        videoUrl: `/api/video-proxy?url=${encodeURIComponent(mediumVideo.url)}`,
         tags: randomVideo.tags || '',
       }
     } catch (e) {
