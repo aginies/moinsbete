@@ -61,17 +61,19 @@ export async function GET(request: NextRequest) {
       id: v.idea.id,
     }))
 
+    let finalTotal = total
     if (normalizedQ) {
       const filtered = ideas.filter(idea =>
         normalizeAccents(idea.title).toLowerCase().includes(normalizedQ)
       )
       ideas.length = 0
       ideas.push(...filtered)
+      finalTotal = filtered.length
     }
 
     return NextResponse.json({
       ideas,
-      total,
+      total: finalTotal,
       page,
     })
   } catch (error) {
