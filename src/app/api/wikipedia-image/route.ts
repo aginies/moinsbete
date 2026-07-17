@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
@@ -11,8 +12,8 @@ interface ImageEntry {
 }
 
 const MONTHS = [
-  'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-  'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre',
+  'janvier', 'f\u00e9vrier', 'mars', 'avril', 'mai', 'juin',
+  'juillet', 'ao\u00fbt', 'septembre', 'octobre', 'novembre', 'd\u00e9cembre',
 ]
 
 const archives = MONTHS.flatMap((m) =>
@@ -45,7 +46,7 @@ function extractEntries(html: string): ImageEntry[] {
       entries.push({
         imageUrl,
         description: imgAltMatch[1]
-          .replace(/\s*\([^)]*définition réelle[^)]*\)/, '')
+          .replace(/\s*\([^)]*d\u00e9finition r\u00e9elle[^)]*\)/, '')
           .trim(),
         fileUrl: `https://fr.wikipedia.org/wiki/Fichier:${fileHrefMatch[1]}`,
         date,
@@ -93,14 +94,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 
-    // Retry logic: pick random archives until we find one with valid entries
+    // Try cache first
+    const cached = await prisma.cachedWikipediaImage.findMany({
+      where: { expiresAt: { gte: new Date() } },
+      orderBy: { scrapedAt: 'desc' },
+      take: 31,
+    })
+
+    if (cached.length > 0) {
+      const randomEntry = cached[Math.floor(Math.random() * cached.length)]
+      return NextResponse.json({
+        imageUrl: randomEntry.imageUrl,
+        description: randomEntry.description,
+        fileUrl: randomEntry.fileUrl,
+        date: randomEntry.date,
+      })
+    }
+
+    // Cache empty — scrape fresh (fallback)
     const usedArchives = new Set<string>()
     const maxRetries = 5
     let entries: ImageEntry[] = []
     let randomArchive: string
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
-      // Pick a random archive not yet tried
       do {
         randomArchive = archives[Math.floor(Math.random() * archives.length)]
       } while (usedArchives.has(randomArchive) && usedArchives.size < archives.length)

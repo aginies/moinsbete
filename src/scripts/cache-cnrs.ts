@@ -1,21 +1,21 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
-import { sleep } from '@/lib/cache-helpers'
+import { prisma } from '../lib/db'
+import { sleep, cleanupExpired } from '../lib/cache-helpers'
 
 const NEWSROOM_BASE = 'https://www.cnrs.fr'
 
-interface CachedCnrsArticle {
+interface ScrapedArticle {
   title: string
-  imageUrl: string
   link: string
+  imageUrl: string
   category: string
-  date: string
 }
 
-async function scrapeFreshArticles(): Promise<CachedCnrsArticle[]> {
-  const articles: CachedCnrsArticle[] = []
-  
-  for (let page = 1; page <= 10; page++) {
+export async function scrapeAndCacheCnrs(): Promise<void> {
+  console.log('📚 Scraping CNRS newsroom...')
+  const allArticles: ScrapedArticle[] = []
+  const totalPages = 100
+
+  for (let page = 1; page <= totalPages; page++) {
     try {
       const res = await fetch(`${NEWSROOM_BASE}/fr/newsroom?page=${page}`, {
         headers: {
@@ -25,9 +25,13 @@ async function scrapeFreshArticles(): Promise<CachedCnrsArticle[]> {
         },
         signal: AbortSignal.timeout(15000),
       })
-      if (!res.ok) continue
+      if (!res.ok) {
+        console.log(`  Page ${page}/${totalPages}: HTTP ${res.status}`)
+        continue
+      }
 
       const html = await res.text()
+      const articles: ScrapedArticle[] = []
       const validCategories = ['actualite', 'presse', 'lejournal', 'images', 'bibliotheque', 'videos', 'diaporamas']
       const usedLinks = new Set<string>()
 
@@ -53,73 +57,61 @@ async function scrapeFreshArticles(): Promise<CachedCnrsArticle[]> {
         const fullLink = href.startsWith('http') ? href : `${NEWSROOM_BASE}${href}`
         const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${NEWSROOM_BASE}${imageUrl}`
 
-        articles.push({
-          title,
-          link: fullLink,
-          imageUrl: fullImageUrl,
-          date: '',
-          category,
-        })
+        articles.push({ title, link: fullLink, imageUrl: fullImageUrl, category })
+      }
+
+      if (articles.length > 0) {
+        allArticles.push(...articles)
+        console.log(`  Page ${page}/${totalPages}: ${articles.length} articles (total: ${allArticles.length})`)
+      } else {
+        console.log(`  Page ${page}/${totalPages}: 0 article`)
       }
     } catch {
-      // skip
+      console.log(`  Page ${page}/${totalPages}: erreur`)
+    }
+
+    if (page % 20 === 0 && page < totalPages) {
+      console.log(`  Pause 10s...`)
+      await sleep(10000)
+    } else if (page < totalPages) {
+      await sleep(2000)
     }
   }
-  
-  return articles
-}
 
-async function upsertFreshArticles(articles: CachedCnrsArticle[]) {
-  if (articles.length === 0) return
-  
+  if (allArticles.length === 0) {
+    console.log('⚠️ Aucun article trouvé')
+    return
+  }
+
+  console.log(`\n💾 Upsert ${allArticles.length} articles en DB...`)
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
   
-  for (const article of articles) {
-    await prisma.cachedCnrsArticle.upsert({
+  let created = 0
+  let updated = 0
+  for (const article of allArticles) {
+    const result = await prisma.cachedCnrsArticle.upsert({
       where: { link: article.link },
       update: { ...article, scrapedAt: now, expiresAt },
       create: { ...article, scrapedAt: now, expiresAt },
     })
+    if (result.count === 0) created++
+    else updated++
   }
+  
+  console.log(`  ✅ ${created} créés, ${updated} mis à jour`)
+  await cleanupExpired()
 }
 
-export async function GET() {
-  try {
-    const cached = await prisma.cachedCnrsArticle.findMany({
-      where: { expiresAt: { gte: new Date() } },
-      orderBy: { scrapedAt: 'desc' },
-      take: 1,
+if (process.argv[1]?.includes('cache-cnrs')) {
+  scrapeAndCacheCnrs()
+    .then(() => {
+      console.log('Done!')
+      process.exit(0)
     })
-
-    if (cached.length > 0) {
-      const article = cached[0]
-      return NextResponse.json({
-        title: article.title || 'Actualit\u00e9 CNRS',
-        imageUrl: article.imageUrl,
-        link: article.link,
-        category: article.category || 'Sciences',
-        date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
-      })
-    }
-
-    // Cache empty or expired — scrape fresh
-    const articles = await scrapeFreshArticles()
-    if (articles.length > 0) {
-      await upsertFreshArticles(articles)
-      const article = articles[Math.floor(Math.random() * articles.length)]
-      return NextResponse.json({
-        title: article.title || 'Actualit\u00e9 CNRS',
-        imageUrl: article.imageUrl,
-        link: article.link,
-        category: article.category || 'Sciences',
-        date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
-      })
-    }
-
-    return NextResponse.json({ error: true })
-  } catch (error) {
-    console.error('CNRS error:', error)
-    return NextResponse.json({ error: true })
-  }
+    .catch(e => {
+      console.error('Erreur:', e)
+      process.exit(1)
+    })
+    .finally(() => prisma.$disconnect())
 }

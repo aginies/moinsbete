@@ -14,7 +14,12 @@
     "db:studio": "prisma studio",
     "build:app": "bash scripts/build.sh",
     "test:app": "bash scripts/test.sh",
-    "test": "vitest run"
+    "test": "vitest run",
+    "cache:cnrs": "tsx src/scripts/cache-cnrs.ts",
+    "cache:radio": "tsx src/scripts/cache-radio-france.ts",
+    "cache:wikipedia": "tsx src/scripts/cache-wikipedia-image.ts",
+    "cache:cleanup": "tsx src/scripts/cleanup-cached.ts",
+    "cache:all": "tsx src/scripts/cache-cnrs.ts && tsx src/scripts/cache-radio-france.ts && tsx src/scripts/cache-wikipedia-image.ts && tsx src/scripts/cleanup-cached.ts"
   },
   "prisma": {
     "seed": "tsx src/scripts/seed-ideas.ts"
@@ -39,6 +44,7 @@
     "next-auth": "^4.24.14",
     "next-pwa": "^5.6.0",
     "next-themes": "^0.4.6",
+    "node-cron": "^4.6.0",
     "openai": "^6.45.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
