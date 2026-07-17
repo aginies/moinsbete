@@ -8,6 +8,7 @@ import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
 import { CnrsNewsCard } from '@/components/feed/cnrs-news-card'
 import { RadioFranceCard } from '@/components/feed/radio-france-card'
 import { ImageWikimediaCard } from '@/components/feed/image-wikimedia-card'
+import { ImageWikiLovesCard } from '@/components/feed/image-wikiloves-card'
 import Link from 'next/link'
 
 interface SujetsClientProps {
@@ -23,6 +24,7 @@ interface CardVisibility {
   wikipedia: boolean
   radioFrance: boolean
   wikimedia: boolean
+  wikiloves: boolean
   cnrs: boolean
 }
 
@@ -45,7 +47,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const followedIdsSet = useMemo(() => new Set(followedIds), [followedIds])
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
-    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true,
+    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true,
   })
 
   const toggleVisibility = useCallback((field: string, key: keyof CardVisibility) => {
@@ -62,6 +64,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const toggleWikipedia = useCallback(() => toggleVisibility('wikipediaImageCardVisible', 'wikipedia'), [toggleVisibility])
   const toggleRadioFrance = useCallback(() => toggleVisibility('radioFranceCardVisible', 'radioFrance'), [toggleVisibility])
   const toggleWikimedia = useCallback(() => toggleVisibility('imageWikimediaCardVisible', 'wikimedia'), [toggleVisibility])
+  const toggleWikiLoves = useCallback(() => toggleVisibility('imageWikiLovesCardVisible', 'wikiloves'), [toggleVisibility])
   const toggleCnrs = useCallback(() => toggleVisibility('cnrsNewsEnabled', 'cnrs'), [toggleVisibility])
 
   const handleToggle = (topicId: string, _isFollowing: boolean) => {
@@ -115,6 +118,12 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         </div>
       )}
 
+      {visibility.wikiloves && (
+        <div className="mb-6">
+          <ImageWikiLovesCard onToggle={toggleWikiLoves} userId={userId} largeImage isVisible={visibility.wikiloves} />
+        </div>
+      )}
+
       <div className="mb-6">
         <Link
           href={((userId && followedIds.length > 0) || isAllSelected) ? '/idees/au-hasard?followed=1' : '/sujets'}
@@ -164,6 +173,12 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         {!visibility.wikimedia && (
           <div className="h-full">
             <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage isVisible={visibility.wikimedia} />
+          </div>
+        )}
+
+        {!visibility.wikiloves && (
+          <div className="h-full">
+            <ImageWikiLovesCard onToggle={toggleWikiLoves} userId={userId} largeImage isVisible={visibility.wikiloves} />
           </div>
         )}
       </div>

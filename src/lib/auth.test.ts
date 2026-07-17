@@ -13,6 +13,8 @@ const mockUser = {
   saviezVousCardVisible: true,
   radioFranceCardVisible: true,
   imageWikimediaCardVisible: true,
+  imageWikiLovesCardVisible: true,
+  imageWikiLovesShowCategories: true,
   imageWikimediaShowCategories: true,
 }
 

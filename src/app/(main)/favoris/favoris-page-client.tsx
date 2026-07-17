@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
@@ -16,6 +16,7 @@ import { normalizeAccents } from '@/lib/utils'
 import { ImageDuJourBookmarks } from '@/components/feed/image-du-jour-bookmarks'
 import { SaviezVousBookmarks } from '@/components/feed/saviez-vous-bookmarks'
 import { ImageWikimediaFavorites } from './image-wikimedia-favorites'
+import { ImageWikiLovesFavorites } from './image-wikiloves-favorites'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 
@@ -30,9 +31,10 @@ interface FavorisPageClientProps {
   imageDuJourFavoritesCount: number
   saviezVousFavoritesCount: number
   wikimediaFavoritesCount: number
+  wikilovesFavoritesCount: number
 }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves'
 
 interface TabConfig {
   id: Tab
@@ -54,7 +56,7 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
   return <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
 }
 
-export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount }: FavorisPageClientProps) {
+export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
@@ -81,6 +83,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [imageDuJourCount, setImageDuJourCount] = useState(imageDuJourFavoritesCount)
   const [saviezVousCount, setSaviezVousCount] = useState(saviezVousFavoritesCount)
   const [wikimediaCount, setWikimediaCount] = useState(wikimediaFavoritesCount)
+  const [wikilovesCount, setWikilovesCount] = useState(wikilovesFavoritesCount)
 
   useEffect(() => {
     setRadioCount(radioFavoritesCount)
@@ -88,7 +91,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     setImageDuJourCount(imageDuJourFavoritesCount)
     setSaviezVousCount(saviezVousFavoritesCount)
     setWikimediaCount(wikimediaFavoritesCount)
-  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount])
+    setWikilovesCount(wikilovesFavoritesCount)
+  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount])
 
   const handleRadioRemove = useCallback(() => {
     setRadioCount(prev => Math.max(0, prev - 1))
@@ -110,6 +114,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     setWikimediaCount(prev => Math.max(0, prev - 1))
   }, [])
 
+  const handleWikiLovesRemove = useCallback(() => {
+    setWikilovesCount(prev => Math.max(0, prev - 1))
+  }, [])
+
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
     const q = normalizeAccents(searchQuery).toLowerCase()
@@ -122,14 +130,15 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     return `/favoris?page=${page}`
   }, [])
 
-  const tabConfig: TabConfig[] = useMemo(() => [
-     { id: 'idees', label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount },
-     { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
-     { id: 'image-wikimedia', label: 'Wikimedia', Icon: BookOpen, count: wikimediaCount },
-     { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
-     { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
-     { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
-   ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, saviezVousCount, radioCount, cnrsCount])
+   const tabConfig: TabConfig[] = useMemo(() => [
+      { id: 'idees', label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount },
+      { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
+      { id: 'image-wikimedia', label: 'Wikimedia', Icon: BookOpen, count: wikimediaCount },
+      { id: 'image-wikiloves', label: 'Wiki Loves', Icon: Earth, count: wikilovesCount },
+      { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
+      { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
+      { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
+    ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, saviezVousCount, radioCount, cnrsCount])
 
   const sortedTabs = useMemo(() =>
     [...tabConfig].sort((a, b) => b.count - a.count),
@@ -244,6 +253,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       {activeTab === 'saviez-vous' && <div role="tabpanel" id="panel-saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} /></div>}
 
       {activeTab === 'image-wikimedia' && <div role="tabpanel" id="panel-image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} /></div>}
+
+      {activeTab === 'image-wikiloves' && <div role="tabpanel" id="panel-image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} /></div>}
     </div>
   )
 }
