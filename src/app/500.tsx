@@ -11,7 +11,7 @@ export default function FiveHundred() {
       <body className="bg-cover bg-center bg-no-repeat min-h-screen relative"
         style={{ backgroundImage: 'url("https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Comets_Kick_up_Dust_in_Helix_Nebula_%28PIA09178%29.jpg/1280px-Comets_Kick_up_Dust_in_Helix_Nebula_%28PIA09178%29.jpg")' }}>
         <div className="absolute inset-0 bg-black/60" />
-        <div className="relative flex min-h-screen items-center justify-center px-4">
+        <div className="relative flex min-h-screen items-start justify-center pt-24 px-4">
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 max-w-md text-center">
             <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-red-400" />
             <h2 className="mb-2 text-2xl font-bold text-white">Erreur serveur</h2>
