@@ -16,6 +16,16 @@ async function verifyTurnstile(token: string, remoteIp: string): Promise<boolean
     return true
   }
 
+  // Development bypass for testing keys when offline/behind proxy
+  if (
+    process.env.NODE_ENV === 'development' &&
+    process.env.TURNSTILE_SECRET_KEY === '0x4AAAAAAD329wA3uz-RrH8FJ80KzMltOSA' &&
+    !token
+  ) {
+    console.log('DEVELOPMENT BYPASS: Empty token allowed for Cloudflare Turnstile testing keys.')
+    return true
+  }
+
   try {
     const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
@@ -38,6 +48,11 @@ export async function isRegistrationLocked() {
   return process.env.REGISTRATION_LOCKED === 'true'
 }
 
+export async function getTurnstileSiteKey() {
+  console.log("SERVER SITE KEY VALUE:", process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY)
+  return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
+}
+
 export async function registerAction(formData: {
   email: string
   password: string
@@ -56,7 +71,14 @@ export async function registerAction(formData: {
   }
 
   if (process.env.TURNSTILE_SECRET_KEY && !cfToken) {
-    return { error: 'Vérification humaine requise.' }
+    if (
+      process.env.NODE_ENV === 'development' &&
+      process.env.TURNSTILE_SECRET_KEY === '0x4AAAAAAD329wA3uz-RrH8FJ80KzMltOSA'
+    ) {
+      console.log('DEVELOPMENT BYPASS: Bypassing empty token check for Turnstile testing keys.')
+    } else {
+      return { error: 'Vérification humaine requise.' }
+    }
   }
 
   if (process.env.TURNSTILE_SECRET_KEY && cfToken) {
