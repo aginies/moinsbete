@@ -90,7 +90,7 @@ export function ImagePixabayCard({
   const [video, setVideo] = useState<PixabayVideo | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string>('forest')
   const [showCategories, setShowCategories] = useState(true)
