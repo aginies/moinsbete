@@ -87,7 +87,7 @@ export function ImageWikimediaFavorites({ userId, onRemoveComplete }: ImageWikim
     userId,
     storageKey: WIKIMEDIA_FAVORITES_KEY,
     resourceIdGetter: (item) => item.docid,
-    bookmarkType: 'BNF_GALICA',
+    bookmarkType: 'IMAGE_WIKIMEDIA',
   })
 
   const fetchFn = useCallback(async () => {

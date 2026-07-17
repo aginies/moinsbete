@@ -6,7 +6,7 @@ import { wikimediaManager } from '@/lib/image-wikimedia-bookmark'
 import { createBookmarkManagerActions } from '@/actions/bookmark-manager'
 import type { WikimediaImageFavoriteMeta } from '@/lib/image-wikimedia-bookmark'
 
-const TYPE: BookmarkType = 'BNF_GALICA'
+const TYPE: BookmarkType = 'IMAGE_WIKIMEDIA'
 
 const wikimediaActions = createBookmarkManagerActions(wikimediaManager)
 
