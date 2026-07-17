@@ -19,11 +19,13 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
     return null
   }
 
+  const randomPage = Math.floor(Math.random() * 25) + 1
   const params = new URLSearchParams({
     key: API_KEY,
     q: category,
     order: 'popular',
-    per_page: '20',
+    per_page: '200',
+    page: String(randomPage),
   })
 
   for (let retry = 0; retry < 3; retry++) {
