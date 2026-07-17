@@ -85,7 +85,7 @@ export async function scrapeAndCacheCnrs(): Promise<void> {
 
   console.log(`\n💾 Upsert ${allArticles.length} articles en DB...`)
   const now = new Date()
-  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString()
   
   for (const article of allArticles) {
     await prisma.cachedCnrsArticle.upsert({

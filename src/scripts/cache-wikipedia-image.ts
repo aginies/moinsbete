@@ -150,7 +150,7 @@ export async function scrapeAndCacheWikipediaImages(count: number = 1): Promise<
       console.log(`  ${archiveName}: ${entries.length} images`)
       
       const now2 = new Date()
-      const expiresAt = new Date(now2.getTime() + 30 * 24 * 60 * 60 * 1000)
+      const expiresAt = new Date(now2.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
       
       for (const image of entries) {
         await prisma.cachedWikipediaImage.upsert({
