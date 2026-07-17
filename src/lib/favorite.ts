@@ -24,6 +24,7 @@ export async function toggleBookmark(
   const existing = await prisma.bookmark.findFirst({
     where: { userId, resourceId, type },
   })
+  console.log('toggleBookmark:', { userId, type, resourceId, action, existingId: existing?.id })
 
   if (existing) {
     if (action === 'add') return { bookmarked: false, wasBookmarked: true }
