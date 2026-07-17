@@ -7,6 +7,8 @@ const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber'> = {
    radio_france_card_visible: 'purple',
    image_wikimedia_card_visible: 'amber',
    image_wikimedia_show_categories: 'amber',
+   image_pixabay_card_visible: 'amber',
+   image_pixabay_show_categories: 'amber',
  }
 
 const DB_FIELD_MAP: Record<string, string> = {
@@ -15,6 +17,8 @@ const DB_FIELD_MAP: Record<string, string> = {
    radio_france_card_visible: 'radioFranceCardVisible',
    image_wikimedia_card_visible: 'imageWikimediaCardVisible',
    image_wikimedia_show_categories: 'imageWikimediaShowCategories',
+   image_pixabay_card_visible: 'imagePixabayCardVisible',
+   image_pixabay_show_categories: 'imagePixabayShowCategories',
    cnrs_news_enabled: 'cnrsNewsEnabled',
  }
 

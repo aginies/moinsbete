@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
       radioFranceCardVisible: true,
       imageWikimediaCardVisible: true,
       imageWikimediaShowCategories: true,
+      imagePixabayCardVisible: true,
+      imagePixabayShowCategories: true,
       cnrsNewsEnabled: true,
     },
   })
@@ -48,6 +50,8 @@ export async function POST(request: NextRequest) {
     'radioFranceCardVisible',
     'imageWikimediaCardVisible',
     'imageWikimediaShowCategories',
+    'imagePixabayCardVisible',
+    'imagePixabayShowCategories',
     'cnrsNewsEnabled',
   ]
 
