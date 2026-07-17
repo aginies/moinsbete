@@ -12,6 +12,7 @@ import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
+import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { encodeImageToUrl } from '@/lib/image-url-encoder'
 
@@ -221,7 +222,16 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
         </div>
       )}
 
-      {hasImage && (
+      {loading && image?.imageUrl && (
+        <ImageLoading
+          borderColor="border-teal-200"
+          borderDarkColor="dark:border-teal-800"
+          iconColor="text-teal-400"
+          iconDarkColor="dark:text-teal-400"
+        />
+      )}
+
+      {hasImage && !loading && (
         <div
           className={`mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}
           onClick={(e) => {

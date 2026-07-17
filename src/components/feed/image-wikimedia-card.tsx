@@ -10,6 +10,7 @@ import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { VisibilityButton } from './visibility-button'
+import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { WikimediaTopicsModal } from './wikimedia-topics-modal'
 
@@ -344,11 +345,7 @@ export function ImageWikimediaCard({
       )}
 
       {loading && image?.imageUrl && (
-        <div className="mb-3 overflow-hidden rounded-lg border border-rose-200 dark:border-rose-800">
-          <div className="h-48 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800">
-            <RefreshCw className="h-8 w-8 text-rose-400 animate-spin" />
-          </div>
-        </div>
+        <ImageLoading />
       )}
 
       {image?.imageUrl && !loading && (
