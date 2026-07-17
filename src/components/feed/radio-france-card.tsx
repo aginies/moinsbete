@@ -24,6 +24,7 @@ interface RadioFranceCardProps {
   initialDoc?: RadioFranceDoc
   userId?: string
   onToggle?: () => void
+  isVisible?: boolean
 }
 
 async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null> {
@@ -39,11 +40,12 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
   }
 }
 
-export function RadioFranceCard({ initialDoc, userId, onToggle }: RadioFranceCardProps) {
+export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: RadioFranceCardProps) {
   const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
   const [loading, setLoading] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible', userId })
+  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible', userId })
+  const show = isVisible !== undefined ? isVisible : true
 
   useEffect(() => {
     if (userId && doc) {

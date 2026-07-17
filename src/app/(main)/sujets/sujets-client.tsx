@@ -27,7 +27,7 @@ interface CardVisibility {
 
 async function loadCardVisibility(userId: string): Promise<CardVisibility> {
   try {
-    const res = await fetch('/api/user-card-visibility')
+    const res = await fetch('/api/user-card-visibility', { credentials: 'include' })
     if (!res.ok) return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true }
     const data = await res.json()
     return {
@@ -45,6 +45,7 @@ async function loadCardVisibility(userId: string): Promise<CardVisibility> {
 async function updateCardVisibility(field: string, value: boolean) {
   await fetch('/api/user-card-visibility', {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ field, value }),
   }).catch(() => {})
@@ -53,36 +54,9 @@ async function updateCardVisibility(field: string, value: boolean) {
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId }: SujetsClientProps) {
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
 
-  const [isMounted, setIsMounted] = useState(false)
-
-  const getLocalStorageVisibility = (): CardVisibility => {
-    const storedSaviez = localStorage.getItem('saviez_vous_card_visible')
-    const storedWiki = localStorage.getItem('wikipedia_image_card_visible')
-    const storedRadio = localStorage.getItem('radio_france_card_visible')
-    const storedWikimedia = localStorage.getItem('image_wikimedia_card_visible')
-    const storedCnrs = localStorage.getItem('cnrs_news_enabled')
-
-    return {
-      saviezVous: storedSaviez !== null ? storedSaviez === 'true' : true,
-      wikipedia: storedWiki !== null ? storedWiki === 'true' : true,
-      radioFrance: storedRadio !== null ? storedRadio === 'true' : true,
-      wikimedia: storedWikimedia !== null ? storedWikimedia === 'true' : true,
-      cnrs: storedCnrs !== null ? storedCnrs === 'true' : true,
-    }
-  }
-
   const [visibility, setVisibility] = useState<CardVisibility>(() => {
-    // Default to server values (all true) to match SSR
-    // After mount, sync with localStorage if user has custom values
     return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true }
   })
-
-  useEffect(() => {
-    setIsMounted(true)
-    if (isMounted) {
-      setVisibility(getLocalStorageVisibility())
-    }
-  }, [])
 
   useEffect(() => {
     if (userId) {
@@ -95,8 +69,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       const next = !prev.saviezVous
       if (userId) {
         updateCardVisibility('saviezVousCardVisible', next).catch(() => {})
-      } else {
-        localStorage.setItem('saviez_vous_card_visible', String(next))
       }
       return { ...prev, saviezVous: next }
     })
@@ -107,8 +79,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       const next = !prev.wikipedia
       if (userId) {
         updateCardVisibility('wikipediaImageCardVisible', next).catch(() => {})
-      } else {
-        localStorage.setItem('wikipedia_image_card_visible', String(next))
       }
       return { ...prev, wikipedia: next }
     })
@@ -119,8 +89,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       const next = !prev.radioFrance
       if (userId) {
         updateCardVisibility('radioFranceCardVisible', next).catch(() => {})
-      } else {
-        localStorage.setItem('radio_france_card_visible', String(next))
       }
       return { ...prev, radioFrance: next }
     })
@@ -131,8 +99,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       const next = !prev.wikimedia
       if (userId) {
         updateCardVisibility('imageWikimediaCardVisible', next).catch(() => {})
-      } else {
-        localStorage.setItem('image_wikimedia_card_visible', String(next))
       }
       return { ...prev, wikimedia: next }
     })
@@ -143,8 +109,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       const next = !prev.cnrs
       if (userId) {
         updateCardVisibility('cnrsNewsEnabled', next).catch(() => {})
-      } else {
-        localStorage.setItem('cnrs_news_enabled', String(next))
       }
       return { ...prev, cnrs: next }
     })
@@ -165,31 +129,31 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
       {visibility.saviezVous && saviezVousFact && (
         <div className="mb-6">
-          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} />
+          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} isVisible={visibility.saviezVous} />
         </div>
       )}
 
       {visibility.wikipedia && (
         <div className="mb-6">
-          <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} />
+          <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} isVisible={visibility.wikipedia} />
         </div>
       )}
 
       {visibility.cnrs && (
         <div className="mb-6">
-          <CnrsNewsCard onToggle={toggleCnrs} userId={userId} />
+          <CnrsNewsCard onToggle={toggleCnrs} userId={userId} isVisible={visibility.cnrs} />
         </div>
       )}
 
       {visibility.radioFrance && (
         <div className="mb-6">
-          <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} />
+          <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} isVisible={visibility.radioFrance} />
         </div>
       )}
 
       {visibility.wikimedia && (
         <div className="mb-6">
-          <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage />
+          <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage isVisible={visibility.wikimedia} />
         </div>
       )}
 
@@ -217,31 +181,31 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
         {!visibility.saviezVous && saviezVousFact && (
           <div className="h-full">
-            <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} />
+            <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} isVisible={visibility.saviezVous} />
           </div>
         )}
 
         {!visibility.wikipedia && (
           <div className="h-full">
-            <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} />
+            <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} isVisible={visibility.wikipedia} />
           </div>
         )}
 
         {!visibility.cnrs && (
           <div className="h-full">
-            <CnrsNewsCard onToggle={toggleCnrs} userId={userId} />
+            <CnrsNewsCard onToggle={toggleCnrs} userId={userId} isVisible={visibility.cnrs} />
           </div>
         )}
 
         {!visibility.radioFrance && (
           <div className="h-full">
-            <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} />
+            <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} isVisible={visibility.radioFrance} />
           </div>
         )}
 
         {!visibility.wikimedia && (
           <div className="h-full">
-            <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage />
+            <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage isVisible={visibility.wikimedia} />
           </div>
         )}
       </div>

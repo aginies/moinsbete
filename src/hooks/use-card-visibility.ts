@@ -42,7 +42,7 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
     if (userId) {
       const dbField = DB_FIELD_MAP[storageKey]
       if (dbField) {
-        fetch(`/api/user-card-visibility?field=${dbField}`)
+        fetch(`/api/user-card-visibility?field=${dbField}`, { credentials: 'include' })
           .then(res => res.json())
           .then(data => {
             if (data[dbField] !== undefined) {
@@ -50,14 +50,6 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
             }
           })
           .catch(() => {})
-        return
-      }
-    }
-    
-    if (typeof window !== 'undefined') {
-      const stored = window.localStorage.getItem(storageKey)
-      if (stored !== null) {
-        setShow(stored === 'true')
       }
     }
   }, [storageKey, userId])
@@ -70,12 +62,11 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
         if (dbField) {
           fetch(`/api/user-card-visibility`, {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ field: dbField, value: next }),
           }).catch(() => {})
         }
-      } else if (typeof window !== 'undefined') {
-        window.localStorage.setItem(storageKey, String(next))
       }
       return next
     })

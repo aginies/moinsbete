@@ -28,6 +28,7 @@ interface SaviezVousCardProps {
   enableAutoRefresh?: boolean
   storageKey?: string
   userId?: string
+  isVisible?: boolean
 }
 
 async function fetchRandomFact() {
@@ -54,6 +55,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   enableAutoRefresh = false,
   storageKey = 'saviez_vous',
   userId,
+  isVisible,
 }: SaviezVousCardProps) {
   const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
   const [nextFact, setNextFact] = useState<{ id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null>(null)
@@ -62,7 +64,8 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   const [imageError, setImageError] = useState(false)
   const [imageKey, setImageKey] = useState(0)
   const [showFullImage, setShowFullImage] = useState(false)
-  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'saviez_vous_card_visible', userId })
+  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'saviez_vous_card_visible', userId })
+  const show = isVisible !== undefined ? isVisible : true
   const prefetchNextFact = useCallback(async () => {
     const fetched = await fetchRandomFact()
     if (fetched) {

@@ -14,6 +14,7 @@ interface CnrsNewsCardProps {
   onToggle?: () => void
   userId?: string
   showToggle?: boolean
+  isVisible?: boolean
 }
 
 interface CnrsArticle {
@@ -56,12 +57,13 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
   }
 }
 
-export function CnrsNewsCard({ onToggle, userId, showToggle = true }: CnrsNewsCardProps) {
+export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }: CnrsNewsCardProps) {
   const [article, setArticle] = useState<CnrsArticle | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const { show, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'cnrs_news_enabled', userId })
+  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'cnrs_news_enabled', userId })
+  const show = isVisible !== undefined ? isVisible : true
 
   const loadArticle = useCallback(async () => {
     setLoading(true)
