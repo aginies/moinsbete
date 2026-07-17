@@ -135,19 +135,6 @@ export function ImagePixabayCard({
     }
   }, [userId, video])
 
-  useEffect(() => {
-    const el = videoRef.current
-    if (!el) return
-    const handlePlay = () => setIsPlaying(true)
-    const handlePause = () => setIsPlaying(false)
-    el.addEventListener('play', handlePlay)
-    el.addEventListener('pause', handlePause)
-    return () => {
-      el.removeEventListener('play', handlePlay)
-      el.removeEventListener('pause', handlePause)
-    }
-  }, [video?.videoUrl])
-
   const togglePlay = useCallback(() => {
     const el = videoRef.current
     if (!el) return
@@ -309,19 +296,16 @@ export function ImagePixabayCard({
             loop
             playsInline
             autoPlay
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onEnded={() => setIsPlaying(false)}
             className={`w-full ${largeImage ? 'h-[28vh] object-cover bg-black' : fullImage ? 'max-h-[60vh] object-contain bg-black' : 'h-48 object-cover'}`}
-            onClick={(e) => {
-              e.stopPropagation()
-              togglePlay()
-            }}
+            onClick={togglePlay}
           />
           {!isPlaying && (
             <div
-              className="absolute inset-0 flex items-center justify-center bg-black/30"
-              onClick={(e) => {
-                e.stopPropagation()
-                togglePlay()
-              }}
+              className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
+              onClick={togglePlay}
             >
               <Play className="h-12 w-12 text-white/80" />
             </div>
