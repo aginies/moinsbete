@@ -97,13 +97,14 @@ model Idea {
   bookmarks   Bookmark[]
   source      Source       @relation(fields: [sourceId], references: [id])
   ideaTopics  IdeaTopic[]
-  viewedIdeas ViewedIdea[]
+   viewedIdeas ViewedIdea[]
 
-  @@index([slug])
-  @@index([isPublished])
-  @@index([sourceId])
-  @@index([isPublished, orderIndex])
-  @@index([orderIndex])
+   @@index([slug])
+   @@index([isPublished])
+   @@index([sourceId])
+   @@index([isPublished, orderIndex])
+   @@index([orderIndex])
+   @@index([title])
 }
 
 model IdeaTopic {
