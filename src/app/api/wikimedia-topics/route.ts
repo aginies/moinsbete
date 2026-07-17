@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
   const mergedTopics = defaultTopics.map(defaultTopic => {
     const dbTopic = customTopics.find(t => t.id === defaultTopic.id)
     if (dbTopic) {
-      return { ...defaultTopic, enabled: dbTopic.enabled }
+      return { ...defaultTopic, enabled: dbTopic.enabled, active: dbTopic.active }
     }
     return defaultTopic
   })
