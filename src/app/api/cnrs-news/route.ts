@@ -86,8 +86,9 @@ async function upsertFreshArticles(articles: CnrsArticle[]) {
 export async function GET() {
   try {
     // Try cache first
+    const now = new Date()
     const cached = await prisma.cachedCnrsArticle.findMany({
-      where: { expiresAt: { gte: new Date() } },
+      where: { expiresAt: { gte: now } },
       orderBy: { scrapedAt: 'desc' },
       take: 50,
     })
