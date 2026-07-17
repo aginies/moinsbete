@@ -1,11 +1,7 @@
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
-import { TopicGrid } from '@/components/topics/topic-grid'
-import { TopicForm } from '@/components/admin/topic-form'
 import { ReviewQueue } from '@/components/admin/review-queue'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { approveSuggestionAction, rejectSuggestionAction, mergeSuggestionAction } from '@/actions/topic-actions'
 
 export const revalidate = 3600
