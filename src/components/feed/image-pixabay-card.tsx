@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play, Volume2, VolumeX } from 'lucide-react'
+import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react'
 import Link from 'next/link'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
@@ -103,6 +103,7 @@ export function ImagePixabayCard({
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [currentTime, setCurrentTime] = useState(0)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string>('forest')
   const [showCategories, setShowCategories] = useState(true)
@@ -164,6 +165,24 @@ export function ImagePixabayCard({
     const newMuted = !el.muted
     el.muted = newMuted
     setIsMuted(newMuted)
+  }, [])
+
+  const toggleFullscreen = useCallback(() => {
+    const el = videoRef.current
+    if (!el) return
+    if (!document.fullscreenElement) {
+      el.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {})
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {})
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [])
 
   const handleBookmark = useCallback(async () => {
@@ -253,6 +272,14 @@ export function ImagePixabayCard({
               >
                 {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
               </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
+                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
+                title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
+              >
+                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+              </button>
               {showToggle && (
                 <button
                   type="button"
@@ -321,7 +348,7 @@ export function ImagePixabayCard({
             ref={videoRef}
             src={video.videoUrl}
             poster={video.thumbnailUrl}
-            muted={isMuted}
+            muted
             loop
             playsInline
             autoPlay
