@@ -89,11 +89,11 @@ export async function GET() {
     const cached = await prisma.cachedCnrsArticle.findMany({
       where: { expiresAt: { gte: new Date() } },
       orderBy: { scrapedAt: 'desc' },
-      take: 1,
+      take: 50,
     })
 
     if (cached.length > 0) {
-      const article = cached[0]
+      const article = cached[Math.floor(Math.random() * cached.length)]
       return NextResponse.json({
         title: article.title || 'Actualit\u00e9 CNRS',
         imageUrl: article.imageUrl,
