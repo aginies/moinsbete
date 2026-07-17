@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth'
 import { ReviewQueue } from '@/components/admin/review-queue'
 import Link from 'next/link'
 import { approveSuggestionAction, rejectSuggestionAction, mergeSuggestionAction } from '@/actions/topic-actions'
+import { Button } from '@/components/ui/button'
 
 export const revalidate = 3600
 
