@@ -13,7 +13,6 @@ import Link from 'next/link'
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
   initialFollowedIds: string[]
-  initialCnrsEnabled: boolean
   saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null
   userId?: string
 }
@@ -23,21 +22,23 @@ interface CardVisibility {
   wikipedia: boolean
   radioFrance: boolean
   wikimedia: boolean
+  cnrs: boolean
 }
 
 async function loadCardVisibility(userId: string): Promise<CardVisibility> {
   try {
     const res = await fetch('/api/user-card-visibility')
-    if (!res.ok) return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true }
+    if (!res.ok) return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true }
     const data = await res.json()
     return {
       saviezVous: data.saviezVousCardVisible ?? true,
       wikipedia: data.wikipediaImageCardVisible ?? true,
       radioFrance: data.radioFranceCardVisible ?? true,
       wikimedia: data.imageWikimediaCardVisible ?? true,
+      cnrs: data.cnrsNewsEnabled ?? true,
     }
   } catch {
-    return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true }
+    return { saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true }
   }
 }
 
@@ -49,10 +50,9 @@ async function updateCardVisibility(field: string, value: boolean) {
   }).catch(() => {})
 }
 
-export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled, saviezVousFact, userId }: SujetsClientProps) {
+export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId }: SujetsClientProps) {
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
-  const [cnrsEnabled, setCnrsEnabled] = useState(userId ? initialCnrsEnabled : true)
-  const [visibility, setVisibility] = useState<CardVisibility>({ saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true })
+  const [visibility, setVisibility] = useState<CardVisibility>({ saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, cnrs: true })
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -72,6 +72,9 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
 
           const storedWikimedia = localStorage.getItem('image_wikimedia_card_visible')
           if (storedWikimedia !== null) setVisibility(prev => ({ ...prev, wikimedia: storedWikimedia === 'true' }))
+
+          const storedCnrs = localStorage.getItem('cnrs_news_enabled')
+          if (storedCnrs !== null) setVisibility(prev => ({ ...prev, cnrs: storedCnrs === 'true' }))
         }
       }, 0)
       return () => clearTimeout(timer)
@@ -127,18 +130,14 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
   }, [userId])
 
   const toggleCnrs = useCallback(async () => {
-    setCnrsEnabled(prev => {
-      const next = !prev
+    setVisibility(prev => {
+      const next = !prev.cnrs
       if (userId) {
-        fetch('/api/user/cnrs-news', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cnrsNewsEnabled: next }),
-        }).catch(() => {})
+        updateCardVisibility('cnrsNewsEnabled', next)
       } else {
         localStorage.setItem('cnrs_news_enabled', String(next))
       }
-      return next
+      return { ...prev, cnrs: next }
     })
   }, [userId])
 
@@ -167,9 +166,9 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
         </div>
       )}
 
-      {cnrsEnabled && (
+      {visibility.cnrs && (
         <div className="mb-6">
-          <CnrsNewsCard onToggle={toggleCnrs} userId={userId} visible={true} />
+          <CnrsNewsCard onToggle={toggleCnrs} userId={userId} />
         </div>
       )}
 
@@ -219,9 +218,9 @@ export function SujetsClient({ allTopics, initialFollowedIds, initialCnrsEnabled
           </div>
         )}
 
-        {!cnrsEnabled && (
+        {!visibility.cnrs && (
           <div className="h-full">
-            <CnrsNewsCard onToggle={toggleCnrs} userId={userId} visible={false} />
+            <CnrsNewsCard onToggle={toggleCnrs} userId={userId} />
           </div>
         )}
 

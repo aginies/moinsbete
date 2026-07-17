@@ -47,12 +47,11 @@ export default async function SujetsPage() {
       )}
 
       <SujetsClient
-      allTopics={allTopics}
-      initialFollowedIds={followedTopicIds.topicIds}
-      initialCnrsEnabled={followedTopicIds.cnrsNewsEnabled}
-      saviezVousFact={saviezVousFact}
-      userId={userId}
-     />
+        allTopics={allTopics}
+        initialFollowedIds={followedTopicIds.topicIds}
+        saviezVousFact={saviezVousFact}
+        userId={userId}
+      />
     </>
   )
 }
