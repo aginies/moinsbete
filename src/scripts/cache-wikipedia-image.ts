@@ -14,14 +14,17 @@ const MONTHS = [
   'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre',
 ]
 
+const START_YEAR = 2016
+const END_YEAR = 2026
+
 function extractEntries(html: string, archive: string): ImageEntry[] {
   const entries: ImageEntry[] = []
-  const h2Regex = /<h2[^>]*>([\s\S]*?)<\/h2>/g
+  const h2Regex = /<h2[^>]*>([\s\S]*?)<\/h2>/gi
   let h2Match: RegExpExecArray | null
 
   while ((h2Match = h2Regex.exec(html)) !== null) {
     const h2Content = h2Match[1]
-    const dateMatch = h2Content.match(/(\d{1,2}(?:er)?\s+\w+\s+\d{4})/)
+    const dateMatch = h2Content.match(/(\d{1,2}(?:er)?\s+[a-zàâæçéèêëîïôœùûüÿ]+(?:\s+[a-zàâæçéèêëîïôœùûüÿ]+)?\s+\d{4})/i)
     if (!dateMatch) continue
 
     const date = dateMatch[1].replace(/<[^>]*>/g, '').trim()
@@ -73,48 +76,88 @@ async function fetchArchive(archiveName: string): Promise<ImageEntry[] | null> {
   }
 }
 
+function monthToAdd(months: number): { month: number; year: number } {
+  const now = new Date()
+  const base = new Date(now.getFullYear(), now.getMonth(), 1)
+  base.setMonth(base.getMonth() + months)
+  return { month: base.getMonth(), year: base.getFullYear() }
+}
+
+function monthToName(month: number, year: number): string {
+  return `${MONTHS[month]} ${year}`
+}
+
+function nameToMonth(name: string): { month: number; year: number } | null {
+  const parts = name.split(' ')
+  if (parts.length !== 2) return null
+  const monthIdx = MONTHS.indexOf(parts[0])
+  const year = parseInt(parts[1], 10)
+  if (monthIdx === -1 || isNaN(year)) return null
+  return { month: monthIdx, year }
+}
+
 export async function scrapeAndCacheWikipediaImages(): Promise<void> {
   console.log('📸 Scraping Wikipedia Image du Jour...')
-  const now = new Date()
-  const allImages: ImageEntry[] = []
   
-  // Fetch last 12 months of archives (production mode)
-  for (let monthsAgo = 0; monthsAgo < 12; monthsAgo++) {
-    const date = new Date(now.getFullYear(), now.getMonth() - monthsAgo, 1)
-    const archiveName = `${MONTHS[date.getMonth()]} ${date.getFullYear()}`
+  // Get last fetched month from config
+  const config = await prisma.cachedConfig.findUnique({ where: { key: 'lastFetchedWikipediaMonth' } })
+  let lastFetched: { month: number; year: number } | null = null
+  
+  if (config?.value) {
+    lastFetched = nameToMonth(config.value)
+  }
+  
+  if (!lastFetched || lastFetched.year > END_YEAR || (lastFetched.year === END_YEAR && lastFetched.month >= 11)) {
+    lastFetched = { month: 0, year: START_YEAR }
+  }
+  
+  // Calculate next month
+  let nextMonth = lastFetched.month + 1
+  let nextYear = lastFetched.year
+  
+  if (nextMonth > 11) {
+    nextMonth = 0
+    nextYear++
+  }
+  
+  // If we've gone past END_YEAR, reset to START_YEAR
+  if (nextYear > END_YEAR) {
+    nextMonth = 0
+    nextYear = START_YEAR
+  }
+  
+  const archiveName = monthToName(nextMonth, nextYear)
+  
+  console.log(`  Fetching: ${archiveName} (après ${config?.value || 'janvier 2015'})`)
+  
+  const entries = await fetchArchive(archiveName)
+  
+  if (entries && entries.length > 0) {
+    console.log(`  ${archiveName}: ${entries.length} images`)
     
-    const entries = await fetchArchive(archiveName)
-    if (entries && entries.length > 0) {
-      allImages.push(...entries)
-      console.log(`  ${archiveName}: ${entries.length} images`)
-    } else {
-      console.log(`  ${archiveName}: aucune donnée`)
+    const now2 = new Date()
+    const expiresAt = new Date(now2.getTime() + 30 * 24 * 60 * 60 * 1000)
+    
+    for (const image of entries) {
+      await prisma.cachedWikipediaImage.upsert({
+        where: { imageUrl_date: { imageUrl: image.imageUrl, date: image.date } },
+        update: { ...image, scrapedAt: now2, expiresAt },
+        create: { ...image, scrapedAt: now2, expiresAt },
+      })
     }
     
-    await sleep(500)
-  }
-
-  if (allImages.length === 0) {
-    console.log('⚠️ Aucune image trouvée')
-    return
-  }
-
-  console.log(`\n💾 Upsert ${allImages.length} images en DB...`)
-  const now2 = new Date()
-  const expiresAt = new Date(now2.getTime() + 30 * 24 * 60 * 60 * 1000)
-
-  let created = 0
-  let updated = 0
-  for (const image of allImages) {
-    await prisma.cachedWikipediaImage.upsert({
-      where: { imageUrl_date: { imageUrl: image.imageUrl, date: image.date } },
-      update: { ...image, scrapedAt: now2, expiresAt },
-      create: { ...image, scrapedAt: now2, expiresAt },
+    // Update last fetched month
+    await prisma.cachedConfig.upsert({
+      where: { key: 'lastFetchedWikipediaMonth' },
+      update: { value: archiveName },
+      create: { key: 'lastFetchedWikipediaMonth', value: archiveName },
     })
-    updated++
+    
+    console.log(`  ✅ ${entries.length} images upserted`)
+  } else {
+    console.log(`  ${archiveName}: aucune donnée`)
   }
   
-  console.log(`  ✅ ${allImages.length} images upserted`)
   await cleanupExpired()
 }
 
