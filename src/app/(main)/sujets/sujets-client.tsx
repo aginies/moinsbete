@@ -162,7 +162,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
       <div className="mb-6">
         <Link
-          href={userId && followedIds.length > 0 ? '/idees/au-hasard?followed=1' : '/sujets'}
+          href={userId && (followedIds.length > 0 || isAllSelected) ? '/idees/au-hasard?followed=1' : '/sujets'}
           className="block rounded-xl border-2 border-rose-400 bg-gradient-to-br from-rose-50 to-pink-50 p-5 dark:border-rose-600 dark:from-rose-950/30 dark:to-pink-950/30 hover:shadow-md transition-shadow"
         >
           <div className="flex items-center gap-3">
@@ -171,10 +171,10 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
             </div>
             <div>
               <h3 className="text-base font-bold text-rose-800 dark:text-rose-200">
-                {userId && followedIds.length > 0 ? 'Carte aléatoire' : 'Choisissez vos sujets'}
+                {userId && (followedIds.length > 0 || isAllSelected) ? 'Carte aléatoire' : 'Choisissez vos sujets'}
               </h3>
               <p className="text-xs text-rose-600 dark:text-rose-300">
-                {userId && followedIds.length > 0 ? 'Découvrir au Hasard' : 'Sélectionnez des sujets dans Mon Plan'}
+                {userId && (followedIds.length > 0 || isAllSelected) ? 'Découvrir au Hasard' : 'Sélectionnez des sujets dans Mon Plan'}
               </p>
             </div>
           </div>
