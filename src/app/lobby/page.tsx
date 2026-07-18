@@ -191,7 +191,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
   }) as Array<SharedBookmarkRaw & { saviezFact?: any; wikiImage?: any; wikiMediaImage?: any; wikiLovesImage?: any }>
 
   return (
-    <div className="mx-auto max-w-2xl p-4 md:p-6">
+    <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
       <LobbyHeader isLoggedIn={!!session?.user} />
 
       <LobbyTabs
