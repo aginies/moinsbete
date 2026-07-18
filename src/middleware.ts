@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'node:crypto'
 
 export function middleware(request: NextRequest) {
-  const nonce = request.cookies.get('csp-nonce')?.value || Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64')
+  const nonce = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64')
   const csp = `default-src 'self'; script-src 'self' 'nonce-${nonce}'; style-src 'self' 'nonce-${nonce}'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; media-src 'self' https://cdn.pixabay.com; frame-ancestors 'none';`
 
   const response = NextResponse.next()
@@ -11,5 +12,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!.*\\.|api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!.*\\..*|_next|api/|auth/|favicon\\.ico|manifest\\.json|icon-.*\\.svg).*)'],
 }
