@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BookOpen, User, Clock, Bookmark, MessageSquare } from 'lucide-react'
+import { BookOpen, User, Clock, Bookmark, MessageSquare, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
 import { getSession } from '@/lib/auth'
@@ -57,6 +57,14 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">{session.user.name || session.user.email}</span>
                 </Link>
+                {session.user.role === 'ADMIN' && (
+                  <Link href="/admin">
+                    <Button variant="ghost" size="sm" className="hidden md:inline-flex">
+                      <Shield className="h-4 w-4" />
+                      <span className="ml-1">Admin</span>
+                    </Button>
+                  </Link>
+                )}
               </>
             ) : (
               <>
