@@ -16,7 +16,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
-  const activeTab = searchParams.get('tab') || 'discuter'
+  const activeTab = searchParams.get('tab') || 'favoris'
 
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams)
@@ -27,8 +27,8 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="discuter">Discuter</TabsTrigger>
         <TabsTrigger value="favoris">Favoris partagés</TabsTrigger>
+        <TabsTrigger value="discuter">Discuter</TabsTrigger>
       </TabsList>
 
       <TabsContent value="discuter">
