@@ -39,12 +39,14 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     IMAGE_WIKILOVES: new Set(),
   }
   if (session?.user?.id) {
-    const bookmarks = await prisma.bookmark.findMany({
-      where: { userId: session.user.id },
-      select: { resourceId: true, type: true },
-    })
+    const bookmarks = await prisma.$queryRaw<Array<{ resourceId: string; type: string }>>`
+      SELECT "resourceId" AS "resourceId", "type" AS "type"
+      FROM "Bookmark"
+      WHERE "userId" = ${session.user.id}
+    `
+    const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES'] as const
     for (const bm of bookmarks) {
-      if (bm.resourceId && bm.type in userFavoriteIds) {
+      if (bm.resourceId && knownTypes.includes(bm.type as typeof knownTypes[number])) {
         userFavoriteIds[bm.type as keyof UserFavoriteIds].add(bm.resourceId)
       }
     }
