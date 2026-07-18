@@ -1,4 +1,9 @@
 import 'dotenv/config'
+
+if (process.env.NODE_ENV === 'development' && process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.includes('guibo.com')) {
+  process.env.NEXTAUTH_URL = 'http://localhost:3000'
+}
+
 import { PrismaClient } from '../generated/client'
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
