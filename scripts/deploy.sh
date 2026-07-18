@@ -21,6 +21,7 @@ rsync -a --delete \
   --exclude='get_sample.ts' \
   --exclude='generate-ideas.ts.bak' \
   --exclude='test_*.ts' \
+  --exclude='test_ll*' \
   --exclude='*.tsbuildinfo' \
   --exclude='.next/cache/' \
   --exclude='node_modules/' \
