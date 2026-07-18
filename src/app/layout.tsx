@@ -6,6 +6,7 @@ import { BottomNav } from '@/components/layout/bottom-nav'
 import { Toaster } from '@/components/ui/sonner'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
+import { getSession } from '@/lib/auth'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import '@/lib/cron-runner'
@@ -51,6 +52,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const session = await getSession()
   const [ideaCount, factCount] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
     prisma.saviezVousFact.count(),
@@ -100,7 +102,7 @@ export default async function RootLayout({
              {' · '}
              v{appVersion}
            </footer>
-          <BottomNav />
+           <BottomNav isLoggedIn={!!session?.user} />
         </div>
         <Toaster />
       </body>

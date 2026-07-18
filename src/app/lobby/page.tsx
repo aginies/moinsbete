@@ -2,6 +2,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { LobbyHeader } from '@/components/lobby/lobby-header'
 import { LobbyTabs } from '@/components/lobby/lobby-tabs'
+import { redirect } from 'next/navigation'
 
 interface SharedBookmarkRaw {
   id: string
@@ -31,6 +32,10 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
   const skip = (page - 1) * PAGE_SIZE
 
   const session = await getSession()
+  if (!session?.user) {
+    redirect('/login')
+  }
+
   let userFavoriteIds: UserFavoriteIds = {
     IDEA: new Set(),
     SAVIEZ_VOUS: new Set(),
