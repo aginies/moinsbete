@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video } from 'lucide-react'
@@ -154,17 +154,19 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     [tabConfig]
   )
 
-  const [hasInitialSet, setHasInitialSet] = useState(false)
+  const hasInitialSet = useRef(false)
 
   useEffect(() => {
-    if (!hasInitialSet && activeTab === 'idees' && derivedIdeasCount === 0) {
+    if (!hasInitialSet.current && activeTab === 'idees' && derivedIdeasCount === 0) {
       const firstNonEmptyTab = sortedTabs.find(tab => tab.count > 0)
       if (firstNonEmptyTab) {
+        hasInitialSet.current = true
         setActiveTab(firstNonEmptyTab.id)
+      } else {
+        hasInitialSet.current = true
       }
-      setHasInitialSet(true)
     }
-  }, [sortedTabs, activeTab, derivedIdeasCount, hasInitialSet])
+  }, [sortedTabs, activeTab, derivedIdeasCount])
 
   return (
     <div>
