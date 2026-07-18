@@ -221,7 +221,7 @@ curl -X POST http://localhost:3000/api/admin/sources \\
             />
             <StatCard
               icon={<MessageSquare className="h-5 w-5" />}
-              label="Suggestions utilisateurs"
+              label="Lobby"
               value={stats.userSuggestions}
             />
           </div>
