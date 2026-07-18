@@ -24,7 +24,7 @@ export default function AproposPage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">Qu&apos;est-ce que MoinsBête ?</h2>
           <p className="text-muted-foreground">
-            MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia, d&apos;articles scientifiques, de livres et de podcasts en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder aux actualités du CNRS, découvrir des faits surprenants, explorer des images de Wikimedia Commons, écouter des documentaires Radio France et regarder des vidéos relaxantes Pixabay.
+            MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia, d&apos;articles scientifiques, de livres et de podcasts en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder aux actualités du CNRS, découvrir des faits surprenants, explorer des images de Wikimedia Commons, écouter des documentaires Radio France et regarder des vidéos Pixabay.
           </p>
         </section>
 
@@ -37,7 +37,7 @@ export default function AproposPage() {
               'Suivez des sujets qui vous passionnent',
               'Découvrez des faits surprenants dans "Le saviez-vous ?"',
               'Explorez des images quotidiennes de Wikimedia Commons',
-              'Regardez des vidéos relaxantes Pixabay',
+              'Regardez des vidéos Pixabay',
               'Écoutez des documentaires Radio France',
               'Visualisez vos sujets dans la carte mentale',
               'Suivez votre progression avec les streaks',
@@ -69,9 +69,9 @@ export default function AproposPage() {
        <section>
           <h2 className="mb-3 text-xl font-semibold">Source des contenus</h2>
           <p className="text-muted-foreground">
-            Le contenu de MoinsBête provient de multiples sources enrichies par l&apos;intelligence artificielle :
+            Le contenu de MoinsBête provient de multiples sources :
             Wikipédia en français pour les idées et faits, le journal du CNRS pour les actualités scientifiques,
-            Wikimedia Commons pour les images, Radio France pour les documentaires audio, et Pixabay pour les vidéos relaxantes d&apos;ambiance.
+            Wikimedia Commons pour les images, Radio France pour les documentaires audio, et Pixabay pour les vidéos d&apos;ambiance.
             L&apos;IA analyse, résume et structure le contenu pour offrir des idées claires et digestes.
           </p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -221,7 +221,7 @@ export default function AproposPage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">Vidéos Pixabay</h2>
           <p className="text-muted-foreground">
-            Découvrez des vidéos relaxantes et d&apos;ambiance de haute qualité gratuites depuis Pixabay.
+            Découvrez des vidéos d&apos;ambiance de haute qualité gratuites depuis Pixabay.
             Vous pouvez naviguer entre de nombreuses catégories (Nature, Pluie, Ciel, Coucher de soleil, Forêt, Océan, Espace, Paysage, Montagne, Oiseau)
             pour personnaliser votre expérience d&apos;apprentissage d&apos;une touche apaisante.
           </p>
