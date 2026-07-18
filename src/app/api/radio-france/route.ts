@@ -23,16 +23,18 @@ export async function GET(request: NextRequest) {
     queryWhere.title = { not: excludeId }
   }
   
-  const cached = await prisma.cachedRadioEpisode.findMany({
+  const totalCached = await prisma.cachedRadioEpisode.count({
     where: queryWhere,
-    orderBy: { scrapedAt: 'desc' },
-    take: 50,
   })
 
-  if (cached.length > 0) {
-    const filtered = excludeId ? cached.filter(e => e.id !== excludeId) : cached
-    if (filtered.length > 0) {
-      const doc = filtered[Math.floor(Math.random() * filtered.length)]
+  if (totalCached > 0) {
+    const randomOffset = Math.floor(Math.random() * totalCached)
+    const doc = await prisma.cachedRadioEpisode.findFirst({
+      where: queryWhere,
+      skip: randomOffset,
+    })
+
+    if (doc) {
       return NextResponse.json({
         id: doc.id,
         title: doc.title,

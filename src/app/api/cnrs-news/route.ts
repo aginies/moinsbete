@@ -87,21 +87,26 @@ export async function GET() {
   try {
     // Try cache first
     const now = new Date()
-    const cached = await prisma.cachedCnrsArticle.findMany({
+    const totalCached = await prisma.cachedCnrsArticle.count({
       where: { expiresAt: { gte: now } },
-      orderBy: { scrapedAt: 'desc' },
-      take: 50,
     })
 
-    if (cached.length > 0) {
-      const article = cached[Math.floor(Math.random() * cached.length)]
-      return NextResponse.json({
-        title: article.title || 'Actualit\u00e9 CNRS',
-        imageUrl: article.imageUrl,
-        link: article.link,
-        category: article.category || 'Sciences',
-        date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+    if (totalCached > 0) {
+      const randomOffset = Math.floor(Math.random() * totalCached)
+      const article = await prisma.cachedCnrsArticle.findFirst({
+        where: { expiresAt: { gte: now } },
+        skip: randomOffset,
       })
+
+      if (article) {
+        return NextResponse.json({
+          title: article.title || 'Actualit\u00e9 CNRS',
+          imageUrl: article.imageUrl,
+          link: article.link,
+          category: article.category || 'Sciences',
+          date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+        })
+      }
     }
 
     // Cache empty — scrape fresh
