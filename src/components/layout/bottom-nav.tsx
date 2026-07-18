@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/sujets', label: 'Accueil', icon: Home },
-  { href: '/suggestions', label: 'Suggestions', icon: MessageSquare },
+  { href: '/lobby', label: 'Lobby', icon: MessageSquare },
   { href: '/favoris', label: 'Favoris', icon: Bookmark },
   { href: '/review', label: 'Révision', icon: BookOpen, hidden: true },
   { href: '/carte-mentale', label: 'Carte', icon: Network },

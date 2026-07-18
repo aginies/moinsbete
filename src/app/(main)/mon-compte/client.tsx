@@ -84,10 +84,10 @@ export default function MonCompteClient({ session }: { session: Session }) {
         </div>
 
         <div className="rounded-xl border bg-card p-4">
-          <Link href="/mon-compte/suggestions" className="flex items-center gap-3 hover:opacity-80">
+          <Link href="/mon-compte/lobby" className="flex items-center gap-3 hover:opacity-80">
             <MessageSquare className="h-5 w-5 text-primary" />
             <div>
-              <p className="font-medium">Mes suggestions</p>
+              <p className="font-medium">Mon lobby</p>
               <p className="text-xs text-muted-foreground">Gérez vos propositions de sujets</p>
             </div>
           </Link>

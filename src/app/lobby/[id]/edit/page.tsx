@@ -1,7 +1,7 @@
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
-import { SuggestionForm } from '@/components/suggestions/suggestion-form'
+import { SuggestionForm } from '@/components/lobby/suggestion-form'
 
 export default async function EditSuggestionPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()
@@ -11,12 +11,12 @@ export default async function EditSuggestionPage({ params }: { params: Promise<{
     where: { id: (await params).id },
   })
 
-  if (!suggestion) redirect('/suggestions')
-  if (suggestion.userId !== session.user.id && session.user.role !== 'ADMIN') redirect('/suggestions')
+  if (!suggestion) redirect('/lobby')
+  if (suggestion.userId !== session.user.id && session.user.role !== 'ADMIN') redirect('/lobby')
 
   return (
     <div className="mx-auto max-w-2xl p-4 md:p-6">
-      <a href={`/suggestions/${suggestion.id}`} className="mb-4 inline-block text-sm text-primary hover:underline">
+      <a href={`/lobby/${suggestion.id}`} className="mb-4 inline-block text-sm text-primary hover:underline">
         ← Retour
       </a>
       <h1 className="text-2xl font-bold">Modifier la suggestion</h1>

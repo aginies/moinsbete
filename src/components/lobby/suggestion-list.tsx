@@ -36,14 +36,14 @@ export function SuggestionList({ suggestions, currentUserId, isAdmin = false }: 
       {suggestions.map((s) => (
         <div key={s.id} className="rounded-xl border border-border/60 bg-card p-5">
           <div className="mb-2 flex items-start justify-between">
-            <Link href={`/suggestions/${s.id}`} className="flex-1">
+            <Link href={`/lobby/${s.id}`} className="flex-1">
               <h4 className="text-lg font-semibold text-primary hover:underline">{s.title}</h4>
             </Link>
             <div className="flex items-center gap-1">
               {(s.user.id === currentUserId || isAdmin) && (
                 <>
                   {s.user.id === currentUserId && (
-                    <Link href={`/suggestions/${s.id}/edit`}>
+                    <Link href={`/lobby/${s.id}/edit`}>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         <Edit2 className="h-4 w-4" />
                       </Button>

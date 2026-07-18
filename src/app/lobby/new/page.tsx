@@ -1,6 +1,6 @@
 import { getSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import { SuggestionForm } from '@/components/suggestions/suggestion-form'
+import { SuggestionForm } from '@/components/lobby/suggestion-form'
 
 export default async function NewSuggestionPage() {
   const session = await getSession()

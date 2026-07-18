@@ -1,7 +1,7 @@
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
-import { SuggestionDetail } from '@/components/suggestions/suggestion-detail'
+import { SuggestionDetail } from '@/components/lobby/suggestion-detail'
 
 export default async function SuggestionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()
@@ -20,11 +20,11 @@ export default async function SuggestionDetailPage({ params }: { params: Promise
     },
   })
 
-  if (!suggestion) redirect('/suggestions')
+  if (!suggestion) redirect('/lobby')
 
   return (
     <div className="mx-auto max-w-2xl p-4 md:p-6">
-      <a href="/suggestions" className="mb-4 inline-block text-sm text-primary hover:underline">
+      <a href="/lobby" className="mb-4 inline-block text-sm text-primary hover:underline">
         ← Retour aux suggestions
       </a>
       <SuggestionDetail

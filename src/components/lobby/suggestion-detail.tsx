@@ -129,7 +129,7 @@ export function SuggestionDetail({ suggestion: sug, currentUserId, isAdmin }: Su
                         toast.error(result.error)
                       } else {
                         toast.success('Suggestion supprimée')
-                        router.push('/suggestions')
+                        router.push('/lobby')
                       }
                     }}
                     trigger={
