@@ -23,7 +23,11 @@ rsync -a --delete \
   --exclude='.next/cache/' \
   --exclude='node_modules/' \
   --exclude='.env' \
+  --exclude='docs/' \
   "$SRC/" "$DEST/"
+
+# Remove docs if present
+rm -rf "$DEST/docs"
 
 # Backup DB avant deploy (dans le répertoire courant)
 if [ -f "$DEST/dev.db" ]; then
