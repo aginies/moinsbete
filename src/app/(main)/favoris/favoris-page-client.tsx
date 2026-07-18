@@ -69,6 +69,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [sharedSaviezIds, setSharedSaviezIds] = useState<Set<string>>(new Set())
   const [sharedImageIds, setSharedImageIds] = useState<Set<string>>(new Set())
   const [sharedWikiLovesIds, setSharedWikiLovesIds] = useState<Set<string>>(new Set())
+  const [sharedWikimediaIds, setSharedWikimediaIds] = useState<Set<string>>(new Set())
   const [isSharing, setIsSharing] = useState<string | null>(null)
 
   useEffect(() => {
@@ -134,6 +135,22 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       }
     }
     loadWikiLovesSharedState()
+  }, [userId])
+
+  useEffect(() => {
+    const loadWikimediaSharedState = async () => {
+      if (!userId) return
+      try {
+        const res = await fetch('/api/lobby/shared-resources?type=IMAGE_WIKIMEDIA')
+        const data = await res.json()
+        if (data.resourceIds) {
+          setSharedWikimediaIds(new Set(data.resourceIds))
+        }
+      } catch (err) {
+        console.error('Failed to load Wikimedia shared state:', err)
+      }
+    }
+    loadWikimediaSharedState()
   }, [userId])
 
   // Derived count for ideas to update immediately when bookmarks are toggled
@@ -293,6 +310,32 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         const result = await shareResourceToLobby('IMAGE_WIKILOVES', resourceId)
         if (result.success) {
           setSharedWikiLovesIds(prev => new Set([...prev, resourceId]))
+          toast.success('Partagé au lobby')
+        } else {
+          toast.error(result.error)
+        }
+      }
+    } finally {
+      setIsSharing(null)
+    }
+  }
+
+  const handleWikimediaShareToLobby = async (resourceId: string) => {
+    setIsSharing(resourceId)
+    try {
+      const isShared = sharedWikimediaIds.has(resourceId)
+      if (isShared) {
+        await unshareResourceFromLobby('IMAGE_WIKIMEDIA', resourceId)
+        setSharedWikimediaIds(prev => {
+          const next = new Set(prev)
+          next.delete(resourceId)
+          return next
+        })
+        toast.success('Retiré du lobby')
+      } else {
+        const result = await shareResourceToLobby('IMAGE_WIKIMEDIA', resourceId)
+        if (result.success) {
+          setSharedWikimediaIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
         } else {
           toast.error(result.error)
@@ -466,7 +509,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
       {activeTab === 'saviez-vous' && <div role="tabpanel" id="panel-saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} sharedIds={sharedSaviezIds} onShareToggle={handleSaviezVousShareToLobby} isSharing={isSharing} /></div>}
 
-      {activeTab === 'image-wikimedia' && <div role="tabpanel" id="panel-image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} /></div>}
+      {activeTab === 'image-wikimedia' && <div role="tabpanel" id="panel-image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} sharedIds={sharedWikimediaIds} onShareToggle={handleWikimediaShareToLobby} isSharing={isSharing} /></div>}
 
       {activeTab === 'image-wikiloves' && <div role="tabpanel" id="panel-image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} sharedIds={sharedWikiLovesIds} onShareToggle={handleWikiLovesShareToLobby} isSharing={isSharing} /></div>}
 
