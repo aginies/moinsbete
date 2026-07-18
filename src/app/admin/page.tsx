@@ -4,6 +4,15 @@ import Link from 'next/link'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { Button } from '@/components/ui/button'
 
+interface AdminUser {
+  id: string
+  email: string
+  displayName: string | null
+  role: string
+  enabled: boolean
+  createdAt: Date
+}
+
 export default async function AdminPage() {
   const session = await getSession()
   if (!session?.user) {
@@ -48,6 +57,7 @@ export default async function AdminPage() {
     wikiLovesExpiredCount,
     saviezVousCount,
     srsDueCount,
+    users,
   ] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
     prisma.topic.count(),
@@ -74,7 +84,20 @@ export default async function AdminPage() {
         ],
       },
     }),
+    prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        role: true,
+        enabled: true,
+        createdAt: true,
+      },
+    }),
   ])
+
+  const adminUsers = users as AdminUser[]
 
   return (
     <AdminContent
@@ -97,6 +120,7 @@ export default async function AdminPage() {
         saviezVousFacts: saviezVousCount,
         srsDue: srsDueCount,
       }}
+      users={adminUsers}
     />
   )
 }
