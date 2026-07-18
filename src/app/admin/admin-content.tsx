@@ -1,32 +1,24 @@
 'use client'
 
-import { ReviewQueue } from '@/components/admin/review-queue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
-import { Topic } from '@/generated/client'
-import { SuggestionStatus } from '@/generated/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, XCircle, Merge, Clock, MessageSquare } from 'lucide-react'
+import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, XCircle, Merge, Clock, MessageSquare, Trash2, AlertTriangle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
+import { cleanupExpiredCache } from '@/actions/cleanup-actions'
+import { useState } from 'react'
 
 interface AdminStats {
   ideas: number
-  ideasUnpublished: number
   topics: number
   sources: number
-  collections: number
   bookmarks: number
   users: number
   viewedIdeas: number
   activeStreaks: number
-  pendingSuggestions: number
-  approvedSuggestions: number
-  rejectedSuggestions: number
-  mergedSuggestions: number
-  userSuggestions: number
   cnrsArticles: number
   cnrsExpired: number
   radioEpisodes: number
@@ -40,15 +32,10 @@ interface AdminStats {
 }
 
 interface AdminContentProps {
-  topics: Array<{ id: string } & Topic>
-  suggestions: Array<{ id: string; status: SuggestionStatus; categoryName: string; icon: string; articleCount: number; confidence: number; parentId: string | null; createdAt: Date; mergedIntoId: string | null; userId: string | null }> & { parentTopic?: { name: string } | null }
-  onApprove: (id: string) => Promise<{ success?: boolean; error?: string; topicId?: string }>
-  onReject: (id: string) => Promise<{ success?: boolean; error?: string }>
-  onMerge: (id: string, mergedInto: string) => Promise<{ success?: boolean; error?: string; mergedInto?: any }>
   stats: AdminStats
 }
 
-export function AdminContent({ topics, suggestions, onApprove, onReject, onMerge, stats }: AdminContentProps) {
+export function AdminContent({ stats }: AdminContentProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -71,45 +58,80 @@ export function AdminContent({ topics, suggestions, onApprove, onReject, onMerge
         </Link>
       </div>
 
-      <Tabs defaultValue="review" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="review">
-            Suggestions
-            {suggestions.length > 0 && (
-              <span className="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground">
-                {suggestions.length}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="content">Contenu</TabsTrigger>
+      <Tabs defaultValue="cleanup" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="cleanup">Nettoyage</TabsTrigger>
           <TabsTrigger value="stats">Statistiques</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="review">
-          <ReviewQueue
-            suggestions={suggestions}
-            onApprove={onApprove}
-            onReject={onReject}
-            onMerge={onMerge}
-            availableTopics={topics}
-          />
-        </TabsContent>
-
-        <TabsContent value="content">
-          <div className="rounded-xl border border-border/60 bg-card p-8 text-center">
-            <h3 className="mb-2 text-lg font-semibold">Gestion du contenu</h3>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Créez des sources et des idées depuis la ligne de commande ou l&apos;API.
-            </p>
-            <pre className="overflow-x-auto rounded-lg bg-muted p-4 text-xs">
-              {`# Ingerer un article Wikipédia
-npx tsx scripts/ingest-wikipedia.ts
-
-# Ou créer manuellement:
-curl -X POST http://localhost:3000/api/admin/sources \\
-  -H "Content-Type: application/json" \\
-  -d '{"title":"Article","type":"WIKIPEDIA","url":"..."}'`}
-            </pre>
+        <TabsContent value="cleanup">
+          <div className="space-y-6">
+            <div className="rounded-xl border border-border/60 bg-card p-6">
+              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                <Trash2 className="h-5 w-5 text-destructive" />
+                Cache expiré
+              </h3>
+              <div className="mb-4 space-y-2 text-sm">
+                {stats.cnrsExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Newspaper className="h-4 w-4 text-muted-foreground" />
+                      Articles CNRS expirés
+                    </span>
+                    <span className="font-medium text-destructive">{stats.cnrsExpired}</span>
+                  </div>
+                )}
+                {stats.radioExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Radio className="h-4 w-4 text-muted-foreground" />
+                      Épisodes radio expirés
+                    </span>
+                    <span className="font-medium text-destructive">{stats.radioExpired}</span>
+                  </div>
+                )}
+                {stats.wikiImageExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Image className="h-4 w-4 text-muted-foreground" />
+                      Images Wikipédia expirées
+                    </span>
+                    <span className="font-medium text-destructive">{stats.wikiImageExpired}</span>
+                  </div>
+                )}
+                {stats.wikiLovesExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <ImagePlus className="h-4 w-4 text-muted-foreground" />
+                      Images Wiki Loves expirées
+                    </span>
+                    <span className="font-medium text-destructive">{stats.wikiLovesExpired}</span>
+                  </div>
+                )}
+                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && (
+                  <p className="text-muted-foreground">Aucun élément expiré</p>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  startTransition(async () => {
+                    const result = await cleanupExpiredCache()
+                    if (result.totalDeleted > 0) {
+                      toast.success(`${result.totalDeleted} éléments expirés supprimés`)
+                      router.refresh()
+                    } else {
+                      toast.info('Rien à nettoyer')
+                    }
+                  })
+                }}
+                disabled={isPending}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Supprimer cache expiré
+              </Button>
+            </div>
           </div>
         </TabsContent>
 
@@ -128,11 +150,6 @@ curl -X POST http://localhost:3000/api/admin/sources \\
               value={stats.ideas}
             />
             <StatCard
-              icon={<Files className="h-5 w-5" />}
-              label="Idées non publiées"
-              value={stats.ideasUnpublished}
-            />
-            <StatCard
               icon={<Database className="h-5 w-5" />}
               label="Sujets"
               value={stats.topics}
@@ -141,11 +158,6 @@ curl -X POST http://localhost:3000/api/admin/sources \\
               icon={<Files className="h-5 w-5" />}
               label="Sources"
               value={stats.sources}
-            />
-            <StatCard
-              icon={<Files className="h-5 w-5" />}
-              label="Collections"
-              value={stats.collections}
             />
             <StatCard
               icon={<Bookmark className="h-5 w-5" />}
@@ -202,27 +214,6 @@ curl -X POST http://localhost:3000/api/admin/sources \\
               icon={<Podcast className="h-5 w-5" />}
               label="Le saviez-vous ?"
               value={stats.saviezVousFacts}
-            />
-
-            <StatCard
-              icon={<CheckCircle2 className="h-5 w-5" />}
-              label="Suggestions approuvées"
-              value={stats.approvedSuggestions}
-            />
-            <StatCard
-              icon={<XCircle className="h-5 w-5" />}
-              label="Suggestions rejetées"
-              value={stats.rejectedSuggestions}
-            />
-            <StatCard
-              icon={<Merge className="h-5 w-5" />}
-              label="Suggestions fusionnées"
-              value={stats.mergedSuggestions}
-            />
-            <StatCard
-              icon={<MessageSquare className="h-5 w-5" />}
-              label="Lobby"
-              value={stats.userSuggestions}
             />
           </div>
         </TabsContent>
