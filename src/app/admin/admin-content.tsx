@@ -64,90 +64,18 @@ export function AdminContent({ stats, users }: AdminContentProps) {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-bold">Administration</h1>
-          <p className="text-muted-foreground">Gérer les sujets, idées et contenu</p>
         </div>
         <Link href="/" className="text-sm text-primary hover:underline">
           ← Retour au site
         </Link>
       </div>
 
-      <Tabs defaultValue="cleanup" className="space-y-6">
+      <Tabs defaultValue="stats" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="cleanup">Nettoyage</TabsTrigger>
           <TabsTrigger value="stats">Statistiques</TabsTrigger>
           <TabsTrigger value="users">Utilisateurs</TabsTrigger>
+          <TabsTrigger value="cleanup">Nettoyage</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="cleanup">
-          <div className="space-y-6">
-            <div className="rounded-xl border border-border/60 bg-card p-6">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <Trash2 className="h-5 w-5 text-destructive" />
-                Cache expiré
-              </h3>
-              <div className="mb-4 space-y-2 text-sm">
-                {stats.cnrsExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Newspaper className="h-4 w-4 text-muted-foreground" />
-                      Articles CNRS expirés
-                    </span>
-                    <span className="font-medium text-destructive">{stats.cnrsExpired}</span>
-                  </div>
-                )}
-                {stats.radioExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Radio className="h-4 w-4 text-muted-foreground" />
-                      Épisodes radio expirés
-                    </span>
-                    <span className="font-medium text-destructive">{stats.radioExpired}</span>
-                  </div>
-                )}
-                {stats.wikiImageExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Image className="h-4 w-4 text-muted-foreground" />
-                      Images Wikipédia expirées
-                    </span>
-                    <span className="font-medium text-destructive">{stats.wikiImageExpired}</span>
-                  </div>
-                )}
-                {stats.wikiLovesExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <ImagePlus className="h-4 w-4 text-muted-foreground" />
-                      Images Wiki Loves expirées
-                    </span>
-                    <span className="font-medium text-destructive">{stats.wikiLovesExpired}</span>
-                  </div>
-                )}
-                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && (
-                  <p className="text-muted-foreground">Aucun élément expiré</p>
-                )}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  startTransition(async () => {
-                    const result = await cleanupExpiredCache()
-                    if (result.totalDeleted > 0) {
-                      toast.success(`${result.totalDeleted} éléments expirés supprimés`)
-                      router.refresh()
-                    } else {
-                      toast.info('Rien à nettoyer')
-                    }
-                  })
-                }}
-                disabled={isPending}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Supprimer cache expiré
-              </Button>
-            </div>
-          </div>
-        </TabsContent>
 
         <TabsContent value="stats">
           <div className="mb-4 flex justify-end">
@@ -252,6 +180,77 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                 ))}
               </tbody>
             </table>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="cleanup">
+          <div className="space-y-6">
+            <div className="rounded-xl border border-border/60 bg-card p-6">
+              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                <Trash2 className="h-5 w-5 text-destructive" />
+                Cache expiré
+              </h3>
+              <div className="mb-4 space-y-2 text-sm">
+                {stats.cnrsExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Newspaper className="h-4 w-4 text-muted-foreground" />
+                      Articles CNRS expirés
+                    </span>
+                    <span className="font-medium text-destructive">{stats.cnrsExpired}</span>
+                  </div>
+                )}
+                {stats.radioExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Radio className="h-4 w-4 text-muted-foreground" />
+                      Épisodes radio expirés
+                    </span>
+                    <span className="font-medium text-destructive">{stats.radioExpired}</span>
+                  </div>
+                )}
+                {stats.wikiImageExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Image className="h-4 w-4 text-muted-foreground" />
+                      Images Wikipédia expirées
+                    </span>
+                    <span className="font-medium text-destructive">{stats.wikiImageExpired}</span>
+                  </div>
+                )}
+                {stats.wikiLovesExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <ImagePlus className="h-4 w-4 text-muted-foreground" />
+                      Images Wiki Loves expirées
+                    </span>
+                    <span className="font-medium text-destructive">{stats.wikiLovesExpired}</span>
+                  </div>
+                )}
+                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && (
+                  <p className="text-muted-foreground">Aucun élément expiré</p>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  startTransition(async () => {
+                    const result = await cleanupExpiredCache()
+                    if (result.totalDeleted > 0) {
+                      toast.success(`${result.totalDeleted} éléments expirés supprimés`)
+                      router.refresh()
+                    } else {
+                      toast.info('Rien à nettoyer')
+                    }
+                  })
+                }}
+                disabled={isPending}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Supprimer cache expiré
+              </Button>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
