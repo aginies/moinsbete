@@ -39,6 +39,7 @@ interface AdminUser {
   role: string
   enabled: boolean
   createdAt: Date
+  lastLogin: Date | null
 }
 
 interface AdminContentProps {
@@ -239,6 +240,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <th className="px-4 py-3 text-left font-medium">Email</th>
                   <th className="px-4 py-3 text-left font-medium">Rôle</th>
                   <th className="px-4 py-3 text-left font-medium">Statut</th>
+                  <th className="px-4 py-3 text-left font-medium">Dernière connexion</th>
                   <th className="px-4 py-3 text-left font-medium">Actions</th>
                 </tr>
               </thead>
@@ -308,6 +310,15 @@ function UserRow({ user }: { user: AdminUser }) {
         }`}>
           {user.enabled ? 'Actif' : 'Désactivé'}
         </span>
+      </td>
+      <td className="px-4 py-3 text-sm text-muted-foreground">
+        {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }) : '—'}
       </td>
       <td className="px-4 py-3">
         <Button

@@ -130,6 +130,11 @@ export async function loginAction(formData: {
     return { error: 'Compte désactivé' }
   }
 
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { lastLogin: new Date() },
+  })
+
   const secret = process.env.NEXTAUTH_SECRET
   if (!secret) {
     return { error: 'Erreur de configuration serveur' }
