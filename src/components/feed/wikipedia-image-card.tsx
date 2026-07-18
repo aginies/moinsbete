@@ -28,6 +28,7 @@ interface WikipediaImageCardProps {
   largeImage?: boolean
   showLink?: boolean
   showToggle?: boolean
+  showBookmark?: boolean
   swipeable?: boolean
   onToggle?: () => void
   enableAutoRefresh?: boolean
@@ -52,6 +53,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   largeImage = false,
   showLink = true,
   showToggle = true,
+  showBookmark = true,
   swipeable = false,
   onToggle,
   enableAutoRefresh = false,
@@ -206,7 +208,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
           enableAutoRefresh={enableAutoRefresh}
           storageKey={storageKey}
           extraActions={
-          image && (
+          image && showBookmark && (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
