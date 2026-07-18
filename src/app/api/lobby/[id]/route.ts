@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { addCommentAction, updateSuggestionAction, deleteSuggestionAction } from '@/actions/suggestion-actions'
+import { isCsrfValid } from '@/lib/csrf'
+
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@')
+  if (!local || !domain) return email
+  const masked = local.length > 2 ? local[0] + '***' : local.slice(0, 1) + '*'
+  return `${masked}@${domain}`
+}
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()
@@ -22,15 +30,31 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   if (!suggestion) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  return NextResponse.json({ suggestion })
+  const maskedSuggestion = {
+    ...suggestion,
+    user: { ...suggestion.user, email: maskEmail(suggestion.user.email) },
+    comments: suggestion.comments.map(c => ({
+      ...c,
+      user: { ...c.user, email: maskEmail(c.user.email) },
+    })),
+  }
+
+  return NextResponse.json({ suggestion: maskedSuggestion })
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
+  if (!(await isCsrfValid(req))) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
+
   const body = await req.json()
-  const result = await addCommentAction({ suggestionId: (await params).id, ...body })
+  if (!body?.content) {
+    return NextResponse.json({ error: 'Contenu requis' }, { status: 400 })
+  }
+  const result = await addCommentAction({ suggestionId: (await params).id, content: body.content })
   if (result.error) return NextResponse.json({ error: result.error }, { status: 400 })
   return NextResponse.json(result)
 }
@@ -39,7 +63,14 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const session = await getSession()
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
+  if (!(await isCsrfValid(req))) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
+
   const body = await req.json()
+  if (!body?.title || !body?.description) {
+    return NextResponse.json({ error: 'Titre et description requis' }, { status: 400 })
+  }
   const result = await updateSuggestionAction((await params).id, body)
   if (result.error) return NextResponse.json({ error: result.error }, { status: 400 })
   return NextResponse.json(result)
