@@ -14,6 +14,8 @@ rsync -a --delete \
   --exclude='vitest.config.ts' \
   --exclude='deploy.sh' \
   --exclude='test.sh' \
+  --exclude='install.sh' \
+  --exclude='build.sh' \
   --exclude='check_*.ts' \
   --exclude='debug_*.ts' \
   --exclude='get_sample.ts' \
@@ -24,6 +26,8 @@ rsync -a --delete \
   --exclude='node_modules/' \
   --exclude='.env' \
   --exclude='docs/' \
+  --exclude='scripts/*.ts' \
+  --exclude='scripts/update' \
   "$SRC/" "$DEST/"
 
 # Remove docs if present
