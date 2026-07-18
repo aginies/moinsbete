@@ -25,12 +25,14 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
 
           <div className="flex items-center gap-2">
             {session?.user && <SearchButton />}
-            <Link href="/lobby">
-              <Button variant="ghost" size="sm" className="hidden md:inline-flex">
-                <MessageSquare className="h-4 w-4" />
-                <span className="ml-1">Lobby</span>
-              </Button>
-            </Link>
+            {session?.user && (
+              <Link href="/lobby">
+                <Button variant="ghost" size="sm" className="hidden md:inline-flex">
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="ml-1">Lobby</span>
+                </Button>
+              </Link>
+            )}
             {session?.user ? (
               <>
                 <Link href="/favoris">

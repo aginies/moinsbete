@@ -14,13 +14,21 @@ const navItems = [
   { href: '/mon-historique', label: 'Historique', icon: Clock },
 ]
 
-export function BottomNav() {
+const PROTECTED_PATHS = ['/lobby', '/favoris', '/mon-historique']
+
+export function BottomNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const pathname = usePathname()
+
+  const visibleItems = navItems.filter(item => {
+    if (item.hidden) return false
+    if (isLoggedIn) return true
+    return !PROTECTED_PATHS.includes(item.href)
+  })
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
       <div className="flex items-center justify-around px-1 py-0">
-        {navItems.filter(item => !item.hidden).map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href ||
             pathname?.startsWith(item.href)
