@@ -16,11 +16,18 @@ export async function GET(req: Request) {
   const sharedBookmarks = await prisma.sharedLobbyBookmark.findMany({
     where: {
       userId: session.user.id,
-      ideaId: { in: ideaIds },
+      OR: [
+        { ideaId: { in: ideaIds } },
+        { resourceId: { in: ideaIds } },
+      ],
     },
-    select: { ideaId: true },
+    select: { ideaId: true, resourceId: true, resourceType: true },
   })
 
-  const sharedIds = new Set(sharedBookmarks.map(b => b.ideaId))
+  const sharedIds = new Set<string>()
+  for (const bookmark of sharedBookmarks) {
+    if (bookmark.ideaId) sharedIds.add(bookmark.ideaId)
+    if (bookmark.resourceId) sharedIds.add(bookmark.resourceId)
+  }
   return NextResponse.json({ ideaIds: Array.from(sharedIds) })
 }
