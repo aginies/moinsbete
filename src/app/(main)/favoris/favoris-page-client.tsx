@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Upload, Download } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2 } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
@@ -275,11 +275,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
                   disabled={isSharing === idea.id}
                   title="Partager au lobby"
                 >
-                  {sharedIdeaIds.has(idea.id) ? (
-                    <Download className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Upload className="h-4 w-4 text-muted-foreground" />
-                  )}
+                  <Share2 className="h-4 w-4 text-muted-foreground" />
                 </button>
                 <button
                  type="button"
