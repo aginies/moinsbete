@@ -37,6 +37,11 @@ rm -rf "$DEST/docs"
 # Remove old DB backups
 rm -f "$DEST"/dev.db.bck*
 
+# Remove excluded files that may already exist in DEST
+rm -f "$DEST"/scripts/*.ts "$DEST"/scripts/update
+rm -f "$DEST"/install.sh "$DEST"/build.sh
+rm -f "$DEST"/test_ll*
+
 # Backup DB avant deploy (dans le répertoire courant)
 if [ -f "$DEST/dev.db" ]; then
   BACKUP_NAME="dev.db.bck.$(date +%Y%m%d_%H%M%S)"
