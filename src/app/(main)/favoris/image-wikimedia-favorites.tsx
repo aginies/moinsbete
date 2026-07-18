@@ -85,7 +85,7 @@ function WikimediaFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
           isShared={isShared}
           onToggle={onShareToggle}
           loading={isSharing}
-          resourceId={item.docid}
+          resourceId={item.imageUrl}
         />
         <button
           onClick={onRemove}
@@ -111,7 +111,7 @@ export function ImageWikimediaFavorites({ userId, onRemoveComplete, sharedIds, o
   const { handleRemove, getFavorites } = useFavoritesList<WikimediaImageFavoriteDoc>({
     userId,
     storageKey: WIKIMEDIA_FAVORITES_KEY,
-    resourceIdGetter: (item) => item.docid,
+    resourceIdGetter: (item) => item.imageUrl,
     bookmarkType: 'IMAGE_WIKIMEDIA',
   })
 
