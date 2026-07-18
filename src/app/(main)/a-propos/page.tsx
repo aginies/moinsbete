@@ -145,7 +145,25 @@ export default function AproposPage() {
             facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
             ou copier le lien directement.
           </p>
-       </section>
+        </section>
+
+        <section>
+           <h2 className="mb-3 text-xl font-semibold">Le Lobby</h2>
+           <p className="text-muted-foreground">
+             Le Lobby est un espace communautaire avec deux onglets : les favoris partagés par la communauté et un forum de discussion.
+           </p>
+           <h3 className="mt-4 mb-2 text-lg font-semibold">Favoris partagés</h3>
+           <p className="text-muted-foreground">
+             Chaque utilisateur peut partager ses favoris avec la communauté. Pour qu&apos;un contenu apparaisse dans les favoris partagés,
+             il doit d&apos;abord être ajouté aux favoris de l&apos;utilisateur. Les favoris incluent les idées, faits surprenants, images du jour,
+             images Wikimedia et Wiki Loves.
+           </p>
+           <h3 className="mt-4 mb-2 text-lg font-semibold">Discuter</h3>
+           <p className="text-muted-foreground">
+             L&apos;onglet Discuter est un espace pour partager des idées d&apos;amélioration de l&apos;application, suggérer de nouveaux sujets,
+             proposer des modifications ou simplement discuter avec la communauté.
+           </p>
+        </section>
 
         <section>
           <h2 className="mb-3 text-xl font-semibold">Le saviez-vous ?</h2>
