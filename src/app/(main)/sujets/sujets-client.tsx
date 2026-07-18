@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Topic } from '@/generated/client'
 import { TopicGrid } from '@/components/topics/topic-grid'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
@@ -40,7 +40,20 @@ async function updateCardVisibility(field: string, value: boolean, csrfToken: st
   }).catch(() => {})
 }
 
-export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, csrfToken }: SujetsClientProps) {
+export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, csrfToken: initialCsrfToken }: SujetsClientProps) {
+  const [csrfToken, setCsrfToken] = useState(initialCsrfToken || '')
+
+  useEffect(() => {
+    const loadCsrf = async () => {
+      const { getCsrfToken } = await import('next-auth/react')
+      const token = await getCsrfToken()
+      if (token) setCsrfToken(token)
+    }
+    if (!csrfToken) {
+      loadCsrf()
+    }
+  }, [csrfToken])
+
   const initialFollowedIdsSet = useMemo(() => new Set(initialFollowedIds), [initialFollowedIds])
   const isAllSelected = useMemo(
     () => allTopics.length > 0 && allTopics.every(t => initialFollowedIdsSet.has(t.id)),
