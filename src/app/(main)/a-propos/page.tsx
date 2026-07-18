@@ -197,14 +197,6 @@ export default function AproposPage() {
            </p>
          </section>
 
-        <section>
-           <h2 className="mb-3 text-xl font-semibold">100% gratuit</h2>
-     <p className="text-muted-foreground">
-           MoinsBête est gratuit. Pas de publicité, pas d'abonnement.
-             Juste de l'apprentissage de qualité, sans friction.
-           </p>
-         </section>
-
          <section>
           <h2 className="mb-3 text-xl font-semibold">Documentaires Radio France</h2>
           <p className="text-muted-foreground">
@@ -266,6 +258,14 @@ export default function AproposPage() {
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Le dépôt est actuellement privé en attendant la résolution de quelques problèmes de sécurité.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">100% gratuit</h2>
+          <p className="text-muted-foreground">
+            MoinsBête est gratuit. Pas de publicité, pas d&apos;abonnement.
+            Juste de l&apos;apprentissage de qualité, sans friction.
           </p>
         </section>
 
