@@ -112,3 +112,67 @@ WHERE "userId" IN (SELECT "id" FROM "User" WHERE "email" = 'user@example.com')
 AND "type" IN ('IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES');
 EOF
 ```
+
+## Compter les favoris par type
+
+```bash
+# Voir le nombre de favoris par type pour un utilisateur
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT type, COUNT(*) as count
+FROM "Bookmark"
+WHERE "userId" IN (SELECT "id" FROM "User" WHERE "email" = 'user@example.com')
+GROUP BY type;
+EOF
+```
+
+## Lister tous les utilisateurs avec rôles
+
+```bash
+# Voir tous les utilisateurs et leurs rôles
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT email, displayName, role, enabled, createdAt
+FROM "User"
+ORDER BY createdAt DESC;
+EOF
+```
+
+## Désactiver/réactiver un utilisateur
+
+```bash
+# Désactiver
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+UPDATE "User" SET enabled = false WHERE email = 'user@example.com';
+EOF
+
+# Réactiver
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+UPDATE "User" SET enabled = true WHERE email = 'user@example.com';
+EOF
+```
+
+## Nettoyer favoris orphelins
+
+```bash
+# Trouver les bookmarks sans utilisateur associé
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "Bookmark"
+WHERE "userId" NOT IN (SELECT "id" FROM "User");
+EOF
+
+# Supprimer
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+DELETE FROM "Bookmark"
+WHERE "userId" NOT IN (SELECT "id" FROM "User");
+EOF
+```
+
+## Compter les éléments partagés au lobby
+
+```bash
+# Voir le nombre par type
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT resourceType, COUNT(*) as count
+FROM "SharedLobbyBookmark"
+GROUP BY resourceType;
+EOF
+```
