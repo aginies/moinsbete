@@ -5,7 +5,6 @@ import { Navbar } from '@/components/layout/navbar'
 import { BottomNav } from '@/components/layout/bottom-nav'
 import { Toaster } from '@/components/ui/sonner'
 import Link from 'next/link'
-import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { readFileSync } from 'fs'
 import { join } from 'path'
@@ -53,10 +52,6 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const session = await getSession()
-  const [ideaCount, factCount] = await Promise.all([
-    prisma.idea.count({ where: { isPublished: true } }),
-    prisma.saviezVousFact.count(),
-  ])
 
   return (
     <html lang="fr" className="dark">
@@ -92,15 +87,13 @@ export default async function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <footer className="py-6 pb-16 md:pb-0 text-center text-xs text-muted-foreground">
-             <Link href="/a-propos" className="hover:underline">À propos</Link>
-             {' · '}
-             <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
-             {' · '}
-             {ideaCount} idées · {factCount} faits
-             {' · '}
-             guibo.com ©
-             {' · '}
-             v{appVersion}
+              <Link href="/a-propos" className="hover:underline">À propos</Link>
+              {' · '}
+              <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
+              {' · '}
+              guibo.com ©
+              {' · '}
+              v{appVersion}
            </footer>
            <BottomNav isLoggedIn={!!session?.user} />
         </div>
