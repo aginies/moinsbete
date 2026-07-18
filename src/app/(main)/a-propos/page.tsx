@@ -24,7 +24,7 @@ export default function AproposPage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">Qu&apos;est-ce que MoinsBête ?</h2>
           <p className="text-muted-foreground">
-            MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia, d&apos;articles scientifiques, de livres et de podcasts en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder aux actualités du CNRS, découvrir des faits surprenants, explorer des images de Wikimedia Commons et écouter des documentaires Radio France.
+            MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia, d&apos;articles scientifiques, de livres et de podcasts en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder aux actualités du CNRS, découvrir des faits surprenants, explorer des images de Wikimedia Commons, écouter des documentaires Radio France et regarder des vidéos relaxantes Pixabay.
           </p>
         </section>
 
@@ -37,6 +37,7 @@ export default function AproposPage() {
               'Suivez des sujets qui vous passionnent',
               'Découvrez des faits surprenants dans "Le saviez-vous ?"',
               'Explorez des images quotidiennes de Wikimedia Commons',
+              'Regardez des vidéos relaxantes Pixabay',
               'Écoutez des documentaires Radio France',
               'Visualisez vos sujets dans la carte mentale',
               'Suivez votre progression avec les streaks',
@@ -70,7 +71,7 @@ export default function AproposPage() {
           <p className="text-muted-foreground">
             Le contenu de MoinsBête provient de multiples sources enrichies par l&apos;intelligence artificielle :
             Wikipédia en français pour les idées et faits, le journal du CNRS pour les actualités scientifiques,
-            Wikimedia Commons pour les images, et Radio France pour les documentaires audio.
+            Wikimedia Commons pour les images, Radio France pour les documentaires audio, et Pixabay pour les vidéos relaxantes d&apos;ambiance.
             L&apos;IA analyse, résume et structure le contenu pour offrir des idées claires et digestes.
           </p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -122,13 +123,25 @@ export default function AproposPage() {
                 radiofrance.fr →
               </a>
             </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Pixabay</h3>
+              <p className="text-sm text-muted-foreground">Vidéos libres de droits</p>
+              <a
+                href="https://pixabay.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                pixabay.com →
+              </a>
+            </div>
           </div>
         </section>
 
        <section>
           <h2 className="mb-3 text-xl font-semibold">Partagez tout le contenu</h2>
           <p className="text-muted-foreground">
-            Chaque idée, fait, image, article du CNRS, documentaire Radio France et page de MoinsBête peut être partagée
+            Chaque idée, fait, image, article du CNRS, documentaire Radio France, vidéo Pixabay et page de MoinsBête peut être partagée
             facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
             ou copier le lien directement.
           </p>
@@ -202,6 +215,19 @@ export default function AproposPage() {
           <p className="mt-2 text-sm text-muted-foreground">
             Sauvegardez vos documentaires préférés dans vos favoris et retrouvez-les
             facilement dans l'onglet Documentaires Radio France de votre page favoris.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">Vidéos Pixabay</h2>
+          <p className="text-muted-foreground">
+            Découvrez des vidéos relaxantes et d&apos;ambiance de haute qualité gratuites depuis Pixabay.
+            Vous pouvez naviguer entre de nombreuses catégories (Nature, Pluie, Ciel, Coucher de soleil, Forêt, Océan, Espace, Paysage, Montagne, Oiseau)
+            pour personnaliser votre expérience d&apos;apprentissage d&apos;une touche apaisante.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sauvegardez vos vidéos d&apos;ambiance préférées dans vos favoris et retrouvez-les
+            facilement dans l&apos;onglet Pixabay de votre page favoris.
           </p>
         </section>
 
