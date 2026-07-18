@@ -15,7 +15,13 @@ interface SharedBookmarkRaw {
   user: { id: string; displayName: string | null; email: string }
 }
 
-export default async function LobbyPage() {
+const PAGE_SIZE = 20
+
+export default async function LobbyPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const params = await searchParams
+  const page = Math.max(1, parseInt(params.page || '1', 10))
+  const skip = (page - 1) * PAGE_SIZE
+
   const session = await getSession()
   const suggestions = await prisma.userSuggestion.findMany({
     orderBy: { createdAt: 'desc' },
@@ -25,23 +31,27 @@ export default async function LobbyPage() {
     },
   })
 
-  const sharedBookmarks = await prisma.sharedLobbyBookmark.findMany({
-    include: {
-      idea: {
-        include: {
-          ideaTopics: {
-            include: {
-              topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+  const [total, sharedBookmarks] = await prisma.$transaction([
+    prisma.sharedLobbyBookmark.count(),
+    prisma.sharedLobbyBookmark.findMany({
+      include: {
+        idea: {
+          include: {
+            ideaTopics: {
+              include: {
+                topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+              },
             },
+            source: { select: { title: true, type: true, url: true } },
           },
-          source: { select: { title: true, type: true, url: true } },
         },
+        user: { select: { id: true, displayName: true, email: true } },
       },
-      user: { select: { id: true, displayName: true, email: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-  })
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: PAGE_SIZE,
+    }),
+  ])
 
   const saviezBookmarks = sharedBookmarks.filter(b => b.resourceType === 'SAVIEZ_VOUS' && b.resourceId)
   const imageBookmarks = sharedBookmarks.filter(b => b.resourceType === 'IMAGE_DU_JOUR' && b.resourceId)
@@ -107,6 +117,8 @@ export default async function LobbyPage() {
         sharedBookmarks={enrichedBookmarks}
         currentUserId={session?.user?.id ?? null}
         isAdmin={session?.user?.role === 'ADMIN'}
+        totalPages={Math.max(1, Math.ceil(total / PAGE_SIZE))}
+        currentPage={page}
       />
     </div>
   )

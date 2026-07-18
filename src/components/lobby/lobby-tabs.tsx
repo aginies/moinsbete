@@ -4,15 +4,18 @@ import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SuggestionList } from './suggestion-list'
 import { SharedBookmarks } from './shared-bookmarks'
+import { Pagination } from '@/components/ui/pagination'
 
 interface LobbyTabsProps {
   suggestions: any[]
   sharedBookmarks: any[]
   currentUserId: string | null
   isAdmin?: boolean
+  totalPages: number
+  currentPage: number
 }
 
-export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin }: LobbyTabsProps) {
+export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin, totalPages, currentPage }: LobbyTabsProps) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
@@ -37,6 +40,16 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
 
       <TabsContent value="favoris">
         <SharedBookmarks sharedBookmarks={sharedBookmarks} currentUserId={currentUserId} isAdmin={isAdmin} />
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageUrl={(page) => {
+              if (page === 1) return '/lobby'
+              return `/lobby?page=${page}`
+            }}
+          />
+        )}
       </TabsContent>
     </Tabs>
   )
