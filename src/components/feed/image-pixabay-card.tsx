@@ -149,6 +149,29 @@ export function ImagePixabayCard({
     }
   }, [userId, video])
 
+  useEffect(() => {
+    const el = videoRef.current
+    if (!el || !video || loading) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.play().catch(() => {})
+        } else {
+          el.pause()
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    observer.observe(el)
+
+    return () => {
+      observer.unobserve(el)
+      observer.disconnect()
+    }
+  }, [video, loading])
+
   const togglePlay = useCallback(() => {
     const el = videoRef.current
     if (!el) return
@@ -338,7 +361,6 @@ export function ImagePixabayCard({
             muted
             loop
             playsInline
-            autoPlay
             onTimeUpdate={() => {
               const el = videoRef.current
               if (el) setCurrentTime(el.currentTime)
