@@ -62,26 +62,26 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const [ideas, total] = await Promise.all([
-      prisma.idea.findMany({
-        where,
-        include: {
-          source: { select: { title: true, type: true, url: true, coverUrl: true } },
-          ideaTopics: {
-            include: {
-              topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
-            },
+    const ideas = await prisma.idea.findMany({
+      where,
+      include: {
+        source: { select: { title: true, type: true, url: true, coverUrl: true } },
+        ideaTopics: {
+          include: {
+            topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
           },
         },
-        orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
-        skip,
-        take: limit,
-      }),
-      prisma.idea.count({ where }),
-    ])
+      },
+      orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
+      skip,
+      take: limit + 1,
+    })
+
+    const hasMore = ideas.length > limit
+    const returnedIdeas = hasMore ? ideas.slice(0, limit) : ideas
 
     const uniqueIdeas = new Map<string, typeof ideas[number]>()
-    for (const idea of ideas) {
+    for (const idea of returnedIdeas) {
       if (!uniqueIdeas.has(idea.id)) {
         uniqueIdeas.set(idea.id, idea)
       }
@@ -94,8 +94,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       ideas: formattedIdeas,
-      hasMore: skip + ideas.length < total,
-      total,
+      hasMore,
+      total: 0,
       page,
     })
   } catch (error) {
