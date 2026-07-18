@@ -5,8 +5,6 @@ import Link from 'next/link'
 import { approveSuggestionAction, rejectSuggestionAction, mergeSuggestionAction } from '@/actions/topic-actions'
 import { Button } from '@/components/ui/button'
 
-export const revalidate = 3600
-
 export default async function AdminPage() {
   const session = await getSession()
   if (!session?.user) {
@@ -48,6 +46,67 @@ export default async function AdminPage() {
     orderBy: { createdAt: 'desc' },
   })
 
+  const now = new Date()
+  const [
+    ideaCount,
+    ideaUnpubCount,
+    topicCount,
+    sourceCount,
+    collectionCount,
+    bookmarkCount,
+    userCount,
+    viewedIdeaCount,
+    activeStreakCount,
+    pendingSuggestionCount,
+    approvedSuggestionCount,
+    rejectedSuggestionCount,
+    mergedSuggestionCount,
+    userSuggestionCount,
+    cnrsCount,
+    cnrsExpiredCount,
+    radioCount,
+    radioExpiredCount,
+    wikiImageCount,
+    wikiImageExpiredCount,
+    wikiLovesCount,
+    wikiLovesExpiredCount,
+    saviezVousCount,
+    srsDueCount,
+  ] = await Promise.all([
+    prisma.idea.count({ where: { isPublished: true } }),
+    prisma.idea.count({ where: { isPublished: false } }),
+    prisma.topic.count(),
+    prisma.source.count(),
+    prisma.collection.count(),
+    prisma.bookmark.count(),
+    prisma.user.count(),
+    prisma.viewedIdea.count(),
+    prisma.growthPlan.count({ where: { streakDays: { gt: 0 } } }),
+    prisma.topicSuggestion.count({ where: { status: 'PENDING' } }),
+    prisma.topicSuggestion.count({ where: { status: 'APPROVED' } }),
+    prisma.topicSuggestion.count({ where: { status: 'REJECTED' } }),
+    prisma.topicSuggestion.count({ where: { status: 'MERGED' } }),
+    prisma.userSuggestion.count(),
+    prisma.cachedCnrsArticle.count(),
+    prisma.cachedCnrsArticle.count({ where: { expiresAt: { lt: now } } }),
+    prisma.cachedRadioEpisode.count(),
+    prisma.cachedRadioEpisode.count({ where: { expiresAt: { lt: now } } }),
+    prisma.cachedWikipediaImage.count(),
+    prisma.cachedWikipediaImage.count({ where: { expiresAt: { lt: now } } }),
+    prisma.cachedWikiLovesImage.count(),
+    prisma.cachedWikiLovesImage.count({ where: { expiresAt: { lt: now } } }),
+    prisma.saviezVousFact.count(),
+    prisma.bookmark.count({
+      where: {
+        type: 'IDEA',
+        OR: [
+          { nextReviewAt: null },
+          { nextReviewAt: { lte: now } },
+        ],
+      },
+    }),
+  ])
+
   return (
     <AdminContent
       topics={topics}
@@ -55,6 +114,32 @@ export default async function AdminPage() {
       onApprove={approveSuggestionAction}
       onReject={rejectSuggestionAction}
       onMerge={mergeSuggestionAction}
+      stats={{
+        ideas: ideaCount,
+        ideasUnpublished: ideaUnpubCount,
+        topics: topicCount,
+        sources: sourceCount,
+        collections: collectionCount,
+        bookmarks: bookmarkCount,
+        users: userCount,
+        viewedIdeas: viewedIdeaCount,
+        activeStreaks: activeStreakCount,
+        pendingSuggestions: pendingSuggestionCount,
+        approvedSuggestions: approvedSuggestionCount,
+        rejectedSuggestions: rejectedSuggestionCount,
+        mergedSuggestions: mergedSuggestionCount,
+        userSuggestions: userSuggestionCount,
+        cnrsArticles: cnrsCount,
+        cnrsExpired: cnrsExpiredCount,
+        radioEpisodes: radioCount,
+        radioExpired: radioExpiredCount,
+        wikiImages: wikiImageCount,
+        wikiImageExpired: wikiImageExpiredCount,
+        wikiLovesImages: wikiLovesCount,
+        wikiLovesExpired: wikiLovesExpiredCount,
+        saviezVousFacts: saviezVousCount,
+        srsDue: srsDueCount,
+      }}
     />
   )
 }

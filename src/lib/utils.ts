@@ -185,3 +185,51 @@ export function decodeHtmlEntities(text: string): string {
     .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(Number(num)))
     .replace(/&#[xX]([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
 }
+
+const MAX_MESSAGE_LENGTH = 250
+const URL_REGEX = /https?:\/\/[^\s<>\"\)\]\}]+/g
+
+export function sanitizeMessage(content: string): { valid: true; clean: string } | { valid: false; error: string } {
+  const trimmed = content.trim()
+  if (!trimmed) return { valid: false, error: 'Message vide' }
+  if (trimmed.length > MAX_MESSAGE_LENGTH) return { valid: false, error: `Maximum ${MAX_MESSAGE_LENGTH} caractères` }
+
+  const urls = trimmed.match(URL_REGEX) || []
+  for (const url of urls) {
+    if (!isValidUrl(url)) {
+      return { valid: false, error: `URL invalide: ${url}` }
+    }
+  }
+
+  return { valid: true, clean: trimmed }
+}
+
+export function escapeHtml(text: string): string {
+  const div = typeof document !== 'undefined' ? document.createElement('div') : null
+  if (div) {
+    div.textContent = text
+    return div.innerHTML
+  }
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+export function parseHTML(text: string): string {
+  let escaped = escapeHtml(text)
+  const urls = text.match(URL_REGEX) || []
+  const seen = new Set<string>()
+  for (const url of urls) {
+    if (seen.has(url)) continue
+    seen.add(url)
+    const sanitized = sanitizeUrl(url, url)
+    if (sanitized !== '/') {
+      const link = `<a href="${sanitized}" rel="noopener noreferrer" target="_blank">${url}</a>`
+      escaped = escaped.replaceAll(url, link)
+    }
+  }
+  return escaped
+}

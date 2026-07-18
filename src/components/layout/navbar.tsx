@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BookOpen, User, Clock, Bookmark } from 'lucide-react'
+import { BookOpen, User, Clock, Bookmark, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
 import { getSession } from '@/lib/auth'
@@ -25,6 +25,12 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
 
           <div className="flex items-center gap-2">
             {session?.user && <SearchButton />}
+            <Link href="/suggestions">
+              <Button variant="ghost" size="sm" className="hidden md:inline-flex">
+                <MessageSquare className="h-4 w-4" />
+                <span className="ml-1">Suggestions</span>
+              </Button>
+            </Link>
             {session?.user ? (
               <>
                 <Link href="/favoris">
