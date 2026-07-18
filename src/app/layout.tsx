@@ -54,8 +54,9 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const session = await getSession()
+  const nonce = Buffer.from(crypto.randomBytes(16)).toString('base64')
   const cookieStore = await cookies()
-  const nonce = cookieStore.get('csp-nonce')?.value || ''
+  cookieStore.set('csp-nonce', nonce, { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' })
 
   return (
     <html lang="fr" className="dark">
