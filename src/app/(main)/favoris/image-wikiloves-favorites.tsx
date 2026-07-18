@@ -12,6 +12,7 @@ import { ImageHint } from '@/components/feed/image-hint'
 import { ShareButton } from '@/components/feed/share-button'
 import { useState, useCallback } from 'react'
 import { useItemShare } from '@/components/feed/use-item-share'
+import { ShareToLobbyFavoritesButton } from './share-to-lobby-button'
 
 const WIKILOVES_FAVORITES_KEY = 'image_wikiloves_favorites'
 
@@ -19,9 +20,12 @@ interface WikiLovesFavoriteItemProps {
   item: WikiLovesImageFavoriteDoc
   onRemove: () => void
   onShowFullImage: (url: string) => void
+  isShared: boolean
+  onShareToggle: () => void
+  isSharing: boolean
 }
 
-function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage }: WikiLovesFavoriteItemProps) {
+function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareToggle, isSharing }: WikiLovesFavoriteItemProps) {
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: item.link,
     title: item.titre,
@@ -69,6 +73,12 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage }: WikiLovesFav
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
+        <ShareToLobbyFavoritesButton
+          isShared={isShared}
+          onToggle={onShareToggle}
+          loading={isSharing}
+          resourceId={item.docid}
+        />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-indigo-600 opacity-60 hover:opacity-100 hover:text-indigo-800 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:text-indigo-200 dark:hover:bg-indigo-900/40 transition-all"
@@ -81,7 +91,7 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage }: WikiLovesFav
   )
 }
 
-export function ImageWikiLovesFavorites({ userId, onRemoveComplete }: { userId?: string; onRemoveComplete?: () => void }) {
+export function ImageWikiLovesFavorites({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: { userId?: string; onRemoveComplete?: () => void; sharedIds: Set<string>; onShareToggle: (resourceId: string) => void; isSharing: string | null }) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
 
   const { handleRemove, getFavorites } = useFavoritesList<WikiLovesImageFavoriteDoc>({
@@ -105,7 +115,7 @@ export function ImageWikiLovesFavorites({ userId, onRemoveComplete }: { userId?:
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
         renderItem={(item, onRemove) => (
-          <WikiLovesFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />
+          <WikiLovesFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.docid)} onShareToggle={() => onShareToggle(item.docid)} isSharing={isSharing === item.docid} />
         )}
         emptyTitle="Aucun favori Wiki Loves"
         emptyDescription="Favorisez des images depuis la page d&apos;accueil pour les voir ici."

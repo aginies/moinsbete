@@ -15,7 +15,6 @@ import { SwipeBackgroundCard } from './swipe-background-card'
 import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { encodeImageToUrl } from '@/lib/image-url-encoder'
-import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 interface ImageData {
   imageUrl: string
@@ -199,26 +198,17 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
           storageKey={storageKey}
           extraActions={
           image && (
-            <>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
-                disabled={favoriting}
-                className="rounded-full p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all disabled:opacity-50"
-                title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-              >
-                <Bookmark
-                  className={`h-4 w-4 ${isFavorited ? 'fill-current text-teal-600 dark:text-teal-400' : 'text-teal-600 dark:text-teal-400'}`}
-                />
-              </button>
-              {userId && image.fileUrl && (
-                <ShareToLobbyButton
-                  resourceId={image.fileUrl}
-                  resourceType="IMAGE_DU_JOUR"
-                  className="rounded-full p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all"
-                />
-              )}
-            </>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
+              disabled={favoriting}
+              className="rounded-full p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all disabled:opacity-50"
+              title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+            >
+              <Bookmark
+                className={`h-4 w-4 ${isFavorited ? 'fill-current text-teal-600 dark:text-teal-400' : 'text-teal-600 dark:text-teal-400'}`}
+              />
+            </button>
           )
         }
       />

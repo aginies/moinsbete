@@ -11,6 +11,7 @@ import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { ShareButton } from './share-button'
 import { useItemShare } from './use-item-share'
+import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby-button'
 
 export interface ImageDuJourFavoriteDoc {
   id: string
@@ -26,9 +27,12 @@ const IMAGE_DU_JOUR_FAVORITES_KEY = 'image_du_jour_favorites'
 interface ImageDuJourBookmarksProps {
   userId?: string
   onRemoveComplete?: () => void
+  sharedIds?: Set<string>
+  onShareToggle?: (resourceId: string) => void
+  isSharing?: string | null
 }
 
-function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage }: { item: ImageDuJourFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void }) {
+function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareToggle, isSharing }: { item: ImageDuJourFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void; isShared: boolean; onShareToggle: () => void; isSharing: boolean }) {
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: item.fileUrl,
     title: `Image du jour - ${item.description}`,
@@ -73,6 +77,12 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage }: { item: Im
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
+        <ShareToLobbyFavoritesButton
+          isShared={isShared}
+          onToggle={onShareToggle}
+          loading={isSharing}
+          resourceId={item.fileUrl}
+        />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-teal-600 opacity-60 hover:opacity-100 hover:text-teal-800 hover:bg-teal-100 dark:text-teal-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"
@@ -85,7 +95,13 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage }: { item: Im
   )
 }
 
-export function ImageDuJourBookmarks({ userId, onRemoveComplete }: ImageDuJourBookmarksProps) {
+interface ImageDuJourBookmarksInnerProps extends ImageDuJourBookmarksProps {
+  sharedIds: Set<string>
+  onShareToggle: (resourceId: string) => void
+  isSharing: string | null
+}
+
+export function ImageDuJourBookmarks({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: ImageDuJourBookmarksInnerProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
   const { handleRemove, getFavorites } = useFavoritesList<ImageDuJourFavoriteDoc>({
     userId,
@@ -108,7 +124,7 @@ export function ImageDuJourBookmarks({ userId, onRemoveComplete }: ImageDuJourBo
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
         renderItem={(item, onRemove) => (
-          <ImageDuJourFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />
+          <ImageDuJourFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.fileUrl)} onShareToggle={() => onShareToggle(item.fileUrl)} isSharing={isSharing === item.fileUrl} />
         )}
         emptyTitle="Aucune image favoris"
         emptyDescription="Cliquez sur le bookmark d&apos;une image du jour pour la sauvegarder ici."
