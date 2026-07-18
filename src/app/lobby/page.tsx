@@ -62,7 +62,7 @@ export default async function LobbyPage() {
 
   const wikiMediaImages = wikiMediaBookmarks.length > 0
     ? await prisma.cachedWikipediaImage.findMany({
-        where: { fileUrl: { in: wikiMediaBookmarks.map(b => b.resourceId!) } },
+        where: { imageUrl: { in: wikiMediaBookmarks.map(b => b.resourceId!) } },
       })
     : []
 
@@ -75,7 +75,7 @@ export default async function LobbyPage() {
   const saviezMap = new Map(saviezFacts.map(f => [f.id, f]))
   const imageMap = new Map<string, any>()
   wikiImages.forEach(i => imageMap.set(i.fileUrl, i))
-  wikiMediaImages.forEach(i => imageMap.set(i.fileUrl, i))
+  wikiMediaImages.forEach(i => imageMap.set(i.imageUrl, i))
   const wikiLovesMap = new Map(wikiLovesImages.map(i => [i.docid, i]))
 
   const enrichedBookmarks = sharedBookmarks.map(bookmark => {
