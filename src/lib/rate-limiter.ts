@@ -60,12 +60,13 @@ async function getRedisClient() {
 
 export async function checkRateLimit(key: string, max: number, windowMs: number): Promise<boolean> {
   const now = Date.now()
+  const sanitizedKey = key.replace(/[:\n\r]/g, '_').slice(0, 64)
 
   if (USE_REDIS) {
     const client = await getRedisClient()
     if (client && client !== 'fallback') {
       try {
-        const fullKey = `ratelimit:${key}`
+        const fullKey = `ratelimit:${sanitizedKey}`
         if (client.type === 'upstash') {
           const res = await fetch(`${client.url}/pipeline`, {
             method: 'POST',
@@ -127,21 +128,23 @@ export async function checkRateLimit(key: string, max: number, windowMs: number)
     }
   }
   
-  // Check if key expired
-  const data = stores.get(key)
+  // Clean expired keys before checking
+  cleanup()
+  
+  const data = stores.get(sanitizedKey)
   if (data && now > data.expiresAt) {
-    stores.delete(key)
+    stores.delete(sanitizedKey)
   }
   
   const timestamps = data?.timestamps || []
   const recent = timestamps.filter(t => now - t < windowMs)
   
   if (recent.length >= max) {
-    stores.set(key, { timestamps: recent, expiresAt: now + windowMs })
+    stores.set(sanitizedKey, { timestamps: recent, expiresAt: now + windowMs })
     return false
   }
   
   recent.push(now)
-  stores.set(key, { timestamps: recent, expiresAt: now + windowMs })
+  stores.set(sanitizedKey, { timestamps: recent, expiresAt: now + windowMs })
   return true
 }
