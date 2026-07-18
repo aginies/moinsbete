@@ -67,6 +67,23 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [sharedIdeaIds, setSharedIdeaIds] = useState<Set<string>>(new Set())
   const [isSharing, setIsSharing] = useState<string | null>(null)
 
+  useEffect(() => {
+    const loadSharedState = async () => {
+      const ideaIds = ideas.map(i => i.id).join(',')
+      if (!ideaIds) return
+      try {
+        const res = await fetch(`/api/lobby/shared-ideas?ideaIds=${ideaIds}`)
+        const data = await res.json()
+        if (data.ideaIds) {
+          setSharedIdeaIds(new Set(data.ideaIds))
+        }
+      } catch (err) {
+        console.error('Failed to load shared state:', err)
+      }
+    }
+    loadSharedState()
+  }, [ideas])
+
   // Derived count for ideas to update immediately when bookmarks are toggled
   const originalIdsOnPage = useMemo(() => new Set(ideas.map(i => i.id)), [ideas])
   
