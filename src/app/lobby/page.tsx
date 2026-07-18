@@ -1,8 +1,19 @@
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SuggestionList } from '@/components/lobby/suggestion-list'
-import { SharedBookmarks } from '@/components/lobby/shared-bookmarks'
+import { LobbyHeader } from '@/components/lobby/lobby-header'
+import { LobbyTabs } from '@/components/lobby/lobby-tabs'
+
+interface SharedBookmarkRaw {
+  id: string
+  userId: string
+  ideaId: string | null
+  resourceId: string | null
+  resourceType: string
+  meta: any
+  createdAt: Date
+  idea: any
+  user: { id: string; displayName: string | null; email: string }
+}
 
 export default async function LobbyPage() {
   const session = await getSession()
@@ -32,34 +43,62 @@ export default async function LobbyPage() {
     take: 50,
   })
 
+  const saviezBookmarks = sharedBookmarks.filter(b => b.resourceType === 'SAVIEZ_VOUS' && b.resourceId)
+  const imageBookmarks = sharedBookmarks.filter(b => ['IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA'].includes(b.resourceType) && b.resourceId)
+  const wikiLovesBookmarks = sharedBookmarks.filter(b => b.resourceType === 'IMAGE_WIKILOVES' && b.resourceId)
+
+  const saviezFacts = saviezBookmarks.length > 0
+    ? await prisma.saviezVousFact.findMany({
+        where: { id: { in: saviezBookmarks.map(b => b.resourceId!) } },
+      })
+    : []
+
+  const wikiImages = imageBookmarks.length > 0
+    ? await prisma.cachedWikipediaImage.findMany({
+        where: { id: { in: imageBookmarks.map(b => b.resourceId!) } },
+      })
+    : []
+
+  const wikiLovesImages = wikiLovesBookmarks.length > 0
+    ? await prisma.cachedWikiLovesImage.findMany({
+        where: { id: { in: wikiLovesBookmarks.map(b => b.resourceId!) } },
+      })
+    : []
+
+  const saviezMap = new Map(saviezFacts.map(f => [f.id, f]))
+  const imageMap = new Map(wikiImages.map(i => [i.id, i]))
+  const wikiLovesMap = new Map(wikiLovesImages.map(i => [i.id, i]))
+
+  const enrichedBookmarks = sharedBookmarks.map(bookmark => {
+    if (bookmark.resourceType === 'SAVIEZ_VOUS' && bookmark.resourceId) {
+      const fact = saviezMap.get(bookmark.resourceId)
+      return { ...bookmark, saviezFact: fact }
+    }
+    if (bookmark.resourceType === 'IMAGE_DU_JOUR' && bookmark.resourceId) {
+      const image = imageMap.get(bookmark.resourceId)
+      return { ...bookmark, wikiImage: image }
+    }
+    if (bookmark.resourceType === 'IMAGE_WIKIMEDIA' && bookmark.resourceId) {
+      const image = imageMap.get(bookmark.resourceId)
+      return { ...bookmark, wikiImage: image }
+    }
+    if (bookmark.resourceType === 'IMAGE_WIKILOVES' && bookmark.resourceId) {
+      const image = wikiLovesMap.get(bookmark.resourceId)
+      return { ...bookmark, wikiLovesImage: image }
+    }
+    return bookmark
+  }) as Array<SharedBookmarkRaw & { saviezFact?: any; wikiImage?: any; wikiLovesImage?: any }>
+
   return (
     <div className="mx-auto max-w-2xl p-4 md:p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Lobby</h1>
-          <p className="text-sm text-muted-foreground">Proposez des sujets, commentez et partagez des idées</p>
-        </div>
-        {session?.user && (
-          <a href="/lobby/new">
-            <span className="text-sm text-primary hover:underline">Proposer un sujet</span>
-          </a>
-        )}
-      </div>
+      <LobbyHeader isLoggedIn={!!session?.user} />
 
-      <Tabs defaultValue="discuter" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="discuter">Discuter</TabsTrigger>
-          <TabsTrigger value="favoris">Favoris partagés</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="discuter">
-          <SuggestionList suggestions={suggestions} currentUserId={session?.user?.id ?? null} isAdmin={session?.user?.role === 'ADMIN'} />
-        </TabsContent>
-
-        <TabsContent value="favoris">
-          <SharedBookmarks sharedBookmarks={sharedBookmarks} currentUserId={session?.user?.id ?? null} />
-        </TabsContent>
-      </Tabs>
+      <LobbyTabs
+        suggestions={suggestions}
+        sharedBookmarks={enrichedBookmarks}
+        currentUserId={session?.user?.id ?? null}
+        isAdmin={session?.user?.role === 'ADMIN'}
+      />
     </div>
   )
 }

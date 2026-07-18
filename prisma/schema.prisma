@@ -365,6 +365,7 @@ model SharedLobbyBookmark {
   idea         Idea?    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
   resourceId   String?
   resourceType String
+  meta         Json?
   createdAt    DateTime @default(now())
 
   @@index([userId, createdAt])

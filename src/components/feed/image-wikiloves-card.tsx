@@ -12,6 +12,7 @@ import { ImageHint } from './image-hint'
 import { VisibilityButton } from './visibility-button'
 import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 interface WikiLovesImage {
   docid: string
@@ -247,14 +248,21 @@ export function ImageWikiLovesCard({
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
             {image && userId && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors"
-                title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-              >
-                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                  className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors"
+                  title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                >
+                  <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+                </button>
+                <ShareToLobbyButton
+                  resourceId={image.docid}
+                  resourceType="IMAGE_WIKILOVES"
+                  className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors"
+                />
+              </>
             )}
           </>
         }
