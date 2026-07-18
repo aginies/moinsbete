@@ -11,6 +11,13 @@ import Link from 'next/link'
 import { parseHTML } from '@/lib/utils'
 import { DeleteConfirmationDialog } from './delete-confirmation-dialog'
 
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@')
+  if (!local || !domain) return email
+  const masked = local.length > 2 ? local[0] + '***' : local.slice(0, 1) + '*'
+  return `${masked}@${domain}`
+}
+
 function formatDate(date: Date): string {
   return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
@@ -143,7 +150,7 @@ export function SuggestionDetail({ suggestion: sug, currentUserId, isAdmin }: Su
             </div>
             <p className="whitespace-pre-wrap text-muted-foreground" dangerouslySetInnerHTML={{ __html: parseHTML(sug.description) }} />
             <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
-              <span>Par {sug.user.displayName || sug.user.email}</span>
+              <span>Par {sug.user.displayName || maskEmail(sug.user.email)}</span>
               <span>Créée le {formatDate(new Date(sug.createdAt))}</span>
               {sug.updatedAt.getTime() !== sug.createdAt.getTime() && (
                 <span className="flex items-center gap-1">
@@ -166,7 +173,7 @@ export function SuggestionDetail({ suggestion: sug, currentUserId, isAdmin }: Su
           {sug.comments.map((comment) => (
             <div key={comment.id} className="rounded-lg bg-muted p-4">
               <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="font-medium">{comment.user.displayName || comment.user.email}</span>
+                <span className="font-medium">{comment.user.displayName || maskEmail(comment.user.email)}</span>
                 <span>·</span>
                 <span>{formatDate(new Date(comment.createdAt))}</span>
               </div>

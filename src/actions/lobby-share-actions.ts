@@ -45,9 +45,32 @@ export async function isSharedToLobby(ideaId: string): Promise<boolean> {
   return !!shared
 }
 
+const MAX_META_SIZE = 10 * 1024
+
+function validateMeta(meta: any): any {
+  if (meta == null) return null
+  if (typeof meta === 'string') {
+    if (meta.length > MAX_META_SIZE) return null
+    try {
+      return JSON.parse(meta)
+    } catch {
+      return null
+    }
+  }
+  if (typeof meta !== 'object') return null
+  const serialized = JSON.stringify(meta)
+  if (serialized.length > MAX_META_SIZE) return null
+  return JSON.parse(serialized)
+}
+
 export async function shareResourceToLobby(resourceType: string, resourceId: string, meta?: any) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
+
+  const validResourceTypes = ['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES']
+  if (!validResourceTypes.includes(resourceType)) {
+    return { error: 'Type de ressource invalide' }
+  }
 
   const existing = await prisma.sharedLobbyBookmark.findFirst({
     where: {
@@ -63,7 +86,7 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
       userId: session.user.id,
       resourceId,
       resourceType,
-      meta: meta ?? null,
+      meta: validateMeta(meta),
     },
   })
 

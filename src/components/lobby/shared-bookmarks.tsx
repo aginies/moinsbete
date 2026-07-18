@@ -13,6 +13,13 @@ import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
 import { useState, useMemo } from 'react'
 
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@')
+  if (!local || !domain) return email
+  const masked = local.length > 2 ? local[0] + '***' : local.slice(0, 1) + '*'
+  return `${masked}@${domain}`
+}
+
 interface SaviezVousFact {
   id: string
   text: string
@@ -104,7 +111,7 @@ function IdeaBookmarkItem({
       <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
         <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
           <User className="h-3 w-3" />
-          {bookmark.user.displayName || bookmark.user.email}
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
@@ -154,7 +161,7 @@ function SaviezVousBookmarkItem({
       <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
         <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
           <User className="h-3 w-3" />
-          {bookmark.user.displayName || bookmark.user.email}
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
@@ -232,7 +239,7 @@ function WikiImageBookmarkItem({
       <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
         <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
           <User className="h-3 w-3" />
-          {bookmark.user.displayName || bookmark.user.email}
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
@@ -325,7 +332,7 @@ function WikiLovesBookmarkItem({
       <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
         <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
           <User className="h-3 w-3" />
-          {bookmark.user.displayName || bookmark.user.email}
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
@@ -418,7 +425,7 @@ function WikiMediaBookmarkItem({
       <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
         <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
           <User className="h-3 w-3" />
-          {bookmark.user.displayName || bookmark.user.email}
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
