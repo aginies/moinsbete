@@ -61,7 +61,6 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
                   <Link href="/admin">
                     <Button variant="ghost" size="sm" className="hidden md:inline-flex">
                       <Shield className="h-4 w-4" />
-                      <span className="ml-1">Admin</span>
                     </Button>
                   </Link>
                 )}
