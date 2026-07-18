@@ -36,6 +36,9 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: 'forest', label: 'Forêt', icon: '🌲' },
   { id: 'ocean', label: 'Océan', icon: '🌊' },
   { id: 'space', label: 'Espace', icon: '🌌' },
+  { id: 'landscape', label: 'Paysage', icon: '🏞️' },
+  { id: 'mountain', label: 'Montagne', icon: '🏔️' },
+  { id: 'bird', label: 'Oiseau', icon: '🐦' },
 ]
 
 async function fetchRandomVideo(category?: string): Promise<PixabayVideo | null> {
@@ -104,7 +107,7 @@ export function ImagePixabayCard({
   const [currentTime, setCurrentTime] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const [activeCategory, setActiveCategory] = useState<string>('forest')
+  const [activeCategory, setActiveCategory] = useState<string>('bird')
   const [showCategories, setShowCategories] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
