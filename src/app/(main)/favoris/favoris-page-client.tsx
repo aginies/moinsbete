@@ -20,8 +20,9 @@ import { ImageWikiLovesFavorites } from './image-wikiloves-favorites'
 import { PixabayFavorites } from './pixabay-favorites'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
-import { shareToLobby, unshareFromLobby } from '@/actions/lobby-share-actions'
+import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
 import { toast } from 'sonner'
+import { ShareToLobbyFavoritesButton } from './share-to-lobby-button'
 
 interface FavorisPageClientProps {
   ideas: CompactIdea[]
@@ -65,6 +66,9 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
   const [sharedIdeaIds, setSharedIdeaIds] = useState<Set<string>>(new Set())
+  const [sharedSaviezIds, setSharedSaviezIds] = useState<Set<string>>(new Set())
+  const [sharedImageIds, setSharedImageIds] = useState<Set<string>>(new Set())
+  const [sharedWikiLovesIds, setSharedWikiLovesIds] = useState<Set<string>>(new Set())
   const [isSharing, setIsSharing] = useState<string | null>(null)
 
   useEffect(() => {
@@ -83,6 +87,54 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
     loadSharedState()
   }, [ideas])
+
+  useEffect(() => {
+    const loadSaviezSharedState = async () => {
+      if (!userId) return
+      try {
+        const res = await fetch('/api/lobby/shared-resources?type=SAVIEZ_VOUS')
+        const data = await res.json()
+        if (data.resourceIds) {
+          setSharedSaviezIds(new Set(data.resourceIds))
+        }
+      } catch (err) {
+        console.error('Failed to load SaviezVous shared state:', err)
+      }
+    }
+    loadSaviezSharedState()
+  }, [userId])
+
+  useEffect(() => {
+    const loadImageSharedState = async () => {
+      if (!userId) return
+      try {
+        const res = await fetch('/api/lobby/shared-resources?type=IMAGE_DU_JOUR')
+        const data = await res.json()
+        if (data.resourceIds) {
+          setSharedImageIds(new Set(data.resourceIds))
+        }
+      } catch (err) {
+        console.error('Failed to load image shared state:', err)
+      }
+    }
+    loadImageSharedState()
+  }, [userId])
+
+  useEffect(() => {
+    const loadWikiLovesSharedState = async () => {
+      if (!userId) return
+      try {
+        const res = await fetch('/api/lobby/shared-resources?type=IMAGE_WIKILOVES')
+        const data = await res.json()
+        if (data.resourceIds) {
+          setSharedWikiLovesIds(new Set(data.resourceIds))
+        }
+      } catch (err) {
+        console.error('Failed to load WikiLoves shared state:', err)
+      }
+    }
+    loadWikiLovesSharedState()
+  }, [userId])
 
   // Derived count for ideas to update immediately when bookmarks are toggled
   const originalIdsOnPage = useMemo(() => new Set(ideas.map(i => i.id)), [ideas])
@@ -163,6 +215,84 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         const result = await shareToLobby(ideaId)
         if (result.success) {
           setSharedIdeaIds(prev => new Set([...prev, ideaId]))
+          toast.success('Partagé au lobby')
+        } else {
+          toast.error(result.error)
+        }
+      }
+    } finally {
+      setIsSharing(null)
+    }
+  }
+
+  const handleSaviezVousShareToLobby = async (resourceId: string) => {
+    setIsSharing(resourceId)
+    try {
+      const isShared = sharedSaviezIds.has(resourceId)
+      if (isShared) {
+        await unshareResourceFromLobby('SAVIEZ_VOUS', resourceId)
+        setSharedSaviezIds(prev => {
+          const next = new Set(prev)
+          next.delete(resourceId)
+          return next
+        })
+        toast.success('Retiré du lobby')
+      } else {
+        const result = await shareResourceToLobby('SAVIEZ_VOUS', resourceId)
+        if (result.success) {
+          setSharedSaviezIds(prev => new Set([...prev, resourceId]))
+          toast.success('Partagé au lobby')
+        } else {
+          toast.error(result.error)
+        }
+      }
+    } finally {
+      setIsSharing(null)
+    }
+  }
+
+  const handleImageShareToLobby = async (resourceId: string) => {
+    setIsSharing(resourceId)
+    try {
+      const isShared = sharedImageIds.has(resourceId)
+      if (isShared) {
+        await unshareResourceFromLobby('IMAGE_DU_JOUR', resourceId)
+        setSharedImageIds(prev => {
+          const next = new Set(prev)
+          next.delete(resourceId)
+          return next
+        })
+        toast.success('Retiré du lobby')
+      } else {
+        const result = await shareResourceToLobby('IMAGE_DU_JOUR', resourceId)
+        if (result.success) {
+          setSharedImageIds(prev => new Set([...prev, resourceId]))
+          toast.success('Partagé au lobby')
+        } else {
+          toast.error(result.error)
+        }
+      }
+    } finally {
+      setIsSharing(null)
+    }
+  }
+
+  const handleWikiLovesShareToLobby = async (resourceId: string) => {
+    setIsSharing(resourceId)
+    try {
+      const isShared = sharedWikiLovesIds.has(resourceId)
+      if (isShared) {
+        await unshareResourceFromLobby('IMAGE_WIKILOVES', resourceId)
+        setSharedWikiLovesIds(prev => {
+          const next = new Set(prev)
+          next.delete(resourceId)
+          return next
+        })
+        toast.success('Retiré du lobby')
+      } else {
+        const result = await shareResourceToLobby('IMAGE_WIKILOVES', resourceId)
+        if (result.success) {
+          setSharedWikiLovesIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
         } else {
           toast.error(result.error)
@@ -332,13 +462,13 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
       {activeTab === 'cnrs-news' && <div role="tabpanel" id="panel-cnrs-news"><CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} /></div>}
 
-      {activeTab === 'image-du-jour' && <div role="tabpanel" id="panel-image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} /></div>}
+      {activeTab === 'image-du-jour' && <div role="tabpanel" id="panel-image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} sharedIds={sharedImageIds} onShareToggle={handleImageShareToLobby} isSharing={isSharing} /></div>}
 
-      {activeTab === 'saviez-vous' && <div role="tabpanel" id="panel-saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} /></div>}
+      {activeTab === 'saviez-vous' && <div role="tabpanel" id="panel-saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} sharedIds={sharedSaviezIds} onShareToggle={handleSaviezVousShareToLobby} isSharing={isSharing} /></div>}
 
       {activeTab === 'image-wikimedia' && <div role="tabpanel" id="panel-image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} /></div>}
 
-      {activeTab === 'image-wikiloves' && <div role="tabpanel" id="panel-image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} /></div>}
+      {activeTab === 'image-wikiloves' && <div role="tabpanel" id="panel-image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} sharedIds={sharedWikiLovesIds} onShareToggle={handleWikiLovesShareToLobby} isSharing={isSharing} /></div>}
 
       {activeTab === 'image-pixabay' && <div role="tabpanel" id="panel-image-pixabay"><PixabayFavorites userId={userId} onRemoveComplete={handlePixabayRemove} /></div>}
     </div>

@@ -14,7 +14,6 @@ import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
-import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 interface SaviezVousCardProps {
   id: string
@@ -188,26 +187,17 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={
-          <>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
-              disabled={Boolean(favoriting || !fact)}
-              className="rounded-full p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all disabled:opacity-50"
-              title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-            >
-              <Bookmark
-                className={`h-4 w-4 ${isFavorited ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
-              />
-            </button>
-            {userId && factId && (
-              <ShareToLobbyButton
-                resourceId={factId}
-                resourceType="SAVIEZ_VOUS"
-                className="rounded-full p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all"
-              />
-            )}
-          </>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
+            disabled={Boolean(favoriting || !fact)}
+            className="rounded-full p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all disabled:opacity-50"
+            title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          >
+            <Bookmark
+              className={`h-4 w-4 ${isFavorited ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
+            />
+          </button>
         }
       />
 

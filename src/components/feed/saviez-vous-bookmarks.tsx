@@ -11,6 +11,7 @@ import { ShareButton } from './share-button'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { useItemShare } from './use-item-share'
+import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby-button'
 
 export interface SaviezVousFavoriteDoc {
   id: string
@@ -25,9 +26,12 @@ const SAVIEZ_VOUS_FAVORITES_KEY = 'saviez_vous_favorites'
 interface SaviezVousBookmarksProps {
   userId?: string
   onRemoveComplete?: () => void
+  sharedIds?: Set<string>
+  onShareToggle?: (resourceId: string) => void
+  isSharing?: string | null
 }
 
-function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage }: { item: SaviezVousFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void }) {
+function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareToggle, isSharing }: { item: SaviezVousFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void; isShared: boolean; onShareToggle: () => void; isSharing: boolean }) {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'
   const shareUrl = `${baseUrl}/saviez-vous/${item.id}`
   const { handleShare, copied, shareUrl: itemShareUrl } = useItemShare({
@@ -74,6 +78,12 @@ function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage }: { item: Sav
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={itemShareUrl} />
+        <ShareToLobbyFavoritesButton
+          isShared={isShared}
+          onToggle={onShareToggle}
+          loading={isSharing}
+          resourceId={item.id}
+        />
         <Link
           href={`/saviez-vous/${item.id}`}
           className="rounded-full p-1.5 text-blue-600 opacity-60 hover:opacity-100 hover:text-blue-800 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"
@@ -93,7 +103,13 @@ function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage }: { item: Sav
   )
 }
 
-export function SaviezVousBookmarks({ userId, onRemoveComplete }: SaviezVousBookmarksProps) {
+interface SaviezVousBookmarksInnerProps extends SaviezVousBookmarksProps {
+  sharedIds: Set<string>
+  onShareToggle: (resourceId: string) => void
+  isSharing: string | null
+}
+
+export function SaviezVousBookmarks({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: SaviezVousBookmarksInnerProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
   const { handleRemove, getFavorites } = useFavoritesList<SaviezVousFavoriteDoc>({
     userId,
@@ -116,7 +132,7 @@ export function SaviezVousBookmarks({ userId, onRemoveComplete }: SaviezVousBook
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
         renderItem={(item, onRemove) => (
-          <SaviezVousFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} />
+          <SaviezVousFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.id)} onShareToggle={() => onShareToggle(item.id)} isSharing={isSharing === item.id} />
         )}
         emptyTitle="Aucun favori Le saviez vous ?"
         emptyDescription="Favorisez des faits depuis la page d&apos;accueil pour les voir ici."
