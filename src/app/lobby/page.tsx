@@ -71,8 +71,8 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     : []
 
   const wikiMediaImages = wikiMediaBookmarks.length > 0
-    ? await prisma.cachedWikipediaImage.findMany({
-        where: { imageUrl: { in: wikiMediaBookmarks.map(b => b.resourceId!) } },
+    ? await prisma.cachedWikiLovesImage.findMany({
+        where: { docid: { in: wikiMediaBookmarks.map(b => b.resourceId!) } },
       })
     : []
 
@@ -85,7 +85,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
   const saviezMap = new Map(saviezFacts.map(f => [f.id, f]))
   const imageMap = new Map<string, any>()
   wikiImages.forEach(i => imageMap.set(i.fileUrl, i))
-  wikiMediaImages.forEach(i => imageMap.set(i.imageUrl, i))
+  const wikiMediaMap = new Map(wikiMediaImages.map(i => [i.docid, i]))
   const wikiLovesMap = new Map(wikiLovesImages.map(i => [i.docid, i]))
 
   const enrichedBookmarks = sharedBookmarks.map(bookmark => {
@@ -110,20 +110,26 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       return { ...bookmark, wikiImage: image }
     }
     if (bookmark.resourceType === 'IMAGE_WIKIMEDIA' && bookmark.resourceId) {
-      let image = imageMap.get(bookmark.resourceId)
+      let image = wikiMediaMap.get(bookmark.resourceId)
       if (!image && bookmark.meta) {
         try {
           const m = typeof bookmark.meta === 'string' ? JSON.parse(bookmark.meta) : bookmark.meta
           image = {
             id: bookmark.resourceId,
+            docid: bookmark.resourceId,
+            title: m.titre || '',
+            author: m.auteur || '',
             imageUrl: m.imageUrl || '',
-            description: m.titre || '',
-            fileUrl: m.link || '',
-            date: '',
+            commonsUrl: m.link || '',
+            license: m.droits || '',
+            year: 0,
+            source: '',
+            scrapedAt: new Date(),
+            expiresAt: new Date(),
           }
         } catch {}
       }
-      return { ...bookmark, wikiImage: image }
+      return { ...bookmark, wikiMediaImage: image }
     }
     if (bookmark.resourceType === 'IMAGE_WIKILOVES' && bookmark.resourceId) {
       let image = wikiLovesMap.get(bookmark.resourceId)
@@ -148,7 +154,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       return { ...bookmark, wikiLovesImage: image }
     }
     return bookmark
-  }) as Array<SharedBookmarkRaw & { saviezFact?: any; wikiImage?: any; wikiLovesImage?: any }>
+  }) as Array<SharedBookmarkRaw & { saviezFact?: any; wikiImage?: any; wikiMediaImage?: any; wikiLovesImage?: any }>
 
   return (
     <div className="mx-auto max-w-2xl p-4 md:p-6">
