@@ -28,7 +28,7 @@ interface ImageDuJourBookmarksProps {
   userId?: string
   onRemoveComplete?: () => void
   sharedIds?: Set<string>
-  onShareToggle?: (resourceId: string) => void
+  onShareToggle?: (item: any) => void
   isSharing?: string | null
 }
 
@@ -124,7 +124,7 @@ export function ImageDuJourBookmarks({ userId, onRemoveComplete, sharedIds, onSh
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
         renderItem={(item, onRemove) => (
-          <ImageDuJourFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.fileUrl)} onShareToggle={() => onShareToggle(item.fileUrl)} isSharing={isSharing === item.fileUrl} />
+          <ImageDuJourFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.fileUrl)} onShareToggle={() => onShareToggle && onShareToggle(item)} isSharing={isSharing === item.fileUrl} />
         )}
         emptyTitle="Aucune image favoris"
         emptyDescription="Cliquez sur le bookmark d&apos;une image du jour pour la sauvegarder ici."

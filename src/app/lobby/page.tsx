@@ -94,15 +94,54 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       return { ...bookmark, saviezFact: fact }
     }
     if (bookmark.resourceType === 'IMAGE_DU_JOUR' && bookmark.resourceId) {
-      const image = imageMap.get(bookmark.resourceId)
+      let image = imageMap.get(bookmark.resourceId)
+      if (!image && bookmark.meta) {
+        try {
+          const m = typeof bookmark.meta === 'string' ? JSON.parse(bookmark.meta) : bookmark.meta
+          image = {
+            id: bookmark.resourceId,
+            imageUrl: m.imageUrl || '',
+            description: m.description || '',
+            fileUrl: m.fileUrl || '',
+            date: m.date || '',
+          }
+        } catch {}
+      }
       return { ...bookmark, wikiImage: image }
     }
     if (bookmark.resourceType === 'IMAGE_WIKIMEDIA' && bookmark.resourceId) {
-      const image = imageMap.get(bookmark.resourceId)
+      let image = imageMap.get(bookmark.resourceId)
+      if (!image && bookmark.meta) {
+        try {
+          const m = typeof bookmark.meta === 'string' ? JSON.parse(bookmark.meta) : bookmark.meta
+          image = {
+            id: bookmark.resourceId,
+            imageUrl: m.imageUrl || '',
+            description: m.titre || '',
+            fileUrl: m.link || '',
+            date: '',
+          }
+        } catch {}
+      }
       return { ...bookmark, wikiImage: image }
     }
     if (bookmark.resourceType === 'IMAGE_WIKILOVES' && bookmark.resourceId) {
-      const image = wikiLovesMap.get(bookmark.resourceId)
+      let image = wikiLovesMap.get(bookmark.resourceId)
+      if (!image && bookmark.meta) {
+        try {
+          const m = typeof bookmark.meta === 'string' ? JSON.parse(bookmark.meta) : bookmark.meta
+          image = {
+            id: bookmark.resourceId,
+            docid: bookmark.resourceId,
+            title: m.titre || '',
+            author: m.auteur || '',
+            imageUrl: m.imageUrl || '',
+            commonsUrl: m.link || '',
+            license: m.droits || '',
+            year: 0,
+          }
+        } catch {}
+      }
       return { ...bookmark, wikiLovesImage: image }
     }
     return bookmark

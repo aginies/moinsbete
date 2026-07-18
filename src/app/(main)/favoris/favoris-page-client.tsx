@@ -268,7 +268,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
   }
 
-  const handleImageShareToLobby = async (resourceId: string) => {
+  const handleImageShareToLobby = async (item: any) => {
+    const resourceId = item.fileUrl
     setIsSharing(resourceId)
     try {
       const isShared = sharedImageIds.has(resourceId)
@@ -281,7 +282,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         })
         toast.success('Retiré du lobby')
       } else {
-        const result = await shareResourceToLobby('IMAGE_DU_JOUR', resourceId)
+        const result = await shareResourceToLobby('IMAGE_DU_JOUR', resourceId, item)
         if (result.success) {
           setSharedImageIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
@@ -294,7 +295,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
   }
 
-  const handleWikiLovesShareToLobby = async (resourceId: string) => {
+  const handleWikiLovesShareToLobby = async (item: any) => {
+    const resourceId = item.docid
     setIsSharing(resourceId)
     try {
       const isShared = sharedWikiLovesIds.has(resourceId)
@@ -307,7 +309,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         })
         toast.success('Retiré du lobby')
       } else {
-        const result = await shareResourceToLobby('IMAGE_WIKILOVES', resourceId)
+        const result = await shareResourceToLobby('IMAGE_WIKILOVES', resourceId, item)
         if (result.success) {
           setSharedWikiLovesIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
@@ -320,7 +322,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
   }
 
-  const handleWikimediaShareToLobby = async (resourceId: string) => {
+  const handleWikimediaShareToLobby = async (item: any) => {
+    const resourceId = item.docid
     setIsSharing(resourceId)
     try {
       const isShared = sharedWikimediaIds.has(resourceId)
@@ -333,7 +336,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         })
         toast.success('Retiré du lobby')
       } else {
-        const result = await shareResourceToLobby('IMAGE_WIKIMEDIA', resourceId)
+        const result = await shareResourceToLobby('IMAGE_WIKIMEDIA', resourceId, item)
         if (result.success) {
           setSharedWikimediaIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
