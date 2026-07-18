@@ -70,7 +70,7 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
 }
 
 export async function GET(request: NextRequest) {
-  const categoryParam = request.nextUrl.searchParams.get('category') || 'nature'
+  const categoryParam = request.nextUrl.searchParams.get('category') || 'bird'
 
   const video = await fetchRandomVideo(categoryParam)
   if (!video) {
