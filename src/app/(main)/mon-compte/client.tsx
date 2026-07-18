@@ -2,12 +2,13 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { BookOpen, Mail, User as UserIcon, Lock, LogOut } from 'lucide-react'
+import { BookOpen, Mail, User as UserIcon, Lock, LogOut, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { changePasswordAction, logoutAction } from '@/actions/auth-actions'
 import type { Session } from 'next-auth'
+import Link from 'next/link'
 
 export default function MonCompteClient({ session }: { session: Session }) {
   const router = useRouter()
@@ -80,6 +81,16 @@ export default function MonCompteClient({ session }: { session: Session }) {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="rounded-xl border bg-card p-4">
+          <Link href="/mon-compte/suggestions" className="flex items-center gap-3 hover:opacity-80">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            <div>
+              <p className="font-medium">Mes suggestions</p>
+              <p className="text-xs text-muted-foreground">Gérez vos propositions de sujets</p>
+            </div>
+          </Link>
         </div>
 
         <div className="rounded-xl border bg-card p-6">

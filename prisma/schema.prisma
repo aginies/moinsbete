@@ -33,6 +33,9 @@ model User {
   viewedIdeas     ViewedIdea[]
   following       Topic[]              @relation("UserFollowing")
   wikimediaTopics UserWikimediaTopic[]
+  userSuggestions UserSuggestion[]
+  suggestionComments SuggestionComment[]
+  topicSuggestions TopicSuggestion[]
 }
 
 model Topic {
@@ -169,6 +172,8 @@ model TopicSuggestion {
   categoryName String
   parentId     String?
   icon         String           @default("🤖")
+  userId       String?
+  user         User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
   confidence   Float
   articleCount Int              @default(0)
   status       SuggestionStatus @default(PENDING)
@@ -178,6 +183,7 @@ model TopicSuggestion {
   parentTopic  Topic?           @relation("ParentSuggestion", fields: [parentId], references: [id])
 
   @@index([status])
+  @@index([userId])
 }
 
 model ViewedIdea {
@@ -320,4 +326,31 @@ model CachedWikiLovesImage {
 
   @@index([expiresAt])
   @@index([source, year])
+}
+
+model UserSuggestion {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  comments    SuggestionComment[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @default(now())
+
+  @@index([createdAt])
+}
+
+model SuggestionComment {
+  id           String           @id @default(cuid())
+  suggestionId String
+  suggestion   UserSuggestion   @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User             @relation(fields: [userId], references: [id])
+  content      String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @default(now())
+
+  @@index([suggestionId, createdAt])
+  @@index([userId])
 }
