@@ -77,7 +77,7 @@ export async function updateSuggestionAction(suggestionId: string, data: { title
   const suggestion = await prisma.userSuggestion.findUnique({
     where: { id: suggestionId },
   })
-  if (!suggestion) return { error: 'Suggestion introuvable' }
+  if (!suggestion) return { error: 'Proposition introuvable' }
 
   const isOwner = suggestion.userId === session.user.id
   const isAdmin = session.user.role === 'ADMIN'
@@ -105,7 +105,7 @@ export async function deleteSuggestionAction(suggestionId: string) {
   const suggestion = await prisma.userSuggestion.findUnique({
     where: { id: suggestionId },
   })
-  if (!suggestion) return { error: 'Suggestion introuvable' }
+  if (!suggestion) return { error: 'Proposition introuvable' }
 
   const isOwner = suggestion.userId === session.user.id
   const isAdmin = session.user.role === 'ADMIN'
@@ -123,7 +123,7 @@ export async function addCommentAction(data: { suggestionId: string; content: st
   const suggestion = await prisma.userSuggestion.findUnique({
     where: { id: data.suggestionId },
   })
-  if (!suggestion) return { error: 'Suggestion introuvable' }
+  if (!suggestion) return { error: 'Proposition introuvable' }
 
   const msgValidation = sanitizeMessage(data.content)
   if (!msgValidation.valid) return { error: msgValidation.error }

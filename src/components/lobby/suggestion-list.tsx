@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { deleteSuggestionAction } from '@/actions/suggestion-actions'
 import { DeleteConfirmationDialog } from './delete-confirmation-dialog'
 
-interface SuggestionItem {
+interface PropositionItem {
   id: string
   title: string
   description: string
@@ -17,7 +17,7 @@ interface SuggestionItem {
 }
 
 interface SuggestionListProps {
-  suggestions: SuggestionItem[]
+  suggestions: PropositionItem[]
   currentUserId: string | null
   isAdmin?: boolean
 }
@@ -26,7 +26,7 @@ export function SuggestionList({ suggestions, currentUserId, isAdmin = false }: 
   if (suggestions.length === 0) {
     return (
       <div className="rounded-xl border border-border/60 bg-card p-8 text-center">
-        <p className="text-muted-foreground">Aucune suggestion</p>
+        <p className="text-muted-foreground">Aucune proposition</p>
       </div>
     )
   }
@@ -56,7 +56,7 @@ export function SuggestionList({ suggestions, currentUserId, isAdmin = false }: 
                       if (result.error) {
                         toast.error(result.error)
                       } else {
-                        toast.success('Suggestion supprimée')
+                        toast.success('Proposition supprimée')
                         window.location.reload()
                       }
                     }}

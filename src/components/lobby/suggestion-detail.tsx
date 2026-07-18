@@ -15,7 +15,7 @@ function formatDate(date: Date): string {
   return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-interface SuggestionWithComments {
+interface PropositionWithComments {
   id: string
   title: string
   description: string
@@ -32,7 +32,7 @@ interface SuggestionWithComments {
 }
 
 interface SuggestionDetailProps {
-  suggestion: SuggestionWithComments
+  suggestion: PropositionWithComments
   currentUserId: string
   isAdmin: boolean
 }
@@ -52,7 +52,7 @@ export function SuggestionDetail({ suggestion: sug, currentUserId, isAdmin }: Su
       if (res.error) {
         toast.error(res.error)
       } else {
-        toast.success('Suggestion modifiée')
+        toast.success('Proposition modifiée')
         setIsEditing(false)
         router.refresh()
       }
@@ -128,7 +128,7 @@ export function SuggestionDetail({ suggestion: sug, currentUserId, isAdmin }: Su
                       if (result.error) {
                         toast.error(result.error)
                       } else {
-                        toast.success('Suggestion supprimée')
+                        toast.success('Proposition supprimée')
                         router.push('/lobby')
                       }
                     }}
