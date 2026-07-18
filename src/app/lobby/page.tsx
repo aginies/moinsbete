@@ -44,7 +44,8 @@ export default async function LobbyPage() {
   })
 
   const saviezBookmarks = sharedBookmarks.filter(b => b.resourceType === 'SAVIEZ_VOUS' && b.resourceId)
-  const imageBookmarks = sharedBookmarks.filter(b => ['IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA'].includes(b.resourceType) && b.resourceId)
+  const imageBookmarks = sharedBookmarks.filter(b => b.resourceType === 'IMAGE_DU_JOUR' && b.resourceId)
+  const wikiMediaBookmarks = sharedBookmarks.filter(b => b.resourceType === 'IMAGE_WIKIMEDIA' && b.resourceId)
   const wikiLovesBookmarks = sharedBookmarks.filter(b => b.resourceType === 'IMAGE_WIKILOVES' && b.resourceId)
 
   const saviezFacts = saviezBookmarks.length > 0
@@ -55,19 +56,27 @@ export default async function LobbyPage() {
 
   const wikiImages = imageBookmarks.length > 0
     ? await prisma.cachedWikipediaImage.findMany({
-        where: { id: { in: imageBookmarks.map(b => b.resourceId!) } },
+        where: { fileUrl: { in: imageBookmarks.map(b => b.resourceId!) } },
+      })
+    : []
+
+  const wikiMediaImages = wikiMediaBookmarks.length > 0
+    ? await prisma.cachedWikipediaImage.findMany({
+        where: { fileUrl: { in: wikiMediaBookmarks.map(b => b.resourceId!) } },
       })
     : []
 
   const wikiLovesImages = wikiLovesBookmarks.length > 0
     ? await prisma.cachedWikiLovesImage.findMany({
-        where: { id: { in: wikiLovesBookmarks.map(b => b.resourceId!) } },
+        where: { docid: { in: wikiLovesBookmarks.map(b => b.resourceId!) } },
       })
     : []
 
   const saviezMap = new Map(saviezFacts.map(f => [f.id, f]))
-  const imageMap = new Map(wikiImages.map(i => [i.id, i]))
-  const wikiLovesMap = new Map(wikiLovesImages.map(i => [i.id, i]))
+  const imageMap = new Map<string, any>()
+  wikiImages.forEach(i => imageMap.set(i.fileUrl, i))
+  wikiMediaImages.forEach(i => imageMap.set(i.fileUrl, i))
+  const wikiLovesMap = new Map(wikiLovesImages.map(i => [i.docid, i]))
 
   const enrichedBookmarks = sharedBookmarks.map(bookmark => {
     if (bookmark.resourceType === 'SAVIEZ_VOUS' && bookmark.resourceId) {
