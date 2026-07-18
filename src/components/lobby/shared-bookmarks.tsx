@@ -56,6 +56,7 @@ interface SharedBookmark {
   } | null
   saviezFact: SaviezVousFact | null
   wikiImage: CachedWikipediaImage | null
+  wikiMediaImage: CachedWikiLovesImage | null
   wikiLovesImage: CachedWikiLovesImage | null
   user: { id: string; displayName: string | null; email: string }
 }
@@ -344,8 +345,101 @@ function WikiLovesBookmarkItem({
   )
 }
 
+function WikiMediaBookmarkItem({
+  bookmark,
+  currentUserId,
+  isAdmin,
+}: {
+  bookmark: SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }
+  currentUserId: string | null
+  isAdmin: boolean
+}) {
+  const [hovered, setHovered] = useState(false)
+  const [showFullImage, setShowFullImage] = useState(false)
+
+  return (
+    <div
+      className="group relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-4 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30">
+        <div className="mb-2 flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-white" />
+          <h4 className="text-sm font-bold uppercase tracking-wide text-rose-800 dark:text-rose-300">Wikimedia</h4>
+        </div>
+        {isValidUrl(bookmark.wikiMediaImage.imageUrl) && (
+          <div
+            className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-rose-200 dark:border-rose-800"
+            onClick={() => setShowFullImage(true)}
+          >
+            <img
+              src={sanitizeUrl(bookmark.wikiMediaImage.imageUrl, '')}
+              alt={bookmark.wikiMediaImage.title}
+              loading="lazy"
+              className="w-full h-32 object-cover transition-opacity hover:opacity-90"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none'
+              }}
+            />
+            <ImageHint color="rose" />
+          </div>
+        )}
+        <p className="text-sm font-semibold text-rose-900 dark:text-rose-100 mb-1">
+          {bookmark.wikiMediaImage.title}
+        </p>
+        {bookmark.wikiMediaImage.author && (
+          <p className="text-xs text-rose-700 dark:text-rose-300 mb-1">
+            {bookmark.wikiMediaImage.author}
+          </p>
+        )}
+        <p className="text-xs text-rose-600 dark:text-rose-400 mb-2">
+          {bookmark.wikiMediaImage.license || 'Wikimedia Commons'} · {bookmark.wikiMediaImage.year}
+        </p>
+        {bookmark.wikiMediaImage.commonsUrl && (
+          <Link
+            href={sanitizeUrl(bookmark.wikiMediaImage.commonsUrl)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
+          >
+            Voir sur Wikimedia Commons
+            <ExternalLink className="h-3 w-3" />
+          </Link>
+        )}
+      </div>
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
+        <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
+          <User className="h-3 w-3" />
+          {bookmark.user.displayName || bookmark.user.email}
+        </span>
+        {(currentUserId === bookmark.user.id || isAdmin) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            onClick={() => bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => r.success && window.location.reload())}
+          >
+            <Trash2 className="h-3 w-3 text-muted-foreground" />
+          </Button>
+        )}
+      </div>
+      <div className="mt-1 text-xs text-muted-foreground">
+        Partagé le {bookmark.createdAt.toLocaleDateString('fr-FR')}
+      </div>
+      {showFullImage && (
+        <ImageLightbox
+          src={bookmark.wikiMediaImage.imageUrl}
+          alt={bookmark.wikiMediaImage.title}
+          onClose={() => setShowFullImage(false)}
+        />
+      )}
+    </div>
+  )
+}
+
 export function SharedBookmarks({ sharedBookmarks, currentUserId, isAdmin = false }: SharedBookmarksProps) {
-  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiLovesImage)
+  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage)
 
   if (items.length === 0) {
     return (
@@ -366,6 +460,9 @@ export function SharedBookmarks({ sharedBookmarks, currentUserId, isAdmin = fals
         }
         if (bookmark.wikiImage) {
           return <WikiImageBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiImage: NonNullable<SharedBookmark['wikiImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+        }
+        if (bookmark.wikiMediaImage) {
+          return <WikiMediaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
         }
         if (bookmark.wikiLovesImage) {
           return <WikiLovesBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
