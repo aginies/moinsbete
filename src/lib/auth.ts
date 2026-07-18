@@ -72,8 +72,6 @@ export const authOptions: AuthOptions = {
   },
 }
 
-export const { handlers } = NextAuth(authOptions)
-
 export async function getSession() {
   const cookieStore = await cookies()
   const sessionCookie = cookieStore.get('__Secure-next-auth.session-token') || cookieStore.get('next-auth.session-token')
