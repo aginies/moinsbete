@@ -1,8 +1,14 @@
 'use server'
 
 import { prisma } from '@/lib/db'
+import { getSession } from '@/lib/auth'
 
 export async function cleanupExpiredCache() {
+  const session = await getSession()
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return { error: 'Non autorisé', totalDeleted: 0 }
+  }
+
   const now = new Date()
 
   const [cnrsDeleted, radioDeleted, wikiImageDeleted, wikiLovesDeleted] = await prisma.$transaction([

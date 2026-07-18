@@ -7,6 +7,13 @@ import { toast } from 'sonner'
 import { deleteSuggestionAction } from '@/actions/suggestion-actions'
 import { DeleteConfirmationDialog } from './delete-confirmation-dialog'
 
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@')
+  if (!local || !domain) return email
+  const masked = local.length > 2 ? local[0] + '***' : local.slice(0, 1) + '*'
+  return `${masked}@${domain}`
+}
+
 interface PropositionItem {
   id: string
   title: string
@@ -72,7 +79,7 @@ export function SuggestionList({ suggestions, currentUserId, isAdmin = false }: 
           </div>
           <p className="mb-3 line-clamp-2 text-sm text-muted-foreground">{s.description}</p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>Par {s.user.displayName || s.user.email}</span>
+            <span>Par {s.user.displayName || maskEmail(s.user.email)}</span>
             <span className="flex items-center gap-1">
               <MessageSquare className="h-3 w-3" />
               {s._count.comments}

@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   if (!session?.user) return NextResponse.json({ ideaIds: [] })
 
   const { searchParams } = new URL(req.url)
-  const ideaIds = searchParams.get('ideaIds')?.split(',') || []
+  const ideaIds = searchParams.get('ideaIds')?.split(',').slice(0, 500) || []
 
   if (ideaIds.length === 0) {
     return NextResponse.json({ ideaIds: [] })
