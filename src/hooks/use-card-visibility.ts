@@ -21,6 +21,8 @@ const DB_FIELD_MAP: Record<string, string> = {
    image_wikimedia_show_categories: 'imageWikimediaShowCategories',
    image_pixabay_card_visible: 'imagePixabayCardVisible',
    image_pixabay_show_categories: 'imagePixabayShowCategories',
+   image_wikiloves_card_visible: 'imageWikiLovesCardVisible',
+   image_wikiloves_show_categories: 'imageWikiLovesShowCategories',
    cnrs_news_enabled: 'cnrsNewsEnabled',
  }
 
