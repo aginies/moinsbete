@@ -3,8 +3,27 @@ import { NextRequest, NextResponse } from 'next/server'
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64')
   const isDev = process.env.NODE_ENV === 'development'
-  const scriptSrc = isDev ? `'self' 'nonce-${nonce}' 'unsafe-eval'` : `'self' 'nonce-${nonce}'`
-  const csp = `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'nonce-${nonce}'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; media-src 'self' https://cdn.pixabay.com; frame-ancestors 'none';`
+
+  const scriptSrc = isDev
+    ? `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`
+    : `'self' 'nonce-${nonce}' 'strict-dynamic'`
+
+  const csp = [
+    `default-src 'self'`,
+    `script-src ${scriptSrc}`,
+    `style-src-elem 'self' 'nonce-${nonce}'`,
+    `style-src-attr 'self' 'nonce-${nonce}'`,
+    `img-src 'self' data: https:`,
+    `font-src 'self' data:`,
+    `connect-src 'self' https://api.openai.com https://commons.wikimedia.org`,
+    `media-src 'self' https://cdn.pixabay.com`,
+    `frame-ancestors 'none'`,
+    `base-uri 'self'`,
+    `form-action 'self'`,
+    `worker-src 'self' blob:`,
+    `manifest-src 'self'`,
+    `upgrade-insecure-requests`,
+  ].join('; ')
 
   const response = NextResponse.next()
   response.headers.set('Content-Security-Policy', csp)

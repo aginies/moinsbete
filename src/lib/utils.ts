@@ -187,7 +187,7 @@ export function decodeHtmlEntities(text: string): string {
 }
 
 const MAX_MESSAGE_LENGTH = 250
-const URL_REGEX = /https?:\/\/[^\s<>\"\)\]\}]+/g
+const URL_REGEX = /https?:\/\/[^\s<>"\)\]\}]+(?<![\.\,;:!?\)\]\}])/g
 
 export function sanitizeMessage(content: string): { valid: true; clean: string } | { valid: false; error: string } {
   const trimmed = content.trim()
@@ -227,9 +227,12 @@ export function parseHTML(text: string): string {
   for (const url of urls) {
     if (seen.has(url)) continue
     seen.add(url)
+    
+    if (url.length > MAX_URL_LENGTH) continue
+    
     const sanitized = sanitizeUrl(url, url)
     if (sanitized !== '/') {
-      const link = `<a href="${sanitized}" rel="noopener noreferrer" target="_blank">${url}</a>`
+      const link = `<a href="${escapeHtml(sanitized)}" rel="noopener noreferrer" target="_blank">${escapeHtml(url)}</a>`
       const idx = text.indexOf(url, lastIndex)
       if (idx !== -1) {
         result += escapeHtml(text.slice(lastIndex, idx)) + link
