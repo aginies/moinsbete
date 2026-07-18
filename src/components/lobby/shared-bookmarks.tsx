@@ -3,15 +3,16 @@
 import Link from 'next/link'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X } from 'lucide-react'
+import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { unshareFromLobby, unshareResourceFromLobby } from '@/actions/lobby-share-actions'
+import { unshareFromLobby, unshareResourceFromLobby, addToFavoritesFromLobby } from '@/actions/lobby-share-actions'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useTransition } from 'react'
+import { toast } from 'sonner'
 
 function maskEmail(email: string): string {
   const [local, domain] = email.split('@')
@@ -74,6 +75,13 @@ interface SharedBookmarksProps {
   sharedBookmarks: SharedBookmark[]
   currentUserId: string | null
   isAdmin?: boolean
+  userFavoriteIds: {
+    IDEA: Set<string>
+    SAVIEZ_VOUS: Set<string>
+    IMAGE_DU_JOUR: Set<string>
+    IMAGE_WIKIMEDIA: Set<string>
+    IMAGE_WIKILOVES: Set<string>
+  }
   typeFilters?: { value: string; label: string }[]
   activeType?: string
   searchQuery?: string
@@ -85,12 +93,17 @@ function IdeaBookmarkItem({
   bookmark,
   currentUserId,
   isAdmin,
+  userFavoriteIds,
 }: {
   bookmark: SharedBookmark & { idea: NonNullable<SharedBookmark['idea']> }
   currentUserId: string | null
   isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
 }) {
   const [hovered, setHovered] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = userFavoriteIds.IDEA.has(bookmark.idea.id)
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
   const topics = bookmark.idea.ideaTopics.map((t: { topic: { id: string; name: string; slug: string; icon: string; color: string } }) => t.topic)
   const idea = {
     id: bookmark.idea.id,
@@ -99,6 +112,23 @@ function IdeaBookmarkItem({
     source: { title: bookmark.idea.source.title, type: bookmark.idea.source.type, url: bookmark.idea.source.url },
     topics,
     viewedAt: new Date().toISOString(),
+  }
+
+  const handleAddToFavorites = async () => {
+    if (isAdding) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('IDEA', bookmark.idea.id)
+      if (result.success) {
+        window.location.reload()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   return (
@@ -113,6 +143,21 @@ function IdeaBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
             variant="ghost"
@@ -135,12 +180,34 @@ function SaviezVousBookmarkItem({
   bookmark,
   currentUserId,
   isAdmin,
+  userFavoriteIds,
 }: {
   bookmark: SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']> }
   currentUserId: string | null
   isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
 }) {
   const [hovered, setHovered] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.SAVIEZ_VOUS.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('SAVIEZ_VOUS', bookmark.resourceId)
+      if (result.success) {
+        window.location.reload()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
 
   return (
     <div
@@ -166,6 +233,21 @@ function SaviezVousBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
             variant="ghost"
@@ -188,13 +270,35 @@ function WikiImageBookmarkItem({
   bookmark,
   currentUserId,
   isAdmin,
+  userFavoriteIds,
 }: {
   bookmark: SharedBookmark & { wikiImage: NonNullable<SharedBookmark['wikiImage']> }
   currentUserId: string | null
   isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
 }) {
   const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.IMAGE_DU_JOUR.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('IMAGE_DU_JOUR', bookmark.resourceId)
+      if (result.success) {
+        window.location.reload()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
 
   return (
     <div
@@ -244,6 +348,21 @@ function WikiImageBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
             variant="ghost"
@@ -273,13 +392,35 @@ function WikiLovesBookmarkItem({
   bookmark,
   currentUserId,
   isAdmin,
+  userFavoriteIds,
 }: {
   bookmark: SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }
   currentUserId: string | null
   isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
 }) {
   const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.IMAGE_WIKILOVES.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('IMAGE_WIKILOVES', bookmark.resourceId)
+      if (result.success) {
+        window.location.reload()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
 
   return (
     <div
@@ -337,6 +478,21 @@ function WikiLovesBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
             variant="ghost"
@@ -366,13 +522,35 @@ function WikiMediaBookmarkItem({
   bookmark,
   currentUserId,
   isAdmin,
+  userFavoriteIds,
 }: {
   bookmark: SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }
   currentUserId: string | null
   isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
 }) {
   const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.IMAGE_WIKIMEDIA.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('IMAGE_WIKIMEDIA', bookmark.resourceId)
+      if (result.success) {
+        window.location.reload()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
 
   return (
     <div
@@ -430,6 +608,21 @@ function WikiMediaBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
         {(currentUserId === bookmark.user.id || isAdmin) && (
           <Button
             variant="ghost"
@@ -459,6 +652,7 @@ export function SharedBookmarks({
   sharedBookmarks,
   currentUserId,
   isAdmin = false,
+  userFavoriteIds,
   typeFilters = [],
   activeType = '',
   searchQuery = '',
@@ -519,19 +713,19 @@ export function SharedBookmarks({
         <div className="space-y-4">
           {items.map((bookmark) => {
             if (bookmark.idea) {
-              return <IdeaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { idea: NonNullable<SharedBookmark['idea']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+              return <IdeaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { idea: NonNullable<SharedBookmark['idea']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
             }
             if (bookmark.saviezFact) {
-              return <SaviezVousBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+              return <SaviezVousBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
             }
             if (bookmark.wikiImage) {
-              return <WikiImageBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiImage: NonNullable<SharedBookmark['wikiImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+              return <WikiImageBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiImage: NonNullable<SharedBookmark['wikiImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
             }
             if (bookmark.wikiMediaImage) {
-              return <WikiMediaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+              return <WikiMediaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
             }
             if (bookmark.wikiLovesImage) {
-              return <WikiLovesBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+              return <WikiLovesBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
             }
             return null
           })}

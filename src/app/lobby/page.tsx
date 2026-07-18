@@ -15,6 +15,14 @@ interface SharedBookmarkRaw {
   user: { id: string; displayName: string | null; email: string }
 }
 
+interface UserFavoriteIds {
+  IDEA: Set<string>
+  SAVIEZ_VOUS: Set<string>
+  IMAGE_DU_JOUR: Set<string>
+  IMAGE_WIKIMEDIA: Set<string>
+  IMAGE_WIKILOVES: Set<string>
+}
+
 const PAGE_SIZE = 20
 
 export default async function LobbyPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
@@ -23,6 +31,25 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
   const skip = (page - 1) * PAGE_SIZE
 
   const session = await getSession()
+  let userFavoriteIds: UserFavoriteIds = {
+    IDEA: new Set(),
+    SAVIEZ_VOUS: new Set(),
+    IMAGE_DU_JOUR: new Set(),
+    IMAGE_WIKIMEDIA: new Set(),
+    IMAGE_WIKILOVES: new Set(),
+  }
+  if (session?.user?.id) {
+    const bookmarks = await prisma.bookmark.findMany({
+      where: { userId: session.user.id },
+      select: { resourceId: true, type: true },
+    })
+    for (const bm of bookmarks) {
+      if (bm.resourceId && bm.type in userFavoriteIds) {
+        userFavoriteIds[bm.type as keyof UserFavoriteIds].add(bm.resourceId)
+      }
+    }
+  }
+
   const suggestions = await prisma.userSuggestion.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
@@ -167,6 +194,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         isAdmin={session?.user?.role === 'ADMIN'}
         totalPages={Math.max(1, Math.ceil(total / PAGE_SIZE))}
         currentPage={page}
+        userFavoriteIds={userFavoriteIds}
       />
     </div>
   )
