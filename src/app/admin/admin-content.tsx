@@ -275,6 +275,7 @@ function StatCard({ icon, label, value, sublabel }: { icon: React.ReactNode; lab
 }
 
 function UserRow({ user }: { user: AdminUser }) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   const handleToggle = async () => {
