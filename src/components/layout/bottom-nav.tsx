@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Clock, Bookmark, BookOpen, Network, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useVisitTracking } from '@/hooks/use-visit-tracking'
 
 const navItems = [
   { href: '/sujets', label: 'Accueil', icon: Home },
@@ -18,6 +19,8 @@ const PROTECTED_PATHS = ['/lobby', '/favoris', '/mon-historique']
 
 export function BottomNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const pathname = usePathname()
+
+  useVisitTracking()
 
   const visibleItems = navItems.filter(item => {
     if (item.hidden) return false

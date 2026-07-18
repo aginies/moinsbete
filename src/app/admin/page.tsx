@@ -12,6 +12,7 @@ interface AdminUser {
   enabled: boolean
   createdAt: Date
   lastLogin: Date | null
+  lastVisited: Date | null
 }
 
 export default async function AdminPage() {
@@ -95,6 +96,7 @@ export default async function AdminPage() {
         enabled: true,
         createdAt: true,
         lastLogin: true,
+        lastVisited: true,
       },
     }),
   ])

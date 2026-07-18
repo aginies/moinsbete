@@ -17,6 +17,7 @@ model User {
   role            UserRole @default(USER)
   enabled         Boolean              @default(true)
   lastLogin       DateTime?
+  lastVisited     DateTime?
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   cnrsNewsEnabled Boolean              @default(true)
