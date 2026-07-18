@@ -23,6 +23,8 @@ interface SaviezVousCardProps {
   showLink?: boolean
   showToggle?: boolean
   showBookmark?: boolean
+  showRefresh?: boolean
+  showShare?: boolean
   imageHeight?: string
   swipeable?: boolean
   onToggle?: () => void
@@ -51,6 +53,8 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   showLink = true,
   showToggle = true,
   showBookmark = true,
+  showRefresh = true,
+  showShare = true,
   imageHeight = 'h-48',
   swipeable = false,
   onToggle,
@@ -184,8 +188,9 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         showToggle={showToggle}
         onToggle={onToggle || handleToggle}
         onRefresh={handleClick}
+        showRefresh={showRefresh}
         loading={loading || (hasImage ? !isImageLoaded : false)}
-        shareOptions={{ onClick: handleShare, copied, shareUrl: shareUrlResult }}
+        shareOptions={showShare ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={showBookmark ? (
