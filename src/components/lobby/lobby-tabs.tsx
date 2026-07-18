@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SuggestionList } from './suggestion-list'
 import { SharedBookmarks } from './shared-bookmarks'
 import { Pagination } from '@/components/ui/pagination'
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
 
 interface LobbyTabsProps {
   suggestions: any[]
@@ -32,6 +32,11 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
   const activeTab = searchParams.get('tab') || 'favoris'
   const activeType = searchParams.get('type') || ''
   const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    const q = searchParams.get('q') || ''
+    setSearchQuery(q)
+  }, [searchParams])
 
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams)
