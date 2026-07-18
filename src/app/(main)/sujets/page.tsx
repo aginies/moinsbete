@@ -2,12 +2,14 @@ import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { SujetsClient } from './sujets-client'
 import { getRandomFact } from '@/lib/saviez-vous'
+import { getCsrfToken } from 'next-auth/react'
 
 export const revalidate = 3600
 
 export default async function SujetsPage() {
   const session = await getSession()
   const userId = session?.user?.id
+  const csrfToken = await getCsrfToken()
 
   const followedTopicIds = userId
     ? await prisma.user.findUnique({
@@ -76,6 +78,7 @@ export default async function SujetsPage() {
         saviezVousFact={saviezVousFact}
         userId={userId}
         initialVisibility={initialVisibility}
+        csrfToken={csrfToken || ''}
       />
     </>
   )
