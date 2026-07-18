@@ -151,16 +151,25 @@ async function fetchImageInfo(filename: string): Promise<WikiLovesImage | null> 
 
 async function fetchFromCache(source: string): Promise<WikiLovesImage | null> {
   const now = new Date()
-  const allCached = await prisma.cachedWikiLovesImage.findMany({
+  const totalCached = await prisma.cachedWikiLovesImage.count({
     where: {
       source,
       expiresAt: { gte: now },
     },
   })
 
-  if (allCached.length === 0) return null
+  if (totalCached === 0) return null
 
-  const random = allCached[Math.floor(Math.random() * allCached.length)]
+  const randomOffset = Math.floor(Math.random() * totalCached)
+  const random = await prisma.cachedWikiLovesImage.findFirst({
+    where: {
+      source,
+      expiresAt: { gte: now },
+    },
+    skip: randomOffset,
+  })
+
+  if (!random) return null
 
   return {
     docid: random.docid,
