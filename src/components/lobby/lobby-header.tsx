@@ -11,7 +11,7 @@ export function LobbyHeader({ isLoggedIn }: LobbyHeaderProps) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
-  const activeTab = searchParams.get('tab') || 'discuter'
+  const activeTab = searchParams.get('tab') || 'favoris'
 
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams)

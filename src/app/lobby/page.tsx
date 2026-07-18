@@ -139,6 +139,9 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
             commonsUrl: m.link || '',
             license: m.droits || '',
             year: 0,
+            source: '',
+            scrapedAt: new Date(),
+            expiresAt: new Date(),
           }
         } catch {}
       }
