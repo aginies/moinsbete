@@ -4,7 +4,7 @@ import { SujetsClient } from './sujets-client'
 import { getRandomFact } from '@/lib/saviez-vous'
 import { getCsrfToken } from 'next-auth/react'
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
 export default async function SujetsPage() {
   const session = await getSession()
