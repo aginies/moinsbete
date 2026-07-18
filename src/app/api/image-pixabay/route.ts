@@ -19,13 +19,12 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
     return null
   }
 
-  const randomPage = Math.floor(Math.random() * 10) + 1
   const params = new URLSearchParams({
     key: API_KEY,
     q: category,
     order: 'popular',
     per_page: '200',
-    page: String(randomPage),
+    page: '1',
   })
 
   for (let retry = 0; retry < 3; retry++) {
@@ -44,38 +43,7 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
       const data = await res.json()
       const hits = data.hits || []
 
-      if (hits.length === 0) {
-        const randomPage2 = Math.floor(Math.random() * 10) + 1
-        const params2 = new URLSearchParams({
-          key: API_KEY,
-          q: category,
-          order: 'popular',
-          per_page: '200',
-          page: String(randomPage2),
-        })
-        const res2 = await fetch(`${PIXABAY_API}?${params2}`, {
-          signal: AbortSignal.timeout(15000),
-        })
-        if (res2.ok) {
-          const data2 = await res2.json()
-          const hits2 = data2.hits || []
-          if (hits2.length === 0) return null
-          const randomVideo2 = hits2[Math.floor(Math.random() * hits2.length)]
-          const mediumVideo2 = randomVideo2.videos?.medium || randomVideo2.videos?.small
-          if (!mediumVideo2?.url) return null
-          return {
-            id: randomVideo2.id,
-            pageURL: randomVideo2.pageURL,
-            author: randomVideo2.user || '',
-            authorProfileUrl: `https://pixabay.com/users/${randomVideo2.user}-${randomVideo2.user_id}/`,
-            duration: randomVideo2.duration || 0,
-            thumbnailUrl: mediumVideo2.thumbnail || '',
-            videoUrl: `/api/video-proxy?url=${encodeURIComponent(mediumVideo2.url)}`,
-            tags: randomVideo2.tags || '',
-          }
-        }
-        return null
-      }
+      if (hits.length === 0) return null
 
       const randomVideo = hits[Math.floor(Math.random() * hits.length)]
       const mediumVideo = randomVideo.videos?.medium || randomVideo.videos?.small
@@ -89,7 +57,7 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
         authorProfileUrl: `https://pixabay.com/users/${randomVideo.user}-${randomVideo.user_id}/`,
         duration: randomVideo.duration || 0,
         thumbnailUrl: mediumVideo.thumbnail || '',
-        videoUrl: `/api/video-proxy?url=${encodeURIComponent(mediumVideo.url)}`,
+        videoUrl: mediumVideo.url,
         tags: randomVideo.tags || '',
       }
     } catch (e) {

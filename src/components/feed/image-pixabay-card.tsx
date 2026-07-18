@@ -328,6 +328,7 @@ export function ImagePixabayCard({
       {video && !loading && (
         <div className={`mb-3 overflow-hidden rounded-lg border border-amber-200 dark:border-amber-800 relative ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}>
           <video
+            key={video.videoUrl}
             ref={videoRef}
             src={video.videoUrl}
             poster={video.thumbnailUrl}
