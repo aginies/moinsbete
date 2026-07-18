@@ -154,6 +154,18 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     [tabConfig]
   )
 
+  const [hasInitialSet, setHasInitialSet] = useState(false)
+
+  useEffect(() => {
+    if (!hasInitialSet && activeTab === 'idees' && derivedIdeasCount === 0) {
+      const firstNonEmptyTab = sortedTabs.find(tab => tab.count > 0)
+      if (firstNonEmptyTab) {
+        setActiveTab(firstNonEmptyTab.id)
+      }
+      setHasInitialSet(true)
+    }
+  }, [sortedTabs, activeTab, derivedIdeasCount, hasInitialSet])
+
   return (
     <div>
       <div className="flex gap-1 md:gap-2 mb-4 md:mb-6 border-b border-border overflow-x-auto" role="tablist" aria-label="Favoris">
