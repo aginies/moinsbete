@@ -36,14 +36,14 @@ interface WikipediaImageCardProps {
   isVisible?: boolean
 }
 
-async function fetchRandomImage(): Promise<ImageData | null> {
+async function fetchRandomImage(): Promise<{ data: ImageData | null; error: string | null }> {
   try {
     const res = await fetch('/api/wikipedia-image', { signal: AbortSignal.timeout(8000) })
     const data = await res.json()
-    if (data.error) return null
-    return data
+    if (data.error) return { data: null, error: data.error }
+    return { data, error: null }
   } catch {
-    return null
+    return { data: null, error: null }
   }
 }
 
@@ -64,6 +64,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const [loading, setLoading] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [error, setError] = useState(false)
+  const [rateLimitError, setRateLimitError] = useState<string | null>(null)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'wikipedia_image_card_visible', userId })
@@ -71,9 +72,12 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
 
   // Background pre-fetching
   const prefetchNextImage = useCallback(async () => {
-    const fetched = await fetchRandomImage()
-    if (fetched) {
-      setNextImage(fetched)
+    const { data, error } = await fetchRandomImage()
+    if (data) {
+      setNextImage(data)
+    }
+    if (error) {
+      setRateLimitError(error)
     }
   }, [])
 
@@ -86,17 +90,22 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
       setNextImage(null)
       setError(false)
       setImageError(false)
+      setRateLimitError(null)
     } else {
       // Fallback on-demand fetch
       setLoading(true)
       setError(false)
       setImageError(false)
-      const newImage = await fetchRandomImage()
+      setRateLimitError(null)
+      const { data: newImage, error } = await fetchRandomImage()
       if (newImage) {
         setImage(newImage)
         setError(false)
       } else {
         setError(true)
+        if (error) {
+          setRateLimitError(error)
+        }
       }
       setLoading(false)
     }
@@ -217,7 +226,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
         <div className="mb-3 flex items-center gap-2 rounded-lg border border-teal-200 bg-teal-100/50 p-3 dark:border-teal-800 dark:bg-teal-900/20">
           <AlertCircle className="h-4 w-4 text-teal-600 dark:text-teal-400" />
           <p className="text-xs text-teal-700 dark:text-teal-300">
-            Impossible de charger l&apos;image. Cliquez pour réessayer.
+            {rateLimitError || "Impossible de charger l&apos;image. Cliquez pour réessayer."}
           </p>
         </div>
       )}
