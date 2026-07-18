@@ -91,7 +91,7 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
   )
 }
 
-export function ImageWikiLovesFavorites({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: { userId?: string; onRemoveComplete?: () => void; sharedIds: Set<string>; onShareToggle: (resourceId: string) => void; isSharing: string | null }) {
+export function ImageWikiLovesFavorites({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: { userId?: string; onRemoveComplete?: () => void; sharedIds: Set<string>; onShareToggle: (item: any) => void; isSharing: string | null }) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
 
   const { handleRemove, getFavorites } = useFavoritesList<WikiLovesImageFavoriteDoc>({
@@ -115,7 +115,7 @@ export function ImageWikiLovesFavorites({ userId, onRemoveComplete, sharedIds, o
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
         renderItem={(item, onRemove) => (
-          <WikiLovesFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.docid)} onShareToggle={() => onShareToggle(item.docid)} isSharing={isSharing === item.docid} />
+          <WikiLovesFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.docid)} onShareToggle={() => onShareToggle && onShareToggle(item)} isSharing={isSharing === item.docid} />
         )}
         emptyTitle="Aucun favori Wiki Loves"
         emptyDescription="Favorisez des images depuis la page d&apos;accueil pour les voir ici."

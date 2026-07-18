@@ -20,7 +20,7 @@ interface ImageWikimediaFavoritesProps {
   userId?: string
   onRemoveComplete?: () => void
   sharedIds?: Set<string>
-  onShareToggle?: (resourceId: string) => void
+  onShareToggle?: (item: any) => void
   isSharing?: string | null
 }
 
@@ -101,7 +101,7 @@ function WikimediaFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
 
 interface ImageWikimediaFavoritesInnerProps extends ImageWikimediaFavoritesProps {
   sharedIds: Set<string>
-  onShareToggle: (resourceId: string) => void
+  onShareToggle: (item: any) => void
   isSharing: string | null
 }
 
@@ -129,7 +129,7 @@ export function ImageWikimediaFavorites({ userId, onRemoveComplete, sharedIds, o
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
         renderItem={(item, onRemove) => (
-          <WikimediaFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.docid)} onShareToggle={() => onShareToggle(item.docid)} isSharing={isSharing === item.docid} />
+          <WikimediaFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.docid)} onShareToggle={() => onShareToggle && onShareToggle(item)} isSharing={isSharing === item.docid} />
         )}
         emptyTitle="Aucun favori Wikimedia"
         emptyDescription="Favorisez des images depuis la page d&apos;accueil pour les voir ici."
