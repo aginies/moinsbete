@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { shareToLobby, unshareFromLobby, isSharedToLobby, shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
 import { isCsrfValid } from '@/lib/csrf'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const session = await getSession()
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
