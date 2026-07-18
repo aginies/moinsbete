@@ -7,6 +7,7 @@ export function middleware(request: NextRequest) {
 
   const response = NextResponse.next()
   response.headers.set('Content-Security-Policy', csp)
+  response.cookies.set('csp-nonce', nonce, { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' })
   return response
 }
 

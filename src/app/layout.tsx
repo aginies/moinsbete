@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { getSession } from '@/lib/auth'
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import crypto from 'node:crypto'
+import { cookies } from 'next/headers'
 import '@/lib/cron-runner'
 
 const revalidate = 3600
@@ -53,7 +53,8 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const session = await getSession()
-  const nonce = Buffer.from(crypto.randomBytes(16)).toString('base64')
+  const cookieStore = await cookies()
+  const nonce = cookieStore.get('csp-nonce')?.value || ''
 
   return (
     <html lang="fr" className="dark">
@@ -63,7 +64,6 @@ export default async function RootLayout({
         <meta name="theme-color" content="#372773" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="csp-nonce" content={nonce} />
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
