@@ -3,13 +3,15 @@
 import Link from 'next/link'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { User, Trash2, Camera, BookOpen, ExternalLink } from 'lucide-react'
+import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { unshareFromLobby, unshareResourceFromLobby } from '@/actions/lobby-share-actions'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 interface SaviezVousFact {
   id: string
@@ -65,6 +67,11 @@ interface SharedBookmarksProps {
   sharedBookmarks: SharedBookmark[]
   currentUserId: string | null
   isAdmin?: boolean
+  typeFilters?: { value: string; label: string }[]
+  activeType?: string
+  userSearch?: string
+  onTypeChange?: (value: string) => void
+  onUserSearchChange?: (value: string) => void
 }
 
 function IdeaBookmarkItem({
@@ -438,37 +445,88 @@ function WikiMediaBookmarkItem({
   )
 }
 
-export function SharedBookmarks({ sharedBookmarks, currentUserId, isAdmin = false }: SharedBookmarksProps) {
+export function SharedBookmarks({
+  sharedBookmarks,
+  currentUserId,
+  isAdmin = false,
+  typeFilters = [],
+  activeType = '',
+  userSearch = '',
+  onTypeChange,
+  onUserSearchChange,
+}: SharedBookmarksProps) {
   const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage)
 
-  if (items.length === 0) {
-    return (
-      <div className="rounded-xl border border-border/60 bg-card p-12 text-center">
-        <p className="text-muted-foreground">Aucun favori partagé</p>
-      </div>
-    )
-  }
+  const hasFilters = typeFilters.length > 0 || userSearch
 
   return (
     <div className="space-y-4">
-      {items.map((bookmark) => {
-        if (bookmark.idea) {
-          return <IdeaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { idea: NonNullable<SharedBookmark['idea']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
-        }
-        if (bookmark.saviezFact) {
-          return <SaviezVousBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
-        }
-        if (bookmark.wikiImage) {
-          return <WikiImageBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiImage: NonNullable<SharedBookmark['wikiImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
-        }
-        if (bookmark.wikiMediaImage) {
-          return <WikiMediaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
-        }
-        if (bookmark.wikiLovesImage) {
-          return <WikiLovesBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
-        }
-        return null
-      })}
+      {hasFilters && (
+        <div className="space-y-3">
+          {typeFilters.length > 0 && onTypeChange && (
+            <div className="flex flex-wrap gap-2">
+              {typeFilters.map(filter => (
+                <Badge
+                  key={filter.value || 'all'}
+                  variant={activeType === filter.value ? 'default' : 'outline'}
+                  className="cursor-pointer select-none"
+                  onClick={() => onTypeChange(filter.value)}
+                >
+                  {filter.label}
+                </Badge>
+              ))}
+            </div>
+          )}
+          {onUserSearchChange && (
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Rechercher par utilisateur..."
+                value={userSearch}
+                onChange={(e) => onUserSearchChange(e.target.value)}
+                className="pl-10 pr-10"
+              />
+              {userSearch && (
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md p-0 text-muted-foreground hover:text-foreground"
+                  onClick={() => onUserSearchChange('')}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {items.length === 0 ? (
+        <div className="rounded-xl border border-border/60 bg-card p-12 text-center">
+          <p className="text-muted-foreground">Aucun favori partagé</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map((bookmark) => {
+            if (bookmark.idea) {
+              return <IdeaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { idea: NonNullable<SharedBookmark['idea']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+            }
+            if (bookmark.saviezFact) {
+              return <SaviezVousBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+            }
+            if (bookmark.wikiImage) {
+              return <WikiImageBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiImage: NonNullable<SharedBookmark['wikiImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+            }
+            if (bookmark.wikiMediaImage) {
+              return <WikiMediaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+            }
+            if (bookmark.wikiLovesImage) {
+              return <WikiLovesBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} />
+            }
+            return null
+          })}
+        </div>
+      )}
     </div>
   )
 }
