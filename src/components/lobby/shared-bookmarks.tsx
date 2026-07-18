@@ -156,6 +156,8 @@ function SaviezVousBookmarkItem({
         showLink={false}
         showToggle={false}
         showBookmark={false}
+        showRefresh={false}
+        showShare={false}
         imageHeight="h-40"
         swipeable={false}
       />
