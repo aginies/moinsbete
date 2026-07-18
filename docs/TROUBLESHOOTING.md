@@ -101,3 +101,14 @@ curl -X POST $LLM_BASE_URL/v1/chat/completions \
 # Vérifier le certificat si HTTPS auto-signé
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
+
+## Nettoyer favoris images d'un utilisateur
+
+```bash
+# Supprimer les favoris IMAGE_DU_JOUR, IMAGE_WIKIMEDIA, IMAGE_WIKILOVES
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+DELETE FROM "Bookmark"
+WHERE "userId" IN (SELECT "id" FROM "User" WHERE "email" = 'user@example.com')
+AND "type" IN ('IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES');
+EOF
+```
