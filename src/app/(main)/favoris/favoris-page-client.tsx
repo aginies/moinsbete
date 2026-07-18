@@ -266,7 +266,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
                 <IdeaShareButton idea={idea} />
                 <button
                   type="button"
-                  className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted"
+                  className="rounded-full bg-card/90 px-2 py-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted flex items-center gap-1"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -276,6 +276,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
                   title="Partager au lobby"
                 >
                   <Share2 className={`h-4 w-4 ${sharedIdeaIds.has(idea.id) ? 'text-green-500' : 'text-red-500'}`} />
+                  <span className="text-xs">Lobby</span>
                 </button>
                 <button
                  type="button"
