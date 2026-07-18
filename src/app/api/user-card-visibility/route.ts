@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
       imageWikimediaShowCategories: true,
       imagePixabayCardVisible: true,
       imagePixabayShowCategories: true,
+      imageWikiLovesCardVisible: true,
+      imageWikiLovesShowCategories: true,
       cnrsNewsEnabled: true,
     },
   })
@@ -52,6 +54,8 @@ export async function POST(request: NextRequest) {
     'imageWikimediaShowCategories',
     'imagePixabayCardVisible',
     'imagePixabayShowCategories',
+    'imageWikiLovesCardVisible',
+    'imageWikiLovesShowCategories',
     'cnrsNewsEnabled',
   ]
 
