@@ -196,7 +196,11 @@ function SaviezVousBookmarkItem({
     if (isAdding || !bookmark.resourceId) return
     setIsAdding(true)
     try {
-      const result = await addToFavoritesFromLobby('SAVIEZ_VOUS', bookmark.resourceId)
+      const result = await addToFavoritesFromLobby('SAVIEZ_VOUS', bookmark.resourceId, {
+        text: bookmark.saviezFact.text,
+        sourceUrl: bookmark.saviezFact.sourceUrl,
+        imageFilename: bookmark.saviezFact.imageFilename,
+      })
       if (result.success) {
         window.location.reload()
       } else if (result.error) {
@@ -287,7 +291,12 @@ function WikiImageBookmarkItem({
     if (isAdding || !bookmark.resourceId) return
     setIsAdding(true)
     try {
-      const result = await addToFavoritesFromLobby('IMAGE_DU_JOUR', bookmark.resourceId)
+      const result = await addToFavoritesFromLobby('IMAGE_DU_JOUR', bookmark.resourceId, {
+        imageUrl: bookmark.wikiImage.imageUrl,
+        description: bookmark.wikiImage.description,
+        fileUrl: bookmark.wikiImage.fileUrl,
+        date: bookmark.wikiImage.date,
+      })
       if (result.success) {
         window.location.reload()
       } else if (result.error) {
@@ -409,7 +418,13 @@ function WikiLovesBookmarkItem({
     if (isAdding || !bookmark.resourceId) return
     setIsAdding(true)
     try {
-      const result = await addToFavoritesFromLobby('IMAGE_WIKILOVES', bookmark.resourceId)
+      const result = await addToFavoritesFromLobby('IMAGE_WIKILOVES', bookmark.resourceId, {
+        titre: bookmark.wikiLovesImage.title,
+        auteur: bookmark.wikiLovesImage.author,
+        imageUrl: bookmark.wikiLovesImage.imageUrl,
+        link: bookmark.wikiLovesImage.commonsUrl,
+        droits: bookmark.wikiLovesImage.license,
+      })
       if (result.success) {
         window.location.reload()
       } else if (result.error) {
@@ -539,7 +554,13 @@ function WikiMediaBookmarkItem({
     if (isAdding || !bookmark.resourceId) return
     setIsAdding(true)
     try {
-      const result = await addToFavoritesFromLobby('IMAGE_WIKIMEDIA', bookmark.resourceId)
+      const result = await addToFavoritesFromLobby('IMAGE_WIKIMEDIA', bookmark.resourceId, {
+        titre: bookmark.wikiMediaImage.title,
+        auteur: bookmark.wikiMediaImage.author,
+        imageUrl: bookmark.wikiMediaImage.imageUrl,
+        link: bookmark.wikiMediaImage.commonsUrl,
+        droits: bookmark.wikiMediaImage.license,
+      })
       if (result.success) {
         window.location.reload()
       } else if (result.error) {
