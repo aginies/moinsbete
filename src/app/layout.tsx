@@ -9,7 +9,6 @@ import { getSession } from '@/lib/auth'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { cookies } from 'next/headers'
-import crypto from 'node:crypto'
 import '@/lib/cron-runner'
 
 const revalidate = 3600
@@ -54,9 +53,8 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const session = await getSession()
-  const nonce = Buffer.from(crypto.randomBytes(16)).toString('base64')
   const cookieStore = await cookies()
-  cookieStore.set('csp-nonce', nonce, { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' })
+  const nonce = cookieStore.get('csp-nonce')?.value || ''
 
   return (
     <html lang="fr" className="dark">
