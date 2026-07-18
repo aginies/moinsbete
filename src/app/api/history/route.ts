@@ -88,16 +88,16 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
   }
 
-  const { viewedIdeaId, userId } = await request.json()
-  if (!viewedIdeaId || !userId) {
+  const { viewedIdeaId } = await request.json()
+  if (!viewedIdeaId) {
     return NextResponse.json({ error: 'Missing parameters' }, { status: 400 })
   }
 
   try {
     await prisma.viewedIdea.deleteMany({
-      where: { id: viewedIdeaId, userId },
+      where: { id: viewedIdeaId, userId: session.user.id },
     })
-    const total = await prisma.viewedIdea.count({ where: { userId } })
+    const total = await prisma.viewedIdea.count({ where: { userId: session.user.id } })
     return NextResponse.json({ total })
   } catch (error) {
     console.error('Remove history error:', error)

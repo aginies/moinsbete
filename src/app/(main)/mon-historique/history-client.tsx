@@ -112,7 +112,7 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
       const res = await fetch('/api/history', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ viewedIdeaId, userId }),
+        body: JSON.stringify({ viewedIdeaId }),
       })
       if (res.ok) {
         const data = await res.json()
