@@ -22,6 +22,7 @@ interface SaviezVousCardProps {
   imageFilename?: string | null
   showLink?: boolean
   showToggle?: boolean
+  showBookmark?: boolean
   imageHeight?: string
   swipeable?: boolean
   onToggle?: () => void
@@ -49,6 +50,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   imageFilename,
   showLink = true,
   showToggle = true,
+  showBookmark = true,
   imageHeight = 'h-48',
   swipeable = false,
   onToggle,
@@ -186,7 +188,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         shareOptions={{ onClick: handleShare, copied, shareUrl: shareUrlResult }}
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
-        extraActions={
+        extraActions={showBookmark ? (
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
@@ -198,7 +200,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
               className={`h-4 w-4 ${isFavorited ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
             />
           </button>
-        }
+        ) : undefined}
       />
 
       {hasImage && (

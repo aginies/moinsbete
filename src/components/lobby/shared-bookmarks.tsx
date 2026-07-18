@@ -155,6 +155,7 @@ function SaviezVousBookmarkItem({
         imageFilename={bookmark.saviezFact.imageFilename}
         showLink={false}
         showToggle={false}
+        showBookmark={false}
         imageHeight="h-40"
         swipeable={false}
       />
