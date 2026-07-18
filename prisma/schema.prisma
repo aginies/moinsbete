@@ -35,6 +35,7 @@ model User {
   wikimediaTopics UserWikimediaTopic[]
   userSuggestions UserSuggestion[]
   suggestionComments SuggestionComment[]
+  sharedBookmarks SharedLobbyBookmark[]
   topicSuggestions TopicSuggestion[]
 }
 
@@ -101,8 +102,9 @@ model Idea {
   isEnhanced  Boolean      @default(false)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  bookmarks   Bookmark[]
-  source      Source       @relation(fields: [sourceId], references: [id])
+   bookmarks   Bookmark[]
+   sharedBookmarks SharedLobbyBookmark[]
+   source      Source       @relation(fields: [sourceId], references: [id])
   ideaTopics  IdeaTopic[]
    viewedIdeas ViewedIdea[]
 
@@ -353,4 +355,18 @@ model SuggestionComment {
 
   @@index([suggestionId, createdAt])
   @@index([userId])
+}
+
+model SharedLobbyBookmark {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ideaId       String?
+  idea         Idea?    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  resourceId   String?
+  resourceType String
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([resourceType])
 }

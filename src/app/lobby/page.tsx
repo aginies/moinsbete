@@ -1,6 +1,8 @@
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SuggestionList } from '@/components/lobby/suggestion-list'
+import { SharedBookmarks } from '@/components/lobby/shared-bookmarks'
 
 export default async function LobbyPage() {
   const session = await getSession()
@@ -10,6 +12,24 @@ export default async function LobbyPage() {
       _count: { select: { comments: true } },
       user: { select: { id: true, displayName: true, email: true } },
     },
+  })
+
+  const sharedBookmarks = await prisma.sharedLobbyBookmark.findMany({
+    include: {
+      idea: {
+        include: {
+          ideaTopics: {
+            include: {
+              topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+            },
+          },
+          source: { select: { title: true, type: true, url: true } },
+        },
+      },
+      user: { select: { id: true, displayName: true, email: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
   })
 
   return (
@@ -25,7 +45,21 @@ export default async function LobbyPage() {
           </a>
         )}
       </div>
-      <SuggestionList suggestions={suggestions} currentUserId={session?.user?.id ?? null} isAdmin={session?.user?.role === 'ADMIN'} />
+
+      <Tabs defaultValue="discuter" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="discuter">Discuter</TabsTrigger>
+          <TabsTrigger value="favoris">Favoris partagés</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="discuter">
+          <SuggestionList suggestions={suggestions} currentUserId={session?.user?.id ?? null} isAdmin={session?.user?.role === 'ADMIN'} />
+        </TabsContent>
+
+        <TabsContent value="favoris">
+          <SharedBookmarks sharedBookmarks={sharedBookmarks} currentUserId={session?.user?.id ?? null} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

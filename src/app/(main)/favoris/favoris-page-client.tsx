@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Upload, Download } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
@@ -20,6 +20,8 @@ import { ImageWikiLovesFavorites } from './image-wikiloves-favorites'
 import { PixabayFavorites } from './pixabay-favorites'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
+import { shareToLobby, unshareFromLobby } from '@/actions/lobby-share-actions'
+import { toast } from 'sonner'
 
 interface FavorisPageClientProps {
   ideas: CompactIdea[]
@@ -62,6 +64,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
+  const [sharedIdeaIds, setSharedIdeaIds] = useState<Set<string>>(new Set())
+  const [isSharing, setIsSharing] = useState<string | null>(null)
 
   // Derived count for ideas to update immediately when bookmarks are toggled
   const originalIdsOnPage = useMemo(() => new Set(ideas.map(i => i.id)), [ideas])
@@ -125,6 +129,32 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const handlePixabayRemove = useCallback(() => {
     setPixabayCount(prev => Math.max(0, prev - 1))
   }, [])
+
+  const handleShareToLobby = async (ideaId: string) => {
+    setIsSharing(ideaId)
+    try {
+      const isShared = sharedIdeaIds.has(ideaId)
+      if (isShared) {
+        await unshareFromLobby(ideaId)
+        setSharedIdeaIds(prev => {
+          const next = new Set(prev)
+          next.delete(ideaId)
+          return next
+        })
+        toast.success('Retiré du lobby')
+      } else {
+        const result = await shareToLobby(ideaId)
+        if (result.success) {
+          setSharedIdeaIds(prev => new Set([...prev, ideaId]))
+          toast.success('Partagé au lobby')
+        } else {
+          toast.error(result.error)
+        }
+      }
+    } finally {
+      setIsSharing(null)
+    }
+  }
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
@@ -232,8 +262,25 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
               {filteredIdeas.map((idea) => (
                 <div key={idea.id} className="group relative">
                   <CompactIdeaCard idea={{ ...idea, viewedAt: new Date().toISOString() }} />
-            <div className="absolute right-2 top-2 z-10 flex flex-col gap-2">
+            <div className="absolute right-2 top-2 z-10 flex flex-col gap-1">
                 <IdeaShareButton idea={idea} />
+                <button
+                  type="button"
+                  className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleShareToLobby(idea.id)
+                  }}
+                  disabled={isSharing === idea.id}
+                  title="Partager au lobby"
+                >
+                  {sharedIdeaIds.has(idea.id) ? (
+                    <Download className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Upload className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
                 <button
                  type="button"
                  className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
