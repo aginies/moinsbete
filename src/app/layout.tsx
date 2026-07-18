@@ -9,6 +9,7 @@ import { getSession } from '@/lib/auth'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { cookies } from 'next/headers'
+import crypto from 'node:crypto'
 import '@/lib/cron-runner'
 
 const revalidate = 3600
