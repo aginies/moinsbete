@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rate-limiter'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
 export async function GET(request: NextRequest) {
   const session = await getSession()
@@ -41,6 +43,16 @@ export async function POST(request: NextRequest) {
   const session = await getSession()
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 })
+  }
+
+  const csrfToken = request.headers.get('x-csrf-token')
+  if (!csrfToken) {
+    return NextResponse.json({ error: 'CSRF token missing' }, { status: 403 })
+  }
+
+  const userId = session.user.id
+  if (!(await checkRateLimit(`visibility:${userId}`, 30, 60_000))) {
+    return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
   }
 
   const body = await request.json()

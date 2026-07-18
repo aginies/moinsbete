@@ -219,17 +219,24 @@ export function escapeHtml(text: string): string {
 }
 
 export function parseHTML(text: string): string {
-  let escaped = escapeHtml(text)
   const urls = text.match(URL_REGEX) || []
   const seen = new Set<string>()
+  let result = ''
+  let lastIndex = 0
+
   for (const url of urls) {
     if (seen.has(url)) continue
     seen.add(url)
     const sanitized = sanitizeUrl(url, url)
     if (sanitized !== '/') {
       const link = `<a href="${sanitized}" rel="noopener noreferrer" target="_blank">${url}</a>`
-      escaped = escaped.replaceAll(url, link)
+      const idx = text.indexOf(url, lastIndex)
+      if (idx !== -1) {
+        result += escapeHtml(text.slice(lastIndex, idx)) + link
+        lastIndex = idx + url.length
+      }
     }
   }
-  return escaped
+  result += escapeHtml(text.slice(lastIndex))
+  return result
 }

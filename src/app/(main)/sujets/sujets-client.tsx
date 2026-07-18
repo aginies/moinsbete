@@ -18,6 +18,7 @@ interface SujetsClientProps {
   saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null
   userId?: string
   initialVisibility?: CardVisibility
+  csrfToken: string
 }
 
 interface CardVisibility {
@@ -30,16 +31,16 @@ interface CardVisibility {
   pixabay: boolean
 }
 
-async function updateCardVisibility(field: string, value: boolean) {
+async function updateCardVisibility(field: string, value: boolean, csrfToken: string) {
   await fetch('/api/user-card-visibility', {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
     body: JSON.stringify({ field, value }),
   }).catch(() => {})
 }
 
-export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility }: SujetsClientProps) {
+export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, csrfToken }: SujetsClientProps) {
   const initialFollowedIdsSet = useMemo(() => new Set(initialFollowedIds), [initialFollowedIds])
   const isAllSelected = useMemo(
     () => allTopics.length > 0 && allTopics.every(t => initialFollowedIdsSet.has(t.id)),
@@ -56,11 +57,11 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     setVisibility(prev => {
       const next = !prev[key]
       if (userId) {
-        updateCardVisibility(field, next).catch(() => {})
+        updateCardVisibility(field, next, csrfToken).catch(() => {})
       }
       return { ...prev, [key]: next }
     })
-  }, [userId])
+  }, [userId, csrfToken])
 
   const toggleSaviezVous = useCallback(() => toggleVisibility('saviezVousCardVisible', 'saviezVous'), [toggleVisibility])
   const toggleWikipedia = useCallback(() => toggleVisibility('wikipediaImageCardVisible', 'wikipedia'), [toggleVisibility])

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { DEFAULT_FEED_LIMIT } from '@/lib/constants'
 import { getAllDescendantTopicIds, getAllDescendantCollectionTopicIds, mapIdeaWithTopics } from '@/lib/feed-helpers'
+import { getSession } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rate-limiter'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
 interface WhereClause {
   isPublished: boolean
@@ -17,6 +20,15 @@ interface WhereClause {
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getSession()
+    const sessionUserId = session?.user?.id
+
+    if (sessionUserId) {
+      if (!(await checkRateLimit(`feed:${sessionUserId}`, 20, 60_000))) {
+        return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
+      }
+    }
+
     const { searchParams } = new URL(request.url)
     const topic = searchParams.get('topic')
     const collection = searchParams.get('collection')
