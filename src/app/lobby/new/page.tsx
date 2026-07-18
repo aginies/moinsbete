@@ -2,7 +2,7 @@ import { getSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { SuggestionForm } from '@/components/lobby/suggestion-form'
 
-export default async function NewSuggestionPage() {
+export default async function NewPropositionPage() {
   const session = await getSession()
   if (!session?.user) redirect('/login')
 

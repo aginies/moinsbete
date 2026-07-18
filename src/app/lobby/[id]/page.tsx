@@ -25,7 +25,7 @@ export default async function SuggestionDetailPage({ params }: { params: Promise
   return (
     <div className="mx-auto max-w-2xl p-4 md:p-6">
       <a href="/lobby" className="mb-4 inline-block text-sm text-primary hover:underline">
-        ← Retour aux suggestions
+        ← Retour au Lobby
       </a>
       <SuggestionDetail
         suggestion={suggestion}

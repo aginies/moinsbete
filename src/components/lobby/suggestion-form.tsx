@@ -44,7 +44,7 @@ export function SuggestionForm({ mode = 'create', suggestionId, initialTitle = '
         setError(result.error)
         toast.error(result.error)
       } else {
-        toast.success(mode === 'create' ? 'Suggestion créée !' : 'Suggestion modifiée !')
+        toast.success(mode === 'create' ? 'Proposition créée !' : 'Proposition modifiée !')
         router.push('/lobby')
       }
     })
