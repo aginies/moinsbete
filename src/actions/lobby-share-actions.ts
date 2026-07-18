@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
+import { toggleBookmark, isBookmarked } from '@/lib/favorite'
 
 export async function shareToLobby(ideaId: string) {
   const session = await getSession()
@@ -130,4 +131,21 @@ export async function isSharedResourceToLobby(resourceType: string, resourceId: 
     },
   })
   return !!shared
+}
+
+export async function addToFavoritesFromLobby(resourceType: string, resourceId: string, meta?: any) {
+  const session = await getSession()
+  if (!session?.user) return { error: 'Non authentifié' }
+
+  const result = await toggleBookmark(session.user.id, resourceType as any, resourceId, 'add', meta)
+  if (result.bookmarked) {
+    return { success: true, added: true }
+  }
+  return { success: false, alreadyBookmarked: true }
+}
+
+export async function isInFavorites(resourceType: string, resourceId: string): Promise<boolean> {
+  const session = await getSession()
+  if (!session?.user) return false
+  return isBookmarked(session.user.id, resourceType as any, resourceId)
 }

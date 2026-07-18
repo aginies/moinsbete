@@ -14,6 +14,13 @@ interface LobbyTabsProps {
   isAdmin?: boolean
   totalPages: number
   currentPage: number
+  userFavoriteIds: {
+    IDEA: Set<string>
+    SAVIEZ_VOUS: Set<string>
+    IMAGE_DU_JOUR: Set<string>
+    IMAGE_WIKIMEDIA: Set<string>
+    IMAGE_WIKILOVES: Set<string>
+  }
 }
 
 const TYPE_FILTERS = [
@@ -25,7 +32,7 @@ const TYPE_FILTERS = [
   { value: 'IMAGE_WIKILOVES', label: 'Wiki Loves' },
 ]
 
-export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin, totalPages, currentPage }: LobbyTabsProps) {
+export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin, totalPages, currentPage, userFavoriteIds }: LobbyTabsProps) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
@@ -127,6 +134,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
           sharedBookmarks={filteredBookmarks}
           currentUserId={currentUserId}
           isAdmin={isAdmin}
+          userFavoriteIds={userFavoriteIds}
           typeFilters={TYPE_FILTERS}
           activeType={activeType}
           searchQuery={searchQuery}
