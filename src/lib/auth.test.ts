@@ -6,6 +6,7 @@ const mockUser = {
   passwordHash: 'hash',
   displayName: 'Test User',
   role: 'USER' as const,
+  enabled: true,
   createdAt: new Date(),
   updatedAt: new Date(),
   cnrsNewsEnabled: true,

@@ -4,11 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2 } from 'lucide-react'
+import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
+import { toggleUserEnabled } from '@/actions/user-actions'
 import { useState } from 'react'
 
 interface AdminStats {
@@ -31,11 +32,21 @@ interface AdminStats {
   srsDue: number
 }
 
-interface AdminContentProps {
-  stats: AdminStats
+interface AdminUser {
+  id: string
+  email: string
+  displayName: string | null
+  role: string
+  enabled: boolean
+  createdAt: Date
 }
 
-export function AdminContent({ stats }: AdminContentProps) {
+interface AdminContentProps {
+  stats: AdminStats
+  users: AdminUser[]
+}
+
+export function AdminContent({ stats, users }: AdminContentProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -59,9 +70,10 @@ export function AdminContent({ stats }: AdminContentProps) {
       </div>
 
       <Tabs defaultValue="cleanup" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="cleanup">Nettoyage</TabsTrigger>
           <TabsTrigger value="stats">Statistiques</TabsTrigger>
+          <TabsTrigger value="users">Utilisateurs</TabsTrigger>
         </TabsList>
 
         <TabsContent value="cleanup">
@@ -217,6 +229,27 @@ export function AdminContent({ stats }: AdminContentProps) {
             />
           </div>
         </TabsContent>
+
+        <TabsContent value="users">
+          <div className="rounded-xl border border-border/60 bg-card">
+            <table className="w-full text-sm">
+              <thead className="border-b border-border/60 bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Nom</th>
+                  <th className="px-4 py-3 text-left font-medium">Email</th>
+                  <th className="px-4 py-3 text-left font-medium">Rôle</th>
+                  <th className="px-4 py-3 text-left font-medium">Statut</th>
+                  <th className="px-4 py-3 text-left font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <UserRow key={user.id} user={user} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   )
@@ -236,5 +269,66 @@ function StatCard({ icon, label, value, sublabel }: { icon: React.ReactNode; lab
         )}
       </CardContent>
     </Card>
+  )
+}
+
+function UserRow({ user }: { user: AdminUser }) {
+  const [isPending, startTransition] = useTransition()
+
+  const handleToggle = async () => {
+    startTransition(async () => {
+      const result = await toggleUserEnabled(user.id, !user.enabled)
+      if (result.success) {
+        toast.success(user.enabled ? 'Utilisateur désactivé' : 'Utilisateur activé')
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    })
+  }
+
+  return (
+    <tr className="border-b border-border/40 hover:bg-muted/50">
+      <td className="px-4 py-3">{user.displayName || user.email}</td>
+      <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
+      <td className="px-4 py-3">
+        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+          user.role === 'ADMIN'
+            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+            : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+        }`}>
+          {user.role === 'ADMIN' ? 'Admin' : 'User'}
+        </span>
+      </td>
+      <td className="px-4 py-3">
+        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+          user.enabled
+            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+        }`}>
+          {user.enabled ? 'Actif' : 'Désactivé'}
+        </span>
+      </td>
+      <td className="px-4 py-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleToggle}
+          disabled={isPending}
+          className={user.enabled ? 'text-destructive hover:text-destructive' : 'text-green-600 hover:text-green-600'}
+        >
+          {user.enabled ? (
+            <>
+              <UserX className="mr-1 h-3 w-3" />
+              Désactiver
+            </>
+          ) : (
+            <>
+              <UserCheck className="mr-1 h-3 w-3" />
+              Activer
+            </>
+          )}
+        </Button>
+      </td>
+    </tr>
   )
 }
