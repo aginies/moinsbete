@@ -93,9 +93,15 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
   return { success: true, shared: true }
 }
 
+const VALID_RESOURCE_TYPES = new Set(['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES'])
+
 export async function unshareResourceFromLobby(resourceType: string, resourceId: string) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
+
+  if (!VALID_RESOURCE_TYPES.has(resourceType)) {
+    return { error: 'Type de ressource invalide' }
+  }
 
   await prisma.sharedLobbyBookmark.deleteMany({
     where: {
@@ -111,6 +117,10 @@ export async function unshareResourceFromLobby(resourceType: string, resourceId:
 export async function isSharedResourceToLobby(resourceType: string, resourceId: string): Promise<boolean> {
   const session = await getSession()
   if (!session?.user) return false
+
+  if (!VALID_RESOURCE_TYPES.has(resourceType)) {
+    return false
+  }
 
   const shared = await prisma.sharedLobbyBookmark.findFirst({
     where: {
