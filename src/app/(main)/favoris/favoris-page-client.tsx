@@ -8,6 +8,7 @@ import { CompactIdeaCard } from '@/components/feed/idea-card'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
+import { Badge } from '@/components/ui/badge'
 import { useBookmarkToggle } from '@/hooks/use-bookmark-toggle'
 import { RadioFranceFavorites } from './radio-france-favorites'
 import { CnrsBookmarks } from '@/components/feed/cnrs-bookmarks'
@@ -393,23 +394,25 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   return (
     <div>
-      <div className="flex gap-1 md:gap-2 mb-4 md:mb-6 border-b border-border overflow-x-auto" role="tablist" aria-label="Favoris">
+      <div className="flex flex-wrap gap-1 md:gap-2 mb-4 md:mb-6 border-b border-border" role="tablist" aria-label="Favoris">
         {sortedTabs.map(({ id, label, Icon, count }) => (
-          <button
+          <Badge
             key={id}
             role="tab"
             aria-selected={activeTab === id}
             aria-controls={`panel-${id}`}
             onClick={() => setActiveTab(id)}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+            variant={activeTab === id ? 'default' : 'outline'}
+            rounded={activeTab === id ? 'none' : 'none'}
+            className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
               activeTab === id
-                ? 'border-primary text-primary'
+                ? 'border-primary bg-primary text-primary-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             <Icon className="h-4 w-4" />
             {label} ({count})
-          </button>
+          </Badge>
         ))}
       </div>
 

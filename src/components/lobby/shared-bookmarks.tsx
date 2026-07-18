@@ -694,7 +694,7 @@ export function SharedBookmarks({
                 <Badge
                   key={filter.value || 'all'}
                   variant={activeType === filter.value ? 'default' : 'outline'}
-                  className="cursor-pointer select-none"
+                  className="cursor-pointer select-none rounded-md"
                   onClick={() => onTypeChange(filter.value)}
                 >
                   {filter.label}
