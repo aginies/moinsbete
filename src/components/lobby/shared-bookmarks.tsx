@@ -69,9 +69,9 @@ interface SharedBookmarksProps {
   isAdmin?: boolean
   typeFilters?: { value: string; label: string }[]
   activeType?: string
-  userSearch?: string
+  searchQuery?: string
   onTypeChange?: (value: string) => void
-  onUserSearchChange?: (value: string) => void
+  onSearchChange?: (value: string) => void
 }
 
 function IdeaBookmarkItem({
@@ -451,13 +451,13 @@ export function SharedBookmarks({
   isAdmin = false,
   typeFilters = [],
   activeType = '',
-  userSearch = '',
+  searchQuery = '',
   onTypeChange,
-  onUserSearchChange,
+  onSearchChange,
 }: SharedBookmarksProps) {
   const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage)
 
-  const hasFilters = typeFilters.length > 0 || userSearch
+  const hasFilters = typeFilters.length > 0 || searchQuery
 
   return (
     <div className="space-y-4">
@@ -477,21 +477,21 @@ export function SharedBookmarks({
               ))}
             </div>
           )}
-          {onUserSearchChange && (
+          {onSearchChange && (
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Rechercher par utilisateur..."
-                value={userSearch}
-                onChange={(e) => onUserSearchChange(e.target.value)}
+                placeholder="Rechercher dans les favoris partagés..."
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
                 className="pl-10 pr-10"
               />
-              {userSearch && (
+              {searchQuery && (
                 <button
                   type="button"
                   className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md p-0 text-muted-foreground hover:text-foreground"
-                  onClick={() => onUserSearchChange('')}
+                  onClick={() => onSearchChange('')}
                 >
                   <X className="h-4 w-4" />
                 </button>

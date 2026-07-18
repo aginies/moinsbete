@@ -31,7 +31,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
   const router = useRouter()
   const activeTab = searchParams.get('tab') || 'favoris'
   const activeType = searchParams.get('type') || ''
-  const [userSearchInput, setUserSearchInput] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams)
@@ -52,13 +52,13 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
     router.push(`${pathname}?${params.toString()}`)
   }, [searchParams, pathname, router])
 
-  const handleUserSearchChange = useCallback((value: string) => {
-    setUserSearchInput(value)
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value)
     const params = new URLSearchParams(searchParams)
     if (value) {
-      params.set('user', value)
+      params.set('q', value)
     } else {
-      params.delete('user')
+      params.delete('q')
     }
     if (params.get('tab') !== 'favoris') {
       params.set('tab', 'favoris')
@@ -71,16 +71,40 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
     if (activeType) {
       filtered = filtered.filter(b => b.resourceType === activeType)
     }
-    if (userSearchInput.trim()) {
-      const q = userSearchInput.toLowerCase().trim()
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim()
       filtered = filtered.filter(b => {
         const name = (b.user.displayName || '').toLowerCase()
         const email = (b.user.email || '').toLowerCase()
-        return name.includes(q) || email.includes(q)
+        if (name.includes(q) || email.includes(q)) return true
+        if (b.idea) {
+          const title = (b.idea.title || '').toLowerCase()
+          const content = (b.idea.content || '').toLowerCase()
+          const takeaway = (b.idea.takeaway || '').toLowerCase()
+          const source = (b.idea.source.title || '').toLowerCase()
+          if (title.includes(q) || content.includes(q) || takeaway.includes(q) || source.includes(q)) return true
+        }
+        if (b.saviezFact) {
+          const text = (b.saviezFact.text || '').toLowerCase()
+          if (text.includes(q)) return true
+        }
+        if (b.wikiImage) {
+          const desc = (b.wikiImage.description || '').toLowerCase()
+          if (desc.includes(q)) return true
+        }
+        if (b.wikiMediaImage) {
+          const title = (b.wikiMediaImage.title || '').toLowerCase()
+          if (title.includes(q)) return true
+        }
+        if (b.wikiLovesImage) {
+          const title = (b.wikiLovesImage.title || '').toLowerCase()
+          if (title.includes(q)) return true
+        }
+        return false
       })
     }
     return filtered.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage)
-  }, [sharedBookmarks, activeType, userSearchInput])
+  }, [sharedBookmarks, activeType, searchQuery])
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
@@ -100,9 +124,9 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
           isAdmin={isAdmin}
           typeFilters={TYPE_FILTERS}
           activeType={activeType}
-          userSearch={userSearchInput}
+          searchQuery={searchQuery}
           onTypeChange={handleTypeChange}
-          onUserSearchChange={handleUserSearchChange}
+          onSearchChange={handleSearchChange}
         />
         {totalPages > 1 && (
           <Pagination
