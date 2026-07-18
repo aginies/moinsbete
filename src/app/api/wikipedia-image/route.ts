@@ -95,20 +95,25 @@ export async function GET(request: NextRequest) {
     }
 
     // Try cache first
-    const cached = await prisma.cachedWikipediaImage.findMany({
+    const totalCached = await prisma.cachedWikipediaImage.count({
       where: { expiresAt: { gte: new Date() } },
-      orderBy: { scrapedAt: 'desc' },
-      take: 31,
     })
 
-    if (cached.length > 0) {
-      const randomEntry = cached[Math.floor(Math.random() * cached.length)]
-      return NextResponse.json({
-        imageUrl: randomEntry.imageUrl,
-        description: randomEntry.description,
-        fileUrl: randomEntry.fileUrl,
-        date: randomEntry.date,
+    if (totalCached > 0) {
+      const randomOffset = Math.floor(Math.random() * totalCached)
+      const randomEntry = await prisma.cachedWikipediaImage.findFirst({
+        where: { expiresAt: { gte: new Date() } },
+        skip: randomOffset,
       })
+
+      if (randomEntry) {
+        return NextResponse.json({
+          imageUrl: randomEntry.imageUrl,
+          description: randomEntry.description,
+          fileUrl: randomEntry.fileUrl,
+          date: randomEntry.date,
+        })
+      }
     }
 
     // Cache empty — scrape fresh (fallback)
