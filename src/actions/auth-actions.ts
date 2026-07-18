@@ -126,6 +126,10 @@ export async function loginAction(formData: {
     return { error: 'Email ou mot de passe incorrect' }
   }
 
+  if (!user?.enabled) {
+    return { error: 'Compte désactivé' }
+  }
+
   const secret = process.env.NEXTAUTH_SECRET
   if (!secret) {
     return { error: 'Erreur de configuration serveur' }

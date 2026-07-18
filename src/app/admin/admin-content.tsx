@@ -280,6 +280,7 @@ function UserRow({ user }: { user: AdminUser }) {
       const result = await toggleUserEnabled(user.id, !user.enabled)
       if (result.success) {
         toast.success(user.enabled ? 'Utilisateur désactivé' : 'Utilisateur activé')
+        router.refresh()
       } else if (result.error) {
         toast.error(result.error)
       }
