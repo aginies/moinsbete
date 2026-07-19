@@ -213,9 +213,50 @@ export default function AproposPage() {
              "Encore" pour celles que vous avez oubliées, "Difficile", "Bon" ou "Facile" pour celles que vous retenez.
              L'algorithme ajuste automatiquement les intervalles entre les révisions pour optimiser la mémorisation à long terme.
            </p>
+        </section>
+
+        <section>
+           <h2 className="mb-3 text-xl font-semibold">Portail Lexical — Mot du jour</h2>
+           <p className="text-muted-foreground">
+             Découvrez un nouveau mot français chaque jour via le Portail Lexical.
+             Chaque carte présente la définition du TLFi, les entries du Wiktionnaire,
+             l&apos;étymologie historique avec des dates d&apos;attestation, et des exemples
+             d&apos;usage dans la littérature française.
+           </p>
+           <p className="mt-2 text-sm text-muted-foreground">
+             Accédez au portail lexical complet pour rechercher n&apos;importe quel mot,
+             consulter ses définitions détaillées et explorer son histoire linguistique.
+             Les mots peuvent être sauvegardés dans vos favoris Lexique pour y revenir plus tard.
+           </p>
+           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+             <div className="rounded-lg border border-border/60 p-4">
+               <h3 className="mb-1 font-semibold">Portail Lexical</h3>
+               <p className="text-sm text-muted-foreground">Dictionnaires et ressources linguistiques</p>
+               <a
+                 href="https://www.portail-lexical.fr"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="mt-2 inline-block text-xs text-primary hover:underline"
+               >
+                 portail-lexical.fr →
+               </a>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4">
+               <h3 className="mb-1 font-semibold">TLFi</h3>
+               <p className="text-sm text-muted-foreground">Trésor de la Langue Française informatisé</p>
+               <a
+                 href="https://atlas.atilf.fr/tlfi/"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="mt-2 inline-block text-xs text-primary hover:underline"
+               >
+                 atlas.atilf.fr/tlfi →
+               </a>
+             </div>
+           </div>
          </section>
 
-         <section>
+        <section>
           <h2 className="mb-3 text-xl font-semibold">Documentaires Radio France</h2>
           <p className="text-muted-foreground">
             Découvrez des documentaires audio de qualité depuis Radio France.
