@@ -74,7 +74,7 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
                 </Link>
                 <Link href="/register">
                   <Button variant="ghost" size="sm">
-                    S'inscrire
+                     S&apos;inscrire
                   </Button>
                 </Link>
               </>

@@ -11,7 +11,8 @@ const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' |
    image_pixabay_show_categories: 'orange',
    image_wikiloves_card_visible: 'purple',
    image_wikiloves_show_categories: 'purple',
-  }
+   portail_lexical_card_visible: 'amber',
+ }
 
 const DB_FIELD_MAP: Record<string, string> = {
    wikipedia_image_card_visible: 'wikipediaImageCardVisible',
@@ -21,10 +22,11 @@ const DB_FIELD_MAP: Record<string, string> = {
    image_wikimedia_show_categories: 'imageWikimediaShowCategories',
    image_pixabay_card_visible: 'imagePixabayCardVisible',
    image_pixabay_show_categories: 'imagePixabayShowCategories',
-   image_wikiloves_card_visible: 'imageWikiLovesCardVisible',
-   image_wikiloves_show_categories: 'imageWikiLovesShowCategories',
-   cnrs_news_enabled: 'cnrsNewsEnabled',
- }
+    image_wikiloves_card_visible: 'imageWikiLovesCardVisible',
+    image_wikiloves_show_categories: 'imageWikiLovesShowCategories',
+    portail_lexical_card_visible: 'portailLexicalCardVisible',
+    cnrs_news_enabled: 'cnrsNewsEnabled',
+  }
 
 interface UseCardVisibilityOptions {
   storageKey: string
