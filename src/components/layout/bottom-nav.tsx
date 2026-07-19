@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Clock, Bookmark, BookOpen, Network, MessageSquare } from 'lucide-react'
+import { Home, Clock, Bookmark, BookOpen, Network, MessageSquare, Languages } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useVisitTracking } from '@/hooks/use-visit-tracking'
 
 const navItems = [
   { href: '/sujets', label: 'Accueil', icon: Home },
   { href: '/lobby', label: 'Lobby', icon: MessageSquare },
+  { href: '/portail-lexical', label: 'Lexique', icon: Languages },
   { href: '/favoris', label: 'Favoris', icon: Bookmark },
   { href: '/review', label: 'Révision', icon: BookOpen, hidden: true },
   { href: '/carte-mentale', label: 'Carte', icon: Network },
