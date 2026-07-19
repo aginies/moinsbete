@@ -57,6 +57,11 @@ npx prisma generate
 npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
 npx prisma migrate deploy
 npm run build
-pm2 restart moinsbete
+if [ -f "ecosystem.config.js" ]; then
+  echo "Reloading/starting via PM2 ecosystem.config.js..."
+  pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
+else
+  pm2 restart moinsbete
+fi
 
 echo "Deployed to $DEST"
