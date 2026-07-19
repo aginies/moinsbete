@@ -153,17 +153,26 @@ export async function loginAction(formData: {
     maxAge: SESSION_MAX_AGE_SECONDS,
   })
 
-  // Set session cookie
+  // Set session cookies (both secure and non-secure for maximum compatibility on HTTP and HTTPS)
   const cookieStore = await cookies()
-  const cookieName = process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
   const cookieExpires = new Date()
   cookieExpires.setTime(cookieExpires.getTime() + SESSION_COOKIE_MAX_AGE_MS)
 
-  cookieStore.set(cookieName, token, {
+  // 1. Non-secure cookie for HTTP
+  cookieStore.set('next-auth.session-token', token, {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
+    expires: cookieExpires,
+  })
+
+  // 2. Secure cookie for HTTPS
+  cookieStore.set('__Secure-next-auth.session-token', token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    secure: true,
     expires: cookieExpires,
   })
 
@@ -172,25 +181,23 @@ export async function loginAction(formData: {
 
 export async function logoutAction(formData?: FormData) {
   const cookieStore = await cookies()
-  const cookieName = process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
-  
-  // Set both cookies to expired
   const pastDate = new Date('1970-01-01T00:00:00Z')
   
-  cookieStore.set(cookieName, '', {
+  // Clear non-secure cookie
+  cookieStore.set('next-auth.session-token', '', {
     path: '/',
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     expires: pastDate,
   })
   
-  const altCookieName = cookieName === '__Secure-next-auth.session-token' ? 'next-auth.session-token' : '__Secure-next-auth.session-token'
-  cookieStore.set(altCookieName, '', {
+  // Clear secure cookie
+  cookieStore.set('__Secure-next-auth.session-token', '', {
     path: '/',
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     expires: pastDate,
   })
   
