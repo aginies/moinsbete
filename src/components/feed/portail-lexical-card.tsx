@@ -98,9 +98,9 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
     const newFavorite = !isBookmarked
     try {
       await toggleBookmarkAction('PORTAIL_LEXICAL', word.form, newFavorite ? 'add' : 'remove', {
-        text: word.description,
-        sourceUrl: `https://www.portail-lexical.fr/definition/${encodeURIComponent(word.form)}`,
-        imageFilename: null,
+        description: word.description,
+        full_pos: word.full_pos,
+        ipa: word.ipa,
       })
       setIsBookmarked(newFavorite)
     } catch {
