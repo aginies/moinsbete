@@ -51,9 +51,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
   useEffect(() => {
     if (userId && doc) {
       isRadioFavoriteAction(doc.id).then(result => {
-        if (result.isBookmarked) {
-          setIsFavorite(true)
-        }
+        setIsFavorite(result.isBookmarked)
       }).catch(() => {})
     }
   }, [userId, doc])
