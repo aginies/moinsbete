@@ -30,7 +30,7 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
   for (let retry = 0; retry < 3; retry++) {
     try {
       const res = await fetch(`${PIXABAY_API}?${params}`, {
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(30000),
       })
 
       if (res.status === 429) {
@@ -38,9 +38,13 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
         continue
       }
 
-      if (!res.ok) return null
+      if (!res.ok) {
+        console.log('[pixabay] HTTP error:', res.status, await res.text())
+        return null
+      }
 
       const data = await res.json()
+      console.log('[pixabay] API response:', data.totalHits, 'hits')
       const hits = data.hits || []
 
       if (hits.length === 0) return null

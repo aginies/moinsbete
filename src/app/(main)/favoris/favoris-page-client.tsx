@@ -11,6 +11,10 @@ import { useBookmarkToggle } from '@/hooks/use-bookmark-toggle'
 import { RadioFranceFavorites } from './radio-france-favorites'
 import { CnrsBookmarks } from '@/components/feed/cnrs-bookmarks'
 import { type CompactIdea } from '@/types/idea'
+import { type ImageDuJourFavoriteDoc } from '@/lib/image-du-jour-bookmark'
+import { type WikiLovesImageFavoriteDoc } from '@/lib/image-wikiloves-bookmark'
+import { type WikimediaImageFavoriteDoc } from '@/lib/image-wikimedia-bookmark'
+import { type ProverbeFavoriteDoc } from '@/lib/proverbe-bookmark'
 import { normalizeAccents } from '@/lib/utils'
 import { ImageDuJourBookmarks } from '@/components/feed/image-du-jour-bookmarks'
 import { SaviezVousBookmarks } from '@/components/feed/saviez-vous-bookmarks'
@@ -65,6 +69,8 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
 
 export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
+  const hasInitialSet = useRef(false)
+  const initialTabSetRef = useRef(false)
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark } = useBookmarkToggle(ideas)
   const [sharedIdeaIds, setSharedIdeaIds] = useState<Set<string>>(new Set())
@@ -198,17 +204,20 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [pixabayCount, setPixabayCount] = useState(pixabayFavoritesCount)
   const [portailLexCount, setPortailLexCount] = useState(portailLexicalCount)
   const [proverbeCount, setProverbeCount] = useState(proverbeFavoritesCount)
+  const prevCountsRef = useRef({ radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount })
 
   useEffect(() => {
-    setRadioCount(radioFavoritesCount)
-    setCnrsCount(cnrsFavoritesCount)
-    setImageDuJourCount(imageDuJourFavoritesCount)
-    setSaviezVousCount(saviezVousFavoritesCount)
-    setWikimediaCount(wikimediaFavoritesCount)
-    setWikilovesCount(wikilovesFavoritesCount)
-    setPixabayCount(pixabayFavoritesCount)
-    setPortailLexCount(portailLexicalCount)
-    setProverbeCount(proverbeFavoritesCount)
+    const prev = prevCountsRef.current
+    if (prev.radioFavoritesCount !== radioFavoritesCount) setRadioCount(radioFavoritesCount)
+    if (prev.cnrsFavoritesCount !== cnrsFavoritesCount) setCnrsCount(cnrsFavoritesCount)
+    if (prev.imageDuJourFavoritesCount !== imageDuJourFavoritesCount) setImageDuJourCount(imageDuJourFavoritesCount)
+    if (prev.saviezVousFavoritesCount !== saviezVousFavoritesCount) setSaviezVousCount(saviezVousFavoritesCount)
+    if (prev.wikimediaFavoritesCount !== wikimediaFavoritesCount) setWikimediaCount(wikimediaFavoritesCount)
+    if (prev.wikilovesFavoritesCount !== wikilovesFavoritesCount) setWikilovesCount(wikilovesFavoritesCount)
+    if (prev.pixabayFavoritesCount !== pixabayFavoritesCount) setPixabayCount(pixabayFavoritesCount)
+    if (prev.portailLexicalCount !== portailLexicalCount) setPortailLexCount(portailLexicalCount)
+    if (prev.proverbeFavoritesCount !== proverbeFavoritesCount) setProverbeCount(proverbeFavoritesCount)
+    prevCountsRef.current = { radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount }
   }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount])
 
   const handleRadioRemove = useCallback(() => {
@@ -299,7 +308,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
   }
 
-  const handleImageShareToLobby = async (item: any) => {
+  const handleImageShareToLobby = async (item: ImageDuJourFavoriteDoc) => {
     const resourceId = item.fileUrl
     setIsSharing(resourceId)
     try {
@@ -326,7 +335,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
   }
 
-  const handleWikiLovesShareToLobby = async (item: any) => {
+  const handleWikiLovesShareToLobby = async (item: WikiLovesImageFavoriteDoc) => {
     const resourceId = item.docid
     setIsSharing(resourceId)
     try {
@@ -353,7 +362,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
   }
 
-  const handleWikimediaShareToLobby = async (item: any) => {
+  const handleWikimediaShareToLobby = async (item: WikimediaImageFavoriteDoc) => {
     const resourceId = item.docid
     setIsSharing(resourceId)
     try {
@@ -380,7 +389,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
   }
 
-  const handleProverbeShareToLobby = async (item: any) => {
+  const handleProverbeShareToLobby = async (item: ProverbeFavoriteDoc) => {
     const resourceId = item.id
     setIsSharing(resourceId)
     try {
@@ -442,16 +451,17 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     [tabConfig]
   )
 
-  const hasInitialSet = useRef(false)
-
   useEffect(() => {
-    if (!hasInitialSet.current && activeTab === 'idees' && derivedIdeasCount === 0) {
+    if (!hasInitialSet.current && !initialTabSetRef.current && activeTab === 'idees' && derivedIdeasCount === 0) {
       const firstNonEmptyTab = sortedTabs.find(tab => tab.count > 0)
       if (firstNonEmptyTab) {
         hasInitialSet.current = true
+        initialTabSetRef.current = true
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setActiveTab(firstNonEmptyTab.id)
       } else {
         hasInitialSet.current = true
+        initialTabSetRef.current = true
       }
     }
   }, [sortedTabs, activeTab, derivedIdeasCount])

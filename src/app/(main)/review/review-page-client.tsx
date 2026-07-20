@@ -4,6 +4,7 @@ import { useCallback, useState, useEffect } from 'react'
 import { fetchDueIdeas } from '@/actions/review-actions'
 import { ReviewList } from '@/components/review/review-list'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import type { Idea } from '@/generated/client'
 
 interface ReviewPageClientProps {
   userId: string
@@ -11,7 +12,7 @@ interface ReviewPageClientProps {
 }
 
 export function ReviewPageClient({ currentPage }: ReviewPageClientProps) {
-  const [ideas, setIdeas] = useState<any[]>([])
+  const [ideas, setIdeas] = useState<Idea[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(currentPage)
@@ -32,8 +33,15 @@ export function ReviewPageClient({ currentPage }: ReviewPageClientProps) {
     }
   }, [])
 
+  const [loadedPage, setLoadedPage] = useState(page)
+  const loadedPageRef = useRef(page)
+
   useEffect(() => {
-    loadIdeas(page)
+    if (page !== loadedPageRef.current) {
+      loadIdeas(page)
+      loadedPageRef.current = page
+      setLoadedPage(page)
+    }
   }, [page, loadIdeas])
 
   const handleIdeaRemoved = useCallback((ideaId: string) => {

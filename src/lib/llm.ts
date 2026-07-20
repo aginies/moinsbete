@@ -1,12 +1,13 @@
 import 'dotenv/config'
 import OpenAI from 'openai'
+import type { ChatCompletionMessage } from 'openai/resources'
 
 const llm = new OpenAI({
   baseURL: process.env.LLM_BASE_URL || 'https://api.openai.com/v1',
   apiKey: process.env.LLM_API_KEY || 'mock-key-for-build',
 })
 
-export async function extractJson(text: string): Promise<any> {
+export async function extractJson(text: string): Promise<unknown> {
   if (!text || text.trim().length === 0) throw new Error('Empty text')
 
   // Try direct parse
@@ -98,7 +99,7 @@ Retourne UNIQUEMENT du JSON valide.`
       throw new Error('LLM returned no choices')
     }
     const rawContent = choice.message?.content || ''
-    const reasoningContent = (choice.message as any)?.reasoning_content || ''
+    const reasoningContent = (choice.message as ChatCompletionMessage & Record<string, unknown>)?.reasoning_content || ''
     const content = rawContent || reasoningContent || '{}'
 
     const parsed = await extractJson(content)
@@ -141,7 +142,7 @@ export async function distillIdeas(
       throw new Error('LLM returned no choices')
     }
     const rawContent = choice.message?.content || ''
-    const reasoningContent = (choice.message as any)?.reasoning_content || ''
+    const reasoningContent = (choice.message as ChatCompletionMessage & Record<string, unknown>)?.reasoning_content || ''
     
     // Try rawContent first (model often puts JSON directly there)
     if (rawContent && rawContent.trim().length > 0) {
@@ -192,7 +193,7 @@ export function tryExtractArray(text: string): Array<{ title: string; content: s
           const parsed = JSON.parse(jsonStr)
           if (Array.isArray(parsed) && parsed.length > 0) {
             // Validate each item has required keys
-            const valid = parsed.every((item: any) => 
+            const valid = parsed.every((item: unknown) => 
               item && typeof item.title === 'string' && 
               typeof item.content === 'string' && 
               typeof item.takeaway === 'string'
@@ -282,7 +283,7 @@ Takeaway: ${takeaway}`
     }
     
     const rawContent = choice.message?.content || ''
-    const reasoningContent = (choice.message as any)?.reasoning_content || ''
+    const reasoningContent = (choice.message as ChatCompletionMessage & Record<string, unknown>)?.reasoning_content || ''
     
     // Try rawContent first
     if (rawContent && rawContent.trim().length > 0) {

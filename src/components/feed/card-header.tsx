@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { EyeOff, RefreshCw, Play, Pause } from 'lucide-react'
 import { ShareButton } from './share-button'
@@ -50,25 +50,37 @@ export function CardHeader({
   enableAutoRefresh = false,
   storageKey = 'card_auto',
 }: CardHeaderProps) {
-  const [isActive, setIsActive] = React.useState(false)
-  const [intervalValue, setIntervalValue] = React.useState(10)
-  const [timeLeft, setTimeLeft] = React.useState(10)
+  const [isActive, setIsActive] = React.useState(() => {
+    if (!enableAutoRefresh) return false
+    const stored = localStorage.getItem(`${storageKey}_auto_active`)
+    return stored === 'true'
+  })
+  const [intervalValue, setIntervalValue] = React.useState(() => {
+    if (!enableAutoRefresh) return 10
+    const stored = localStorage.getItem(`${storageKey}_auto_interval`)
+    if (stored !== null) {
+      const parsed = parseInt(stored, 10)
+      if (!isNaN(parsed)) return parsed
+    }
+    return 10
+  })
+  const [timeLeft, setTimeLeft] = React.useState(() => {
+    if (!enableAutoRefresh) return 10
+    const stored = localStorage.getItem(`${storageKey}_auto_interval`)
+    if (stored !== null) {
+      const parsed = parseInt(stored, 10)
+      if (!isNaN(parsed)) return parsed
+    }
+    return 10
+  })
+  const initializedRef = useRef(false)
+  const justRefreshedRef = useRef(false)
 
   React.useEffect(() => {
     if (!enableAutoRefresh) return
 
-    const storedActive = localStorage.getItem(`${storageKey}_auto_active`)
-    const storedInterval = localStorage.getItem(`${storageKey}_auto_interval`)
-
-    if (storedActive !== null) {
-      setIsActive(storedActive === 'true')
-    }
-    if (storedInterval !== null) {
-      const parsed = parseInt(storedInterval, 10)
-      if (!isNaN(parsed)) {
-        setIntervalValue(parsed)
-        setTimeLeft(parsed)
-      }
+    if (!initializedRef.current) {
+      initializedRef.current = true
     }
   }, [enableAutoRefresh, storageKey])
 
@@ -86,8 +98,13 @@ export function CardHeader({
     if (!enableAutoRefresh || !isActive || loading || !onRefresh) return
 
     if (timeLeft <= 0) {
-      onRefresh()
-      setTimeLeft(intervalValue)
+      if (!justRefreshedRef.current) {
+        onRefresh()
+        justRefreshedRef.current = true
+      } else {
+        setTimeLeft(intervalValue)
+        justRefreshedRef.current = false
+      }
     }
   }, [timeLeft, enableAutoRefresh, isActive, intervalValue, loading, onRefresh])
 

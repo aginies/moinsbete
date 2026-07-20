@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import type { Prisma } from '@/generated/client'
 
 export async function GET(request: NextRequest) {
   const clientId = getClientIp(request)
@@ -17,8 +18,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: true }, { status: 400 })
   }
 
-  // Try cache first
-  const queryWhere: any = { expiresAt: { gte: new Date() } }
+  const queryWhere: Prisma.CachedRadioEpisodeWhereInput = { expiresAt: { gte: new Date() } }
   if (excludeId) {
     queryWhere.title = { not: excludeId }
   }

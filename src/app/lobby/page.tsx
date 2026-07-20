@@ -3,16 +3,15 @@ import { prisma } from '@/lib/db'
 import { LobbyHeader } from '@/components/lobby/lobby-header'
 import { LobbyTabs } from '@/components/lobby/lobby-tabs'
 import { redirect } from 'next/navigation'
+import type { JsonValue } from '@prisma/client/runtime/library'
+import type { Idea, SharedLobbyBookmark, SaviezVousFact, CachedWikipediaImage, CachedWikiLovesImage } from '@/generated/client'
 
-interface SharedBookmarkRaw {
-  id: string
-  userId: string
-  ideaId: string | null
-  resourceId: string | null
-  resourceType: string
-  meta: any
-  createdAt: Date
-  idea: any
+interface SharedBookmarkRaw extends SharedLobbyBookmark {
+  meta: JsonValue | null
+  idea: (Idea & {
+    ideaTopics: { topic: { id: string; name: string; slug: string; icon: string; color: string } }[]
+    source: { title: string; type: string; url: string | null }
+  }) | null
   user: { id: string; displayName: string | null; email: string }
 }
 
@@ -119,7 +118,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     : []
 
   const saviezMap = new Map(saviezFacts.map(f => [f.id, f]))
-  const imageMap = new Map<string, any>()
+  const imageMap = new Map<string, CachedWikipediaImage>()
   wikiImages.forEach(i => imageMap.set(i.fileUrl, i))
   const wikiMediaMap = new Map(wikiMediaImages.map(i => [i.docid, i]))
   const wikiLovesMap = new Map(wikiLovesImages.map(i => [i.docid, i]))
@@ -127,86 +126,96 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
   const enrichedBookmarks = sharedBookmarks.map(bookmark => {
     if (bookmark.resourceType === 'SAVIEZ_VOUS' && bookmark.resourceId) {
       const fact = saviezMap.get(bookmark.resourceId)
-      return { ...bookmark, saviezFact: fact }
+      return { ...bookmark, saviezFact: fact as SaviezVousFact | null }
     }
     if (bookmark.resourceType === 'IMAGE_DU_JOUR' && bookmark.resourceId) {
       let image = imageMap.get(bookmark.resourceId)
       if (!image && bookmark.meta) {
         try {
           const m = typeof bookmark.meta === 'string' ? JSON.parse(bookmark.meta) : bookmark.meta
-          image = {
-            id: bookmark.resourceId,
-            imageUrl: m.imageUrl || '',
-            description: m.description || '',
-            fileUrl: m.fileUrl || '',
-            date: m.date || '',
+          if (typeof m === 'object' && m !== null) {
+            image = {
+              id: bookmark.resourceId,
+              imageUrl: (m as Record<string, unknown>).imageUrl || '',
+              description: (m as Record<string, unknown>).description || '',
+              fileUrl: (m as Record<string, unknown>).fileUrl || '',
+              date: (m as Record<string, unknown>).date || '',
+            } as CachedWikipediaImage
           }
         } catch {}
       }
-      return { ...bookmark, wikiImage: image }
+      return { ...bookmark, wikiImage: image as CachedWikipediaImage | null }
     }
     if (bookmark.resourceType === 'IMAGE_WIKIMEDIA' && bookmark.resourceId) {
       let image = wikiMediaMap.get(bookmark.resourceId)
       if (!image && bookmark.meta) {
         try {
           const m = typeof bookmark.meta === 'string' ? JSON.parse(bookmark.meta) : bookmark.meta
-          image = {
-            id: bookmark.resourceId,
-            docid: bookmark.resourceId,
-            title: m.titre || '',
-            author: m.auteur || '',
-            imageUrl: m.imageUrl || '',
-            commonsUrl: m.link || '',
-            license: m.droits || '',
-            year: 0,
-            source: '',
-            scrapedAt: new Date(),
-            expiresAt: new Date(),
+          if (typeof m === 'object' && m !== null) {
+            image = {
+              id: bookmark.resourceId,
+              docid: bookmark.resourceId,
+              title: (m as Record<string, unknown>).titre || '',
+              author: (m as Record<string, unknown>).auteur || '',
+              imageUrl: (m as Record<string, unknown>).imageUrl || '',
+              commonsUrl: (m as Record<string, unknown>).link || null,
+              license: (m as Record<string, unknown>).droits || '',
+              year: 0,
+              source: '',
+              scrapedAt: new Date(),
+              expiresAt: new Date(),
+            } as CachedWikiLovesImage
           }
         } catch {}
       }
-      return { ...bookmark, wikiMediaImage: image }
+      return { ...bookmark, wikiMediaImage: image as CachedWikiLovesImage | null }
     }
     if (bookmark.resourceType === 'IMAGE_WIKILOVES' && bookmark.resourceId) {
       let image = wikiLovesMap.get(bookmark.resourceId)
       if (!image && bookmark.meta) {
         try {
           const m = typeof bookmark.meta === 'string' ? JSON.parse(bookmark.meta) : bookmark.meta
-          image = {
-            id: bookmark.resourceId,
-            docid: bookmark.resourceId,
-            title: m.titre || '',
-            author: m.auteur || '',
-            imageUrl: m.imageUrl || '',
-            commonsUrl: m.link || '',
-            license: m.droits || '',
-            year: 0,
-            source: '',
-            scrapedAt: new Date(),
-            expiresAt: new Date(),
+          if (typeof m === 'object' && m !== null) {
+            image = {
+              id: bookmark.resourceId,
+              docid: bookmark.resourceId,
+              title: (m as Record<string, unknown>).titre || '',
+              author: (m as Record<string, unknown>).auteur || '',
+              imageUrl: (m as Record<string, unknown>).imageUrl || '',
+              commonsUrl: (m as Record<string, unknown>).link || null,
+              license: (m as Record<string, unknown>).droits || '',
+              year: 0,
+              source: '',
+              scrapedAt: new Date(),
+              expiresAt: new Date(),
+            } as CachedWikiLovesImage
           }
         } catch {}
       }
-      return { ...bookmark, wikiLovesImage: image }
+      return { ...bookmark, wikiLovesImage: image as CachedWikiLovesImage | null }
     }
     if (bookmark.resourceType === 'PROVERBE' && bookmark.resourceId) {
-      let meta: any = bookmark.meta || {}
+      let meta = bookmark.meta as JsonValue | null
       if (typeof meta === 'string') {
-        try { meta = JSON.parse(meta) } catch { meta = {} }
+        try { meta = JSON.parse(meta) as JsonValue } catch { meta = {} }
       }
+      if (typeof meta !== 'object' || meta === null) {
+        meta = {}
+      }
+      const m = meta as Record<string, unknown>
       return {
         ...bookmark,
         proverbe: {
           id: bookmark.resourceId,
-          text: meta?.text || '',
-          signification: meta?.signification || '',
-          source: meta?.source || '',
-          wiktionnaireUrl: meta?.url || meta?.wiktionnaireUrl,
+          text: (m.text || '') as string,
+          signification: (m.signification || '') as string,
+          source: (m.source || '') as string,
+          wiktionnaireUrl: (m.wiktionnaireUrl || m.url || '') as string | undefined,
         },
       }
     }
     return bookmark
-  }) as Array<SharedBookmarkRaw & { saviezFact?: any; wikiImage?: any; wikiMediaImage?: any; wikiLovesImage?: any; proverbe?: any }>
+  }) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string } }>
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">

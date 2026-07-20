@@ -45,10 +45,13 @@ interface UseCardVisibilityReturn {
 
 export function useCardVisibility({ storageKey, defaultShow = true, userId }: UseCardVisibilityOptions): UseCardVisibilityReturn {
   const [show, setShow] = useState(defaultShow)
-  const [hasMounted, setHasMounted] = useState(false)
+  const [hasMounted, setHasMounted] = useState(typeof window !== 'undefined')
   const buttonColor = COLOR_MAP[storageKey] || 'blue'
 
   useEffect(() => {
+    if (hasMounted) return
+    
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasMounted(true)
     
     if (userId) {
@@ -64,7 +67,7 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
           .catch(() => {})
       }
     }
-  }, [storageKey, userId])
+  }, [hasMounted, userId, storageKey])
 
   const handleToggle = useCallback(async () => {
     setShow(prev => {

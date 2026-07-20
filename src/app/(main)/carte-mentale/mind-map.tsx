@@ -6,35 +6,42 @@ import { IdeaModal } from './idea-modal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, Minus, Search, X, Target } from 'lucide-react'
+import type { RefObject } from 'react'
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false })
 
+interface GraphNode {
+  id: string
+  label: string
+  group: 'topic' | 'idea'
+  color: string
+  icon?: string
+  size: number
+  content?: string
+  takeaway?: string
+  slug?: string
+  x?: number
+  y?: number
+}
+
+interface GraphLink {
+  source: string
+  target: string
+}
+
 interface MindMapProps {
-  nodes: Array<{
-    id: string
-    label: string
-    group: 'topic' | 'idea'
-    color: string
-    icon?: string
-    size: number
-    content?: string
-    takeaway?: string
-    slug?: string
-  }>
-  links: Array<{
-    source: string
-    target: string
-  }>
+  nodes: GraphNode[]
+  links: GraphLink[]
 }
 
 export function MindMap({ nodes, links }: MindMapProps) {
-  const fgRef = useRef<any>(null)
-  const [selectedNode, setSelectedNode] = useState<any | null>(null)
+  const fgRef = useRef<InstanceType<typeof ForceGraph2D> | null>(null)
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [filteredNodes, setFilteredNodes] = useState(nodes)
-  const [filteredLinks, setFilteredLinks] = useState(links)
   const [showSearch, setShowSearch] = useState(false)
   const [hasCentered, setHasCentered] = useState(false)
+  const prevSearchRef = useRef('')
+  const prevSearchRef = useRef('')
 
   const handleEngineStop = useCallback(() => {
     if (!hasCentered && fgRef.current) {
@@ -50,7 +57,10 @@ export function MindMap({ nodes, links }: MindMapProps) {
   }, [hasCentered])
 
   useEffect(() => {
-    setHasCentered(false)
+    if (prevSearchRef.current !== searchQuery) {
+      setHasCentered(false)
+      prevSearchRef.current = searchQuery
+    }
   }, [searchQuery, nodes.length, links.length])
 
   useEffect(() => {
@@ -66,21 +76,27 @@ export function MindMap({ nodes, links }: MindMapProps) {
     }
   }, [nodes.length, links.length])
 
-  useEffect(() => {
+  const filteredNodes = useMemo(() => {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
       const matchedNodes = nodes.filter(n => n.label.toLowerCase().includes(query))
       const matchedIds = new Set(matchedNodes.map(n => n.id))
-      const matchedLinks = links.filter(l => matchedIds.has(l.source) && matchedIds.has(l.target))
-      setFilteredNodes(matchedNodes)
-      setFilteredLinks(matchedLinks)
-    } else {
-      setFilteredNodes(nodes)
-      setFilteredLinks(links)
+      return matchedNodes
     }
+    return nodes
+  }, [searchQuery, nodes])
+
+  const filteredLinks = useMemo(() => {
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      const matchedNodes = nodes.filter(n => n.label.toLowerCase().includes(query))
+      const matchedIds = new Set(matchedNodes.map(n => n.id))
+      return links.filter(l => matchedIds.has(l.source) && matchedIds.has(l.target))
+    }
+    return links
   }, [searchQuery, nodes, links])
 
-  const handleNodeClick = useCallback((node: any) => {
+  const handleNodeClick = useCallback((node: GraphNode) => {
     if (node.group === 'idea') {
       setSelectedNode(node)
     }
@@ -104,7 +120,7 @@ export function MindMap({ nodes, links }: MindMapProps) {
 
   const [cursorStyle, setCursorStyle] = useState<'pointer' | 'grab'>('grab')
 
-  const handleNodeHover = useCallback((node: any) => {
+  const handleNodeHover = useCallback((node: GraphNode | null) => {
     setCursorStyle(node ? 'pointer' : 'grab')
   }, [])
 
@@ -112,8 +128,8 @@ export function MindMap({ nodes, links }: MindMapProps) {
   const nodeDegrees = useMemo(() => {
     const degrees = new Map<string, number>()
     filteredLinks.forEach(l => {
-      const sourceId = typeof l.source === 'object' ? (l.source as any).id : l.source
-      const targetId = typeof l.target === 'object' ? (l.target as any).id : l.target
+      const sourceId = typeof l.source === 'object' ? (l.source as GraphNode).id : l.source
+      const targetId = typeof l.target === 'object' ? (l.target as GraphNode).id : l.target
       degrees.set(sourceId, (degrees.get(sourceId) || 0) + 1)
       degrees.set(targetId, (degrees.get(targetId) || 0) + 1)
     })

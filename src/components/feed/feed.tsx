@@ -40,6 +40,8 @@ export function Feed({
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const initializedRef = useRef(false)
+  const hasFetchedRef = useRef(false)
 
   const loaderRef = useRef<HTMLDivElement>(null)
 
@@ -88,13 +90,18 @@ export function Feed({
   }, [topic, collection, userId, isHistory])
 
   useEffect(() => {
-    setIdeas(initialIdeas)
-    setPage(initialPage)
-    setHasMore(initialHasMore)
+    if (!initializedRef.current) {
+      initializedRef.current = true
+      setIdeas(initialIdeas)
+      setPage(initialPage)
+      setHasMore(initialHasMore)
+    }
   }, [initialIdeas, initialPage, initialHasMore])
 
   useEffect(() => {
     if (initialIdeas.length > 0) return
+    if (hasFetchedRef.current) return
+    hasFetchedRef.current = true
     fetchIdeas(1)
   }, [fetchIdeas, initialIdeas])
 

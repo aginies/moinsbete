@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 
 interface UseSimpleBookmarkToggleOptions {
   toggleFn: (action: 'add' | 'remove') => Promise<void>
@@ -20,10 +20,14 @@ export function useSimpleBookmarkToggle({
 }: UseSimpleBookmarkToggleOptions) {
   const [isFavorite, setIsFavorite] = useState(initialFavorite)
   const [isPending, setIsPending] = useState(false)
+  const prevInitialRef = useRef(initialFavorite)
 
   // Keep internal state in sync with initialFavorite prop changes
   useEffect(() => {
-    setIsFavorite(initialFavorite)
+    if (prevInitialRef.current !== initialFavorite) {
+      setIsFavorite(initialFavorite)
+      prevInitialRef.current = initialFavorite
+    }
   }, [initialFavorite])
 
   const handleBookmark = useCallback(async () => {

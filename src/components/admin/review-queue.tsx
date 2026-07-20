@@ -10,7 +10,7 @@ interface ReviewQueueProps {
   suggestions: (TopicSuggestion & { parentTopic?: { name: string } | null })[]
   onApprove: (id: string) => Promise<{ success?: boolean; error?: string; topicId?: string }>
   onReject: (id: string) => Promise<{ success?: boolean; error?: string }>
-  onMerge: (id: string, mergedInto: string) => Promise<{ success?: boolean; error?: string; mergedInto?: any }>
+  onMerge: (id: string, mergedInto: string) => Promise<{ success?: boolean; error?: string; mergedInto?: string }>
   availableTopics: Array<{ id: string; name: string }>
 }
 

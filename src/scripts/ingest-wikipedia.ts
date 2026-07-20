@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { prisma } from '../lib/db'
 import { slugify, getRandomIcon, getRandomColor } from '../lib/utils'
 import { suggestTopic, distillIdeas } from '../lib/llm'
+import type { Prisma } from '@/generated/client'
 
 const WIKIPEDIA_API = 'https://fr.wikipedia.org/api/rest_v1'
 
@@ -448,7 +449,7 @@ async function getOrCreateTopic(categoryName: string, existingTopics: Array<{ id
   let topic
 
   if (suggestion.suggestion) {
-    const topicData: any = {
+    const topicData: Prisma.TopicCreateInput = {
       name: suggestion.suggestion.name,
       slug: slugify(suggestion.suggestion.name),
       icon: suggestion.suggestion.icon || getRandomIcon(),

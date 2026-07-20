@@ -7,9 +7,28 @@ interface GraphPageClientProps {
   userId: string
 }
 
+interface GraphNode {
+  id: string
+  label: string
+  group: 'topic' | 'idea'
+  color: string
+  icon?: string
+  size: number
+  content?: string
+  takeaway?: string
+  slug?: string
+  x?: number
+  y?: number
+}
+
+interface GraphLink {
+  source: string
+  target: string
+}
+
 export function GraphPageClient({ userId }: GraphPageClientProps) {
-  const [nodes, setNodes] = useState<any[]>([])
-  const [links, setLinks] = useState<any[]>([])
+  const [nodes, setNodes] = useState<GraphNode[]>([])
+  const [links, setLinks] = useState<GraphLink[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

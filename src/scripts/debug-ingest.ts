@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import type { ChatCompletionMessage } from 'openai/resources'
 
 const WIKIPEDIA_API = 'https://fr.wikipedia.org/api/rest_v1'
 
@@ -36,7 +37,7 @@ async function test() {
   
   const choice = response.choices[0]
   console.log('\nContent:', choice?.message?.content?.substring(0, 500))
-  console.log('\nReasoning:', (choice?.message as any)?.reasoning_content?.substring(0, 500))
+  console.log('\nReasoning:', (choice?.message as ChatCompletionMessage & Record<string, unknown>)?.reasoning_content?.substring(0, 500))
   console.log('\nFinish reason:', choice?.finish_reason)
 }
 

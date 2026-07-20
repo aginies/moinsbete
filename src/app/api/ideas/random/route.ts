@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { mapIdeaWithTopics } from '@/lib/feed-helpers'
+import type { Prisma } from '@/generated/client'
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ idea: null }, { status: 400 })
     }
 
-    const whereClause: Record<string, any> = { isPublished: true }
+    const whereClause: Prisma.WhereInput = { isPublished: true }
 
     if (userId && followed === '1') {
       const user = await prisma.user.findUnique({

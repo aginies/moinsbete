@@ -40,7 +40,7 @@ async function getCustomTopics(userId: string): Promise<Topic[]> {
   return dbTopics.map(dbTopic => {
     let searchTerms: string[] = []
     if (dbTopic.searchTerms) {
-      const raw = dbTopic.searchTerms as any
+      const raw = dbTopic.searchTerms
       if (Array.isArray(raw)) {
         searchTerms = raw
       } else {

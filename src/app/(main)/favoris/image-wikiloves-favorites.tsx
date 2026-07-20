@@ -90,7 +90,7 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
   )
 }
 
-export function ImageWikiLovesFavorites({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: { userId?: string; onRemoveComplete?: () => void; sharedIds: Set<string>; onShareToggle: (item: any) => void; isSharing: string | null }) {
+export function ImageWikiLovesFavorites({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: { userId?: string; onRemoveComplete?: () => void; sharedIds: Set<string>; onShareToggle: (item: WikiLovesImageFavoriteDoc) => void; isSharing: string | null }) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
 
   const { handleRemove, getFavorites } = useFavoritesList<WikiLovesImageFavoriteDoc>({

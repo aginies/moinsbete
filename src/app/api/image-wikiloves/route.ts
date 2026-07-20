@@ -63,7 +63,7 @@ async function searchFiles(query: string): Promise<string[]> {
       }
       if (!res.ok) return []
       const data = await res.json()
-      const files = (data?.query?.search || []).map((r: any) => r.title).filter((t: string) => t.startsWith('File:'))
+      const files = (data?.query?.search || []).map((r: Record<string, unknown>) => r.title).filter((t: string) => t.startsWith('File:'))
       if (files.length > 0) return files
       if (offset > 0) {
         const fallbackRes = await fetch(
@@ -75,7 +75,7 @@ async function searchFiles(query: string): Promise<string[]> {
         )
         if (fallbackRes.ok) {
           const fallbackData = await fallbackRes.json()
-          return (fallbackData?.query?.search || []).map((r: any) => r.title).filter((t: string) => t.startsWith('File:'))
+          return (fallbackData?.query?.search || []).map((r: Record<string, unknown>) => r.title).filter((t: string) => t.startsWith('File:'))
         }
       }
       return []
@@ -104,7 +104,7 @@ async function fetchImageInfo(filename: string): Promise<WikiLovesImage | null> 
       if (!res.ok) return null
       const data = await res.json()
       const pages = data?.query?.pages || {}
-      const page = Object.values(pages)[0] as Record<string, any>
+      const page = Object.values(pages)[0] as Record<string, unknown>
       if (!page || page.error || page.missing) return null
 
       const imageinfo = page.imageinfo || []

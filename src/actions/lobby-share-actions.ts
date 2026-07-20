@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { toggleBookmark, isBookmarked } from '@/lib/favorite'
+import type { BookmarkType, JsonValue } from '@/generated/client'
 
 export async function shareToLobby(ideaId: string) {
   const session = await getSession()
@@ -53,7 +54,7 @@ export async function isSharedToLobby(ideaId: string): Promise<boolean> {
 
 const MAX_META_SIZE = 10 * 1024
 
-function validateMeta(meta: any): any {
+function validateMeta(meta: unknown): JsonValue | null {
   if (meta == null) return null
   if (typeof meta === 'string') {
     if (meta.length > MAX_META_SIZE) return null
@@ -69,7 +70,7 @@ function validateMeta(meta: any): any {
   return JSON.parse(serialized)
 }
 
-export async function shareResourceToLobby(resourceType: string, resourceId: string, meta?: any) {
+export async function shareResourceToLobby(resourceType: string, resourceId: string, meta?: JsonValue) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
@@ -140,11 +141,11 @@ export async function isSharedResourceToLobby(resourceType: string, resourceId: 
   return !!shared
 }
 
-export async function addToFavoritesFromLobby(resourceType: string, resourceId: string, meta?: any) {
+export async function addToFavoritesFromLobby(resourceType: string, resourceId: string, meta?: JsonValue) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
-  const result = await toggleBookmark(session.user.id, resourceType as any, resourceId, 'add', meta)
+  const result = await toggleBookmark(session.user.id, resourceType as BookmarkType, resourceId, 'add', meta as JsonValue | undefined)
   if (result.bookmarked) {
     return { success: true, added: true }
   }
@@ -154,5 +155,5 @@ export async function addToFavoritesFromLobby(resourceType: string, resourceId: 
 export async function isInFavorites(resourceType: string, resourceId: string): Promise<boolean> {
   const session = await getSession()
   if (!session?.user) return false
-  return isBookmarked(session.user.id, resourceType as any, resourceId)
+  return isBookmarked(session.user.id, resourceType as BookmarkType, resourceId)
 }

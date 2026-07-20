@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -44,10 +44,14 @@ export function WikimediaTopicsModal({
   const [newLabel, setNewLabel] = useState('')
   const [newSearchTerms, setNewSearchTerms] = useState('')
   const [hasChanges, setHasChanges] = useState(false)
+  const prevTopicsRef = useRef(topics)
 
   useEffect(() => {
-    setLocalTopics(topics)
-    setHasChanges(false)
+    if (prevTopicsRef.current !== topics) {
+      setLocalTopics(topics)
+      setHasChanges(false)
+      prevTopicsRef.current = topics
+    }
   }, [topics, open])
 
   const markChanged = () => setHasChanges(true)

@@ -6,10 +6,11 @@ import { SuggestionList } from './suggestion-list'
 import { SharedBookmarks } from './shared-bookmarks'
 import { Pagination } from '@/components/ui/pagination'
 import { useMemo, useState, useCallback, useEffect } from 'react'
+import type { UserSuggestion, SharedLobbyBookmark } from '@/generated/client'
 
 interface LobbyTabsProps {
-  suggestions: any[]
-  sharedBookmarks: any[]
+  suggestions: UserSuggestion[]
+  sharedBookmarks: SharedLobbyBookmark[]
   currentUserId: string | null
   isAdmin?: boolean
   totalPages: number
@@ -40,18 +41,13 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
   const router = useRouter()
   const activeTab = searchParams.get('tab') || 'favoris'
   const activeType = searchParams.get('type') || ''
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '')
 
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams)
     params.set('tab', value)
     router.push(`${pathname}?${params.toString()}`)
   }
-
-  useEffect(() => {
-    const q = searchParams.get('q') || ''
-    setSearchQuery(q)
-  }, [searchParams])
 
   const handleTypeChange = useCallback((value: string) => {
     const params = new URLSearchParams(searchParams)
