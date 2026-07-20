@@ -190,10 +190,23 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       return { ...bookmark, wikiLovesImage: image }
     }
     if (bookmark.resourceType === 'PROVERBE' && bookmark.resourceId) {
-      return { ...bookmark, proverbe: bookmark.meta }
+      let meta = bookmark.meta
+      if (typeof meta === 'string') {
+        try { meta = JSON.parse(meta) } catch { meta = {} }
+      }
+      return {
+        ...bookmark,
+        proverbe: {
+          id: bookmark.resourceId,
+          text: (meta?.text || '') as string,
+          signification: (meta?.signification || '') as string,
+          source: (meta?.source || '') as string,
+          wiktionnaireUrl: (meta?.url || meta?.wiktionnaireUrl) as string | undefined,
+        },
+      }
     }
     return bookmark
-  }) as Array<SharedBookmarkRaw & { saviezFact?: any; wikiImage?: any; wikiMediaImage?: any; wikiLovesImage?: any }>
+  }) as Array<SharedBookmarkRaw & { saviezFact?: any; wikiImage?: any; wikiMediaImage?: any; wikiLovesImage?: any; proverbe?: any }>
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
