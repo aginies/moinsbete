@@ -8,6 +8,8 @@ export interface ProverbeFavoriteDoc {
   source: string
   url: string
   wiktionnaireUrl?: string
+  etymologie?: string
+  definitions?: string[]
   favoritedAt: string
 }
 
@@ -16,6 +18,8 @@ export interface ProverbeFavoriteMeta {
   signification?: string
   source?: string
   url?: string
+  etymologie?: string
+  definitions?: string[]
 }
 
 export const PROVERBE_TYPE: BookmarkType = 'PROVERBE'
@@ -29,6 +33,8 @@ export const proverbeManager = createBookmarkManager(PROVERBE_TYPE, (meta, resou
     signification: m.signification || '',
     source: m.source || '',
     url: m.url || '',
+    etymologie: m.etymologie || '',
+    definitions: m.definitions || [],
     favoritedAt: new Date().toISOString(),
   }
 })
