@@ -8,6 +8,7 @@ import { useItemShare } from './use-item-share'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { CardHeader } from './card-header'
 
 interface PortailLexicalWord {
@@ -54,7 +55,7 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
   const [word, setWord] = useState<PortailLexicalWord | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
   const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'portail_lexical_card_visible', userId })
   const show = isVisible !== undefined ? isVisible : true
 
@@ -74,10 +75,24 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
   useEffect(() => {
     if (userId && word) {
       isBookmarkedAction('PORTAIL_LEXICAL', word.form).then(result => {
-        setIsBookmarked(result.isBookmarked)
+        setIsFavorite(result.isBookmarked)
       }).catch(() => {})
     }
   }, [userId, word])
+
+  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
+    resourceId: word?.form,
+    guard: () => !word || !userId,
+    initialFavorite: isFavorite,
+    onFavoriteChange: setIsFavorite,
+    toggleFn: async (action) => {
+      await toggleBookmarkAction('PORTAIL_LEXICAL', word!.form, action, {
+        description: word!.description,
+        full_pos: word!.full_pos,
+        ipa: word!.ipa,
+      })
+    },
+  })
 
   useEffect(() => {
     if (hasMounted && show && !word && !loading && !error) {
@@ -92,21 +107,6 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
     if (loading) return
     await loadWord()
   }, [loading, loadWord])
-
-  const handleBookmark = useCallback(async () => {
-    if (!word || !userId) return
-    const newFavorite = !isBookmarked
-    try {
-      await toggleBookmarkAction('PORTAIL_LEXICAL', word.form, newFavorite ? 'add' : 'remove', {
-        description: word.description,
-        full_pos: word.full_pos,
-        ipa: word.ipa,
-      })
-      setIsBookmarked(newFavorite)
-    } catch {
-      setIsBookmarked(prev => !prev)
-    }
-  }, [word, isBookmarked, userId])
 
   const shareUrl = word ? `https://www.portail-lexical.fr/definition/${encodeURIComponent(word.form)}` : ''
   const { handleShare, copied, shareUrl: shareUrlResult } = useItemShare({
@@ -143,12 +143,12 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                  disabled={loading}
+                  disabled={isPending || loading}
                   className="rounded-full p-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all disabled:opacity-50"
-                  title={isBookmarked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                  title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 >
                   <Bookmark
-                    className={`h-4 w-4 ${isBookmarked ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
+                    className={`h-4 w-4 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
                   />
                 </button>
               ) : undefined}

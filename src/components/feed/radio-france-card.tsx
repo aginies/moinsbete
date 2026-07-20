@@ -9,6 +9,7 @@ import { sanitizeUrl } from '@/lib/utils'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
 import { toggleRadioFavoriteAction, isRadioFavoriteAction } from '@/actions/radio-bookmark-actions'
+import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 
 interface RadioFranceDoc {
   id: string
@@ -82,25 +83,23 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
     setLoading(false)
   }, [loading, doc])
 
-  const handleBookmark = useCallback(async () => {
-    if (!doc || !userId) return
-    const newFavorite = !isFavorite
-
-    try {
-      await toggleRadioFavoriteAction(doc.id, newFavorite ? 'add' : 'remove', {
-        title: doc.title,
-        description: doc.description,
-        url: doc.url,
-        radio: doc.radio,
-        section: doc.section,
-        image: doc.image,
-        favoritedAt: newFavorite ? new Date().toISOString() : undefined,
+  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
+    resourceId: doc?.id,
+    guard: () => !doc || !userId,
+    initialFavorite: isFavorite,
+    onFavoriteChange: setIsFavorite,
+    toggleFn: async (action) => {
+      await toggleRadioFavoriteAction(doc!.id, action, {
+        title: doc!.title,
+        description: doc!.description,
+        url: doc!.url,
+        radio: doc!.radio,
+        section: doc!.section,
+        image: doc!.image,
+        favoritedAt: action === 'add' ? new Date().toISOString() : undefined,
       })
-      setIsFavorite(newFavorite)
-    } catch {
-      setIsFavorite(prev => !prev)
-    }
-  }, [doc, isFavorite, userId])
+    },
+  })
 
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: doc?.url ?? '',
@@ -146,10 +145,11 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
             </button>
             <button
               onClick={handleBookmark}
-              className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors"
+              disabled={isPending}
+              className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors disabled:opacity-50"
               title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
-              <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+              <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current text-purple-600 dark:text-purple-400' : 'text-purple-600 dark:text-purple-400'}`} />
             </button>
             <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
           </div>

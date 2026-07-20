@@ -14,6 +14,7 @@ import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 
 interface SaviezVousCardProps {
   id: string
@@ -139,31 +140,31 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     text: fact.text,
   })
 
-  const [isFavorited, setIsFavorited] = useState(false)
-  const [favoriting, setFavoriting] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
   const factId = fact.id
 
   useEffect(() => {
     if (!factId) return
     let mounted = true
     isBookmarkedAction('SAVIEZ_VOUS', factId).then((result) => {
-      if (mounted) setIsFavorited(result.isBookmarked)
+      if (mounted) setIsFavorite(result.isBookmarked)
     })
     return () => { mounted = false }
   }, [factId])
 
-  const handleToggleFavorite = useCallback(async () => {
-    if (!fact || favoriting) return
-    setFavoriting(true)
-    const action = isFavorited ? 'remove' : 'add'
-    await toggleBookmarkAction('SAVIEZ_VOUS', fact.id, action, {
-      text: fact.text,
-      sourceUrl: fact.sourceUrl,
-      imageFilename: fact.imageFilename,
-    })
-    setIsFavorited(!isFavorited)
-    setFavoriting(false)
-  }, [fact, isFavorited, favoriting])
+  const { isPending, handleBookmark: handleToggleFavorite } = useSimpleBookmarkToggle({
+    resourceId: fact?.id,
+    guard: () => !fact,
+    initialFavorite: isFavorite,
+    onFavoriteChange: setIsFavorite,
+    toggleFn: async (action) => {
+      await toggleBookmarkAction('SAVIEZ_VOUS', fact!.id, action, {
+        text: fact!.text,
+        sourceUrl: fact!.sourceUrl,
+        imageFilename: fact!.imageFilename,
+      })
+    },
+  })
 
   if (!hasMounted) {
     return null
@@ -197,12 +198,12 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
-            disabled={Boolean(favoriting || !fact)}
+            disabled={isPending || !fact}
             className="rounded-full p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all disabled:opacity-50"
-            title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+            title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
           >
             <Bookmark
-              className={`h-4 w-4 ${isFavorited ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
+              className={`h-4 w-4 ${isFavorite ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
             />
           </button>
         ) : undefined}
