@@ -20,7 +20,7 @@ async function test() {
     })
     const choice = res.choices[0]
     console.log('Content:', choice?.message?.content)
-    console.log('Reasoning:', (choice?.message as ChatCompletionMessage & Record<string, unknown>)?.reasoning_content?.substring(0, 200))
+    console.log('Reasoning:', (choice?.message as any)?.reasoning_content?.substring?.(0, 200))
     console.log('Finish reason:', choice?.finish_reason)
   } catch (e: unknown) {
     const error = e as { message?: string }

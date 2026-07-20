@@ -3,7 +3,7 @@
 import { useTransition, useMemo, useState, useCallback } from 'react'
 import { Feed } from '@/components/feed/feed'
 import { toggleBookmarkAction } from '@/actions/bookmark-actions'
-import type { Idea } from '@/generated/client'
+import type { Idea } from '@/types/idea'
 
 interface HomePageClientProps {
   initialIdeas: Idea[]

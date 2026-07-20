@@ -457,7 +457,7 @@ async function getOrCreateTopic(categoryName: string, existingTopics: Array<{ id
     }
 
     if (suggestion.suggestion.parentId) {
-      topicData.parentId = suggestion.suggestion.parentId
+      topicData.parent = { connect: { id: suggestion.suggestion.parentId } }
     }
 
     topic = await prisma.topic.create({ data: topicData })

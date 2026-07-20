@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ idea: null }, { status: 400 })
     }
 
-    const whereClause: Prisma.WhereInput = { isPublished: true }
+    const whereClause: Prisma.IdeaWhereInput = { isPublished: true }
 
     if (userId && followed === '1') {
       const user = await prisma.user.findUnique({

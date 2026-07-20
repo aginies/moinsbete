@@ -84,42 +84,42 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim()
       filtered = filtered.filter(b => {
-        const name = (b.user.displayName || '').toLowerCase()
-        const email = (b.user.email || '').toLowerCase()
+        const name = (((b as any).user)?.displayName || '').toLowerCase()
+        const email = (((b as any).user)?.email || '').toLowerCase()
         if (name.includes(q) || email.includes(q)) return true
-        if (b.idea) {
-          const title = (b.idea.title || '').toLowerCase()
-          const content = (b.idea.content || '').toLowerCase()
-          const takeaway = (b.idea.takeaway || '').toLowerCase()
-          const source = (b.idea.source.title || '').toLowerCase()
+        if ((b as any).idea) {
+          const title = ((b as any).idea.title || '').toLowerCase()
+          const content = ((b as any).idea.content || '').toLowerCase()
+          const takeaway = ((b as any).idea.takeaway || '').toLowerCase()
+          const source = ((b as any).idea.source?.title || '').toLowerCase()
           if (title.includes(q) || content.includes(q) || takeaway.includes(q) || source.includes(q)) return true
         }
-        if (b.saviezFact) {
-          const text = (b.saviezFact.text || '').toLowerCase()
+        if ((b as any).saviezFact) {
+          const text = ((b as any).saviezFact.text || '').toLowerCase()
           if (text.includes(q)) return true
         }
-        if (b.wikiImage) {
-          const desc = (b.wikiImage.description || '').toLowerCase()
+        if ((b as any).wikiImage) {
+          const desc = ((b as any).wikiImage.description || '').toLowerCase()
           if (desc.includes(q)) return true
         }
-        if (b.wikiMediaImage) {
-          const title = (b.wikiMediaImage.title || '').toLowerCase()
+        if ((b as any).wikiMediaImage) {
+          const title = ((b as any).wikiMediaImage.title || '').toLowerCase()
           if (title.includes(q)) return true
         }
-        if (b.wikiLovesImage) {
-          const title = (b.wikiLovesImage.title || '').toLowerCase()
+        if ((b as any).wikiLovesImage) {
+          const title = ((b as any).wikiLovesImage.title || '').toLowerCase()
           if (title.includes(q)) return true
         }
-        if (b.proverbe) {
-          const text = (b.proverbe.text || '').toLowerCase()
-          const signification = (b.proverbe.signification || '').toLowerCase()
-          const source = (b.proverbe.source || '').toLowerCase()
+        if ((b as any).proverbe) {
+          const text = ((b as any).proverbe.text || '').toLowerCase()
+          const signification = ((b as any).proverbe.signification || '').toLowerCase()
+          const source = ((b as any).proverbe.source || '').toLowerCase()
           if (text.includes(q) || signification.includes(q) || source.includes(q)) return true
         }
         return false
       })
     }
-    return filtered.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage || (b as any).wikiMediaImage || (b as any).wikiLovesImage || (b as any).proverbe)
   }, [sharedBookmarks, activeType, searchQuery])
 
   return (
@@ -130,12 +130,12 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
       </TabsList>
 
       <TabsContent value="discuter">
-        <SuggestionList suggestions={suggestions} currentUserId={currentUserId} isAdmin={isAdmin} />
+        <SuggestionList suggestions={suggestions as any} currentUserId={currentUserId} isAdmin={isAdmin} />
       </TabsContent>
 
       <TabsContent value="favoris">
         <SharedBookmarks
-          sharedBookmarks={filteredBookmarks}
+          sharedBookmarks={filteredBookmarks as any}
           currentUserId={currentUserId}
           isAdmin={isAdmin}
           userFavoriteIds={userFavoriteIds}

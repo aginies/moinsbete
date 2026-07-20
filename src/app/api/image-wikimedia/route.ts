@@ -41,7 +41,7 @@ async function getTopicSearches(): Promise<Record<string, string[]>> {
       try {
         const raw = dbTopic.searchTerms
         if (Array.isArray(raw)) {
-          searchTerms = raw
+          searchTerms = raw.filter((t): t is string => typeof t === 'string')
         } else if (typeof raw === 'string') {
           searchTerms = JSON.parse(raw)
         }
@@ -168,10 +168,10 @@ async function fetchImageInfo(filename: string): Promise<WikimediaImage | null> 
       const page = Object.values(pages)[0] as Record<string, unknown>
       if (!page || page.error || page.missing) return null
 
-      const imageinfo = page.imageinfo || []
+      const imageinfo = (page.imageinfo || []) as unknown[]
       if (imageinfo.length === 0) return null
 
-      const img = imageinfo[0]
+      const img = imageinfo[0] as { url?: string; thumburl?: string; thumbnail?: { url?: string }; mime?: string; extmetadata?: Record<string, { value?: string }>; descriptionurl?: string }
       const extmetadata = img.extmetadata || {}
 
       const titleEntry = extmetadata['Title'] || extmetadata['ObjectName']
@@ -194,7 +194,7 @@ async function fetchImageInfo(filename: string): Promise<WikimediaImage | null> 
         mime === 'image/bmp' ||
         mime === 'image/avif'
       const imageUrl = isColorImage ? img.url : ''
-      const thumbnailUrl = img.thumburl || img.thumbnail?.url || (isColorImage ? img.url : '')
+      const thumbnailUrl = img.thumburl || img.thumbnail?.url || (isColorImage ? img.url : '') || ''
 
       if (!imageUrl) return null
 

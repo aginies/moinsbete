@@ -17,7 +17,7 @@ if (typeof window === 'undefined') {
 }
 
 // Support Redis dynamically to allow serverless, container, and local dev versatility
-type RedisClient = { type: string; url?: string; token?: string } & Record<string, unknown>
+type RedisClient = { _type?: string; url?: string; token?: string } & Record<string, unknown>
 
 let redisClient: RedisClient | 'fallback' | null = null
 
@@ -36,19 +36,19 @@ async function getRedisClient() {
   try {
     const { Redis } = await import('ioredis')
     if (process.env.REDIS_URL) {
-      redisClient = new Redis(process.env.REDIS_URL) as RedisClient
+      redisClient = new Redis(process.env.REDIS_URL) as unknown as RedisClient
     } else {
-      redisClient = new Redis() as RedisClient
+      redisClient = new Redis() as unknown as RedisClient
     }
-    redisClient.type = 'ioredis'
+    (redisClient as any).type = 'ioredis'
     return redisClient
   } catch {
     try {
       const { createClient } = await import('redis')
       const client = createClient({ url: process.env.REDIS_URL })
       await client.connect()
-      redisClient = client as RedisClient
-      redisClient.type = 'redis'
+      redisClient = client as unknown as RedisClient
+      (redisClient as any).type = 'redis'
       return redisClient
     } catch {
       console.warn('Redis rate limiter selected but ioredis/redis not installed and no Upstash REST credentials found. Falling back to in-memory rate limiter.')
@@ -67,7 +67,7 @@ export async function checkRateLimit(key: string, max: number, windowMs: number)
     if (client && client !== 'fallback') {
       try {
         const fullKey = `ratelimit:${sanitizedKey}`
-        if (client.type === 'upstash') {
+        if ((client as any).type === 'upstash') {
           const res = await fetch(`${client.url}/pipeline`, {
             method: 'POST',
             headers: {
@@ -95,8 +95,8 @@ export async function checkRateLimit(key: string, max: number, windowMs: number)
             }
             return count <= max
           }
-        } else if (client.type === 'ioredis') {
-          const pipeline = client.multi()
+        } else if ((client as any).type === 'ioredis') {
+          const pipeline = (client as any).multi()
           pipeline.incr(fullKey)
           pipeline.ttl(fullKey)
           const results = await pipeline.exec()
@@ -104,12 +104,12 @@ export async function checkRateLimit(key: string, max: number, windowMs: number)
             const count = results[0][1] as number
             const ttl = results[1][1] as number
             if (count === 1 || ttl === -1) {
-              await client.expire(fullKey, Math.ceil(windowMs / 1000))
+              await (client as any).expire(fullKey, Math.ceil(windowMs / 1000))
             }
             return count <= max
           }
-        } else if (client.type === 'redis') {
-          const multi = client.multi()
+        } else if ((client as any).type === 'redis') {
+          const multi = (client as any).multi()
           multi.incr(fullKey)
           multi.ttl(fullKey)
           const results = await multi.exec()
@@ -117,7 +117,7 @@ export async function checkRateLimit(key: string, max: number, windowMs: number)
             const count = results[0] as number
             const ttl = results[1] as number
             if (count === 1 || ttl === -1) {
-              await client.expire(fullKey, Math.ceil(windowMs / 1000))
+              await (client as any).expire(fullKey, Math.ceil(windowMs / 1000))
             }
             return count <= max
           }

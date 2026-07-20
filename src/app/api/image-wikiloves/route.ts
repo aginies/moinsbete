@@ -107,11 +107,11 @@ async function fetchImageInfo(filename: string): Promise<WikiLovesImage | null> 
       const page = Object.values(pages)[0] as Record<string, unknown>
       if (!page || page.error || page.missing) return null
 
-      const imageinfo = page.imageinfo || []
+      const imageinfo = (page.imageinfo || []) as unknown[]
       if (imageinfo.length === 0) return null
 
-      const img = imageinfo[0]
-      const extmetadata = img.extmetadata || {}
+      const img = imageinfo[0] as { url?: string; thumburl?: string; thumbnail?: { url?: string }; mime?: string; extmetadata?: Record<string, { value?: string }>; descriptionurl?: string }
+      const extmetadata = (img.extmetadata || {}) as Record<string, { value?: string }>
 
       const titleEntry = extmetadata['Title'] || extmetadata['ObjectName']
       const title = stripHtml(titleEntry?.value || cleanFilename)
@@ -125,7 +125,7 @@ async function fetchImageInfo(filename: string): Promise<WikiLovesImage | null> 
 
       const isColorImage = mime === 'image/jpeg' || mime === 'image/jpg' || mime === 'image/png' || mime === 'image/gif' || mime === 'image/webp' || mime === 'image/bmp' || mime === 'image/avif'
       const imageUrl = isColorImage ? img.url : ''
-      const thumbnailUrl = img.thumburl || img.thumbnail?.url || (isColorImage ? img.url : '')
+      const thumbnailUrl = img.thumburl || img.thumbnail?.url || (isColorImage ? img.url : '') || ''
 
       if (!imageUrl) return null
 

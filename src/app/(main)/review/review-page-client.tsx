@@ -1,10 +1,10 @@
 'use client'
 
-import { useCallback, useState, useEffect } from 'react'
-import { fetchDueIdeas } from '@/actions/review-actions'
+import { useCallback, useState, useEffect, useRef } from 'react'
+import { fetchDueIdeas, type DueIdea } from '@/actions/review-actions'
 import { ReviewList } from '@/components/review/review-list'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import type { Idea } from '@/generated/client'
+import type { Idea } from '@/types/idea'
 
 interface ReviewPageClientProps {
   userId: string
@@ -12,7 +12,7 @@ interface ReviewPageClientProps {
 }
 
 export function ReviewPageClient({ currentPage }: ReviewPageClientProps) {
-  const [ideas, setIdeas] = useState<Idea[]>([])
+  const [ideas, setIdeas] = useState<DueIdea[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(currentPage)

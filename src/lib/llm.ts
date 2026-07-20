@@ -99,10 +99,10 @@ Retourne UNIQUEMENT du JSON valide.`
       throw new Error('LLM returned no choices')
     }
     const rawContent = choice.message?.content || ''
-    const reasoningContent = (choice.message as ChatCompletionMessage & Record<string, unknown>)?.reasoning_content || ''
-    const content = rawContent || reasoningContent || '{}'
+    const reasoningContent = (choice.message as any)?.reasoning_content || ''
+    const content: string = String(rawContent || reasoningContent || '')
 
-    const parsed = await extractJson(content)
+    const parsed = (await extractJson(content)) as any
     return {
       action: parsed.action || 'create',
       matchTopicId: parsed.matchTopicId,
@@ -142,7 +142,7 @@ export async function distillIdeas(
       throw new Error('LLM returned no choices')
     }
     const rawContent = choice.message?.content || ''
-    const reasoningContent = (choice.message as ChatCompletionMessage & Record<string, unknown>)?.reasoning_content || ''
+    const reasoningContent = (choice.message as any)?.reasoning_content || ''
     
     // Try rawContent first (model often puts JSON directly there)
     if (rawContent && rawContent.trim().length > 0) {
@@ -193,7 +193,7 @@ export function tryExtractArray(text: string): Array<{ title: string; content: s
           const parsed = JSON.parse(jsonStr)
           if (Array.isArray(parsed) && parsed.length > 0) {
             // Validate each item has required keys
-            const valid = parsed.every((item: unknown) => 
+            const valid = parsed.every((item: any) => 
               item && typeof item.title === 'string' && 
               typeof item.content === 'string' && 
               typeof item.takeaway === 'string'
@@ -283,7 +283,7 @@ Takeaway: ${takeaway}`
     }
     
     const rawContent = choice.message?.content || ''
-    const reasoningContent = (choice.message as ChatCompletionMessage & Record<string, unknown>)?.reasoning_content || ''
+    const reasoningContent = (choice.message as any)?.reasoning_content || ''
     
     // Try rawContent first
     if (rawContent && rawContent.trim().length > 0) {

@@ -5,17 +5,18 @@
  */
 export function getClientIp(request: Request | { ip?: string }): string {
   // 1. Prioritize Next.js's built-in request.ip, set securely by the hosting platform (Vercel/Netlify/etc.)
-  if (request && typeof request.ip === 'string' && request.ip) {
-    return request.ip
+  if (request && typeof (request as any).ip === 'string' && (request as any).ip) {
+    return (request as any).ip
   }
 
   // 2. Check for trusted Cloudflare client IP header (scrubbed & set at Cloudflare edge)
-  const cfIp = request.headers.get('cf-connecting-ip')
+  const headers = (request as any).headers
+  const cfIp = headers?.get ? headers.get('cf-connecting-ip') : undefined
   if (cfIp) return cfIp.trim()
 
   // 3. Fallback to standard headers
-  const forwarded = request.headers.get('x-forwarded-for')
-  const realIp = request.headers.get('x-real-ip')
+  const forwarded = headers?.get ? headers.get('x-forwarded-for') : undefined
+  const realIp = headers?.get ? headers.get('x-real-ip') : undefined
   
   if (process.env.NODE_ENV === 'production' && process.env.TRUST_PROXY !== 'true') {
     // In production without an explicitly trusted upstream reverse proxy, standard headers are untrusted.

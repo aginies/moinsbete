@@ -23,7 +23,7 @@ async function test() {
   const choice = response.choices[0]
   console.log('=== RAW RESPONSE ===')
   console.log('Content:', JSON.stringify(choice?.message?.content))
-  console.log('\nReasoning:', JSON.stringify((choice?.message as ChatCompletionMessage & Record<string, unknown>)?.reasoning_content?.substring(0, 500)))
+  console.log('\nReasoning:', JSON.stringify((choice?.message as any)?.reasoning_content?.substring?.(0, 500)))
   console.log('\nFinish reason:', choice?.finish_reason)
 }
 

@@ -159,7 +159,7 @@ export async function GET(request: NextRequest) {
     }))
 
     // Cache results
-    setCachedSearch(normalizedQ, formattedIdeas, filteredSources, filteredTopics, filteredFacts)
+    setCachedSearch(normalizedQ, formattedIdeas as any, filteredSources as any, filteredTopics as any, filteredFacts as any)
 
     return NextResponse.json({ ideas: formattedIdeas, sources: filteredSources, topics: filteredTopics, facts: filteredFacts })
   } catch (error) {

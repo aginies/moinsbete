@@ -136,7 +136,7 @@ export function BaseImageCard<TTopic>({
     setLoading(true)
     setError(false)
     setIsImageLoaded(false)
-    const activeTopicIds = topics.filter((t): t is TTopic & { active: boolean } => t.active).map(t => t.id)
+    const activeTopicIds = topics.filter((t: any) => t.active).map((t: any) => t.id)
     const newImage = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined)
     if (newImage) {
       setImage(newImage)

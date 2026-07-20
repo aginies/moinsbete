@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
 
       const data = await fetchWithRetry(
         `https://fr.wikipedia.org/w/api.php?action=parse&page=Wikip%C3%A9dia:Image_du_jour/${encodeURIComponent(randomArchive)}&prop=text&format=json`
-      )
+      ) as { parse?: { text?: { '*': string } } }
 
       if (!data?.parse?.text?.['*']) continue
 
