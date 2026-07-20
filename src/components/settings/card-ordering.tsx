@@ -18,7 +18,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, RotateCcw } from 'lucide-react'
+import { GripVertical, MoveUp, MoveDown, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
@@ -38,9 +38,17 @@ const DEFAULT_ORDER = ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikime
 function SortableCardItem({
   card,
   currentOrder,
+  index,
+  total,
+  onMoveUp,
+  onMoveDown,
 }: {
   card: { key: string; label: string; icon: string }
   currentOrder: string[]
+  index: number
+  total: number
+  onMoveUp: (key: string) => void
+  onMoveDown: (key: string) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card.key,
@@ -56,19 +64,57 @@ function SortableCardItem({
     opacity: isDragging ? 0.5 : 1,
   }
 
-  const cardIndex = currentOrder.indexOf(card.key)
-
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3 cursor-move select-none hover:bg-muted/50 transition-colors"
+      className="flex items-center gap-2 rounded-lg border bg-card px-3 py-2 sm:px-4 sm:py-3"
     >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing hidden sm:flex">
+        <GripVertical className="h-5 w-5 text-muted-foreground shrink-0" />
       </div>
-      <span className="text-lg">{card.icon}</span>
-      <span className="font-medium flex-1">{cardIndex + 1}. {card.label}</span>
+      <span className="text-sm sm:text-lg shrink-0">{card.icon}</span>
+      <span className="font-medium flex-1 text-sm sm:text-base truncate">{index + 1}. {card.label}</span>
+      <div className="flex gap-1 shrink-0">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 sm:hidden"
+          onClick={() => onMoveUp(card.key)}
+          disabled={index === 0}
+        >
+          <MoveUp className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 sm:hidden"
+          onClick={() => onMoveDown(card.key)}
+          disabled={index === total - 1}
+        >
+          <MoveDown className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 hidden sm:flex"
+          onClick={() => onMoveUp(card.key)}
+          disabled={index === 0}
+          title="Deplacer vers le haut"
+        >
+          <MoveUp className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 hidden sm:flex"
+          onClick={() => onMoveDown(card.key)}
+          disabled={index === total - 1}
+          title="Deplacer vers le bas"
+        >
+          <MoveDown className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   )
 }
@@ -126,6 +172,18 @@ export function CardOrdering({ userId }: { userId?: string }) {
     }, 500)
   }, [])
 
+  const moveItem = useCallback((key: string, direction: 'up' | 'down') => {
+    setOrder(prev => {
+      const index = prev.indexOf(key)
+      if (index === -1) return prev
+      const newIndex = direction === 'up' ? index - 1 : index + 1
+      if (newIndex < 0 || newIndex >= prev.length) return prev
+      const newOrder = arrayMove(prev, index, newIndex)
+      saveOrder(newOrder)
+      return newOrder
+    })
+  }, [saveOrder])
+
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
     if (over && active.id !== over.id) {
@@ -173,7 +231,7 @@ export function CardOrdering({ userId }: { userId?: string }) {
         </Button>
       </div>
       <p className="mb-4 text-sm text-muted-foreground">
-        Glissez-déposez les cartes pour changer leur ordre sur la page /sujets
+        Glissez-déposez ou utilisez les fleches pour reordonner
       </p>
       <DndContext
         sensors={sensors}
@@ -182,10 +240,20 @@ export function CardOrdering({ userId }: { userId?: string }) {
       >
         <SortableContext items={order} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
-            {order.map(key => {
+            {order.map((key, index) => {
               const card = CARD_DEFINITIONS.find(c => c.key === key)
               if (!card) return null
-              return <SortableCardItem key={card.key} card={card} currentOrder={order} />
+              return (
+                <SortableCardItem
+                  key={card.key}
+                  card={card}
+                  currentOrder={order}
+                  index={index}
+                  total={order.length}
+                  onMoveUp={(k) => moveItem(k, 'up')}
+                  onMoveDown={(k) => moveItem(k, 'down')}
+                />
+              )
             })}
           </div>
         </SortableContext>
