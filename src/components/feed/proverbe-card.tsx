@@ -146,6 +146,8 @@ export function ProverbeCard({
         signification: proverbe!.signification,
         source: proverbe!.source,
         url: proverbe!.wiktionnaireUrl,
+        etymologie: proverbe!.etymologie,
+        definitions: proverbe!.definitions,
       })
     },
   })
