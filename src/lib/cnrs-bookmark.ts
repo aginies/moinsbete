@@ -10,9 +10,9 @@ export interface CnrsFavoriteMeta {
   date?: string
 }
 
-const TYPE: BookmarkType = 'CNRS_NEWS'
+export const CNRS_TYPE: BookmarkType = 'CNRS_NEWS'
 
-const mapMeta: (meta: unknown, resourceId: string) => CnrsFavoriteDoc | null = (meta, resourceId) => {
+export const cnrsManager = createBookmarkManager(CNRS_TYPE, (meta, resourceId) => {
   const m = meta as CnrsFavoriteMeta | null
   if (!m) return null
   return {
@@ -24,9 +24,7 @@ const mapMeta: (meta: unknown, resourceId: string) => CnrsFavoriteDoc | null = (
     date: m.date || '',
     favoritedAt: new Date().toISOString(),
   }
-}
-
-export const cnrsManager = createBookmarkManager(TYPE, mapMeta)
+})
 
 export const getCnrsFavorites = cnrsManager.getFavorites.bind(cnrsManager)
 export const getCnrsFavoritesCount = cnrsManager.getFavoritesCount.bind(cnrsManager)

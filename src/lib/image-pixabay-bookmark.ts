@@ -1,8 +1,6 @@
 import type { BookmarkType } from '@/generated/client'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
-const TYPE: BookmarkType = 'IMAGE_PIXABAY'
-
 export interface PixabayVideoFavoriteMeta {
   pageURL: string
   author: string
@@ -26,7 +24,9 @@ export interface PixabayVideoFavoriteDoc {
   favoritedAt: string
 }
 
-const mapMeta: (meta: unknown, resourceId: string) => PixabayVideoFavoriteDoc | null = (meta, resourceId) => {
+export const IMAGE_PIXABAY_TYPE: BookmarkType = 'IMAGE_PIXABAY'
+
+export const pixabayManager = createBookmarkManager(IMAGE_PIXABAY_TYPE, (meta, resourceId) => {
   const m = meta as PixabayVideoFavoriteMeta | null
   if (!m) return null
   return {
@@ -41,8 +41,7 @@ const mapMeta: (meta: unknown, resourceId: string) => PixabayVideoFavoriteDoc | 
     tags: m.tags || '',
     favoritedAt: new Date().toISOString(),
   }
-}
+})
 
-export const pixabayManager = createBookmarkManager(TYPE, mapMeta)
 export const getPixabayFavorites = pixabayManager.getFavorites.bind(pixabayManager)
 export const getPixabayFavoritesCount = pixabayManager.getFavoritesCount.bind(pixabayManager)

@@ -1,23 +1,10 @@
 'use server'
 
-import type { BookmarkType } from '@/generated/client'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { imageDuJourManager } from '@/lib/image-du-jour-bookmark'
-import { createBookmarkManagerActions } from '@/actions/bookmark-manager'
-import type { ImageDuJourFavoriteMeta } from '@/lib/image-du-jour-bookmark'
+import { createBookmarkActions } from '@/actions/bookmark-actions-factory'
 
-const TYPE: BookmarkType = 'IMAGE_DU_JOUR'
+const actions = createBookmarkActions(imageDuJourManager)
 
-const imageDuJourActions = createBookmarkManagerActions(imageDuJourManager)
-
-export async function toggleImageDuJourFavoriteAction(docId: string, action?: 'add' | 'remove', meta?: ImageDuJourFavoriteMeta) {
-  return toggleBookmarkAction(TYPE, docId, action, meta as Record<string, unknown>)
-}
-
-export async function getImageDuJourFavoritesAction() {
-  return imageDuJourActions.getFavorites()
-}
-
-export async function isImageDuJourFavoriteAction(docId: string) {
-  return isBookmarkedAction(TYPE, docId)
-}
+export const toggleImageDuJourFavoriteAction = actions.toggle
+export const getImageDuJourFavoritesAction = actions.getFavorites
+export const isImageDuJourFavoriteAction = actions.isBookmarked
