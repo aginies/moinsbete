@@ -7,6 +7,7 @@ import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { ShareButton } from './share-button'
 import { toggleCnrsFavoriteAction, isCnrsFavoriteAction } from '@/actions/cnrs-bookmark-actions'
+import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
 
@@ -98,23 +99,21 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
 
   const categoryStyle = article ? CATEGORY_COLORS[article.category] || { border: 'border-gray-400', bg: 'bg-gray-100', text: 'text-gray-800', darkBorder: 'dark:border-gray-700', darkBg: 'dark:bg-gray-900/40', darkText: 'dark:text-gray-300' } : null
 
-  const handleBookmark = useCallback(async () => {
-    if (!article || !userId) return
-    const newFavorite = !isFavorite
-
-    try {
-      await toggleCnrsFavoriteAction(article.link, newFavorite ? 'add' : 'remove', {
-        title: article.title,
-        category: article.category,
-        imageUrl: article.imageUrl,
-        link: article.link,
-        date: article.date,
+  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
+    resourceId: article?.link,
+    guard: () => !article || !userId,
+    initialFavorite: isFavorite,
+    onFavoriteChange: setIsFavorite,
+    toggleFn: async (action) => {
+      await toggleCnrsFavoriteAction(article!.link, action, {
+        title: article!.title,
+        category: article!.category,
+        imageUrl: article!.imageUrl,
+        link: article!.link,
+        date: article!.date,
       })
-      setIsFavorite(newFavorite)
-    } catch {
-      setIsFavorite(prev => !prev)
-    }
-  }, [article, isFavorite, userId])
+    },
+  })
 
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: article?.link ?? '',
@@ -164,10 +163,11 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
                 e.stopPropagation()
                 handleBookmark()
               }}
-              className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 transition-colors"
+              disabled={isPending}
+              className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 transition-colors disabled:opacity-50"
               title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
-              <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+              <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current text-green-600 dark:text-green-400' : 'text-green-600 dark:text-green-400'}`} />
             </button>
           )}
           <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />

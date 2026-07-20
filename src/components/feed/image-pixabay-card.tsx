@@ -10,6 +10,7 @@ import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { VisibilityButton } from './visibility-button'
 import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 
 interface PixabayVideo {
   id: number
@@ -57,18 +58,8 @@ async function fetchRandomVideo(category?: string): Promise<PixabayVideo | null>
   }
 }
 
-function formatDuration(seconds: number): string {
-  if (!seconds || seconds <= 0) return ''
-  const minutes = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  if (minutes > 0) {
-    return `${minutes}:${secs.toString().padStart(2, '0')}`
-  }
-  return `0:${secs.toString().padStart(2, '0')}`
-}
-
-function formatTime(seconds: number): string {
-  if (!seconds || seconds <= 0) return '0:00'
+function formatTime(seconds: number, empty = '0:00'): string {
+  if (!seconds || seconds <= 0) return empty
   const minutes = Math.floor(seconds / 60)
   const secs = Math.floor(seconds % 60)
   if (minutes > 0) {
@@ -201,24 +192,22 @@ export function ImagePixabayCard({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [])
 
-  const handleBookmark = useCallback(async () => {
-    if (!video) return
-    const newFavorite = !isFavorite
-    try {
-      await toggleBookmarkAction('IMAGE_PIXABAY', String(video.id), newFavorite ? 'add' : 'remove', {
-        pageURL: video.pageURL,
-        author: video.author,
-        authorProfileUrl: video.authorProfileUrl,
-        duration: video.duration,
-        thumbnailUrl: video.thumbnailUrl,
-        videoUrl: video.videoUrl,
-        tags: video.tags,
+  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
+    resourceId: video ? String(video.id) : undefined,
+    initialFavorite: isFavorite,
+    onFavoriteChange: setIsFavorite,
+    toggleFn: async (action) => {
+      await toggleBookmarkAction('IMAGE_PIXABAY', String(video!.id), action, {
+        pageURL: video!.pageURL,
+        author: video!.author,
+        authorProfileUrl: video!.authorProfileUrl,
+        duration: video!.duration,
+        thumbnailUrl: video!.thumbnailUrl,
+        videoUrl: video!.videoUrl,
+        tags: video!.tags,
       })
-      setIsFavorite(newFavorite)
-    } catch {
-      setIsFavorite(prev => !prev)
-    }
-  }, [video, isFavorite])
+    },
+  })
 
   const handleCategorySelect = useCallback((categoryId: string) => {
     if (!show) return
@@ -311,10 +300,11 @@ export function ImagePixabayCard({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
+                disabled={isPending}
+                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors disabled:opacity-50"
                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               >
-                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-800 dark:text-amber-300'}`} />
               </button>
             )}
           </>
@@ -387,7 +377,7 @@ export function ImagePixabayCard({
           )}
           {video.duration > 0 && (
             <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded">
-              {formatTime(currentTime)} / {formatDuration(video.duration)}
+              {formatTime(currentTime)} / {formatTime(video.duration, '')}
             </div>
           )}
         </div>

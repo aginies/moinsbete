@@ -12,6 +12,7 @@ import { ImageHint } from './image-hint'
 import { VisibilityButton } from './visibility-button'
 import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 
 interface WikiLovesImage {
   docid: string
@@ -133,22 +134,20 @@ export function ImageWikiLovesCard({
     }
   }, [userId, image])
 
-  const handleBookmark = useCallback(async () => {
-    if (!image) return
-    const newFavorite = !isFavorite
-    try {
-      await toggleBookmarkAction('IMAGE_WIKILOVES', image.docid, newFavorite ? 'add' : 'remove', {
-        titre: image.titre,
-        auteur: image.auteur,
-        imageUrl: image.imageUrl,
-        link: image.link,
-        droits: image.droits,
+  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
+    resourceId: image?.docid,
+    initialFavorite: isFavorite,
+    onFavoriteChange: setIsFavorite,
+    toggleFn: async (action) => {
+      await toggleBookmarkAction('IMAGE_WIKILOVES', image!.docid, action, {
+        titre: image!.titre,
+        auteur: image!.auteur,
+        imageUrl: image!.imageUrl,
+        link: image!.link,
+        droits: image!.droits,
       })
-      setIsFavorite(newFavorite)
-    } catch {
-      setIsFavorite(prev => !prev)
-    }
-  }, [image, isFavorite])
+    },
+  })
 
   const handleTopicToggle = useCallback(async (topicId: string) => {
     setAllTopics(prev => prev.map(t => t.id === topicId ? { ...t, active: !t.active } : t))
@@ -250,10 +249,11 @@ export function ImageWikiLovesCard({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors"
+                disabled={isPending}
+                className="text-indigo-800 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors disabled:opacity-50"
                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               >
-                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current text-indigo-600 dark:text-indigo-400' : 'text-indigo-800 dark:text-indigo-300'}`} />
               </button>
             )}
           </>

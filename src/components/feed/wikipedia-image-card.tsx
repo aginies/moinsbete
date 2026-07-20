@@ -14,6 +14,7 @@ import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { encodeImageToUrl } from '@/lib/image-url-encoder'
 
 interface ImageData {
@@ -153,32 +154,32 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     text: image ? `${image.description}\n\nDate: ${image.date}` : '',
   })
 
-  const [isFavorited, setIsFavorited] = useState(false)
-  const [favoriting, setFavoriting] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
   const imageId = image?.fileUrl || ''
 
   useEffect(() => {
     if (!imageId) return
     let mounted = true
     isBookmarkedAction('IMAGE_DU_JOUR', imageId).then((result) => {
-      if (mounted) setIsFavorited(result.isBookmarked)
+      if (mounted) setIsFavorite(result.isBookmarked)
     })
     return () => { mounted = false }
   }, [imageId])
 
-  const handleToggleFavorite = useCallback(async () => {
-    if (!image || favoriting) return
-    setFavoriting(true)
-    const action = isFavorited ? 'remove' : 'add'
-    await toggleBookmarkAction('IMAGE_DU_JOUR', image.fileUrl, action, {
-      imageUrl: image.imageUrl,
-      description: image.description,
-      fileUrl: image.fileUrl,
-      date: image.date,
-    })
-    setIsFavorited(!isFavorited)
-    setFavoriting(false)
-  }, [image, isFavorited, favoriting])
+  const { isPending, handleBookmark: handleToggleFavorite } = useSimpleBookmarkToggle({
+    resourceId: image?.fileUrl,
+    guard: () => !image,
+    initialFavorite: isFavorite,
+    onFavoriteChange: setIsFavorite,
+    toggleFn: async (action) => {
+      await toggleBookmarkAction('IMAGE_DU_JOUR', image!.fileUrl, action, {
+        imageUrl: image!.imageUrl,
+        description: image!.description,
+        fileUrl: image!.fileUrl,
+        date: image!.date,
+      })
+    },
+  })
 
   if (!hasMounted) {
     return null
@@ -212,12 +213,12 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
-              disabled={favoriting}
+              disabled={isPending}
               className="rounded-full p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all disabled:opacity-50"
-              title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
               <Bookmark
-                className={`h-4 w-4 ${isFavorited ? 'fill-current text-teal-600 dark:text-teal-400' : 'text-teal-600 dark:text-teal-400'}`}
+                className={`h-4 w-4 ${isFavorite ? 'fill-current text-teal-600 dark:text-teal-400' : 'text-teal-600 dark:text-teal-400'}`}
               />
             </button>
           )

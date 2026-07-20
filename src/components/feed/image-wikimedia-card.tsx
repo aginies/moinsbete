@@ -12,6 +12,7 @@ import { ImageHint } from './image-hint'
 import { VisibilityButton } from './visibility-button'
 import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { WikimediaTopicsModal } from './wikimedia-topics-modal'
 
 interface WikimediaImage {
@@ -172,23 +173,20 @@ export function ImageWikimediaCard({
     }
   }, [userId, image])
 
-  const handleBookmark = useCallback(async () => {
-    if (!image) return
-    const newFavorite = !isFavorite
-
-    try {
-      await toggleBookmarkAction('IMAGE_WIKIMEDIA', image.docid, newFavorite ? 'add' : 'remove', {
-        titre: image.titre,
-        auteur: image.auteur,
-        imageUrl: image.imageUrl,
-        link: image.link,
-        droits: image.droits,
+  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
+    resourceId: image?.docid,
+    initialFavorite: isFavorite,
+    onFavoriteChange: setIsFavorite,
+    toggleFn: async (action) => {
+      await toggleBookmarkAction('IMAGE_WIKIMEDIA', image!.docid, action, {
+        titre: image!.titre,
+        auteur: image!.auteur,
+        imageUrl: image!.imageUrl,
+        link: image!.link,
+        droits: image!.droits,
       })
-      setIsFavorite(newFavorite)
-    } catch {
-      setIsFavorite(prev => !prev)
-    }
-  }, [image, isFavorite])
+    },
+  })
 
   const refreshTopics = useCallback(async () => {
     if (userId) {
@@ -308,10 +306,11 @@ export function ImageWikimediaCard({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
+                disabled={isPending}
+                className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors disabled:opacity-50"
                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               >
-                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current text-rose-600 dark:text-rose-400' : 'text-rose-800 dark:text-rose-300'}`} />
               </button>
             )}
           </>
