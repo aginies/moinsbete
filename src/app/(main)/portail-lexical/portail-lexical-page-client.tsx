@@ -106,6 +106,11 @@ export function PortailLexicalPageClient() {
   }, [searchTerm])
 
   const loadWord = useCallback(async (word: string) => {
+    const safeRegex = /^[a-zA-ZàâäéèêëîïôöùûüçÂÀÆÉÈÊËÎÏÔÖÙÛÜÇœŒ\s'-]+$/
+    if (!word || word.length > 100 || !safeRegex.test(word)) {
+      setError(true)
+      return
+    }
     setLoading(true)
     setError(false)
     const details = await fetchWordDetails(word)
@@ -128,9 +133,14 @@ export function PortailLexicalPageClient() {
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!searchTerm.trim()) return
+    const trimmed = searchTerm.trim()
+    const safeRegex = /^[a-zA-ZàâäéèêëîïôöùûüçÂÀÆÉÈÊËÎÏÔÖÙÛÜÇœŒ\s'-]+$/
+    if (!trimmed || trimmed.length > 100 || !safeRegex.test(trimmed)) {
+      setError(true)
+      return
+    }
     setShowSuggestions(false)
-    await loadWord(searchTerm.trim())
+    await loadWord(trimmed)
   }, [searchTerm, loadWord])
 
   const handleHistoryClick = useCallback(async (word: string) => {
@@ -165,7 +175,14 @@ export function PortailLexicalPageClient() {
                 <Input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    // Keep only letters, accents, spaces, hyphens and apostrophes
+                    const filtered = val.replace(/[^a-zA-ZàâäéèêëîïôöùûüçÂÀÆÉÈÊËÎÏÔÖÙÛÜÇœŒ\s'-]/g, '')
+                    if (filtered.length <= 100) {
+                      setSearchTerm(filtered)
+                    }
+                  }}
                   onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder="Rechercher un mot..."

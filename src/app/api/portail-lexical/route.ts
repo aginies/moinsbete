@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 
 const PORTAIL_LEXICAL_BASE = 'https://www.portail-lexical.fr'
 
+const isValidSearchTerm = (term: string): boolean => {
+  if (!term || term.length > 100) return false
+  const safeRegex = /^[a-zA-ZàâäéèêëîïôöùûüçÂÀÆÉÈÊËÎÏÔÖÙÛÜÇœŒ\s'-]+$/
+  return safeRegex.test(term)
+}
+
 interface PortailLexicalWord {
   form: string
   pos: string
@@ -155,7 +161,7 @@ async function fetchWordDetails(word: string): Promise<PortailLexicalWord | null
 }
 
 async function searchWords(term: string): Promise<SearchSuggestion[]> {
-  if (!term || term.length < 2) return []
+  if (!term || term.length < 2 || !isValidSearchTerm(term)) return []
   try {
     const res = await fetch(`${PORTAIL_LEXICAL_BASE}/api/search/${encodeURIComponent(term)}`, {
       signal: AbortSignal.timeout(10000),
@@ -179,14 +185,17 @@ export async function GET(request: Request) {
 
   if (action === 'search') {
     const term = searchParams.get('q') || ''
+    if (!isValidSearchTerm(term)) {
+      return NextResponse.json({ suggestions: [] })
+    }
     const suggestions = await searchWords(term)
     return NextResponse.json({ suggestions })
   }
 
   if (action === 'word') {
     const word = searchParams.get('word') || ''
-    if (!word) {
-      return NextResponse.json({ error: 'Missing word parameter' }, { status: 400 })
+    if (!word || !isValidSearchTerm(word)) {
+      return NextResponse.json({ error: 'Invalid or missing word parameter' }, { status: 400 })
     }
     const details = await fetchWordDetails(word)
     if (!details) {
