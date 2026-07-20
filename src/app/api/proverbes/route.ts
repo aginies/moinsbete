@@ -360,9 +360,17 @@ async function fetchAllAnnexPagesSequentially(): Promise<{ total: number; added:
       continue
     }
 
-    console.log(`  Page ${pageId}/${totalPages}: Verifying ${entries.length} parsed entries against Wiktionary (French check)...`)
-    const verifiedEntries = await verifyFrenchWiktionnaire(entries)
-    console.log(`  Page ${pageId}/${totalPages}: ${verifiedEntries.length}/${entries.length} entries verified.`)
+    const isAfricanAnnex = page.id === 1483239
+    let verifiedEntries: CachedProverbe[]
+    
+    if (isAfricanAnnex) {
+      verifiedEntries = entries
+      console.log(`  Page ${pageId}/${totalPages}: ${page.title} - skipping verification (African annex), all ${entries.length} entries kept.`)
+    } else {
+      console.log(`  Page ${pageId}/${totalPages}: Verifying ${entries.length} parsed entries against Wiktionary (French check)...`)
+      verifiedEntries = await verifyFrenchWiktionnaire(entries)
+      console.log(`  Page ${pageId}/${totalPages}: ${verifiedEntries.length}/${entries.length} entries verified.`)
+    }
 
     const newProverbs = verifiedEntries.filter(p => !existingTexts.has(p.text))
     allProverbs.push(...newProverbs)
@@ -376,7 +384,7 @@ async function fetchAllAnnexPagesSequentially(): Promise<{ total: number; added:
     
     fetchProgress.perPage = verifiedEntries.length
     fetchProgress.total = allProverbs.length
-    console.log(`  Page ${pageId}/${totalPages}: ${page.title} - ${verifiedEntries.length} verified (${newProverbs.length} new)`)
+    console.log(`  Page ${pageId}/${totalPages}: ${page.title} - ${verifiedEntries.length} entries (${newProverbs.length} new)`)
     await delay(2000)
   }
   

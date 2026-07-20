@@ -28,7 +28,7 @@ interface ProverbeBookmarksProps {
   userId?: string
   onRemoveComplete?: () => void
   sharedIds?: Set<string>
-  onShareToggle?: (resourceId: string) => void
+  onShareToggle?: (item: ProverbeFavoriteDoc) => void
   isSharing?: string | null
 }
 
@@ -106,7 +106,7 @@ export function ProverbeBookmarks({ userId, onRemoveComplete, sharedIds, onShare
       onRemoveComplete={onRemoveComplete}
       fetchFn={fetchFn}
       renderItem={(item, onRemove) => (
-        <ProverbeFavoriteItem item={item} onRemove={onRemove} onShareToggle={() => onShareToggle?.(item.id)} isShared={sharedIds?.has(item.id) ?? false} isSharing={isSharing === item.id} />
+        <ProverbeFavoriteItem item={item} onRemove={onRemove} onShareToggle={() => onShareToggle?.(item)} isShared={sharedIds?.has(item.id) ?? false} isSharing={isSharing === item.id} />
       )}
       emptyTitle="Aucun favori Proverbe"
       emptyDescription="Favorisez des proverbes depuis la page Proverbes pour les voir ici."

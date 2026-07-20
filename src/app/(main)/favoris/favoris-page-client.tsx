@@ -212,7 +212,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     setPixabayCount(pixabayFavoritesCount)
     setPortailLexCount(portailLexicalCount)
     setProverbeCount(proverbeFavoritesCount)
-  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount])
+  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount])
 
   const handleRadioRemove = useCallback(() => {
     setRadioCount(prev => Math.max(0, prev - 1))
@@ -383,7 +383,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
   }
 
-  const handleProverbeShareToLobby = async (resourceId: string) => {
+  const handleProverbeShareToLobby = async (item: any) => {
+    const resourceId = item.id
     setIsSharing(resourceId)
     try {
       const isShared = sharedProverbeIds.has(resourceId)
@@ -396,7 +397,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         })
         toast.success('Retiré du lobby')
       } else {
-        const result = await shareResourceToLobby('PROVERBE', resourceId)
+        const result = await shareResourceToLobby('PROVERBE', resourceId, item)
         if (result.success) {
           setSharedProverbeIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')

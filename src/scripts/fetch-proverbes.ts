@@ -28,15 +28,15 @@ async function startFetch(): Promise<FetchProgress> {
 }
 
 async function main() {
-  console.log('📚 Starting fetch all proverbs...')
+  console.log('📚 Récupération de tous les proverbes...')
   
   const startResult = await startFetch()
-  console.log(`Started: ${JSON.stringify(startResult)}`)
+  console.log(`Démarré : ${JSON.stringify(startResult)}`)
   
   if (startResult.status === 'done') {
-    console.log(`\n✅ Done!`)
-    console.log(`  Total proverbs: ${startResult.total}`)
-    console.log(`  Added: ${startResult.added}`)
+    console.log(`\n✅ Terminé !`)
+    console.log(`  Total de proverbes : ${startResult.total}`)
+    console.log(`  Ajoutés : ${startResult.added}`)
     return
   }
   
@@ -47,18 +47,18 @@ async function main() {
     const progress = await pollProgress()
     
     if (progress.status === 'fetching') {
-      const proverbCount = progress.perPage != null ? `, ${progress.perPage} proverbs` : ''
-      const totalCount = progress.total != null ? ` (total: ${progress.total})` : ''
-      const newLine = `  Fetching page ${progress.progress}: ${progress.currentPage || ''}${proverbCount}${totalCount}...`
+      const proverbCount = progress.perPage != null ? `, ${progress.perPage} proverbe${progress.perPage > 1 ? 's' : ''}` : ''
+      const totalCount = progress.total != null ? ` (total : ${progress.total})` : ''
+      const newLine = `  Récupération de la page ${progress.progress} : ${progress.currentPage || ''}${proverbCount}${totalCount}...`
       if (newLine !== prevProgress) {
         console.log(newLine)
         prevProgress = newLine
       }
     } else if (progress.status === 'done' || progress.status === 'stopped') {
       const icon = progress.status === 'done' ? '✅' : '⚠️'
-      console.log(`\n${icon} ${progress.status === 'done' ? 'Done!' : 'Stopped!'}`)
-      console.log(`  Total proverbs: ${progress.total}`)
-      console.log(`  Added: ${progress.added}`)
+      console.log(`\n${icon} ${progress.status === 'done' ? 'Terminé !' : 'Arrêté !'}`)
+      console.log(`  Total de proverbes : ${progress.total}`)
+      console.log(`  Ajoutés : ${progress.added}`)
       break
     }
   }
