@@ -41,7 +41,6 @@ export function MindMap({ nodes, links }: MindMapProps) {
   const [showSearch, setShowSearch] = useState(false)
   const [hasCentered, setHasCentered] = useState(false)
   const prevSearchRef = useRef('')
-  const prevSearchRef = useRef('')
 
   const handleEngineStop = useCallback(() => {
     if (!hasCentered && fgRef.current) {
