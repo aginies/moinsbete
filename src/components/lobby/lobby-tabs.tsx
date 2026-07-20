@@ -20,6 +20,7 @@ interface LobbyTabsProps {
     IMAGE_DU_JOUR: Set<string>
     IMAGE_WIKIMEDIA: Set<string>
     IMAGE_WIKILOVES: Set<string>
+    PROVERBE: Set<string>
   }
 }
 
@@ -30,6 +31,7 @@ const TYPE_FILTERS = [
   { value: 'SAVIEZ_VOUS', label: 'Saviez-vous ?' },
   { value: 'IMAGE_WIKIMEDIA', label: 'Wikimedia' },
   { value: 'IMAGE_WIKILOVES', label: 'Wiki Loves' },
+  { value: 'PROVERBE', label: 'Proverbes' },
 ]
 
 export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin, totalPages, currentPage, userFavoriteIds }: LobbyTabsProps) {
@@ -111,6 +113,12 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
         if (b.wikiLovesImage) {
           const title = (b.wikiLovesImage.title || '').toLowerCase()
           if (title.includes(q)) return true
+        }
+        if (b.proverbe) {
+          const text = (b.proverbe.text || '').toLowerCase()
+          const signification = (b.proverbe.signification || '').toLowerCase()
+          const source = (b.proverbe.source || '').toLowerCase()
+          if (text.includes(q) || signification.includes(q) || source.includes(q)) return true
         }
         return false
       })

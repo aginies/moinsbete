@@ -22,6 +22,7 @@ interface UserFavoriteIds {
   IMAGE_DU_JOUR: Set<string>
   IMAGE_WIKIMEDIA: Set<string>
   IMAGE_WIKILOVES: Set<string>
+  PROVERBE: Set<string>
 }
 
 const PAGE_SIZE = 20
@@ -42,6 +43,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     IMAGE_DU_JOUR: new Set(),
     IMAGE_WIKIMEDIA: new Set(),
     IMAGE_WIKILOVES: new Set(),
+    PROVERBE: new Set(),
   }
   if (session?.user?.id) {
     const bookmarks = await prisma.$queryRaw<Array<{ resourceId: string; type: string }>>`
@@ -49,7 +51,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       FROM "Bookmark"
       WHERE "userId" = ${session.user.id}
     `
-    const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES'] as const
+    const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE'] as const
     for (const bm of bookmarks) {
       if (bm.resourceId && knownTypes.includes(bm.type as typeof knownTypes[number])) {
         userFavoriteIds[bm.type as keyof UserFavoriteIds].add(bm.resourceId)
@@ -186,6 +188,9 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         } catch {}
       }
       return { ...bookmark, wikiLovesImage: image }
+    }
+    if (bookmark.resourceType === 'PROVERBE' && bookmark.resourceId) {
+      return { ...bookmark, proverbe: bookmark.meta }
     }
     return bookmark
   }) as Array<SharedBookmarkRaw & { saviezFact?: any; wikiImage?: any; wikiMediaImage?: any; wikiLovesImage?: any }>
