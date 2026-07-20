@@ -4,12 +4,7 @@ import { prisma } from '@/lib/db'
 import { addCommentAction, updateSuggestionAction, deleteSuggestionAction } from '@/actions/suggestion-actions'
 import { isCsrfValid } from '@/lib/csrf'
 
-function maskEmail(email: string): string {
-  const [local, domain] = email.split('@')
-  if (!local || !domain) return email
-  const masked = local.length > 2 ? local[0] + '***' : local.slice(0, 1) + '*'
-  return `${masked}@${domain}`
-}
+import { maskEmail } from '@/lib/utils'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()

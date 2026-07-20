@@ -4,12 +4,7 @@ import { prisma } from '@/lib/db'
 import { createSuggestionAction } from '@/actions/suggestion-actions'
 import { isCsrfValid } from '@/lib/csrf'
 
-function maskEmail(email: string): string {
-  const [local, domain] = email.split('@')
-  if (!local || !domain) return email
-  const masked = local.length > 2 ? local[0] + '***' : local.slice(0, 1) + '*'
-  return `${masked}@${domain}`
-}
+import { maskEmail } from '@/lib/utils'
 
 export async function GET() {
   const suggestions = await prisma.userSuggestion.findMany({

@@ -397,7 +397,12 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         })
         toast.success('Retiré du lobby')
       } else {
-        const result = await shareResourceToLobby('PROVERBE', resourceId, item)
+        const result = await shareResourceToLobby('PROVERBE', resourceId, {
+          text: item.text,
+          signification: item.signification,
+          source: item.source,
+          wiktionnaireUrl: item.wiktionnaireUrl,
+        })
         if (result.success) {
           setSharedProverbeIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
