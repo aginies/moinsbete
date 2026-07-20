@@ -27,6 +27,9 @@ const PROVERBE_FAVORITES_KEY = 'proverbe_favorites'
 interface ProverbeBookmarksProps {
   userId?: string
   onRemoveComplete?: () => void
+  sharedIds?: Set<string>
+  onShareToggle?: (resourceId: string) => void
+  isSharing?: string | null
 }
 
 function ProverbeFavoriteItem({ item, onRemove, onShareToggle, isShared, isSharing }: { item: ProverbeFavoriteDoc; onRemove: () => void; onShareToggle: () => void; isShared: boolean; isSharing: boolean }) {
@@ -82,7 +85,7 @@ function ProverbeFavoriteItem({ item, onRemove, onShareToggle, isShared, isShari
   )
 }
 
-export function ProverbeBookmarks({ userId, onRemoveComplete }: ProverbeBookmarksProps) {
+export function ProverbeBookmarks({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: ProverbeBookmarksProps) {
   const { handleRemove, getFavorites } = useFavoritesList<ProverbeFavoriteDoc>({
     userId,
     storageKey: PROVERBE_FAVORITES_KEY,
@@ -103,7 +106,7 @@ export function ProverbeBookmarks({ userId, onRemoveComplete }: ProverbeBookmark
       onRemoveComplete={onRemoveComplete}
       fetchFn={fetchFn}
       renderItem={(item, onRemove) => (
-        <ProverbeFavoriteItem item={item} onRemove={onRemove} onShareToggle={() => {}} isShared={false} isSharing={false} />
+        <ProverbeFavoriteItem item={item} onRemove={onRemove} onShareToggle={() => onShareToggle?.(item.id)} isShared={sharedIds?.has(item.id) ?? false} isSharing={isSharing === item.id} />
       )}
       emptyTitle="Aucun favori Proverbe"
       emptyDescription="Favorisez des proverbes depuis la page Proverbes pour les voir ici."
