@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2 } from 'lucide-react'
+import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -80,6 +80,13 @@ interface SharedBookmark {
   wikiImage: CachedWikipediaImage | null
   wikiMediaImage: CachedWikiLovesImage | null
   wikiLovesImage: CachedWikiLovesImage | null
+  proverbe: {
+    id: string
+    text: string
+    signification: string
+    source: string
+    wiktionnaireUrl?: string
+  } | null
   user: { id: string; displayName: string | null; email: string }
 }
 
@@ -93,6 +100,7 @@ interface SharedBookmarksProps {
     IMAGE_DU_JOUR: Set<string>
     IMAGE_WIKIMEDIA: Set<string>
     IMAGE_WIKILOVES: Set<string>
+    PROVERBE: Set<string>
   }
   typeFilters?: { value: string; label: string }[]
   activeType?: string
@@ -691,6 +699,120 @@ function WikiMediaBookmarkItem({
   )
 }
 
+function ProverbeBookmarkItem({
+  bookmark,
+  currentUserId,
+  isAdmin,
+  userFavoriteIds,
+}: {
+  bookmark: SharedBookmark & { proverbe: NonNullable<SharedBookmark['proverbe']> }
+  currentUserId: string | null
+  isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+}) {
+  const [hovered, setHovered] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.PROVERBE.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('PROVERBE', bookmark.resourceId, {
+        text: bookmark.proverbe.text,
+        signification: bookmark.proverbe.signification,
+        source: bookmark.proverbe.source,
+        url: bookmark.proverbe.wiktionnaireUrl,
+      })
+      if (result.success) {
+        window.location.reload()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
+
+  return (
+    <div
+      className="group relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="rounded-xl border-2 border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 p-4 dark:border-emerald-700 dark:from-emerald-950/20 dark:to-green-950/20">
+        <div className="mb-2 flex items-center gap-2">
+          <Quote className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
+          <h4 className="text-sm font-bold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">Proverbe</h4>
+        </div>
+        <p className="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-2 italic">
+          "{bookmark.proverbe.text}"
+        </p>
+        {bookmark.proverbe.signification && (
+          <p className="text-sm leading-relaxed text-emerald-800 dark:text-emerald-200 mb-2">
+            {bookmark.proverbe.signification}
+          </p>
+        )}
+        <div className="mb-2">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+            {bookmark.proverbe.source}
+          </span>
+        </div>
+        {bookmark.proverbe.wiktionnaireUrl && (
+          <Link
+            href={sanitizeUrl(bookmark.proverbe.wiktionnaireUrl)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-200 hover:underline"
+          >
+            Voir sur Wiktionnaire
+            <ExternalLink className="h-3 w-3" />
+          </Link>
+        )}
+      </div>
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
+        <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
+          <User className="h-3 w-3" />
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
+        </span>
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
+        {(currentUserId === bookmark.user.id || isAdmin) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            onClick={() => {
+              bookmark.resourceId && unshareResourceFromLobby('PROVERBE', bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+            }}
+          >
+            <Trash2 className="h-3 w-3 text-muted-foreground" />
+          </Button>
+        )}
+      </div>
+      <div className="mt-1 text-xs text-muted-foreground">
+        Partagé le {bookmark.createdAt.toLocaleDateString('fr-FR')}
+      </div>
+    </div>
+  )
+}
+
 export function SharedBookmarks({
   sharedBookmarks,
   currentUserId,
@@ -702,7 +824,7 @@ export function SharedBookmarks({
   onTypeChange,
   onSearchChange,
 }: SharedBookmarksProps) {
-  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage)
+  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.proverbe)
 
   const hasFilters = typeFilters.length > 0 || searchQuery
 
@@ -769,6 +891,9 @@ export function SharedBookmarks({
             }
             if (bookmark.wikiLovesImage) {
               return <WikiLovesBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
+            }
+            if (bookmark.proverbe) {
+              return <ProverbeBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { proverbe: NonNullable<SharedBookmark['proverbe']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
             }
             return null
           })}
