@@ -116,6 +116,20 @@ Scrap les archives "Le saviez-vous ?" de Wikipédia (2016-2025).
 npx tsx scripts/scrape-saviez-vous.ts
 ```
 
+### `scripts/fetch-proverbes.ts`
+
+Récupère les proverbes depuis Wiktionary (pages Annexe + catégories). Affiche le nombre de proverbes par page et le total cumulé pendant le fetch.
+
+```bash
+# Démarrer le dev server d'abord
+npm run dev
+
+# Puis exécuter le script
+npm run fetch-proverbes
+```
+
+Fetch 14 pages Annexe + 10 catégories de proverbes. Filtrage automatique : seuls les proverbes avec une page Wiktionnaire en français sont conservés.
+
 ### `scripts/insert_saviez_vous.ts`
 
 Réinsère les faits "Le saviez-vous" hardcodés.
@@ -175,5 +189,6 @@ src/scripts/
 ├── ingest-wikipedia.ts    # Ingestion massive Wikipédia
 ├── enhance-ideas.ts       # Amélioration contenu court des idées
 ├── change-password.ts     # Changement mot de passe utilisateur
-└── rename-ideas.ts        # Renommage massif des idées via LLM
+├── rename-ideas.ts        # Renommage massif des idées via LLM
+└── fetch-proverbes.ts     # Récupération proverbes Wiktionary
 ```
