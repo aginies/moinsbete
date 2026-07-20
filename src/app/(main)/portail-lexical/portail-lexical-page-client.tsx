@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { CardHeader } from '@/components/feed/card-header'
-import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
 
 interface PortailLexicalWord {
   form: string
@@ -217,9 +216,42 @@ export function PortailLexicalPageClient() {
         </div>
       </div>
 
-      <div className="mb-6">
-        <PortailLexicalCard showToggle={false} />
-      </div>
+      {history.length > 0 && (
+        <div className="mb-6">
+          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                  Recherches récentes
+                </h3>
+              </div>
+              {history.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClearHistory}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border border-amber-300 bg-amber-100 text-amber-700 hover:bg-amber-200 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-400 dark:hover:bg-amber-800/40 transition-colors"
+                >
+                  <Trash2 className="h-3 w-3" />
+                  Effacer
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {history.slice(0, 10).map((word, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => handleHistoryClick(word)}
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border border-amber-300 bg-amber-100 text-amber-800 hover:bg-amber-200 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-300 dark:hover:bg-amber-800/40 transition-colors"
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedWord && (
         <div className="mb-6">
@@ -322,43 +354,6 @@ export function PortailLexicalPageClient() {
           <p className="text-sm text-amber-700 dark:text-amber-300">
             Mot non trouvé. Essayez une autre recherche.
           </p>
-        </div>
-      )}
-
-      {history.length > 0 && (
-        <div className="mb-6">
-          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                  Recherches récentes
-                </h3>
-              </div>
-              {history.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleClearHistory}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border border-amber-300 bg-amber-100 text-amber-700 hover:bg-amber-200 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-400 dark:hover:bg-amber-800/40 transition-colors"
-                >
-                  <Trash2 className="h-3 w-3" />
-                  Effacer
-                </button>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {history.slice(0, 10).map((word, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => handleHistoryClick(word)}
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border border-amber-300 bg-amber-100 text-amber-800 hover:bg-amber-200 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-300 dark:hover:bg-amber-800/40 transition-colors"
-                >
-                  {word}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
