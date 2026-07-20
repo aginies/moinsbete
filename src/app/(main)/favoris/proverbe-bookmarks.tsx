@@ -49,6 +49,20 @@ function ProverbeFavoriteItem({ item, onRemove, onShareToggle, isShared, isShari
             {item.signification}
           </p>
         )}
+        {item.etymologie && (
+          <p className="text-sm leading-relaxed text-emerald-700 dark:text-emerald-300 mt-2 italic">
+            {item.etymologie}
+          </p>
+        )}
+        {item.definitions && item.definitions.length > 0 && (
+          <div className="mt-2 space-y-1">
+            {item.definitions.map((def, i) => (
+              <p key={i} className="text-sm text-emerald-700 dark:text-emerald-300">
+                <span className="font-medium">{i + 1}.</span> {def}
+              </p>
+            ))}
+          </div>
+        )}
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
