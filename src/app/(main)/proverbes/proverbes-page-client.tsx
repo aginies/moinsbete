@@ -163,7 +163,7 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
             icon={<Quote className="h-4 w-4 text-emerald-950" />}
             iconBgColor="bg-emerald-500"
             iconDarkColor="dark:bg-emerald-600"
-            title="Proverbes"
+            title="Recherche proverbe"
             titleColor="text-emerald-800"
             titleDarkColor="dark:text-emerald-300"
             showRefresh={false}
