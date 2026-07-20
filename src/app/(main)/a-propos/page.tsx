@@ -70,7 +70,7 @@ export default function AproposPage() {
           <h2 className="mb-3 text-xl font-semibold">Source des contenus</h2>
           <p className="text-muted-foreground">
             Le contenu de MoinsBête provient de multiples sources :
-            Wikipédia en français pour les idées et faits, le journal du CNRS pour les actualités scientifiques,
+            Wikipédia en français pour les idées et faits, Wiktionary pour les proverbes, le journal du CNRS pour les actualités scientifiques,
             Wikimedia Commons pour les images, Radio France pour les documentaires audio, et Pixabay pour les vidéos d&apos;ambiance.
             L&apos;IA analyse, résume et structure le contenu pour offrir des idées claires et digestes.
           </p>
@@ -166,12 +166,25 @@ export default function AproposPage() {
         </section>
 
         <section>
-          <h2 className="mb-3 text-xl font-semibold">Le saviez-vous ?</h2>
-          <p className="text-muted-foreground">
-            Découvrez des faits surprenants et méconnus issus de Wikipédia. Chaque jour, de nouvelles anecdotes
-            sont sélectionnées pour éveiller votre curiosité. Vous pouvez sauvegarder vos faits préférés
-            dans vos favoris et les réviser via notre système de répétition espacée.
-          </p>
+           <h2 className="mb-3 text-xl font-semibold">Le saviez-vous ?</h2>
+           <p className="text-muted-foreground">
+             Découvrez des faits surprenants et méconnus issus de Wikipédia. Chaque jour, de nouvelles anecdotes
+             sont sélectionnées pour éveiller votre curiosité. Vous pouvez sauvegarder vos faits préférés
+             dans vos favoris et les réviser via notre système de répétition espacée.
+           </p>
+        </section>
+
+        <section>
+           <h2 className="mb-3 text-xl font-semibold">Proverbes</h2>
+           <p className="text-muted-foreground">
+             Explorez une collection de proverbes français et de proverbes du monde entier.
+             Les proverbes sont récupérés depuis Wiktionary et vérifiés pour garantir leur authenticité.
+             Vous pouvez sauvegarder vos proverbes préférés dans vos favoris et les réviser via notre système de répétition espacée.
+           </p>
+           <p className="mt-2 text-sm text-muted-foreground">
+             Accédez à la section Proverbes pour naviguer par catégorie, rechercher des proverbes par mot-clé,
+             et découvrir des proverbes au hasard. Chaque proverbe peut être partagé avec la communauté.
+           </p>
         </section>
 
         <section>
