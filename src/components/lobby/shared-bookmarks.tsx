@@ -80,6 +80,8 @@ interface SharedBookmark {
     signification: string
     source: string
     wiktionnaireUrl?: string
+    etymologie?: string
+    definitions?: string[]
   } | null
   user: { id: string; displayName: string | null; email: string }
 }
@@ -718,6 +720,8 @@ function ProverbeBookmarkItem({
         signification: bookmark.proverbe.signification,
         source: bookmark.proverbe.source,
         url: bookmark.proverbe.wiktionnaireUrl,
+        etymologie: bookmark.proverbe.etymologie,
+        definitions: bookmark.proverbe.definitions,
       })
       if (result.success) {
         window.location.reload()
@@ -749,6 +753,20 @@ function ProverbeBookmarkItem({
           <p className="text-sm leading-relaxed text-emerald-800 dark:text-emerald-200 mb-2">
             {bookmark.proverbe.signification}
           </p>
+        )}
+        {bookmark.proverbe.etymologie && (
+          <p className="text-sm leading-relaxed text-emerald-700 dark:text-emerald-300 mb-2 italic">
+            {bookmark.proverbe.etymologie}
+          </p>
+        )}
+        {bookmark.proverbe.definitions && bookmark.proverbe.definitions.length > 0 && (
+          <div className="mb-2 space-y-1">
+            {bookmark.proverbe.definitions.map((def, i) => (
+              <p key={i} className="text-sm text-emerald-700 dark:text-emerald-300">
+                <span className="font-medium">{i + 1}.</span> {def}
+              </p>
+            ))}
+          </div>
         )}
         <div className="mb-2">
           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">

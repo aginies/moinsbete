@@ -211,11 +211,13 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           signification: (m.signification || '') as string,
           source: (m.source || '') as string,
           wiktionnaireUrl: (m.wiktionnaireUrl || m.url || '') as string | undefined,
+          etymologie: (m.etymologie || '') as string,
+          definitions: (m.definitions as string[] | undefined) || [],
         },
       }
     }
     return bookmark
-  }) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string } }>
+  }) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }>
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
