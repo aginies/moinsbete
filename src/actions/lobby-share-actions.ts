@@ -29,8 +29,13 @@ export async function unshareFromLobby(ideaId: string) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
+  const isAdmin = session.user.role === 'ADMIN'
+
   await prisma.sharedLobbyBookmark.deleteMany({
-    where: { userId: session.user.id, ideaId },
+    where: {
+      ...(isAdmin ? {} : { userId: session.user.id }),
+      ideaId,
+    },
   })
 
   return { success: true, shared: false }
@@ -104,9 +109,11 @@ export async function unshareResourceFromLobby(resourceType: string, resourceId:
     return { error: 'Type de ressource invalide' }
   }
 
+  const isAdmin = session.user.role === 'ADMIN'
+
   await prisma.sharedLobbyBookmark.deleteMany({
     where: {
-      userId: session.user.id,
+      ...(isAdmin ? {} : { userId: session.user.id }),
       resourceId,
       resourceType,
     },
