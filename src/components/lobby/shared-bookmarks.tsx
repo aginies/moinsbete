@@ -80,7 +80,7 @@ interface SharedBookmark {
   wikiImage: CachedWikipediaImage | null
   wikiMediaImage: CachedWikiLovesImage | null
   wikiLovesImage: CachedWikiLovesImage | null
-  proverbe: {
+  proverbe?: {
     id: string
     text: string
     signification: string
