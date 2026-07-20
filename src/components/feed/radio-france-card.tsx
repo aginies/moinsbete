@@ -45,8 +45,8 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
   const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
   const [loading, setLoading] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible', userId })
-  const show = isVisible !== undefined ? isVisible : true
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible', userId })
+  const show = isVisible !== undefined ? isVisible : showFromHook
 
   useEffect(() => {
     if (userId && doc) {
