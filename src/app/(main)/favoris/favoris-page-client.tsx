@@ -408,6 +408,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           signification: item.signification,
           source: item.source,
           wiktionnaireUrl: item.wiktionnaireUrl,
+          etymologie: item.etymologie,
+          definitions: item.definitions,
         })
         if (result.success) {
           setSharedProverbeIds(prev => new Set([...prev, resourceId]))
