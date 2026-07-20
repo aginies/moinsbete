@@ -119,7 +119,7 @@ export function CardHeader({
                   return next
                 })
               }}
-              className={`${titleColor} hover:opacity-80 transition-opacity flex items-center`}
+              className={`${titleColor} hover:bg-current/10 transition-colors flex items-center`}
               title={isActive ? 'Pause' : 'Lecture'}
             >
               {isActive ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 fill-current" />}
@@ -157,7 +157,7 @@ export function CardHeader({
               e.stopPropagation()
               onToggle()
             }}
-            className={`${titleColor} ${titleDarkColor} hover:opacity-80 transition-colors`}
+            className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors`}
             title="Masquer la carte"
           >
             <EyeOff className="h-4 w-4" />
@@ -170,7 +170,7 @@ export function CardHeader({
               onRefresh()
               setTimeLeft(intervalValue)
             }}
-            className={`${titleColor} ${titleDarkColor} hover:opacity-80 transition-colors cursor-pointer`}
+            className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors cursor-pointer`}
             title="Rafraîchir"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
