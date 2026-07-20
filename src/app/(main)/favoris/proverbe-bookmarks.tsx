@@ -10,15 +10,7 @@ import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby-button'
-
-export interface ProverbeFavoriteDoc {
-  id: string
-  text: string
-  signification: string
-  source: string
-  url: string
-  favoritedAt: string
-}
+import { ProverbeFavoriteDoc } from '@/lib/proverbe-bookmark'
 
 const PROVERBE_FAVORITES_KEY = 'proverbe_favorites'
 

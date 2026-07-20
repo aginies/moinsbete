@@ -3,7 +3,9 @@
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { toggleBookmark, isBookmarked } from '@/lib/favorite'
-import type { BookmarkType, JsonValue } from '@/generated/client'
+import type { BookmarkType } from '@/generated/client'
+import type { JsonValue } from '@prisma/client/runtime/library'
+import { Prisma } from '@/generated/client'
 
 export async function shareToLobby(ideaId: string) {
   const session = await getSession()
@@ -70,6 +72,10 @@ function validateMeta(meta: unknown): JsonValue | null {
   return JSON.parse(serialized)
 }
 
+function toPrismaMeta(meta: JsonValue | null) {
+  return meta === null ? Prisma.JsonNull : meta
+}
+
 export async function shareResourceToLobby(resourceType: string, resourceId: string, meta?: JsonValue) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
@@ -93,7 +99,7 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
       userId: session.user.id,
       resourceId,
       resourceType,
-      meta: validateMeta(meta),
+      meta: toPrismaMeta(validateMeta(meta)),
     },
   })
 
@@ -145,7 +151,7 @@ export async function addToFavoritesFromLobby(resourceType: string, resourceId: 
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
-  const result = await toggleBookmark(session.user.id, resourceType as BookmarkType, resourceId, 'add', meta as JsonValue | undefined)
+  const result = await toggleBookmark(session.user.id, resourceType as BookmarkType, resourceId, 'add', meta as Record<string, unknown> | undefined)
   if (result.bookmarked) {
     return { success: true, added: true }
   }

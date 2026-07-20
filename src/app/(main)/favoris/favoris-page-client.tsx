@@ -322,7 +322,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         })
         toast.success('Retiré du lobby')
       } else {
-        const result = await shareResourceToLobby('IMAGE_DU_JOUR', resourceId, item)
+        const result = await shareResourceToLobby('IMAGE_DU_JOUR', resourceId, item as any)
         if (result.success) {
           setSharedImageIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
@@ -349,7 +349,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         })
         toast.success('Retiré du lobby')
       } else {
-        const result = await shareResourceToLobby('IMAGE_WIKILOVES', resourceId, item)
+        const result = await shareResourceToLobby('IMAGE_WIKILOVES', resourceId, item as any)
         if (result.success) {
           setSharedWikiLovesIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
@@ -376,7 +376,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         })
         toast.success('Retiré du lobby')
       } else {
-        const result = await shareResourceToLobby('IMAGE_WIKIMEDIA', resourceId, item)
+        const result = await shareResourceToLobby('IMAGE_WIKIMEDIA', resourceId, item as any)
         if (result.success) {
           setSharedWikimediaIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')

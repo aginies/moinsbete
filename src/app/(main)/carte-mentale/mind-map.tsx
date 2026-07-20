@@ -35,7 +35,7 @@ interface MindMapProps {
 }
 
 export function MindMap({ nodes, links }: MindMapProps) {
-  const fgRef = useRef<InstanceType<typeof ForceGraph2D> | null>(null)
+  const fgRef = useRef<any>(null)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
@@ -239,8 +239,8 @@ export function MindMap({ nodes, links }: MindMapProps) {
           linkColor={() => '#94a3b8'}
           linkWidth={1.5}
           linkCurvature={0.2}
-          onNodeClick={handleNodeClick}
-          onNodeHover={handleNodeHover}
+          onNodeClick={handleNodeClick as any}
+          onNodeHover={handleNodeHover as any}
           backgroundColor="transparent"
           cooldownTicks={100}
           enablePanInteraction={true}
