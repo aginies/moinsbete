@@ -1,23 +1,10 @@
 'use server'
 
-import type { BookmarkType } from '@/generated/client'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { saviezVousManager } from '@/lib/saviez-vous-bookmark'
-import { createBookmarkManagerActions } from '@/actions/bookmark-manager'
-import type { SaviezVousFavoriteMeta } from '@/lib/saviez-vous-bookmark'
+import { createBookmarkActions } from '@/actions/bookmark-actions-factory'
 
-const TYPE: BookmarkType = 'SAVIEZ_VOUS'
+const actions = createBookmarkActions(saviezVousManager)
 
-const saviezVousActions = createBookmarkManagerActions(saviezVousManager)
-
-export async function toggleSaviezVousFavoriteAction(factId: string, action?: 'add' | 'remove', meta?: SaviezVousFavoriteMeta) {
-  return toggleBookmarkAction(TYPE, factId, action, meta as Record<string, unknown>)
-}
-
-export async function getSaviezVousFavoritesAction() {
-  return saviezVousActions.getFavorites()
-}
-
-export async function isSaviezVousFavoriteAction(factId: string) {
-  return isBookmarkedAction(TYPE, factId)
-}
+export const toggleSaviezVousFavoriteAction = actions.toggle
+export const getSaviezVousFavoritesAction = actions.getFavorites
+export const isSaviezVousFavoriteAction = actions.isBookmarked

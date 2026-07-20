@@ -8,9 +8,9 @@ export interface SaviezVousFavoriteMeta {
   imageFilename?: string | null
 }
 
-const TYPE: BookmarkType = 'SAVIEZ_VOUS'
+export const SAVIEZ_VOUS_TYPE: BookmarkType = 'SAVIEZ_VOUS'
 
-const mapMeta: (meta: unknown, resourceId: string) => SaviezVousFavoriteDoc | null = (meta, resourceId) => {
+export const saviezVousManager = createBookmarkManager(SAVIEZ_VOUS_TYPE, (meta, resourceId) => {
   const m = meta as SaviezVousFavoriteMeta | null
   if (!m) return null
   return {
@@ -20,9 +20,7 @@ const mapMeta: (meta: unknown, resourceId: string) => SaviezVousFavoriteDoc | nu
     imageFilename: m.imageFilename ?? null,
     favoritedAt: new Date().toISOString(),
   }
-}
-
-export const saviezVousManager = createBookmarkManager(TYPE, mapMeta)
+})
 
 export const getSaviezVousFavorites = saviezVousManager.getFavorites.bind(saviezVousManager)
 export const getSaviezVousFavoritesCount = saviezVousManager.getFavoritesCount.bind(saviezVousManager)

@@ -20,9 +20,9 @@ export interface WikimediaImageFavoriteDoc {
   favoritedAt: string
 }
 
-const TYPE: BookmarkType = 'IMAGE_WIKIMEDIA'
+export const WIKIMEDIA_TYPE: BookmarkType = 'IMAGE_WIKIMEDIA'
 
-const mapMeta: (meta: unknown, resourceId: string) => WikimediaImageFavoriteDoc | null = (meta, resourceId) => {
+export const wikimediaManager = createBookmarkManager(WIKIMEDIA_TYPE, (meta, resourceId) => {
   const m = meta as WikimediaImageFavoriteMeta | null
   if (!m) return null
   return {
@@ -35,8 +35,7 @@ const mapMeta: (meta: unknown, resourceId: string) => WikimediaImageFavoriteDoc 
     droits: m.droits || '',
     favoritedAt: new Date().toISOString(),
   }
-}
+})
 
-export const wikimediaManager = createBookmarkManager(TYPE, mapMeta)
 export const getWikimediaFavorites = wikimediaManager.getFavorites.bind(wikimediaManager)
 export const getWikimediaFavoritesCount = wikimediaManager.getFavoritesCount.bind(wikimediaManager)

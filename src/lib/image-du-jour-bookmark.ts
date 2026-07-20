@@ -9,9 +9,9 @@ export interface ImageDuJourFavoriteMeta {
   date?: string
 }
 
-const TYPE: BookmarkType = 'IMAGE_DU_JOUR'
+export const IMAGE_DU_JOUR_TYPE: BookmarkType = 'IMAGE_DU_JOUR'
 
-const mapMeta: (meta: unknown, resourceId: string) => ImageDuJourFavoriteDoc | null = (meta, resourceId) => {
+export const imageDuJourManager = createBookmarkManager(IMAGE_DU_JOUR_TYPE, (meta, resourceId) => {
   const m = meta as ImageDuJourFavoriteMeta | null
   if (!m) return null
   return {
@@ -22,9 +22,7 @@ const mapMeta: (meta: unknown, resourceId: string) => ImageDuJourFavoriteDoc | n
     date: m.date || '',
     favoritedAt: new Date().toISOString(),
   }
-}
-
-export const imageDuJourManager = createBookmarkManager(TYPE, mapMeta)
+})
 
 export const getImageDuJourFavorites = imageDuJourManager.getFavorites.bind(imageDuJourManager)
 export const getImageDuJourFavoritesCount = imageDuJourManager.getFavoritesCount.bind(imageDuJourManager)

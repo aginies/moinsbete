@@ -1,23 +1,10 @@
 'use server'
 
-import type { BookmarkType } from '@/generated/client'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { wikilovesManager } from '@/lib/image-wikiloves-bookmark'
-import { createBookmarkManagerActions } from '@/actions/bookmark-manager'
-import type { WikiLovesImageFavoriteMeta } from '@/lib/image-wikiloves-bookmark'
+import { createBookmarkActions } from '@/actions/bookmark-actions-factory'
 
-const TYPE: BookmarkType = 'IMAGE_WIKILOVES'
+const actions = createBookmarkActions(wikilovesManager)
 
-const wikilovesActions = createBookmarkManagerActions(wikilovesManager)
-
-export async function toggleWikiLovesFavoriteAction(docId: string, action?: 'add' | 'remove', meta?: WikiLovesImageFavoriteMeta) {
-  return toggleBookmarkAction(TYPE, docId, action, meta as Record<string, unknown>)
-}
-
-export async function getWikiLovesFavoritesAction() {
-  return wikilovesActions.getFavorites()
-}
-
-export async function isWikiLovesFavoriteAction(docId: string) {
-  return isBookmarkedAction(TYPE, docId)
-}
+export const toggleWikiLovesFavoriteAction = actions.toggle
+export const getWikiLovesFavoritesAction = actions.getFavorites
+export const isWikiLovesFavoriteAction = actions.isBookmarked

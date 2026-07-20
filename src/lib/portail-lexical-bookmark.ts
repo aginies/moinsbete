@@ -10,9 +10,9 @@ export interface PortailLexicalFavoriteMeta {
   ipa?: string
 }
 
-const TYPE: BookmarkType = 'PORTAIL_LEXICAL'
+export const PORTAIL_LEXICAL_TYPE: BookmarkType = 'PORTAIL_LEXICAL'
 
-const mapMeta: (meta: unknown, resourceId: string) => PortailLexicalFavoriteDoc | null = (meta, resourceId) => {
+export const portailLexicalManager = createBookmarkManager(PORTAIL_LEXICAL_TYPE, (meta, resourceId) => {
   const m = meta as PortailLexicalFavoriteMeta | null
   if (!m) return null
   return {
@@ -24,9 +24,7 @@ const mapMeta: (meta: unknown, resourceId: string) => PortailLexicalFavoriteDoc 
     ipa: m.ipa || '',
     favoritedAt: new Date().toISOString(),
   }
-}
-
-export const portailLexicalManager = createBookmarkManager(TYPE, mapMeta)
+})
 
 export const getPortailLexicalFavorites = portailLexicalManager.getFavorites.bind(portailLexicalManager)
 export const getPortailLexicalFavoritesCount = portailLexicalManager.getFavoritesCount.bind(portailLexicalManager)

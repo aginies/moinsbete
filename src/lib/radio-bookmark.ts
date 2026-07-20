@@ -12,9 +12,9 @@ export interface RadioFavoriteMeta {
   favoritedAt?: string
 }
 
-const TYPE: BookmarkType = 'RADIO_FRANCE'
+export const RADIO_FRANCE_TYPE: BookmarkType = 'RADIO_FRANCE'
 
-const mapMeta: (meta: unknown, resourceId: string) => FavoriteDoc | null = (meta, resourceId) => {
+export const radioManager = createBookmarkManager(RADIO_FRANCE_TYPE, (meta, resourceId) => {
   const m = meta as RadioFavoriteMeta | null
   if (!m) return null
   return {
@@ -27,9 +27,7 @@ const mapMeta: (meta: unknown, resourceId: string) => FavoriteDoc | null = (meta
     image: m.image,
     favoritedAt: m.favoritedAt || new Date().toISOString(),
   }
-}
-
-export const radioManager = createBookmarkManager(TYPE, mapMeta)
+})
 
 export const getRadioFavorites = radioManager.getFavorites.bind(radioManager)
 export const getRadioFavoritesCount = radioManager.getFavoritesCount.bind(radioManager)
