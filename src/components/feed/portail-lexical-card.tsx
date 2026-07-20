@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Languages, Bookmark, ExternalLink } from 'lucide-react'
+import { Languages, Bookmark, ExternalLink, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
@@ -119,19 +119,19 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
     return (
       <div className="mb-6">
         <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
-          <CardHeader
-            icon={<Languages className="h-4 w-4 text-amber-950" />}
-            iconBgColor="bg-amber-500"
-            iconDarkColor="dark:bg-amber-600"
-            title="Portail Lexical — Mot du jour"
-            titleColor="text-amber-800"
-            titleDarkColor="dark:text-amber-300"
-            linkHref="/portail-lexical"
-            showToggle={showToggle}
-            onToggle={onToggle || handleToggle}
-            showRefresh={false}
-            loading={true}
-          />
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 dark:bg-amber-600">
+                <Languages className="h-4 w-4 text-amber-950" />
+              </div>
+              <h3 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">
+                Portail Lexical — Mot du jour
+              </h3>
+            </div>
+          </div>
+          <div className="flex items-center justify-center py-8">
+            <RefreshCw className="h-6 w-6 animate-spin text-amber-500" />
+          </div>
         </div>
       </div>
     )
