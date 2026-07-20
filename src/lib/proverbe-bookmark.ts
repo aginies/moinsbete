@@ -1,6 +1,16 @@
 import type { BookmarkType } from '@/generated/client'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
+export interface ProverbeFavoriteDoc {
+  id: string
+  text: string
+  signification: string
+  source: string
+  url: string
+  wiktionnaireUrl?: string
+  favoritedAt: string
+}
+
 export interface ProverbeFavoriteMeta {
   text?: string
   signification?: string

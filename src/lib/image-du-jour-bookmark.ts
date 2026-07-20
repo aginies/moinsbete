@@ -1,6 +1,15 @@
 import type { BookmarkType } from '@/generated/client'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
+export interface ImageDuJourFavoriteDoc {
+  id: string
+  imageUrl: string
+  description: string
+  fileUrl: string
+  date: string
+  favoritedAt: string
+}
+
 export interface ImageDuJourFavoriteMeta {
   imageUrl?: string
   description?: string

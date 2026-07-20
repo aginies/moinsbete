@@ -15,15 +15,6 @@ import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby
 
 import { ImageDuJourFavoriteDoc } from '@/lib/image-du-jour-bookmark'
 
-export interface ImageDuJourFavoriteDoc {
-  id: string
-  imageUrl: string
-  description: string
-  fileUrl: string
-  date: string
-  favoritedAt: string
-}
-
 const IMAGE_DU_JOUR_FAVORITES_KEY = 'image_du_jour_favorites'
 
 interface ImageDuJourBookmarksProps {
@@ -98,7 +89,6 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, on
 
 interface ImageDuJourBookmarksInnerProps extends ImageDuJourBookmarksProps {
   sharedIds: Set<string>
-  onShareToggle: (resourceId: string) => void
   isSharing: string | null
 }
 
