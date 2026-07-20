@@ -8,6 +8,7 @@ interface FetchProgress {
   currentPage?: string
   total?: number
   added?: number
+  perPage?: number
 }
 
 async function pollProgress(): Promise<FetchProgress> {
@@ -46,9 +47,12 @@ async function main() {
     const progress = await pollProgress()
     
     if (progress.status === 'fetching') {
-      if (progress.progress !== prevProgress) {
-        console.log(`  Fetching page ${progress.progress}: ${progress.currentPage || ''}...`)
-        prevProgress = progress.progress || ''
+      const proverbCount = progress.perPage != null ? `, ${progress.perPage} proverbs` : ''
+      const totalCount = progress.total != null ? ` (total: ${progress.total})` : ''
+      const newLine = `  Fetching page ${progress.progress}: ${progress.currentPage || ''}${proverbCount}${totalCount}...`
+      if (newLine !== prevProgress) {
+        console.log(newLine)
+        prevProgress = newLine
       }
     } else if (progress.status === 'done' || progress.status === 'stopped') {
       const icon = progress.status === 'done' ? '✅' : '⚠️'
