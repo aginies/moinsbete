@@ -107,6 +107,10 @@ describe('registerAction', () => {
       imageWikimediaShowCategories: true,
       imagePixabayCardVisible: true,
       imagePixabayShowCategories: true,
+      lastLogin: null,
+      lastVisited: null,
+      portailLexicalCardVisible: true,
+      proverbeCardVisible: true,
     })
 
     const { registerAction } = await import('@/actions/auth-actions')
@@ -141,6 +145,10 @@ describe('registerAction', () => {
       imageWikimediaShowCategories: true,
       imagePixabayCardVisible: true,
       imagePixabayShowCategories: true,
+      lastLogin: null,
+      lastVisited: null,
+      portailLexicalCardVisible: true,
+      proverbeCardVisible: true,
     })
 
     const { registerAction } = await import('@/actions/auth-actions')
@@ -251,6 +259,10 @@ describe('loginAction', () => {
       imageWikimediaShowCategories: true,
       imagePixabayCardVisible: true,
       imagePixabayShowCategories: true,
+      lastLogin: null,
+      lastVisited: null,
+      portailLexicalCardVisible: true,
+      proverbeCardVisible: true,
     }
     const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser)
@@ -300,6 +312,10 @@ describe('loginAction', () => {
       imageWikimediaShowCategories: true,
       imagePixabayCardVisible: true,
       imagePixabayShowCategories: true,
+      lastLogin: null,
+      lastVisited: null,
+      portailLexicalCardVisible: true,
+      proverbeCardVisible: true,
     }
     const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser)
