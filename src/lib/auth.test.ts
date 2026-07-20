@@ -20,6 +20,10 @@ const mockUser = {
   imageWikimediaShowCategories: true,
   imagePixabayCardVisible: true,
   imagePixabayShowCategories: true,
+  lastLogin: null,
+  lastVisited: null,
+  portailLexicalCardVisible: true,
+  proverbeCardVisible: true,
 }
 
 vi.mock('@/lib/db', () => ({
