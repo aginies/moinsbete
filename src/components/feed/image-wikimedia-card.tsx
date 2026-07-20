@@ -1,23 +1,16 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Settings } from 'lucide-react'
+import { Camera, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
-import { useItemShare } from './use-item-share'
-import { CardHeader } from './card-header'
-import { useCardVisibility } from '@/hooks/use-card-visibility'
-import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
-import { ImageLightbox } from './image-lightbox'
-import { ImageHint } from './image-hint'
-import { VisibilityButton } from './visibility-button'
-import { ImageLoading } from './image-loading'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
-import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { BaseImageCard } from './base-image-card'
 import { WikimediaTopicsModal } from './wikimedia-topics-modal'
+import { sanitizeUrl } from '@/lib/utils'
+import { useCardVisibility } from '@/hooks/use-card-visibility'
 
 interface WikimediaImage {
   docid: string
-  exemplaire: string
+  reference?: string
   titre: string
   auteur: string
   imageUrl: string
@@ -26,19 +19,6 @@ interface WikimediaImage {
   description: string
   droits: string
   link: string
-}
-
-interface ImageWikimediaCardProps {
-  userId?: string
-  swipeable?: boolean
-  fullImage?: boolean
-  largeImage?: boolean
-  showLink?: boolean
-  showToggle?: boolean
-  onToggle?: () => void
-  enableAutoRefresh?: boolean
-  storageKey?: string
-  isVisible?: boolean
 }
 
 interface Topic {
@@ -61,9 +41,22 @@ const DEFAULT_TOPICS: Topic[] = [
   { id: 'advertisements', label: 'Publicités', icon: '📰', searchTerms: ['Vintage advertisement', 'Vintage ad', 'Retro ad', 'Poster advertisement'], enabled: true, active: false, default: true },
   { id: 'maps', label: 'Cartes', icon: '🗺️', searchTerms: ['Historical map', 'Old map', 'Antique map', 'Cartography'], enabled: true, active: false, default: true },
   { id: 'sports-car', label: 'Voitures de sport', icon: '🏎️', searchTerms: ['Classic sports car', 'Sports car', 'Racing car', 'Rolls-Royce', 'Bentley', 'Ferrari', 'Lamborghini', 'Porsche'], enabled: true, active: false, default: true },
-  { id: 'design', label: 'Design', icon: '📐', searchTerms: ['Industrial design', 'Graphic design', 'Product design', 'Modernist design', 'objets design', 'architecture design'], enabled: true, active: false, default: true },
+  { id: 'design', label: 'Design', icon: '📐', searchTerms: ['Industrial design', 'Graphic design', 'Product design', 'objets design', 'architecture design'], enabled: true, active: false, default: true },
   { id: 'deep-space', label: 'Espace', icon: '🌌', searchTerms: ['Deep space', 'Nebula', 'Hubble space telescope', 'Andromeda galaxy', 'Supernova'], enabled: true, active: false, default: true },
 ]
+
+interface ImageWikimediaCardProps {
+  userId?: string
+  swipeable?: boolean
+  fullImage?: boolean
+  largeImage?: boolean
+  showLink?: boolean
+  showToggle?: boolean
+  onToggle?: () => void
+  enableAutoRefresh?: boolean
+  storageKey?: string
+  isVisible?: boolean
+}
 
 async function fetchTopics(userId: string): Promise<Topic[]> {
   try {
@@ -105,99 +98,32 @@ export function ImageWikimediaCard({
   storageKey = 'wikimedia',
   isVisible,
 }: ImageWikimediaCardProps) {
-  const [image, setImage] = useState<WikimediaImage | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [isImageLoaded, setIsImageLoaded] = useState(false)
-  const [error, setError] = useState(false)
-  const [showFullImage, setShowFullImage] = useState(false)
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [allTopics, setAllTopics] = useState<Topic[]>(DEFAULT_TOPICS)
+  const [topics, setTopics] = useState<Topic[]>(DEFAULT_TOPICS)
   const [modalOpen, setModalOpen] = useState(false)
 
-  const { show: showCategories, handleToggle: toggleCategories } = useCardVisibility({
+  const { show: showCategoriesState, handleToggle: toggleCategories } = useCardVisibility({
     storageKey: 'image_wikimedia_show_categories',
     defaultShow: true,
     userId,
   })
 
-  // Load active topics preference from DB after mounting
   useEffect(() => {
     if (userId) {
       fetchTopics(userId).then(loadedTopics => {
-        setAllTopics(loadedTopics)
+        setTopics(loadedTopics)
       })
     }
   }, [userId])
-
-  const handleToggleCategories = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    toggleCategories()
-  }, [toggleCategories])
-
-  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({
-    storageKey: 'image_wikimedia_card_visible',
-    defaultShow: true,
-    userId,
-  })
-  const show = isVisible !== undefined ? isVisible : true
-
-  const loadImage = useCallback(async () => {
-    setLoading(true)
-    setError(false)
-    setIsImageLoaded(false)
-    const activeTopicIds = allTopics.filter(t => t.active).map(t => t.id)
-    const newImage = await fetchRandomImage(activeTopicIds.join(','))
-    if (newImage) {
-      setImage(newImage)
-      setError(false)
-    } else {
-      setError(true)
-    }
-    setLoading(false)
-  }, [allTopics])
-
-  useEffect(() => {
-    if (hasMounted && show && !image && !loading && !error) {
-      const timer = setTimeout(() => {
-        loadImage()
-      }, 0)
-      return () => clearTimeout(timer)
-    }
-  }, [hasMounted, show, image, loading, error, loadImage])
-
-  useEffect(() => {
-    if (userId && image) {
-      isBookmarkedAction('IMAGE_WIKIMEDIA', image.docid).then(result => {
-        setIsFavorite(result.isBookmarked)
-      }).catch(() => {})
-    }
-  }, [userId, image])
-
-  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
-    resourceId: image?.docid,
-    initialFavorite: isFavorite,
-    onFavoriteChange: setIsFavorite,
-    toggleFn: async (action) => {
-      await toggleBookmarkAction('IMAGE_WIKIMEDIA', image!.docid, action, {
-        titre: image!.titre,
-        auteur: image!.auteur,
-        imageUrl: image!.imageUrl,
-        link: image!.link,
-        droits: image!.droits,
-      })
-    },
-  })
 
   const refreshTopics = useCallback(async () => {
     if (userId) {
       const topics = await fetchTopics(userId)
-      setAllTopics(topics)
+      setTopics(topics)
     }
   }, [userId])
 
   const handleTopicToggle = useCallback(async (topicId: string) => {
-    // Optimistically update parent state first
-    setAllTopics(prev =>
+    setTopics(prev =>
       prev.map(t =>
         t.id === topicId
           ? { ...t, active: !t.active }
@@ -217,109 +143,63 @@ export function ImageWikimediaCard({
       }
       await refreshTopics()
     }
-    setImage(null)
   }, [userId, refreshTopics])
 
-  const { handleShare, copied, shareUrl } = useItemShare({
-    shareUrl: image?.link ?? '',
-    title: `Wikimedia - ${image?.titre ?? ''}`,
-    text: `${image?.titre ?? ''}\n${image?.auteur ?? 'Wikimedia'}\n\n${image?.droits ?? ''}`,
-  })
+  const cardClassName = fullImage
+    ? 'rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30'
+    : 'rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-5 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30 cursor-pointer hover:shadow-md transition-shadow'
 
-  const {
-    bind,
-    containerRef,
-    swipeStyle,
-    isDragging,
-    prefersReducedMotion,
-  } = useSwipeGesture({
-    onSwipeLeft: loadImage,
-    onSwipeRight: loadImage,
-    onRefresh: loadImage,
-    swipeable,
-    resetDep: image?.imageUrl,
-  })
-
-  if (!hasMounted) {
-    return null
-  }
-
-  const shareOptions = image ? { onClick: handleShare, copied, shareUrl } : undefined
-
-  const cardContent = (
-    <div
-      onClick={loadImage}
-      className="rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-5 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30 cursor-pointer hover:shadow-md transition-shadow"
-    >
-      <CardHeader
-        icon={<BookOpen className="h-4 w-4 text-white" />}
-        iconBgColor="bg-rose-700"
-        iconDarkColor="dark:bg-rose-800"
-        title="Wikimedia"
-        titleColor="text-rose-800"
-        titleDarkColor="dark:text-rose-300"
-        linkHref={showLink ? '/image-wikimedia' : undefined}
-        showToggle={false}
-        showRefresh={false}
-        onRefresh={loadImage}
-        loading={loading || (image?.imageUrl ? !isImageLoaded : false)}
-        shareOptions={shareOptions ? { onClick: handleShare, copied, shareUrl } : undefined}
-        enableAutoRefresh={enableAutoRefresh}
-        storageKey={storageKey}
-        extraActions={
-          <>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setModalOpen(true) }}
-              className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
-              title="Gérer les catégories"
-            >
-              <Settings className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={handleToggleCategories}
-              className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
-              title={showCategories ? 'Masquer les thèmes' : 'Afficher les thèmes'}
-            >
-              <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
-            </button>
-            {showToggle && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
-                className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
-                title="Masquer la carte"
-              >
-                <EyeOff className="h-4 w-4" />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); loadImage() }}
-              className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors"
-              title="Rafraîchir"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            </button>
-            {image && userId && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                disabled={isPending}
-                className="text-rose-800 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 transition-colors disabled:opacity-50"
-                title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-              >
-                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current text-rose-600 dark:text-rose-400' : 'text-rose-800 dark:text-rose-300'}`} />
-              </button>
-            )}
-          </>
-        }
-      />
-
-      {showCategories && (
-        <div className="mb-3 flex gap-1.5 flex-wrap">
-          {allTopics.filter(t => t.enabled).map(topic => (
+  return (
+    <>
+      <BaseImageCard
+        config={{
+          resourceType: 'IMAGE_WIKIMEDIA',
+          fetchFn: fetchRandomImage,
+          defaultTopics: DEFAULT_TOPICS,
+          cardClassName,
+          icon: <Camera className="h-4 w-4 text-white" />,
+          iconBgColor: 'bg-rose-700',
+          iconDarkColor: 'dark:bg-rose-600',
+          title: 'Wikimedia',
+          titleColor: 'text-teal-800',
+          titleDarkColor: 'dark:text-teal-300',
+          linkHref: showLink ? '/image-wikimedia' : undefined,
+          enableAutoRefresh,
+          storageKey,
+          visibilityStorageKey: 'image_wikimedia_card_visible',
+          categoriesVisibilityStorageKey: 'image_wikimedia_show_categories',
+          loadingProps: {
+            borderColor: 'border-rose-200',
+            borderDarkColor: 'dark:border-rose-800',
+            iconColor: 'text-rose-400',
+            iconDarkColor: 'dark:text-rose-400',
+          },
+          imageBorderClass: 'border-rose-200 dark:border-rose-800',
+          hintColor: 'rose',
+          buttonColor: 'rose',
+          shareTitlePrefix: 'Wikimedia',
+          visibilityLabel: 'Afficher Wikimedia',
+          shareTextAuthor: 'Wikimedia',
+          shareTextRights: '',
+          settingsButtonTitle: 'Gérer les catégories',
+          onSettingsClick: () => setModalOpen(true),
+        }}
+        topics={topics}
+        showCategories={showCategoriesState}
+        modalOpen={modalOpen}
+        onToggleTopic={handleTopicToggle}
+        onTopicsChange={refreshTopics}
+        onImageLoaded={() => {}}
+        onToggleCategories={toggleCategories}
+        swipeable={swipeable}
+        fullImage={fullImage}
+        largeImage={largeImage}
+        showLink={showLink}
+        showToggle={showToggle}
+        onToggle={onToggle}
+        isVisible={isVisible}
+        renderTopics={() =>
+          topics.filter((t: any) => t.enabled).map((topic: Topic) => (
             <button
               key={topic.id}
               onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
@@ -331,108 +211,56 @@ export function ImageWikimediaCard({
             >
               {topic.icon} {topic.label}
             </button>
-          ))}
-        </div>
-      )}
-
-      {error && !loading && (
-        <div className="mb-3 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-100/50 p-3 dark:border-rose-800 dark:bg-rose-900/20">
-          <p className="text-xs text-rose-700 dark:text-rose-300">
-            Impossible de charger l&apos;image. Cliquez pour réessayer.
-          </p>
-        </div>
-      )}
-
-      {loading && image?.imageUrl && (
-        <ImageLoading />
-      )}
-
-      {image?.imageUrl && !loading && (
-        <div
-          className={`mb-3 overflow-hidden rounded-lg border border-rose-200 dark:border-rose-800 ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}
-          onClick={(e) => {
-            if (!fullImage) {
-              e.stopPropagation()
-              setShowFullImage(true)
-            }
-          }}
-        >
+          ))
+        }
+        renderImage={(img) => (
           <img
-            src={image.imageUrl}
-            alt={image.titre}
+            src={img.imageUrl}
+            alt={img.titre}
             loading="lazy"
             className={`w-full transition-opacity ${largeImage ? 'h-[28vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
-            onLoad={() => setIsImageLoaded(true)}
+            onLoad={() => {}}
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
-          {!fullImage && <ImageHint color="rose" />}
-        </div>
-      )}
-
-     {image && (
-        <>
-          <p className="text-sm font-semibold text-rose-900 dark:text-rose-100 mb-1">
-            {image.titre}
-          </p>
-          {image.auteur && (
-            <p className="text-xs text-rose-700 dark:text-rose-300 mb-1">
-              {image.auteur}
+        )}
+        renderMetadata={(img) => (
+          <>
+            <p className="text-sm font-semibold text-rose-900 dark:text-rose-100 mb-1">
+              {img.titre}
             </p>
-          )}
-          {image.description && (
-            <p className="text-sm leading-relaxed text-rose-900 dark:text-rose-100 mb-2">
-              {image.description}
+            {img.auteur && (
+              <p className="text-xs text-rose-700 dark:text-rose-300 mb-1">
+                {img.auteur}
+              </p>
+            )}
+            {img.description && (
+              <p className="text-sm leading-relaxed text-rose-900 dark:text-rose-100 mb-2">
+                {img.description}
+              </p>
+            )}
+            <p className="text-xs text-rose-600 dark:text-rose-400 mb-2">
+              {img.droits || 'Wikimedia Commons'}
             </p>
-          )}
-          <p className="text-xs text-rose-600 dark:text-rose-400 mb-2">
-            {image.droits || 'Wikimedia Commons'}
-          </p>
-          {showLink && (
-            <Link
-              href={image.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
-            >
-              Voir sur Wikimedia Commons
-              <ExternalLink className="h-3 w-3" />
-            </Link>
-          )}
-        </>
-      )}
-    </div>
-  )
-
-  return (
-    <>
-      {!show && hasMounted ? (
-        <VisibilityButton color={buttonColor} label="Afficher Wikimedia" onClick={onToggle || handleToggle} />
-      ) : swipeable ? (
-        <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
-          <div
-            className={`w-full relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
-            style={swipeStyle}
-          >
-            {cardContent}
-          </div>
-        </div>
-      ) : (
-        cardContent
-      )}
-
-      {showFullImage && image && (
-        <ImageLightbox
-          src={image.imageUrl}
-          alt={image.titre}
-          onClose={() => setShowFullImage(false)}
-        />
-      )}
+            {showLink && (
+              <Link
+                href={sanitizeUrl(img.link)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 text-xs text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-200 hover:underline"
+              >
+                Voir sur Wikimedia Commons
+                <ExternalLink className="h-3 w-3" />
+              </Link>
+            )}
+          </>
+        )}
+      />
 
       <WikimediaTopicsModal
         open={modalOpen}
         onOpenChange={setModalOpen}
-        topics={allTopics}
+        topics={topics}
         userId={userId}
         onToggleActive={handleTopicToggle}
         onRefresh={refreshTopics}
