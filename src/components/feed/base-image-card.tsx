@@ -253,7 +253,7 @@ export function BaseImageCard<TTopic>({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onSettingsClick() }}
-              className={`${titleColor} hover:opacity-80 transition-colors`}
+              className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
               title={settingsButtonTitle}
             >
               <Settings className="h-4 w-4" />
@@ -261,7 +261,7 @@ export function BaseImageCard<TTopic>({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onToggleCategories() }}
-              className={`${titleColor} hover:opacity-80 transition-colors`}
+              className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
               title={showCategories ? 'Masquer les catégories' : 'Afficher les catégories'}
             >
               <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
@@ -270,26 +270,26 @@ export function BaseImageCard<TTopic>({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleToggleVisibility() }}
-                className={`${titleColor} hover:opacity-80 transition-colors`}
+                className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
                 title="Masquer la carte"
               >
                 <EyeOff className="h-4 w-4" />
               </button>
             )}
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); loadImage() }}
-              className={`${titleColor} hover:opacity-80 transition-colors`}
-              title="Rafraîchir"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); loadImage() }}
+                className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
+                title="Rafraîchir"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
             {image && (
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
                 disabled={isPending}
-                className={`${titleColor} hover:opacity-80 transition-colors disabled:opacity-50`}
+                className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               >
                 <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
