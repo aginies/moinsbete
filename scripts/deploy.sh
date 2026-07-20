@@ -3,6 +3,12 @@ set -euo pipefail
 
 SRC="/home/aginies/moinsbete"
 DEST="/srv/http/moinsbete"
+RUN_PRISMA=false
+for arg in "$@"; do
+  if [ "$arg" = "--prisma" ]; then
+    RUN_PRISMA=true
+  fi
+done
 
 mkdir -p "$DEST"
 
@@ -53,9 +59,12 @@ cd "$DEST"
 ## Install deps
 npm ci
 
-npx prisma generate
-npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
-npx prisma migrate deploy
+if [ "$RUN_PRISMA" = true ]; then
+  echo "Running prisma commands..."
+  npx prisma generate
+  npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
+  npx prisma migrate deploy
+fi
 npm run build
 if [ -f "ecosystem.config.js" ]; then
   echo "Reloading/starting via PM2 ecosystem.config.js..."
