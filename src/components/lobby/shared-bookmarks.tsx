@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { unshareFromLobby, unshareResourceFromLobby, addToFavoritesFromLobby } from '@/actions/lobby-share-actions'
-import { sanitizeUrl, isValidUrl } from '@/lib/utils'
+import { sanitizeUrl, isValidUrl, maskEmail } from '@/lib/utils'
 import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
 import { useState, useMemo, useTransition } from 'react'
@@ -24,13 +24,6 @@ const handleUnshareResult = (r: { error?: string } | null | undefined) => {
 
 const handleUnshareError = (err: any) => {
   toast.error(err?.message || 'Erreur lors de la suppression')
-}
-
-function maskEmail(email: string): string {
-  const [local, domain] = email.split('@')
-  if (!local || !domain) return email
-  const masked = local.length > 2 ? local[0] + '***' : local.slice(0, 1) + '*'
-  return `${masked}@${domain}`
 }
 
 interface SaviezVousFact {

@@ -218,6 +218,13 @@ export function escapeHtml(text: string): string {
     .replace(/'/g, '&#39;')
 }
 
+export function maskEmail(email: string): string {
+  const [local, domain] = email.split('@')
+  if (!local || !domain) return email
+  const masked = local.length > 2 ? local[0] + '***' : local.slice(0, 1) + '*'
+  return `${masked}@${domain}`
+}
+
 export function parseHTML(text: string): string {
   const urls = text.match(URL_REGEX) || []
   const seen = new Set<string>()

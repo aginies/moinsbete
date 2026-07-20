@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
   }
 
-  const { ideaId, resourceType, resourceId, action } = await req.json()
+  const { ideaId, resourceType, resourceId, action, meta } = await req.json()
 
   if (action === 'unshare') {
     if (resourceType && resourceId) {
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (resourceType && resourceId) {
-    const result = await shareResourceToLobby(resourceType, resourceId)
+    const result = await shareResourceToLobby(resourceType, resourceId, meta)
     if (result.error) return NextResponse.json(result, { status: 400 })
     return NextResponse.json(result)
   }
