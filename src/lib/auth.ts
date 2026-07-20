@@ -39,6 +39,10 @@ export const authOptions: AuthOptions = {
           return null
         }
 
+        if (!user?.enabled) {
+          return null
+        }
+
         return {
           id: user!.id,
           email: user!.email,
