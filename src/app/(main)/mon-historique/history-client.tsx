@@ -133,7 +133,7 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
     } finally {
       setRemoving(null)
     }
-  }, [userId, currentPage, ideas, goToPage])
+  }, [currentPage, ideas, goToPage])
 
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">

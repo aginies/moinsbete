@@ -21,7 +21,7 @@ import { PortailLexicalBookmarks } from './portail-lexical-bookmarks'
 import { ProverbeBookmarks } from './proverbe-bookmarks'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
-import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
+import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby } from '@/actions/lobby-share-actions'
 import { toast } from 'sonner'
 
 interface FavorisPageClientProps {
