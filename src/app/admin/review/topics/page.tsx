@@ -62,7 +62,7 @@ export default async function AdminReviewPage() {
           suggestions={suggestions}
           onApprove={approveSuggestionAction}
           onReject={rejectSuggestionAction}
-          onMerge={mergeSuggestionAction}
+          onMerge={mergeSuggestionAction as any}
           availableTopics={topics}
         />
       )}

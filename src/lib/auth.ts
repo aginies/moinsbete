@@ -1,10 +1,10 @@
-import { AuthOptions, JWT } from 'next-auth'
-import { Session } from 'next-auth/core/types'
+import { AuthOptions } from 'next-auth'
+import type { Session } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from './db'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
-import { decode } from 'next-auth/jwt'
+import { decode, JWT } from 'next-auth/jwt'
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -60,10 +60,11 @@ export const authOptions: AuthOptions = {
     signIn: '/login',
   },
   callbacks: {
-    jwt: async ({ token, user }: { token: JWT; user?: { id: string; role?: string } }) => {
+    jwt: async (params: any) => {
+      const { token, user } = params
       if (user) {
-        token.sub = user.id
-        token.role = user.role
+        token.sub = user.id as string
+        token.role = (user as any).role
       }
       if (token.sub) {
         const dbUser = await prisma.user.findUnique({
@@ -76,10 +77,10 @@ export const authOptions: AuthOptions = {
       }
       return token
     },
-    session: ({ session, token }: { session: Session; token: JWT }) => {
+    session: ({ session, token }: { session: Session; token: any }) => {
       if (session.user) {
         session.user.id = token.sub as string
-        session.user.role = token.role as string
+        session.user.role = token.role as any
       }
       return session
     },

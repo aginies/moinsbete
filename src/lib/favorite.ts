@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import type { BookmarkType } from '@/generated/client'
 import type { JsonValue } from '@prisma/client/runtime/library'
+import { Prisma } from '@/generated/client'
 
 export interface BookmarkItem {
   id: string
@@ -35,7 +36,7 @@ export async function toggleBookmark(
   if (action === 'remove') return { bookmarked: true, wasBookmarked: false }
 
   await prisma.bookmark.create({
-    data: { userId, resourceId, type, meta: meta as JsonValue },
+    data: { userId, resourceId, type, meta: (meta as JsonValue | null) ?? Prisma.JsonNull },
   })
   return { bookmarked: true, wasBookmarked: false }
 }

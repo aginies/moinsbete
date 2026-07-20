@@ -115,7 +115,7 @@ export function PaginatedFavoritesList<T>({
       <div className="space-y-3">
         {paginatedFavorites.map((item, index) => (
           <div
-            key={item.id || index}
+            key={(item as any).id || index}
             className={`group relative rounded-xl border-2 ${borderColor} ${bgGradient} p-4 ${darkBorderColor} ${darkBgGradient} hover:shadow-md transition-shadow`}
           >
             {renderItem(item, () => handleRemove(item))}

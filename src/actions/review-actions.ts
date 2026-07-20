@@ -5,7 +5,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { calculateNextReview, getInitialNextReviewAt, type SrsRating } from '@/lib/srs'
 
-interface DueIdea {
+export interface DueIdea {
   id: string
   title: string
   content: string

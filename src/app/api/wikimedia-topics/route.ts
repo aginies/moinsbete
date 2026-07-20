@@ -42,10 +42,10 @@ async function getCustomTopics(userId: string): Promise<Topic[]> {
     if (dbTopic.searchTerms) {
       const raw = dbTopic.searchTerms
       if (Array.isArray(raw)) {
-        searchTerms = raw
+        searchTerms = raw.filter((t): t is string => typeof t === 'string')
       } else {
         try {
-          searchTerms = JSON.parse(raw)
+          searchTerms = (JSON.parse(raw as string) as unknown[]).filter((t): t is string => typeof t === 'string')
         } catch {
           searchTerms = []
         }
