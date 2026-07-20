@@ -203,6 +203,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         meta = {}
       }
       const m = meta as Record<string, unknown>
+      console.log('[Lobby] PROVERBE meta:', JSON.stringify(m, null, 2))
       return {
         ...bookmark,
         proverbe: {
