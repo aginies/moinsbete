@@ -34,6 +34,8 @@ rsync -a --delete --checksum \
   --exclude='.env' \
   --exclude='docs/' \
   --include='src/scripts/generate-ideas.ts' \
+  --include='src/scripts/ingest-wikipedia.ts' \
+  --include='src/scripts/*.ts' \
   --exclude='scripts/*.ts' \
   --exclude='scripts/update' \
   "$SRC/" "$DEST/"
