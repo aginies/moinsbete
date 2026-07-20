@@ -14,6 +14,18 @@ import { ImageHint } from '@/components/feed/image-hint'
 import { useState, useMemo, useTransition } from 'react'
 import { toast } from 'sonner'
 
+const handleUnshareResult = (r: { error?: string } | null | undefined) => {
+  if (r?.error) {
+    toast.error(r.error)
+  } else {
+    setTimeout(() => window.location.reload(), 100)
+  }
+}
+
+const handleUnshareError = (err: any) => {
+  toast.error(err?.message || 'Erreur lors de la suppression')
+}
+
 function maskEmail(email: string): string {
   const [local, domain] = email.split('@')
   if (!local || !domain) return email
@@ -164,15 +176,7 @@ function IdeaBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.idea && unshareFromLobby(bookmark.idea.id).then(r => {
-                if (r.error) {
-                  toast.error(r.error)
-                }
-                setTimeout(() => window.location.reload(), 100)
-              }).catch(err => {
-                toast.error(err?.message || 'Erreur lors de la suppression')
-                setTimeout(() => window.location.reload(), 100)
-              })
+              bookmark.idea && unshareFromLobby(bookmark.idea.id).then(handleUnshareResult).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
@@ -268,15 +272,7 @@ function SaviezVousBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby('SAVIEZ_VOUS', bookmark.resourceId).then(r => {
-                if (r.error) {
-                  toast.error(r.error)
-                }
-                setTimeout(() => window.location.reload(), 100)
-              }).catch(err => {
-                toast.error(err?.message || 'Erreur lors de la suppression')
-                setTimeout(() => window.location.reload(), 100)
-              })
+              bookmark.resourceId && unshareResourceFromLobby('SAVIEZ_VOUS', bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
@@ -398,15 +394,7 @@ function WikiImageBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
-                if (r.error) {
-                  toast.error(r.error)
-                }
-                setTimeout(() => window.location.reload(), 100)
-              }).catch(err => {
-                toast.error(err?.message || 'Erreur lors de la suppression')
-                setTimeout(() => window.location.reload(), 100)
-              })
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
@@ -544,15 +532,7 @@ function WikiLovesBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
-                if (r.error) {
-                  toast.error(r.error)
-                }
-                setTimeout(() => window.location.reload(), 100)
-              }).catch(err => {
-                toast.error(err?.message || 'Erreur lors de la suppression')
-                setTimeout(() => window.location.reload(), 100)
-              })
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
@@ -690,15 +670,7 @@ function WikiMediaBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
-                if (r.error) {
-                  toast.error(r.error)
-                }
-                setTimeout(() => window.location.reload(), 100)
-              }).catch(err => {
-                toast.error(err?.message || 'Erreur lors de la suppression')
-                setTimeout(() => window.location.reload(), 100)
-              })
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
