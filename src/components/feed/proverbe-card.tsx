@@ -120,6 +120,8 @@ export function ProverbeCard({
           signification: proverbe.signification,
           source: proverbe.source,
           wiktionnaireUrl: proverbe.wiktionnaireUrl,
+          etymologie: proverbe.etymologie,
+          definitions: proverbe.definitions,
         })
         if (result.success) {
           setIsShared(true)
