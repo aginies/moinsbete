@@ -5,32 +5,49 @@ const WIKTIONARY_BASE = 'https://fr.wiktionary.org'
 
 const ANNEXE_PAGES = [
   { id: 12582, title: 'Annexe:Liste de proverbes français', source: 'Proverbe français' },
-  { id: 1483239, title: 'Annexe:Liste de proverbes d\'Afrique noire en français', source: 'Proverbe africain' },
+  { id: 1479706, title: 'Annexe:Liste de proverbes algériens en français', source: 'Proverbe algérien' },
+  { id: 1483255, title: 'Annexe:Liste de proverbes allemands', source: 'Proverbe allemand' },
   { id: 1483271, title: 'Annexe:Liste de proverbes amérindiens en français', source: 'Proverbe amérindien' },
+  { id: 2468554, title: 'Annexe:Liste de proverbes anglais', source: 'Proverbe anglais' },
+  { id: 1483275, title: 'Annexe:Liste de proverbes anglais et français équivalents', source: 'Proverbe anglais/français' },
+  { id: 2466555, title: 'Annexe:Liste de proverbes arabes', source: 'Proverbe arabe' },
   { id: 1482404, title: 'Annexe:Liste de proverbes arabes en français', source: 'Proverbe arabe' },
+  { id: 13154, title: 'Annexe:Liste de proverbes bambaras', source: 'Proverbe bambara' },
   { id: 1482401, title: 'Annexe:Liste de proverbes berbères', source: 'Proverbe berbère' },
+  { id: 1483278, title: 'Annexe:Liste de proverbes bretons', source: 'Proverbe breton' },
+  { id: 1879258, title: 'Annexe:Liste de proverbes chinois', source: 'Proverbe chinois' },
   { id: 1483286, title: 'Annexe:Liste de proverbes corses', source: 'Proverbe corse' },
+  { id: 2441870, title: 'Annexe:Liste de proverbes créoles', source: 'Proverbe créole' },
   { id: 1483298, title: 'Annexe:Liste de proverbes créoles de La Réunion', source: 'Proverbe créole' },
+  { id: 1483244, title: 'Annexe:Liste de proverbes d\'Afrique noire', source: 'Proverbe africain' },
+  { id: 1483239, title: 'Annexe:Liste de proverbes d\'Afrique noire en français', source: 'Proverbe africain' },
   { id: 1486520, title: 'Annexe:Liste de proverbes en espéranto', source: 'Proverbe espéranto' },
+  { id: 1486561, title: 'Annexe:Liste de proverbes espagnols', source: 'Proverbe espagnol' },
+  { id: 1487760, title: 'Annexe:Liste de proverbes et expressions sur le chat', source: 'Proverbe thématique' },
+  { id: 5053913, title: 'Annexe:Liste de proverbes haoussa', source: 'Proverbe haoussa' },
+  { id: 1483290, title: 'Annexe:Liste de proverbes haïtiens', source: 'Proverbe haïtien' },
   { id: 2231682, title: 'Annexe:Maximes juridiques françaises', source: 'Maxime juridique' },
   { id: 1486766, title: 'Annexe:Liste de proverbes indiens', source: 'Proverbe indien' },
+  { id: 1486768, title: 'Annexe:Liste de proverbes indonésiens', source: 'Proverbe indonésien' },
+  { id: 1486772, title: 'Annexe:Liste de proverbes italiens', source: 'Proverbe italien' },
+  { id: 1486774, title: 'Annexe:Liste de proverbes ivoiriens', source: 'Proverbe ivoirien' },
+  { id: 1487747, title: 'Annexe:Liste de proverbes japonais', source: 'Proverbe japonais' },
   { id: 1487748, title: 'Annexe:Liste de proverbes kabyles', source: 'Proverbe kabyle' },
   { id: 1487752, title: 'Annexe:Liste de proverbes marocains', source: 'Proverbe marocain' },
+  { id: 1487754, title: 'Annexe:Liste de proverbes portugais', source: 'Proverbe portugais' },
+  { id: 1487756, title: 'Annexe:Liste de proverbes roumains', source: 'Proverbe roumain' },
   { id: 1487757, title: 'Annexe:Liste de proverbes sundanais', source: 'Proverbe sundanais' },
   { id: 1487758, title: 'Annexe:Liste de proverbes tunisiens', source: 'Proverbe tunisien' },
 ]
 
 const CATEGORY_PAGES = [
   { category: 'Proverbes en français', source: 'Proverbe français' },
-  { category: 'Proverbes français', source: 'Proverbe français' },
   { category: 'Expressions en français', source: 'Expression française' },
-  { category: 'Maximes en français', source: 'Maxime française' },
-  { category: 'Proverbes africains en français', source: 'Proverbe africain en français' },
-  { category: 'Proverbes arabes en français', source: 'Proverbe arabe en français' },
-  { category: 'Proverbes amérindiens en français', source: 'Proverbe amérindien en français' },
-  { category: 'Proverbes créoles', source: 'Proverbe créole en français' },
-  { category: 'Proverbes berbères en français', source: 'Proverbe berbère en français' },
-  { category: 'Proverbes kabyles en français', source: 'Proverbe kabyle en français' },
+  { category: 'Locutions-phrases en français', source: 'Locution-phrase française' },
+  { category: 'Idiotismes corporels en français', source: 'Expression française (corps)' },
+  { category: 'Idiotismes animaliers en français', source: 'Expression française (animaux)' },
+  { category: 'Idiotismes gastronomiques en français', source: 'Expression française (cuisine)' },
+  { category: 'Comparaisons en français', source: 'Comparaison française' },
 ]
 
 let fetchProgress: { 
@@ -261,55 +278,53 @@ async function verifyFrenchWiktionnaire(proverbs: CachedProverbe[]): Promise<Cac
 async function fetchCategoryPages(category: string, source: string): Promise<CachedProverbe[]> {
   for (let retry = 0; retry < 3; retry++) {
     try {
-      const url = `${WIKTIONARY_BASE}/w/api.php?action=query&list=categorymembers&cmtitle=Catégorie:${encodeURIComponent(category)}&cmlimit=500&cmnamespace=0&format=json`
-      const res = await fetch(url, {
-        signal: AbortSignal.timeout(15000),
-        headers: {
-          'User-Agent': 'MoinsBete/1.0 (https://moinsbete.com; mailto:admin@moinsbete.com)',
-        },
-      })
-      if (!res.ok) {
-        if (res.status === 429) {
-          await delay(5000)
-          continue
-        }
-        return []
-      }
-
-      const data = await res.json()
-      const members = data?.query?.categorymembers || []
-      
-      if (members.length === 0) return []
-      
-      // Fetch content for each member page to look for proverbs
       const allProverbs: CachedProverbe[] = []
-      const batchSize = 10
+      let cmcontinue: string | undefined = undefined
       
-      for (let i = 0; i < members.length; i += batchSize) {
-        const batch = members.slice(i, i + batchSize)
-        const titles = batch.map((m: { title: string }) => m.title).join('|')
+      do {
+        let url = `${WIKTIONARY_BASE}/w/api.php?action=query&list=categorymembers&cmtitle=Catégorie:${encodeURIComponent(category)}&cmlimit=500&cmnamespace=0&format=json`
+        if (cmcontinue) {
+          url += `&cmcontinue=${encodeURIComponent(cmcontinue)}`
+        }
         
-        const pageUrl = `${WIKTIONARY_BASE}/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=revisions&rvprop=content&format=json`
-        const pageRes = await fetch(pageUrl, {
+        const res = await fetch(url, {
           signal: AbortSignal.timeout(15000),
           headers: {
             'User-Agent': 'MoinsBete/1.0 (https://moinsbete.com; mailto:admin@moinsbete.com)',
           },
         })
         
-        if (!pageRes.ok) continue
+        if (!res.ok) {
+          if (res.status === 429) {
+            await delay(5000)
+            continue
+          }
+          break
+        }
         
-        const pageData = await pageRes.json()
-        const pages = pageData?.query?.pages || {}
+        const data = await res.json()
+        const members = data?.query?.categorymembers || []
         
-        for (const pageId of Object.keys(pages)) {
-          const page = pages[pageId]
-          if (page?.revisions?.[0]?.['*']) {
-            const entries = parseAnnexContent(page.revisions[0]['*'], source)
-            allProverbs.push(...entries)
+        for (const member of members) {
+          if (member.title) {
+            const text = member.title.trim()
+            if (text && text.length > 3 && !text.includes(':') && !text.includes('{') && !text.includes('}')) {
+              allProverbs.push({
+                text,
+                signification: '',
+                source,
+                hasWiktionnairePage: true,
+                wiktionnaireUrl: `${WIKTIONARY_BASE}/wiki/${encodeURIComponent(text)}`
+              })
+            }
           }
         }
-      }
+        
+        cmcontinue = data?.continue?.cmcontinue
+        if (cmcontinue) {
+          await delay(500) // Small delay between pagination calls
+        }
+      } while (cmcontinue)
       
       return allProverbs
     } catch (error) {
@@ -335,6 +350,7 @@ async function fetchAllAnnexPagesSequentially(): Promise<{ total: number; added:
     
     fetchProgress.progress = `${pageId}/${totalPages}`
     fetchProgress.currentPage = page.title
+    fetchProgress.perPage = undefined
     
     console.log(`  Page ${pageId}/${totalPages}: Fetching ${page.title}...`)
     const entries = await fetchAndParsePage(page)
@@ -369,6 +385,7 @@ async function fetchAllAnnexPagesSequentially(): Promise<{ total: number; added:
     
     fetchProgress.progress = `${pageId}/${totalPages}`
     fetchProgress.currentPage = `Catégorie: ${cat.category}`
+    fetchProgress.perPage = undefined
     
     console.log(`  Page ${pageId}/${totalPages}: Fetching category ${cat.category}...`)
     const entries = await fetchCategoryPages(cat.category, cat.source)
@@ -725,7 +742,8 @@ export async function GET(request: Request) {
         progress: fetchProgress.progress,
         currentPage: fetchProgress.currentPage,
         total: fetchProgress.total,
-        added: fetchProgress.added
+        added: fetchProgress.added,
+        perPage: fetchProgress.perPage
       })
     }
     
@@ -734,7 +752,8 @@ export async function GET(request: Request) {
       progress: fetchProgress.progress,
       currentPage: fetchProgress.currentPage,
       total: fetchProgress.total,
-      added: fetchProgress.added
+      added: fetchProgress.added,
+      perPage: fetchProgress.perPage
     })
   }
 
@@ -868,7 +887,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ 
         status: 'fetching',
         progress: fetchProgress.progress,
-        currentPage: fetchProgress.currentPage
+        currentPage: fetchProgress.currentPage,
+        total: fetchProgress.total,
+        added: fetchProgress.added,
+        perPage: fetchProgress.perPage
       })
     }
     
