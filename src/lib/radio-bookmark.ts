@@ -18,7 +18,7 @@ const mapMeta: (meta: unknown, resourceId: string) => FavoriteDoc | null = (meta
   const m = meta as RadioFavoriteMeta | null
   if (!m) return null
   return {
-    id: m.favoritedAt || '',
+    id: resourceId,
     title: m.title || '',
     description: m.description || '',
     url: m.url || '',
