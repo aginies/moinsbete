@@ -56,6 +56,7 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [renderError, setRenderError] = useState<Error | null>(null)
   const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'portail_lexical_card_visible', userId })
   const show = isVisible !== undefined ? isVisible : true
 
@@ -112,6 +113,28 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
 
   if (!hasMounted) {
     return null
+  }
+
+  if (loading && !word) {
+    return (
+      <div className="mb-6">
+        <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
+          <CardHeader
+            icon={<Languages className="h-4 w-4 text-amber-950" />}
+            iconBgColor="bg-amber-500"
+            iconDarkColor="dark:bg-amber-600"
+            title="Portail Lexical — Mot du jour"
+            titleColor="text-amber-800"
+            titleDarkColor="dark:text-amber-300"
+            linkHref="/portail-lexical"
+            showToggle={showToggle}
+            onToggle={onToggle || handleToggle}
+            showRefresh={false}
+            loading={true}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
