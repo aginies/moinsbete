@@ -192,6 +192,30 @@ export async function GET(request: Request) {
     return NextResponse.json({ suggestions })
   }
 
+  if (action === 'wotd') {
+    try {
+      const wotd = await fetchWotd()
+      if (!wotd) {
+        return NextResponse.json({
+          form: 'lexique',
+          pos: 'nom',
+          full_form: 'lexique',
+          full_pos: 'nom masculin',
+          description: 'Ensemble des mots d\'une langue.',
+        })
+      }
+      return NextResponse.json(wotd)
+    } catch {
+      return NextResponse.json({
+        form: 'lexique',
+        pos: 'nom',
+        full_form: 'lexique',
+        full_pos: 'nom masculin',
+        description: 'Ensemble des mots d\'une langue.',
+      })
+    }
+  }
+
   if (action === 'word') {
     const word = searchParams.get('word') || ''
     if (!word || !isValidSearchTerm(word)) {

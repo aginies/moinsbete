@@ -33,6 +33,14 @@ interface SearchSuggestion {
   label: string
 }
 
+interface WordOfTheDay {
+  form: string
+  pos: string
+  full_form: string
+  full_pos: string
+  description: string
+}
+
 const STORAGE_KEY = 'portail_lexical_history'
 
 function getHistory(): string[] {
@@ -88,6 +96,8 @@ export function PortailLexicalPageClient() {
   const [loading, setLoading] = useState(false)
   const [history, setHistory] = useState<string[]>(getHistory())
   const [error, setError] = useState(false)
+  const [wotd, setWotd] = useState<WordOfTheDay | null>(null)
+  const [wotdLoading, setWotdLoading] = useState(true)
 
   useEffect(() => {
     if (searchTerm.length < 2) {
@@ -154,6 +164,24 @@ export function PortailLexicalPageClient() {
     }
   }, [])
 
+  useEffect(() => {
+    fetch('/api/portail-lexical?action=wotd')
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => {
+        setWotd(data)
+      })
+      .catch(() => {
+        setWotd({
+          form: 'lexique',
+          pos: 'nom',
+          full_form: 'lexique',
+          full_pos: 'nom masculin',
+          description: 'Ensemble des mots d\'une langue.',
+        })
+      })
+      .finally(() => setWotdLoading(false))
+  }, [])
+
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-4xl md:p-6">
       <div className="mb-6">
@@ -162,7 +190,7 @@ export function PortailLexicalPageClient() {
             icon={<Languages className="h-4 w-4 text-amber-950" />}
             iconBgColor="bg-amber-500"
             iconDarkColor="dark:bg-amber-600"
-            title="Portail Lexical"
+            title="Recherche portail lexical"
             titleColor="text-amber-800"
             titleDarkColor="dark:text-amber-300"
           />
@@ -215,6 +243,34 @@ export function PortailLexicalPageClient() {
           </form>
         </div>
       </div>
+
+      {!wotdLoading && wotd && (
+        <div className="mb-6">
+          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-lg">✨</span>
+              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">Mot du jour</h3>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-amber-900 dark:text-amber-100">
+                  {wotd.form}
+                </h2>
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-300 mt-1">
+                  {wotd.full_pos}
+                </span>
+              </div>
+              <Link
+                href={`/portail-lexical?word=${encodeURIComponent(wotd.form)}`}
+                className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors"
+              >
+                Decouvrir
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {history.length > 0 && (
         <div className="mb-6">
