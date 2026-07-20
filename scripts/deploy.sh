@@ -63,7 +63,23 @@ if [ "$RUN_PRISMA" = true ]; then
   echo "Running prisma commands..."
   npx prisma generate
   npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
-  npx prisma migrate deploy
+
+  # Stop pm2 app to release SQLite lock before migrations
+  echo "Stopping moinsbete to avoid SQLite lock..."
+  pm2 stop moinsbete 2>/dev/null || true
+  sleep 1
+
+  # Retry prisma migrate deploy with timeout (SQLite can be flaky)
+  MAX_RETRIES=3
+  RETRY=0
+  while [ $RETRY -lt $MAX_RETRIES ]; do
+    if npx prisma migrate deploy 2>/dev/null; then
+      break
+    fi
+    RETRY=$((RETRY + 1))
+    echo "Prisma migrate failed (attempt $RETRY/$MAX_RETRIES), retrying in 2s..."
+    sleep 2
+  done
 fi
 npm run build
 if [ -f "ecosystem.config.js" ]; then
