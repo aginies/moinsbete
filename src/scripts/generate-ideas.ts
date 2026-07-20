@@ -304,8 +304,7 @@ async function main() {
       const ideasData = await distillIdeas(
         articleName,
         summary.extract,
-        `https://fr.wikipedia.org/wiki/${encodeURIComponent(articleName)}`,
-        allTopics
+        `https://fr.wikipedia.org/wiki/${encodeURIComponent(articleName)}`
       )
 
       if (ideasData.length === 0) {

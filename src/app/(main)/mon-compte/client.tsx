@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import { BookOpen, Mail, User as UserIcon, Lock, LogOut, MessageSquare } from 'lucide-react'
+import { Mail, User as UserIcon, Lock, LogOut, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,7 +10,6 @@ import type { Session } from 'next-auth'
 import Link from 'next/link'
 
 export default function MonCompteClient({ session }: { session: Session }) {
-  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')

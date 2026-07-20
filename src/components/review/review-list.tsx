@@ -33,7 +33,7 @@ export function ReviewList({ ideas, total, loading, currentPage, onPageChange, o
   if (ideas.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-lg text-muted-foreground">Aucune idée à réviser aujourd'hui</p>
+        <p className="text-lg text-muted-foreground">Aucune idée à réviser aujourd&apos;hui</p>
         <p className="mt-2 text-sm text-muted-foreground">Revenez plus tard pour de nouvelles idées</p>
       </div>
     )
@@ -55,7 +55,7 @@ export function ReviewList({ ideas, total, loading, currentPage, onPageChange, o
             variant="outline"
             onClick={() => onPageChange(currentPage + 1)}
           >
-            Charger plus d'idées
+             Charger plus d&apos;idées
           </Button>
         </div>
       )}

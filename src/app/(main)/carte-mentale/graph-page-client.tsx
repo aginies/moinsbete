@@ -25,7 +25,7 @@ export function GraphPageClient({ userId }: GraphPageClientProps) {
           setNodes(data.nodes)
           setLinks(data.links)
         }
-      } catch (err) {
+      } catch {
         setError('Erreur lors du chargement de la carte')
       } finally {
         setLoading(false)

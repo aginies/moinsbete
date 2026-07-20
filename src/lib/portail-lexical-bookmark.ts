@@ -1,5 +1,4 @@
 import type { BookmarkType } from '@/generated/client'
-import type { PortailLexicalFavoriteDoc } from '@/app/(main)/favoris/portail-lexical-bookmarks'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
 export interface PortailLexicalFavoriteMeta {

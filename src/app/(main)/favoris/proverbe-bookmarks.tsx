@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import Link from 'next/link'
-import { ExternalLink, X, ArrowUpRight } from 'lucide-react'
+import { X, ArrowUpRight } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
 import { getProverbeFavoritesAction } from '@/actions/proverbe-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
@@ -10,8 +10,6 @@ import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby-button'
-import { isSharedResourceToLobby } from '@/actions/lobby-share-actions'
-import { toast } from 'sonner'
 
 export interface ProverbeFavoriteDoc {
   id: string
@@ -33,7 +31,6 @@ interface ProverbeBookmarksProps {
 }
 
 function ProverbeFavoriteItem({ item, onRemove, onShareToggle, isShared, isSharing }: { item: ProverbeFavoriteDoc; onRemove: () => void; onShareToggle: () => void; isShared: boolean; isSharing: boolean }) {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
   const shareUrl = item.url || `https://fr.wiktionary.org/wiki/${encodeURIComponent(item.text)}`
   const { handleShare, copied } = useItemShare({
     shareUrl,
@@ -47,7 +44,7 @@ function ProverbeFavoriteItem({ item, onRemove, onShareToggle, isShared, isShari
       <div className="flex-1">
         <div className="mb-2">
           <h4 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 italic">
-            "{item.text}"
+             &quot;{item.text}&quot;
           </h4>
           <div className="mt-1 flex items-center gap-2">
             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
@@ -72,7 +69,7 @@ function ProverbeFavoriteItem({ item, onRemove, onShareToggle, isShared, isShari
         >
           <ArrowUpRight className="h-4 w-4" />
         </Link>
-        <ShareToLobbyFavoritesButton isShared={isShared} onToggle={onShareToggle} loading={isSharing} resourceId={item.id} />
+        <ShareToLobbyFavoritesButton isShared={isShared} onToggle={onShareToggle} loading={isSharing} />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-emerald-600 opacity-60 hover:opacity-100 hover:text-emerald-800 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:text-emerald-200 dark:hover:bg-emerald-900/40 transition-all"

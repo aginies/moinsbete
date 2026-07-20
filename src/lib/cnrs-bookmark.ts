@@ -1,5 +1,4 @@
 import type { BookmarkType } from '@/generated/client'
-import type { CnrsFavoriteDoc } from '@/components/feed/cnrs-bookmarks'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
 export interface CnrsFavoriteMeta {

@@ -90,7 +90,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const togglePortailLexical = useCallback(() => toggleVisibility('portailLexicalCardVisible', 'portailLexical'), [toggleVisibility])
   const toggleProverbe = useCallback(() => toggleVisibility('proverbeCardVisible', 'proverbe'), [toggleVisibility])
 
-  const handleToggle = (topicId: string, _isFollowing: boolean) => {
+  const handleToggle = (topicId: string) => {
     if (isAllSelected) {
       setFollowedIds([topicId])
     } else if (followedIdsSet.has(topicId)) {

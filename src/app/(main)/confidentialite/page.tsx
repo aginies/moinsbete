@@ -24,7 +24,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">1. Collecte et utilisation des données</h2>
           <p className="text-muted-foreground">
-            MoinsBete collecte un minimum d'informations nécessaires au fonctionnement de l'application.
+             MoinsBete collecte un minimum d&apos;informations nécessaires au fonctionnement de l&apos;application.
             Votre vie privée est une priorité.
           </p>
           <div className="mt-3 space-y-2">
@@ -32,7 +32,7 @@ export default function ConfidentialitePage() {
               <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">1</span>
               <p className="text-sm text-muted-foreground">
                 <strong>Compte utilisateur :</strong> email et mot de passe haché sont stockés dans notre base de données.
-                Le nom d'affichage est optionnel.
+                Le nom d&apos;affichage est optionnel.
               </p>
             </div>
             <div className="flex items-start gap-3">
@@ -45,7 +45,7 @@ export default function ConfidentialitePage() {
             <div className="flex items-start gap-3">
               <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">3</span>
               <p className="text-sm text-muted-foreground">
-                <strong>Suivi d'activité :</strong> les idées que vous avez lues et votre série de jours actifs
+                <strong>Suivi d&apos;activité :</strong> les idées que vous avez lues et votre série de jours actifs
                 (streak) sont enregistrés pour vous offrir un suivi de progression.
               </p>
             </div>
@@ -58,7 +58,7 @@ export default function ConfidentialitePage() {
             <div className="flex items-start gap-3">
               <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">!</span>
               <p className="text-sm text-muted-foreground">
-                <strong>Pas d'analytics :</strong> nous n'utilisons aucun outil d'analyse tiers (Google Analytics, etc.)
+                <strong>Pas d&apos;analytics :</strong> nous n&apos;utilisons aucun outil d&apos;analyse tiers (Google Analytics, etc.)
                 ni de pistage.
               </p>
             </div>
@@ -72,7 +72,7 @@ export default function ConfidentialitePage() {
             <div className="flex items-start gap-3">
               <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">!</span>
               <p className="text-sm text-muted-foreground">
-                <strong>Pas de publicité :</strong> il n'y a ni publicité, ni tracking publicitaire.
+                <strong>Pas de publicité :</strong> il n&apos;y a ni publicité, ni tracking publicitaire.
               </p>
             </div>
           </div>
@@ -82,10 +82,10 @@ export default function ConfidentialitePage() {
           <h2 className="mb-3 text-xl font-semibold">3. Cookies et session</h2>
           <p className="text-muted-foreground">
             MoinsBete utilise un cookie de session (JWT) pour maintenir votre connexion.
-            Ce cookie est nécessaire pour l'authentification et ne contient aucune donnée personnelle identifiable.
+             Ce cookie est nécessaire pour l&apos;authentification et ne contient aucune donnée personnelle identifiable.
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Le cookie est stocké localement sur votre appareil et expire après 30 jours d'inactivité.
+             Le cookie est stocké localement sur votre appareil et expire après 30 jours d&apos;inactivité.
             Vous pouvez vous déconnecter à tout moment pour le supprimer.
           </p>
         </section>
@@ -133,7 +133,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">8. Nous contacter</h2>
           <p className="text-muted-foreground">
-            Pour toute question ou suggestion concernant cette politique de confidentialité, n'hésitez pas
+             Pour toute question ou suggestion concernant cette politique de confidentialité, n&apos;hésitez pas
             à nous contacter.
           </p>
           <div className="mt-3 flex items-center gap-2 text-primary">

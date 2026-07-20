@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Script from 'next/script'
 import { registerAction, isRegistrationLocked, getTurnstileSiteKey } from '@/actions/auth-actions'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { BookOpen, Mail, Lock, User, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'

@@ -133,7 +133,6 @@ async function main() {
     const totalBatches = Math.ceil(total / BATCH_SIZE)
     const batch = ideas.slice(i, i + BATCH_SIZE)
     
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(0)
     const etaSeconds = Number(((Date.now() - startTime) / (processed + 1) * (total - (processed + 1))).toFixed(0))
     const hours = Math.floor(etaSeconds / 3600)
     const minutes = Math.floor((etaSeconds % 3600) / 60)

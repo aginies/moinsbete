@@ -1,5 +1,4 @@
- import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { isCsrfValid } from '@/lib/csrf'
+import { describe, it, expect, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
 vi.mock('@/lib/csrf', async () => {

@@ -1,5 +1,4 @@
 import type { BookmarkType } from '@/generated/client'
-import type { ImageDuJourFavoriteDoc } from '@/components/feed/image-du-jour-bookmarks'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
 export interface ImageDuJourFavoriteMeta {

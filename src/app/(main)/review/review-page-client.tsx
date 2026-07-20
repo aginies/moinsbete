@@ -10,7 +10,7 @@ interface ReviewPageClientProps {
   currentPage: number
 }
 
-export function ReviewPageClient({ userId, currentPage }: ReviewPageClientProps) {
+export function ReviewPageClient({ currentPage }: ReviewPageClientProps) {
   const [ideas, setIdeas] = useState<any[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)

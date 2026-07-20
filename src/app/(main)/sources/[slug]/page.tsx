@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { Feed } from '@/components/feed/feed'
-import { SearchBar } from '@/components/search/search-bar'
 import Link from 'next/link'
 import { ArrowLeft, BookOpen, Globe, FileText, Headphones } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'

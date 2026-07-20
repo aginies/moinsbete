@@ -42,16 +42,16 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
   const activeType = searchParams.get('type') || ''
   const [searchQuery, setSearchQuery] = useState('')
 
-  useEffect(() => {
-    const q = searchParams.get('q') || ''
-    setSearchQuery(q)
-  }, [searchParams])
-
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams)
     params.set('tab', value)
     router.push(`${pathname}?${params.toString()}`)
   }
+
+  useEffect(() => {
+    const q = searchParams.get('q') || ''
+    setSearchQuery(q)
+  }, [searchParams])
 
   const handleTypeChange = useCallback((value: string) => {
     const params = new URLSearchParams(searchParams)

@@ -11,7 +11,7 @@ import { unshareFromLobby, unshareResourceFromLobby, addToFavoritesFromLobby } f
 import { sanitizeUrl, isValidUrl, maskEmail } from '@/lib/utils'
 import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
-import { useState, useMemo, useTransition } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 const handleUnshareResult = (r: { error?: string } | null | undefined) => {
@@ -742,7 +742,7 @@ function ProverbeBookmarkItem({
           <h4 className="text-sm font-bold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">Proverbe</h4>
         </div>
         <p className="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-2 italic">
-          "{bookmark.proverbe.text}"
+          &quot;{bookmark.proverbe.text}&quot;
         </p>
         {bookmark.proverbe.signification && (
           <p className="text-sm leading-relaxed text-emerald-800 dark:text-emerald-200 mb-2">

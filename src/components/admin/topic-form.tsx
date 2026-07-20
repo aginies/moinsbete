@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createTopicAction, updateTopicAction, deleteTopicAction } from '@/actions/topic-actions'
 import { Topic } from '@/generated/client'
 import { Button } from '@/components/ui/button'

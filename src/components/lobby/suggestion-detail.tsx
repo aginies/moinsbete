@@ -7,7 +7,6 @@ import { toast } from 'sonner'
 import { addCommentAction, updateSuggestionAction, deleteSuggestionAction } from '@/actions/suggestion-actions'
 import { useRouter } from 'next/navigation'
 import { MessageSquare, Edit2, Trash2, Save, X, EyeOff } from 'lucide-react'
-import Link from 'next/link'
 import { parseHTML } from '@/lib/utils'
 import { DeleteConfirmationDialog } from './delete-confirmation-dialog'
 
@@ -55,7 +54,7 @@ export function SuggestionDetail({ suggestion: sug, currentUserId, isAdmin }: Su
 
   const handleSaveEdit = () => {
     if (!title.trim() || !description.trim()) return
-    const result = updateSuggestionAction(sug.id, { title, description }).then((res) => {
+    updateSuggestionAction(sug.id, { title, description }).then((res) => {
       if (res.error) {
         toast.error(res.error)
       } else {

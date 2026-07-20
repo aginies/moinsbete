@@ -1118,7 +1118,7 @@ for (const ideaData of IDEAS) {
     })
     created++
     console.log(`  ✓ ${ideaData.title}`)
-  } catch (e) {
+  } catch {
     console.log(`  ✗ ${ideaData.title} (déjà existe?)`)
   }
 }

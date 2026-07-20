@@ -73,12 +73,11 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
-        <ShareToLobbyFavoritesButton
-          isShared={isShared}
-          onToggle={onShareToggle}
-          loading={isSharing}
-          resourceId={item.docid}
-        />
+      <ShareToLobbyFavoritesButton
+        isShared={isShared}
+        onToggle={onShareToggle}
+        loading={isSharing}
+      />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-indigo-600 opacity-60 hover:opacity-100 hover:text-indigo-800 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:text-indigo-200 dark:hover:bg-indigo-900/40 transition-all"

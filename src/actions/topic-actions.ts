@@ -3,7 +3,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { slugify, getRandomIcon, getRandomColor } from '@/lib/utils'
+import { slugify, getRandomColor } from '@/lib/utils'
 
 export async function createTopicAction(data: {
   name: string

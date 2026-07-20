@@ -1,6 +1,7 @@
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { SuggestionDetail } from '@/components/lobby/suggestion-detail'
 
 export default async function SuggestionDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -24,9 +25,9 @@ export default async function SuggestionDetailPage({ params }: { params: Promise
 
   return (
     <div className="mx-auto max-w-2xl p-4 md:p-6">
-      <a href="/lobby" className="mb-4 inline-block text-sm text-primary hover:underline">
+      <Link href="/lobby" className="mb-4 inline-block text-sm text-primary hover:underline">
         ← Retour au Lobby
-      </a>
+      </Link>
       <SuggestionDetail
         suggestion={suggestion}
         currentUserId={session.user.id}

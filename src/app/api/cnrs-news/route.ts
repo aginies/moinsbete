@@ -41,7 +41,7 @@ async function scrapeFreshArticles(): Promise<CnrsArticle[]> {
         const title = titleMatch[1].replace(/<[^>]*>/g, '').trim()
         const href = linkMatch[1]
         const category = linkMatch[2]
-        let imageUrl = imgMatch[1]
+        const imageUrl = imgMatch[1]
 
         if (!title || !href || !imageUrl) continue
         if (usedLinks.has(href)) continue

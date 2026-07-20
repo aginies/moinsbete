@@ -61,7 +61,7 @@ describe('authOptions.authorize', () => {
     const user = { ...mockUser, passwordHash, enabled: false }
     vi.mocked(prisma.user.findUnique).mockResolvedValue(user)
 
-    const provider = authOptions.providers[0] as { authorize: (credentials: Record<string, unknown>) => Promise<unknown> }
+    const provider = authOptions.providers[0] as unknown as { authorize: (credentials: Record<string, string> | undefined) => Promise<unknown> }
     const result = await provider.authorize({ email: 'test@example.com', password })
 
     expect(result).toBeNull()
@@ -72,7 +72,7 @@ describe('authOptions.authorize', () => {
     const { authOptions } = await import('@/lib/auth')
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
 
-    const provider = authOptions.providers[0] as { authorize: (credentials: Record<string, unknown>) => Promise<unknown> }
+    const provider = authOptions.providers[0] as unknown as { authorize: (credentials: Record<string, string> | undefined) => Promise<unknown> }
     const result = await provider.authorize({ email: 'unknown@example.com', password: 'any' })
 
     expect(result).toBeNull()
@@ -100,7 +100,7 @@ describe('getSession', () => {
         next: () => Promise.resolve({ done: true, value: undefined }),
       }),
     }
-    vi.mocked(cookies).mockImplementationOnce(async () => mockCookies)
+    vi.mocked(cookies).mockImplementationOnce(async () => mockCookies as unknown as Awaited<ReturnType<typeof cookies>>)
 
     const { getSession } = await import('@/lib/auth')
     const result = await getSession()

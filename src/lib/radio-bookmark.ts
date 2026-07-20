@@ -1,5 +1,4 @@
 import type { BookmarkType } from '@/generated/client'
-import type { FavoriteDoc } from '@/app/(main)/favoris/radio-france-favorites'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
 export interface RadioFavoriteMeta {

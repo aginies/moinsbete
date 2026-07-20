@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { ArrowLeft, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FavorisPageClient } from './favoris-page-client'
-import { PixabayFavorites } from './pixabay-favorites'
 import { mapIdeaWithSourceAndTopics } from '@/lib/feed-helpers'
 
 const PAGE_SIZE = 20

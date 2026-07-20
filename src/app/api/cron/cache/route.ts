@@ -36,7 +36,7 @@ export async function GET(request: Request) {
   const startTime = Date.now()
   console.log(`[cron] Starting cache update from IP: ${ip}`)
   
-  let results: Record<string, string> = {}
+  const results: Record<string, string> = {}
   
   try {
     console.log('[cron] Step 1/4: Scraping CNRS...')

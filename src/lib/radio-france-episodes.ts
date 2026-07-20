@@ -1,7 +1,6 @@
 import { RadioFranceDoc } from '@/data/radio-france'
 
 const VALID_ORIGINS = ['https://www.radiofrance.fr', 'https://radiofrance.fr']
-const BASE_PATH = '/franceculture/podcasts/'
 
 function isValidUrl(url: string): boolean {
   try {
@@ -96,16 +95,6 @@ export function parseEpisodesFromHtml(html: string): RadioFranceDoc[] {
 
     const imgMatch = block.match(/src="(https:\/\/www\.radiofrance\.fr\/pikapi\/images\/[^"]+\/2048)"/)
     const image = imgMatch ? sanitizeUrl(imgMatch[1]) : undefined
-
-    const dateArea = block.match(/AdditionalInfos[^>]*>([\s\S]*?)<\/div>/)
-    let date = ''
-    if (dateArea) {
-      const dm = dateArea[1].match(/<!--\[-1--><!--\]-->([^<]+)<\!---->/)
-      date = dm ? dm[1].trim() : ''
-    }
-
-    const durMatch = block.match(/Playable-state[^>]*>.*?<!---->\s*([\d]+ min)\s*<!--\[-1-->/)
-    const duration = durMatch ? durMatch[1].trim() : ''
 
     const podcastSlug = slug.split('/')[0]
     const section = slugToName(podcastSlug)

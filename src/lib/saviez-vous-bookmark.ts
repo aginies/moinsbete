@@ -1,5 +1,4 @@
 import type { BookmarkType } from '@/generated/client'
-import type { SaviezVousFavoriteDoc } from '@/components/feed/saviez-vous-bookmarks'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
 export interface SaviezVousFavoriteMeta {

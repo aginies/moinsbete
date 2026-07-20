@@ -2,8 +2,6 @@ const USE_REDIS = process.env.RATE_LIMITER_DRIVER === 'redis'
 export const stores = new Map<string, { timestamps: number[]; expiresAt: number }>()
 const CLEANUP_INTERVAL = 5 * 60 * 1000
 
-let cleanupTimer: ReturnType<typeof setInterval> | null = null
-
 function cleanup() {
   const now = Date.now()
   for (const [key, data] of stores.entries()) {
@@ -15,7 +13,7 @@ function cleanup() {
 
 cleanup()
 if (typeof window === 'undefined') {
-  cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
+  setInterval(cleanup, CLEANUP_INTERVAL)
 }
 
 // Support Redis dynamically to allow serverless, container, and local dev versatility

@@ -58,7 +58,7 @@ interface ImageWikimediaCardProps {
   isVisible?: boolean
 }
 
-async function fetchTopics(userId: string): Promise<Topic[]> {
+async function fetchTopics(): Promise<Topic[]> {
   try {
     const res = await fetch('/api/wikimedia-topics')
     if (!res.ok) return DEFAULT_TOPICS
@@ -109,7 +109,7 @@ export function ImageWikimediaCard({
 
   useEffect(() => {
     if (userId) {
-      fetchTopics(userId).then(loadedTopics => {
+      fetchTopics().then(loadedTopics => {
         setTopics(loadedTopics)
       })
     }
@@ -117,7 +117,7 @@ export function ImageWikimediaCard({
 
   const refreshTopics = useCallback(async () => {
     if (userId) {
-      const topics = await fetchTopics(userId)
+      const topics = await fetchTopics()
       setTopics(topics)
     }
   }, [userId])

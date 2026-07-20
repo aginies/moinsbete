@@ -77,13 +77,6 @@ async function fetchArchive(archiveName: string): Promise<ImageEntry[] | null> {
   }
 }
 
-function monthToAdd(months: number): { month: number; year: number } {
-  const now = new Date()
-  const base = new Date(now.getFullYear(), now.getMonth(), 1)
-  base.setMonth(base.getMonth() + months)
-  return { month: base.getMonth(), year: base.getFullYear() }
-}
-
 function monthToName(month: number, year: number): string {
   return `${MONTHS[month]} ${year}`
 }
