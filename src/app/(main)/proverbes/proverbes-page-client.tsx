@@ -166,7 +166,7 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
             title="Proverbes"
             titleColor="text-emerald-800"
             titleDarkColor="dark:text-emerald-300"
-            showRefresh={true}
+            showRefresh={false}
             loading={loading}
             onRefresh={handleRefresh}
           />
