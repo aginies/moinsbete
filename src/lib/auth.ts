@@ -59,10 +59,19 @@ export const authOptions: AuthOptions = {
     signIn: '/login',
   },
   callbacks: {
-    jwt({ token, user }: { token: any; user?: any }) {
+    jwt: async ({ token, user }: { token: any; user?: any }) => {
       if (user) {
         token.sub = user.id
         token.role = (user as any).role
+      }
+      if (token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { enabled: true },
+        })
+        if (!dbUser?.enabled) {
+          return null
+        }
       }
       return token
     },
@@ -101,10 +110,10 @@ export async function getSession() {
 
     const user = await prisma.user.findUnique({
       where: { id: session.sub },
-      select: { id: true, email: true, displayName: true, role: true },
+      select: { id: true, email: true, displayName: true, role: true, enabled: true },
     })
 
-    if (!user) {
+    if (!user || !user.enabled) {
       return null
     }
 
