@@ -33,6 +33,7 @@ rsync -a --delete \
   --exclude='node_modules/' \
   --exclude='.env' \
   --exclude='docs/' \
+  --include='scripts/generate-ideas.ts' \
   --exclude='scripts/*.ts' \
   --exclude='scripts/update' \
   "$SRC/" "$DEST/"
