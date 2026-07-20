@@ -35,6 +35,13 @@ interface CardVisibility {
   proverbe: boolean
 }
 
+interface CardConfig {
+  key: string
+  isVisible: boolean
+  toggle: () => void
+  renderCard: () => React.ReactElement | null
+}
+
 async function updateCardVisibility(field: string, value: boolean, csrfToken: string) {
   await fetch('/api/user-card-visibility', {
     method: 'POST',
@@ -42,6 +49,17 @@ async function updateCardVisibility(field: string, value: boolean, csrfToken: st
     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
     body: JSON.stringify({ field, value }),
   }).catch(() => {})
+}
+
+async function fetchCardOrder(userId: string): Promise<string[]> {
+  try {
+    const res = await fetch('/api/user-card-order', { credentials: 'include' })
+    if (res.ok) {
+      const data = await res.json()
+      if (Array.isArray(data.order)) return data.order
+    }
+  } catch {}
+  return ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe']
 }
 
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, csrfToken: initialCsrfToken }: SujetsClientProps) {
@@ -69,6 +87,21 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
     saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true,
   })
+
+  const [cardOrder, setCardOrder] = useState<string[]>([])
+  const [orderLoaded, setOrderLoaded] = useState(false)
+
+  useEffect(() => {
+    if (userId) {
+      fetchCardOrder(userId).then(order => {
+        setCardOrder(order)
+        setOrderLoaded(true)
+      })
+    } else {
+      setCardOrder(['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe'])
+      setOrderLoaded(true)
+    }
+  }, [userId])
 
   const toggleVisibility = useCallback((field: string, key: keyof CardVisibility) => {
     setVisibility(prev => {
@@ -109,61 +142,132 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     [allTopics, isAllSelected, followedIdsSet],
   )
 
+  const cardConfigs: CardConfig[] = useMemo(() => [
+    {
+      key: 'saviezVous',
+      isVisible: visibility.saviezVous,
+      toggle: toggleSaviezVous,
+      renderCard: () => {
+        if (!saviezVousFact) return null
+        return (
+          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} isVisible={visibility.saviezVous} />
+        )
+      },
+    },
+    {
+      key: 'wikipedia',
+      visibilityKey: 'wikipedia',
+      visibilityField: 'wikipediaImageCardVisible',
+      isVisible: visibility.wikipedia,
+      toggle: toggleWikipedia,
+      renderCard: () => (
+        <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} isVisible={visibility.wikipedia} />
+      ),
+    },
+    {
+      key: 'cnrs',
+      visibilityKey: 'cnrs',
+      visibilityField: 'cnrsNewsEnabled',
+      isVisible: visibility.cnrs,
+      toggle: toggleCnrs,
+      renderCard: () => (
+        <CnrsNewsCard onToggle={toggleCnrs} userId={userId} isVisible={visibility.cnrs} />
+      ),
+    },
+    {
+      key: 'radioFrance',
+      visibilityKey: 'radioFrance',
+      visibilityField: 'radioFranceCardVisible',
+      isVisible: visibility.radioFrance,
+      toggle: toggleRadioFrance,
+      renderCard: () => (
+        <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} isVisible={visibility.radioFrance} />
+      ),
+    },
+    {
+      key: 'wikimedia',
+      visibilityKey: 'wikimedia',
+      visibilityField: 'imageWikimediaCardVisible',
+      isVisible: visibility.wikimedia,
+      toggle: toggleWikimedia,
+      renderCard: () => (
+        <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage isVisible={visibility.wikimedia} />
+      ),
+    },
+    {
+      key: 'wikiloves',
+      visibilityKey: 'wikiloves',
+      visibilityField: 'imageWikiLovesCardVisible',
+      isVisible: visibility.wikiloves,
+      toggle: toggleWikiLoves,
+      renderCard: () => (
+        <ImageWikiLovesCard onToggle={toggleWikiLoves} userId={userId} largeImage isVisible={visibility.wikiloves} />
+      ),
+    },
+    {
+      key: 'pixabay',
+      visibilityKey: 'pixabay',
+      visibilityField: 'imagePixabayCardVisible',
+      isVisible: visibility.pixabay,
+      toggle: togglePixabay,
+      renderCard: () => (
+        <ImagePixabayCard onToggle={togglePixabay} userId={userId} largeImage isVisible={visibility.pixabay} />
+      ),
+    },
+    {
+      key: 'portailLexical',
+      visibilityKey: 'portailLexical',
+      visibilityField: 'portailLexicalCardVisible',
+      isVisible: visibility.portailLexical,
+      toggle: togglePortailLexical,
+      renderCard: () => (
+        <PortailLexicalCard onToggle={togglePortailLexical} userId={userId} isVisible={visibility.portailLexical} />
+      ),
+    },
+    {
+      key: 'proverbe',
+      visibilityKey: 'proverbe',
+      visibilityField: 'proverbeCardVisible',
+      isVisible: visibility.proverbe,
+      toggle: toggleProverbe,
+      renderCard: () => (
+        <ProverbeCard onToggle={toggleProverbe} userId={userId} isVisible={visibility.proverbe} />
+      ),
+    },
+  ], [visibility, toggleSaviezVous, toggleWikipedia, toggleRadioFrance, toggleWikimedia, toggleWikiLoves, toggleCnrs, togglePixabay, togglePortailLexical, toggleProverbe, userId, saviezVousFact])
+
+  const orderedConfigs = useMemo(() => {
+    if (!orderLoaded || cardOrder.length === 0) return cardConfigs
+    const orderMap = new Map(cardOrder.map((key, index) => [key, index]))
+    return [...cardConfigs].sort((a, b) => {
+      const aIdx = orderMap.get(a.key) ?? 999
+      const bIdx = orderMap.get(b.key) ?? 999
+      return aIdx - bIdx
+    })
+  }, [cardConfigs, cardOrder, orderLoaded])
+
+  const visibleCards = orderedConfigs.filter(c => c.isVisible)
+  const hiddenCards = orderedConfigs.filter(c => !c.isVisible)
+
+  if (!orderLoaded) {
+    return null
+  }
+
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
-      {visibility.saviezVous && saviezVousFact && (
-        <div className="mb-6">
-          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} isVisible={visibility.saviezVous} />
+      {visibleCards.map(card => (
+        <div key={card.key} className="mb-6">
+          {card.renderCard()}
         </div>
-      )}
+      ))}
 
-      {visibility.wikipedia && (
-        <div className="mb-6">
-          <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} isVisible={visibility.wikipedia} />
-        </div>
-      )}
-
-      {visibility.cnrs && (
-        <div className="mb-6">
-          <CnrsNewsCard onToggle={toggleCnrs} userId={userId} isVisible={visibility.cnrs} />
-        </div>
-      )}
-
-      {visibility.radioFrance && (
-        <div className="mb-6">
-          <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} isVisible={visibility.radioFrance} />
-        </div>
-      )}
-
-      {visibility.wikimedia && (
-        <div className="mb-6">
-          <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage isVisible={visibility.wikimedia} />
-        </div>
-      )}
-
-      {visibility.wikiloves && (
-        <div className="mb-6">
-          <ImageWikiLovesCard onToggle={toggleWikiLoves} userId={userId} largeImage isVisible={visibility.wikiloves} />
-        </div>
-      )}
-
-      {visibility.pixabay && (
-        <div className="mb-6">
-          <ImagePixabayCard onToggle={togglePixabay} userId={userId} largeImage isVisible={visibility.pixabay} />
-        </div>
-      )}
-
-      {visibility.portailLexical && (
-        <div className="mb-6">
-          <PortailLexicalCard onToggle={togglePortailLexical} userId={userId} isVisible={visibility.portailLexical} />
-        </div>
-      )}
-
-      {visibility.proverbe && (
-        <div className="mb-6">
-          <ProverbeCard onToggle={toggleProverbe} userId={userId} isVisible={visibility.proverbe} />
-        </div>
-      )}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
+        {hiddenCards.map(card => (
+          <div key={card.key} className="h-full">
+            {card.renderCard()}
+          </div>
+        ))}
+      </div>
 
       <div className="mb-6">
         <Link
@@ -184,62 +288,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
             </div>
           </div>
         </Link>
-      </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
-        {!visibility.saviezVous && saviezVousFact && (
-          <div className="h-full">
-            <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} isVisible={visibility.saviezVous} />
-          </div>
-        )}
-
-        {!visibility.wikipedia && (
-          <div className="h-full">
-            <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} isVisible={visibility.wikipedia} />
-          </div>
-        )}
-
-        {!visibility.cnrs && (
-          <div className="h-full">
-            <CnrsNewsCard onToggle={toggleCnrs} userId={userId} isVisible={visibility.cnrs} />
-          </div>
-        )}
-
-        {!visibility.radioFrance && (
-          <div className="h-full">
-            <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} isVisible={visibility.radioFrance} />
-          </div>
-        )}
-
-        {!visibility.wikimedia && (
-          <div className="h-full">
-            <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage isVisible={visibility.wikimedia} />
-          </div>
-        )}
-
-        {!visibility.wikiloves && (
-          <div className="h-full">
-            <ImageWikiLovesCard onToggle={toggleWikiLoves} userId={userId} largeImage isVisible={visibility.wikiloves} />
-          </div>
-        )}
-
-        {!visibility.pixabay && (
-          <div className="h-full">
-            <ImagePixabayCard onToggle={togglePixabay} userId={userId} largeImage isVisible={visibility.pixabay} />
-          </div>
-        )}
-
-        {!visibility.portailLexical && (
-          <div className="h-full">
-            <PortailLexicalCard onToggle={togglePortailLexical} userId={userId} isVisible={visibility.portailLexical} />
-          </div>
-        )}
-
-        {!visibility.proverbe && (
-          <div className="h-full">
-            <ProverbeCard onToggle={toggleProverbe} userId={userId} isVisible={visibility.proverbe} />
-          </div>
-        )}
       </div>
 
       {followedTopics.length > 0 && (

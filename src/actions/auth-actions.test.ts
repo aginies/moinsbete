@@ -111,6 +111,7 @@ describe('registerAction', () => {
       lastVisited: null,
       portailLexicalCardVisible: true,
       proverbeCardVisible: true,
+      cardOrder: null,
     })
 
     const { registerAction } = await import('@/actions/auth-actions')
@@ -149,6 +150,7 @@ describe('registerAction', () => {
       lastVisited: null,
       portailLexicalCardVisible: true,
       proverbeCardVisible: true,
+      cardOrder: null,
     })
 
     const { registerAction } = await import('@/actions/auth-actions')
@@ -263,6 +265,7 @@ describe('loginAction', () => {
       lastVisited: null,
       portailLexicalCardVisible: true,
       proverbeCardVisible: true,
+      cardOrder: null,
     }
     const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser)
@@ -316,6 +319,7 @@ describe('loginAction', () => {
       lastVisited: null,
       portailLexicalCardVisible: true,
       proverbeCardVisible: true,
+      cardOrder: null,
     }
     const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser)
