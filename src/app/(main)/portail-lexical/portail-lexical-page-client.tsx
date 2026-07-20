@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Languages, Search, RefreshCw, BookOpen, ExternalLink, Clock, Trash2 } from 'lucide-react'
+import { Languages, Search, RefreshCw, BookOpen, ExternalLink, Clock, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -186,8 +186,20 @@ export function PortailLexicalPageClient() {
                   onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder="Rechercher un mot..."
-                  className="pl-10 pr-4 border-amber-200 focus:border-amber-400 dark:border-amber-800 dark:focus:border-amber-600"
+                  className="pl-10 pr-10 border-amber-200 focus:border-amber-400 dark:border-amber-800 dark:focus:border-amber-600"
                 />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchTerm('')
+                      setShowSuggestions(false)
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
                 {showSuggestions && suggestions.length > 0 && (
                   <div className="absolute z-50 mt-1 w-full rounded-lg border border-amber-200 bg-white dark:border-amber-800 dark:bg-gray-900 shadow-lg max-h-60 overflow-y-auto">
                     {suggestions.map((suggestion, i) => (
