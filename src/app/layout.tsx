@@ -62,9 +62,7 @@ export default async function RootLayout({
         <meta name="theme-color" content="#372773" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <script
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
+        <template nonce={nonce} dangerouslySetInnerHTML={{
             __html: `(function() {
               var updateThemeColor = function() {
                 var isDark = document.documentElement.classList.contains('dark');
@@ -75,8 +73,7 @@ export default async function RootLayout({
               var observer = new MutationObserver(updateThemeColor);
               observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
             })();`,
-          }}
-        />
+          }} />
       </head>
       <body className={`${inter.className} min-h-screen bg-background antialiased`}>
         <div className="flex min-h-screen flex-col">
