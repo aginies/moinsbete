@@ -94,6 +94,8 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
   })
   if (existing) return { error: 'Déjà partagé' }
 
+  console.log('[shareResourceToLobby] Received meta:', JSON.stringify(meta, null, 2))
+  
   await prisma.sharedLobbyBookmark.create({
     data: {
       userId: session.user.id,
@@ -103,7 +105,7 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
     },
   })
 
-  console.log('[shareResourceToLobby] Stored meta for', resourceType, resourceId, ':', JSON.stringify(meta))
+  console.log('[shareResourceToLobby] Stored meta for', resourceType, resourceId)
 
   return { success: true, shared: true }
 }
