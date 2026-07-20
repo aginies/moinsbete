@@ -190,7 +190,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       return { ...bookmark, wikiLovesImage: image }
     }
     if (bookmark.resourceType === 'PROVERBE' && bookmark.resourceId) {
-      let meta = bookmark.meta
+      let meta: any = bookmark.meta || {}
       if (typeof meta === 'string') {
         try { meta = JSON.parse(meta) } catch { meta = {} }
       }
@@ -198,10 +198,10 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         ...bookmark,
         proverbe: {
           id: bookmark.resourceId,
-          text: (meta?.text || '') as string,
-          signification: (meta?.signification || '') as string,
-          source: (meta?.source || '') as string,
-          wiktionnaireUrl: (meta?.url || meta?.wiktionnaireUrl) as string | undefined,
+          text: meta?.text || '',
+          signification: meta?.signification || '',
+          source: meta?.source || '',
+          wiktionnaireUrl: meta?.url || meta?.wiktionnaireUrl,
         },
       }
     }
