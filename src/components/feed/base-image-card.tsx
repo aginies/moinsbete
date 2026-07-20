@@ -125,12 +125,12 @@ export function BaseImageCard<TTopic>({
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
 
-  const { hasMounted, handleToggle: handleVisibilityToggle, buttonColor: visibilityButtonColor } = useCardVisibility({
+  const { show: showFromHook, hasMounted, handleToggle: handleVisibilityToggle, buttonColor: visibilityButtonColor } = useCardVisibility({
     storageKey: visibilityStorageKey,
     defaultShow: true,
   })
 
-  const show = isVisible !== undefined ? isVisible : true
+  const show = isVisible !== undefined ? isVisible : showFromHook
 
   const loadImage = useCallback(async () => {
     setLoading(true)

@@ -102,13 +102,13 @@ export function ImagePixabayCard({
   const [showCategories, setShowCategories] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({
     storageKey: 'image_pixabay_card_visible',
     defaultShow: true,
     userId,
   })
 
-  const show = isVisible !== undefined ? isVisible : true
+  const show = isVisible !== undefined ? isVisible : showFromHook
 
   const loadVideo = useCallback(async () => {
     setLoading(true)

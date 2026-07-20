@@ -71,8 +71,8 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   const [imageError, setImageError] = useState(false)
   const [imageKey, setImageKey] = useState(0)
   const [showFullImage, setShowFullImage] = useState(false)
-  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'saviez_vous_card_visible', userId })
-  const show = isVisible !== undefined ? isVisible : true
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'saviez_vous_card_visible', userId })
+  const show = isVisible !== undefined ? isVisible : showFromHook
   const prefetchNextFact = useCallback(async () => {
     const fetched = await fetchRandomFact()
     if (fetched) {

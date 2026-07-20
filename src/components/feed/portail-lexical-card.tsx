@@ -57,8 +57,8 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [renderError, setRenderError] = useState<Error | null>(null)
-  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'portail_lexical_card_visible', userId })
-  const show = isVisible !== undefined ? isVisible : true
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'portail_lexical_card_visible', userId })
+  const show = isVisible !== undefined ? isVisible : showFromHook
 
   const loadWord = useCallback(async () => {
     setLoading(true)

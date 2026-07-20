@@ -67,8 +67,8 @@ export function ProverbeCard({
   const [isFavorite, setIsFavorite] = useState(false)
   const [isShared, setIsShared] = useState(false)
   const [isSharing, setIsSharing] = useState(false)
-  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'proverbe_card_visible', userId })
-  const show = isVisible !== undefined ? isVisible : true
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'proverbe_card_visible', userId })
+  const show = isVisible !== undefined ? isVisible : showFromHook
 
   const proverbe = externalProverbe !== undefined ? externalProverbe : internalProverbe
   const loading = externalLoading !== undefined ? externalLoading : internalLoading

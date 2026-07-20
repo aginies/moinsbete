@@ -70,8 +70,8 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const [rateLimitError, setRateLimitError] = useState<string | null>(null)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
-  const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'wikipedia_image_card_visible', userId })
-  const show = isVisible !== undefined ? isVisible : true
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'wikipedia_image_card_visible', userId })
+  const show = isVisible !== undefined ? isVisible : showFromHook
 
   // Background pre-fetching
   const prefetchNextImage = useCallback(async () => {
