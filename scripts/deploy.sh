@@ -12,7 +12,7 @@ done
 
 mkdir -p "$DEST"
 
-rsync -a --delete \
+rsync -a --delete --checksum \
   --exclude='dev.db' \
   --exclude='dev.db.bck' \
   --exclude='*.test.ts' \
