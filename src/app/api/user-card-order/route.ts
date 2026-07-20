@@ -18,9 +18,7 @@ export async function GET() {
     where: { id: session.user.id },
     select: { cardOrder: true },
   })
-  const order = user?.cardOrder ?? DEFAULT_ORDER
-  console.log('[CardOrder API] User:', session.user.id, 'cardOrder from DB:', user?.cardOrder, 'returning:', order)
-  return NextResponse.json({ order })
+  return NextResponse.json({ order: user?.cardOrder ?? DEFAULT_ORDER })
 }
 
 export async function POST(request: NextRequest) {
@@ -41,6 +39,5 @@ export async function POST(request: NextRequest) {
     where: { id: session.user.id },
     data: { cardOrder: order },
   })
-  console.log('[CardOrder API] Saved order for user:', session.user.id, 'order:', order)
   return NextResponse.json({ success: true })
 }
