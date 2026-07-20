@@ -75,6 +75,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [sharedImageIds, setSharedImageIds] = useState<Set<string>>(new Set())
   const [sharedWikiLovesIds, setSharedWikiLovesIds] = useState<Set<string>>(new Set())
   const [sharedWikimediaIds, setSharedWikimediaIds] = useState<Set<string>>(new Set())
+  const [sharedProverbeIds, setSharedProverbeIds] = useState<Set<string>>(new Set())
   const [isSharing, setIsSharing] = useState<string | null>(null)
 
   useEffect(() => {
@@ -156,6 +157,22 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       }
     }
     loadWikimediaSharedState()
+  }, [userId])
+
+  useEffect(() => {
+    const loadProverbeSharedState = async () => {
+      if (!userId) return
+      try {
+        const res = await fetch('/api/lobby/shared-resources?type=PROVERBE')
+        const data = await res.json()
+        if (data.resourceIds) {
+          setSharedProverbeIds(new Set(data.resourceIds))
+        }
+      } catch (err) {
+        console.error('Failed to load proverbe shared state:', err)
+      }
+    }
+    loadProverbeSharedState()
   }, [userId])
 
   // Derived count for ideas to update immediately when bookmarks are toggled
@@ -366,6 +383,32 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
   }
 
+  const handleProverbeShareToLobby = async (resourceId: string) => {
+    setIsSharing(resourceId)
+    try {
+      const isShared = sharedProverbeIds.has(resourceId)
+      if (isShared) {
+        await unshareResourceFromLobby('PROVERBE', resourceId)
+        setSharedProverbeIds(prev => {
+          const next = new Set(prev)
+          next.delete(resourceId)
+          return next
+        })
+        toast.success('Retiré du lobby')
+      } else {
+        const result = await shareResourceToLobby('PROVERBE', resourceId)
+        if (result.success) {
+          setSharedProverbeIds(prev => new Set([...prev, resourceId]))
+          toast.success('Partagé au lobby')
+        } else {
+          toast.error(result.error)
+        }
+      }
+    } finally {
+      setIsSharing(null)
+    }
+  }
+
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
     const q = normalizeAccents(searchQuery).toLowerCase()
@@ -541,7 +584,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
       {activeTab === 'portail-lexical' && <div role="tabpanel" id="panel-portail-lexical"><PortailLexicalBookmarks userId={userId} onRemoveComplete={handlePortailLexRemove} /></div>}
 
-      {activeTab === 'proverbe' && <div role="tabpanel" id="panel-proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} /></div>}
+      {activeTab === 'proverbe' && <div role="tabpanel" id="panel-proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} sharedIds={sharedProverbeIds} onShareToggle={handleProverbeShareToLobby} isSharing={isSharing} /></div>}
     </div>
   )
 }

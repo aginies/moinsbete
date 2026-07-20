@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Quote, Bookmark, ExternalLink, RefreshCw } from 'lucide-react'
+import { Quote, Bookmark, ExternalLink, RefreshCw, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
@@ -9,6 +9,8 @@ import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
+import { toast } from 'sonner'
 import { CardHeader } from './card-header'
 
 export interface Proverbe {
@@ -64,6 +66,8 @@ export function ProverbeCard({
   const [internalLoading, setInternalLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [isShared, setIsShared] = useState(false)
+  const [isSharing, setIsSharing] = useState(false)
   const { hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'proverbe_card_visible', userId })
   const show = isVisible !== undefined ? isVisible : true
 
@@ -94,6 +98,36 @@ export function ProverbeCard({
       }).catch(() => {})
     }
   }, [userId, proverbe])
+
+  useEffect(() => {
+    if (userId && proverbe) {
+      isSharedResourceToLobby('PROVERBE', proverbe.id).then(result => {
+        setIsShared(result)
+      }).catch(() => {})
+    }
+  }, [userId, proverbe])
+
+  const handleShareToLobby = useCallback(async () => {
+    if (!proverbe || isSharing) return
+    setIsSharing(true)
+    try {
+      if (isShared) {
+        await unshareResourceFromLobby('PROVERBE', proverbe.id)
+        setIsShared(false)
+        toast.success('Retiré du lobby')
+      } else {
+        const result = await shareResourceToLobby('PROVERBE', proverbe.id)
+        if (result.success) {
+          setIsShared(true)
+          toast.success('Partagé au lobby')
+        } else {
+          toast.error(result.error)
+        }
+      }
+    } finally {
+      setIsSharing(false)
+    }
+  }, [proverbe, isShared, isSharing])
 
   const { isPending, handleBookmark } = useSimpleBookmarkToggle({
     resourceId: proverbe?.id,
@@ -157,17 +191,28 @@ export function ProverbeCard({
               onRefresh={handleRefresh}
               shareOptions={proverbe ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
               extraActions={proverbe ? (
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                  disabled={isPending || loading}
-                  className="rounded-full p-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all disabled:opacity-50"
-                  title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                >
-                  <Bookmark
-                    className={`h-4 w-4 ${isFavorite ? 'fill-current text-emerald-600 dark:text-emerald-400' : 'text-emerald-600 dark:text-emerald-400'}`}
-                  />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); handleShareToLobby() }}
+                    disabled={isSharing}
+                    className="rounded-full p-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all disabled:opacity-50"
+                    title={isShared ? 'Retirer du lobby' : 'Partager au lobby'}
+                  >
+                    <Share2 className={`h-4 w-4 ${isShared ? 'text-green-600 dark:text-green-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                    disabled={isPending || loading}
+                    className="rounded-full p-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all disabled:opacity-50"
+                    title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                  >
+                    <Bookmark
+                      className={`h-4 w-4 ${isFavorite ? 'fill-current text-emerald-600 dark:text-emerald-400' : 'text-emerald-600 dark:text-emerald-400'}`}
+                    />
+                  </button>
+                </div>
               ) : undefined}
             />
 
