@@ -5,7 +5,7 @@ const WIKTIONARY_BASE = 'https://fr.wiktionary.org'
 
 const ANNEXE_PAGES = [
   { id: 12582, title: 'Annexe:Liste de proverbes français', source: 'Proverbe français' },
-  { id: 1483239, title: 'Annexe:Liste de proverbes d’Afrique noire en français', source: 'Proverbe africain' },
+  { id: 1483239, title: 'Annexe:Liste de proverbes d\'Afrique noire en français', source: 'Proverbe africain' },
   { id: 1483271, title: 'Annexe:Liste de proverbes amérindiens en français', source: 'Proverbe amérindien' },
   { id: 1482404, title: 'Annexe:Liste de proverbes arabes en français', source: 'Proverbe arabe' },
   { id: 1482401, title: 'Annexe:Liste de proverbes berbères', source: 'Proverbe berbère' },
@@ -20,12 +20,26 @@ const ANNEXE_PAGES = [
   { id: 1487758, title: 'Annexe:Liste de proverbes tunisiens', source: 'Proverbe tunisien' },
 ]
 
+const CATEGORY_PAGES = [
+  { category: 'Proverbes en français', source: 'Proverbe français' },
+  { category: 'Proverbes français', source: 'Proverbe français' },
+  { category: 'Expressions en français', source: 'Expression française' },
+  { category: 'Maximes en français', source: 'Maxime française' },
+  { category: 'Proverbes africains en français', source: 'Proverbe africain en français' },
+  { category: 'Proverbes arabes en français', source: 'Proverbe arabe en français' },
+  { category: 'Proverbes amérindiens en français', source: 'Proverbe amérindien en français' },
+  { category: 'Proverbes créoles', source: 'Proverbe créole en français' },
+  { category: 'Proverbes berbères en français', source: 'Proverbe berbère en français' },
+  { category: 'Proverbes kabyles en français', source: 'Proverbe kabyle en français' },
+]
+
 let fetchProgress: { 
   status: 'idle' | 'fetching' | 'done' | 'stopped'
   progress: string
   currentPage: string
   total: number
   added: number
+  perPage?: number
 } = {
   status: 'idle',
   progress: '',
@@ -244,6 +258,68 @@ async function verifyFrenchWiktionnaire(proverbs: CachedProverbe[]): Promise<Cac
   return verified
 }
 
+async function fetchCategoryPages(category: string, source: string): Promise<CachedProverbe[]> {
+  for (let retry = 0; retry < 3; retry++) {
+    try {
+      const url = `${WIKTIONARY_BASE}/w/api.php?action=query&list=categorymembers&cmtitle=Catégorie:${encodeURIComponent(category)}&cmlimit=500&cmnamespace=0&format=json`
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(15000),
+        headers: {
+          'User-Agent': 'MoinsBete/1.0 (https://moinsbete.com; mailto:admin@moinsbete.com)',
+        },
+      })
+      if (!res.ok) {
+        if (res.status === 429) {
+          await delay(5000)
+          continue
+        }
+        return []
+      }
+
+      const data = await res.json()
+      const members = data?.query?.categorymembers || []
+      
+      if (members.length === 0) return []
+      
+      // Fetch content for each member page to look for proverbs
+      const allProverbs: CachedProverbe[] = []
+      const batchSize = 10
+      
+      for (let i = 0; i < members.length; i += batchSize) {
+        const batch = members.slice(i, i + batchSize)
+        const titles = batch.map((m: { title: string }) => m.title).join('|')
+        
+        const pageUrl = `${WIKTIONARY_BASE}/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=revisions&rvprop=content&format=json`
+        const pageRes = await fetch(pageUrl, {
+          signal: AbortSignal.timeout(15000),
+          headers: {
+            'User-Agent': 'MoinsBete/1.0 (https://moinsbete.com; mailto:admin@moinsbete.com)',
+          },
+        })
+        
+        if (!pageRes.ok) continue
+        
+        const pageData = await pageRes.json()
+        const pages = pageData?.query?.pages || {}
+        
+        for (const pageId of Object.keys(pages)) {
+          const page = pages[pageId]
+          if (page?.revisions?.[0]?.['*']) {
+            const entries = parseAnnexContent(page.revisions[0]['*'], source)
+            allProverbs.push(...entries)
+          }
+        }
+      }
+      
+      return allProverbs
+    } catch (error) {
+      console.error(`Retry ${retry + 1} for category: ${category}`, error)
+      await delay(5000)
+    }
+  }
+  return []
+}
+
 async function fetchAllAnnexPagesSequentially(): Promise<{ total: number; added: number }> {
   // Clear the cache first to ensure a complete, clean, up-to-date fetch of all 14 pages
   await clearProverbesCache()
@@ -252,23 +328,25 @@ async function fetchAllAnnexPagesSequentially(): Promise<{ total: number; added:
   const existingTexts = new Set<string>()
   
   let pageId = 0
+  const totalPages = ANNEXE_PAGES.length + CATEGORY_PAGES.length
+  
   for (const page of ANNEXE_PAGES) {
     pageId++
     
-    fetchProgress.progress = `${pageId}/${ANNEXE_PAGES.length}`
+    fetchProgress.progress = `${pageId}/${totalPages}`
     fetchProgress.currentPage = page.title
     
-    console.log(`  Page ${pageId}/${ANNEXE_PAGES.length}: Fetching ${page.title}...`)
+    console.log(`  Page ${pageId}/${totalPages}: Fetching ${page.title}...`)
     const entries = await fetchAndParsePage(page)
     
     if (entries.length === 0) {
-      console.log(`  Page ${pageId}/${ANNEXE_PAGES.length}: ${page.title} - 0 entries, skipping`)
+      console.log(`  Page ${pageId}/${totalPages}: ${page.title} - 0 entries, skipping`)
       continue
     }
 
-    console.log(`  Page ${pageId}/${ANNEXE_PAGES.length}: Verifying ${entries.length} parsed entries against Wiktionary (French check)...`)
+    console.log(`  Page ${pageId}/${totalPages}: Verifying ${entries.length} parsed entries against Wiktionary (French check)...`)
     const verifiedEntries = await verifyFrenchWiktionnaire(entries)
-    console.log(`  Page ${pageId}/${ANNEXE_PAGES.length}: ${verifiedEntries.length}/${entries.length} entries verified.`)
+    console.log(`  Page ${pageId}/${totalPages}: ${verifiedEntries.length}/${entries.length} entries verified.`)
 
     const newProverbs = verifiedEntries.filter(p => !existingTexts.has(p.text))
     allProverbs.push(...newProverbs)
@@ -280,7 +358,40 @@ async function fetchAllAnnexPagesSequentially(): Promise<{ total: number; added:
     const newCachedPageIds = [page.id] // Not strictly needed anymore since we clear cache, but good for record
     await saveCachedPageIds(newCachedPageIds)
     
-    console.log(`  Page ${pageId}/${ANNEXE_PAGES.length}: ${page.title} - ${verifiedEntries.length} verified (${newProverbs.length} new)`)
+    fetchProgress.perPage = verifiedEntries.length
+    fetchProgress.total = allProverbs.length
+    console.log(`  Page ${pageId}/${totalPages}: ${page.title} - ${verifiedEntries.length} verified (${newProverbs.length} new)`)
+    await delay(2000)
+  }
+  
+  for (const cat of CATEGORY_PAGES) {
+    pageId++
+    
+    fetchProgress.progress = `${pageId}/${totalPages}`
+    fetchProgress.currentPage = `Catégorie: ${cat.category}`
+    
+    console.log(`  Page ${pageId}/${totalPages}: Fetching category ${cat.category}...`)
+    const entries = await fetchCategoryPages(cat.category, cat.source)
+    
+    if (entries.length === 0) {
+      console.log(`  Page ${pageId}/${totalPages}: ${cat.category} - 0 entries, skipping`)
+      continue
+    }
+
+    console.log(`  Page ${pageId}/${totalPages}: Verifying ${entries.length} entries from ${cat.category}...`)
+    const verifiedEntries = await verifyFrenchWiktionnaire(entries)
+    console.log(`  Page ${pageId}/${totalPages}: ${verifiedEntries.length}/${entries.length} entries verified as French.`)
+
+    const newProverbs = verifiedEntries.filter(p => !existingTexts.has(p.text))
+    allProverbs.push(...newProverbs)
+    
+    for (const entry of verifiedEntries) {
+      existingTexts.add(entry.text)
+    }
+    
+    fetchProgress.perPage = verifiedEntries.length
+    fetchProgress.total = allProverbs.length
+    console.log(`  Page ${pageId}/${totalPages}: ${cat.category} - ${verifiedEntries.length} verified (${newProverbs.length} new)`)
     await delay(2000)
   }
   
@@ -591,7 +702,7 @@ export async function GET(request: Request) {
     if (request.method === 'POST') {
       if (fetchProgress.status === 'idle') {
         fetchProgress.status = 'fetching'
-        fetchProgress.progress = '0/14'
+        fetchProgress.progress = `0/${ANNEXE_PAGES.length + CATEGORY_PAGES.length}`
         fetchProgress.currentPage = ''
         fetchProgress.total = 0
         fetchProgress.added = 0
@@ -600,7 +711,7 @@ export async function GET(request: Request) {
         fetchProgress.total = result.total
         fetchProgress.added = result.added
         fetchProgress.status = 'done'
-        fetchProgress.progress = '14/14'
+        fetchProgress.progress = `${ANNEXE_PAGES.length + CATEGORY_PAGES.length}/${ANNEXE_PAGES.length + CATEGORY_PAGES.length}`
         
         return NextResponse.json({ 
           status: 'done',
@@ -735,7 +846,7 @@ export async function POST(request: Request) {
   if (action === 'fetch-all') {
     if (fetchProgress.status === 'idle') {
       fetchProgress.status = 'fetching'
-      fetchProgress.progress = '0/14'
+      fetchProgress.progress = `0/${ANNEXE_PAGES.length + CATEGORY_PAGES.length}`
       fetchProgress.currentPage = ''
       fetchProgress.total = 0
       fetchProgress.added = 0
@@ -744,7 +855,7 @@ export async function POST(request: Request) {
         fetchProgress.total = result.total
         fetchProgress.added = result.added
         fetchProgress.status = 'done'
-        fetchProgress.progress = '14/14'
+        fetchProgress.progress = `${ANNEXE_PAGES.length + CATEGORY_PAGES.length}/${ANNEXE_PAGES.length + CATEGORY_PAGES.length}`
       }).catch(err => {
         console.error('Error during fetch-all:', err)
         fetchProgress.status = 'stopped'
