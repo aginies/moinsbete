@@ -115,6 +115,7 @@ export function ProverbeCard({
         setIsShared(false)
         toast.success('Retiré du lobby')
       } else {
+        console.log('[ProverbeCard] Sharing proverb:', proverbe.id, 'etymologie:', proverbe.etymologie, 'definitions:', proverbe.definitions)
         const result = await shareResourceToLobby('PROVERBE', proverbe.id, {
           text: proverbe.text,
           signification: proverbe.signification,
