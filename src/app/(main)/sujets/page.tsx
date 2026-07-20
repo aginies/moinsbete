@@ -21,6 +21,7 @@ export default async function SujetsPage() {
           imageWikiLovesCardVisible: true,
           imagePixabayCardVisible: true,
           portailLexicalCardVisible: true,
+          proverbeCardVisible: true,
           cnrsNewsEnabled: true,
         },
       }).then(u => ({
@@ -33,6 +34,7 @@ export default async function SujetsPage() {
           wikiloves: u.imageWikiLovesCardVisible ?? true,
           pixabay: u.imagePixabayCardVisible ?? true,
           portailLexical: u.portailLexicalCardVisible ?? true,
+          proverbe: u.proverbeCardVisible ?? true,
           cnrs: u.cnrsNewsEnabled ?? true,
         } : undefined,
       }))

@@ -11,6 +11,7 @@ import { ImageWikimediaCard } from '@/components/feed/image-wikimedia-card'
 import { ImageWikiLovesCard } from '@/components/feed/image-wikiloves-card'
 import { ImagePixabayCard } from '@/components/feed/image-pixabay-card'
 import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
+import { ProverbeCard } from '@/components/feed/proverbe-card'
 import Link from 'next/link'
 
 interface SujetsClientProps {
@@ -31,6 +32,7 @@ interface CardVisibility {
   cnrs: boolean
   pixabay: boolean
   portailLexical: boolean
+  proverbe: boolean
 }
 
 async function updateCardVisibility(field: string, value: boolean, csrfToken: string) {
@@ -65,7 +67,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const followedIdsSet = useMemo(() => new Set(followedIds), [followedIds])
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
-    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true,
+    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true,
   })
 
   const toggleVisibility = useCallback((field: string, key: keyof CardVisibility) => {
@@ -86,6 +88,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const toggleCnrs = useCallback(() => toggleVisibility('cnrsNewsEnabled', 'cnrs'), [toggleVisibility])
   const togglePixabay = useCallback(() => toggleVisibility('imagePixabayCardVisible', 'pixabay'), [toggleVisibility])
   const togglePortailLexical = useCallback(() => toggleVisibility('portailLexicalCardVisible', 'portailLexical'), [toggleVisibility])
+  const toggleProverbe = useCallback(() => toggleVisibility('proverbeCardVisible', 'proverbe'), [toggleVisibility])
 
   const handleToggle = (topicId: string, _isFollowing: boolean) => {
     if (isAllSelected) {
@@ -156,6 +159,12 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         </div>
       )}
 
+      {visibility.proverbe && (
+        <div className="mb-6">
+          <ProverbeCard onToggle={toggleProverbe} userId={userId} isVisible={visibility.proverbe} />
+        </div>
+      )}
+
       <div className="mb-6">
         <Link
           href={((userId && followedIds.length > 0) || isAllSelected) ? '/idees/au-hasard?followed=1' : '/sujets'}
@@ -223,6 +232,12 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         {!visibility.portailLexical && (
           <div className="h-full">
             <PortailLexicalCard onToggle={togglePortailLexical} userId={userId} isVisible={visibility.portailLexical} />
+          </div>
+        )}
+
+        {!visibility.proverbe && (
+          <div className="h-full">
+            <ProverbeCard onToggle={toggleProverbe} userId={userId} isVisible={visibility.proverbe} />
           </div>
         )}
       </div>

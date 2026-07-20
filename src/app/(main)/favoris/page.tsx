@@ -37,7 +37,7 @@ export default async function FavorisPage({
   const currentPage = Math.max(1, parseInt((await searchParams).page || '1', 10))
   const skip = (currentPage - 1) * PAGE_SIZE
 
-  const [bookmarks, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount] = await Promise.all([
+  const [bookmarks, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount] = await Promise.all([
     prisma.bookmark.findMany({
       where: { userId: session.user.id, type: 'IDEA' },
       include: {
@@ -83,6 +83,9 @@ export default async function FavorisPage({
     prisma.bookmark.count({
       where: { userId: session.user.id, type: 'PORTAIL_LEXICAL' },
     }),
+    prisma.bookmark.count({
+      where: { userId: session.user.id, type: 'PROVERBE' },
+    }),
   ])
 
   const ideas = bookmarks.filter(b => b.idea !== null).map(b => mapIdeaWithSourceAndTopics(b.idea!))
@@ -118,6 +121,7 @@ export default async function FavorisPage({
         wikilovesFavoritesCount={wikilovesFavoritesCount}
         pixabayFavoritesCount={pixabayFavoritesCount}
         portailLexicalCount={portailLexicalCount}
+        proverbeFavoritesCount={proverbeFavoritesCount}
       />
     </div>
   )

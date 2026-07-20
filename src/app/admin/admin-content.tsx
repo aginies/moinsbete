@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX } from 'lucide-react'
+import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
@@ -30,6 +30,7 @@ interface AdminStats {
   wikiLovesExpired: number
   saviezVousFacts: number
   srsDue: number
+  proverbesCached: number
 }
 
 interface AdminUser {
@@ -71,7 +72,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
       </div>
 
       <Tabs defaultValue="stats" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="stats">Statistiques</TabsTrigger>
           <TabsTrigger value="users">Utilisateurs</TabsTrigger>
           <TabsTrigger value="cleanup">Nettoyage</TabsTrigger>
@@ -156,6 +157,11 @@ export function AdminContent({ stats, users }: AdminContentProps) {
               icon={<Podcast className="h-5 w-5" />}
               label="Le saviez-vous ?"
               value={stats.saviezVousFacts}
+            />
+            <StatCard
+              icon={<Quote className="h-5 w-5" />}
+              label="Proverbes"
+              value={stats.proverbesCached}
             />
           </div>
         </TabsContent>

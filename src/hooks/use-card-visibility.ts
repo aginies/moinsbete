@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 
-const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange'> = {
+const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald'> = {
    wikipedia_image_card_visible: 'teal',
    saviez_vous_card_visible: 'blue',
    cnrs_news_enabled: 'green',
@@ -12,7 +12,8 @@ const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' |
    image_wikiloves_card_visible: 'purple',
    image_wikiloves_show_categories: 'purple',
    portail_lexical_card_visible: 'amber',
- }
+   proverbe_card_visible: 'emerald',
+  }
 
 const DB_FIELD_MAP: Record<string, string> = {
    wikipedia_image_card_visible: 'wikipediaImageCardVisible',
@@ -22,11 +23,12 @@ const DB_FIELD_MAP: Record<string, string> = {
    image_wikimedia_show_categories: 'imageWikimediaShowCategories',
    image_pixabay_card_visible: 'imagePixabayCardVisible',
    image_pixabay_show_categories: 'imagePixabayShowCategories',
-    image_wikiloves_card_visible: 'imageWikiLovesCardVisible',
-    image_wikiloves_show_categories: 'imageWikiLovesShowCategories',
-    portail_lexical_card_visible: 'portailLexicalCardVisible',
-    cnrs_news_enabled: 'cnrsNewsEnabled',
-  }
+     image_wikiloves_card_visible: 'imageWikiLovesCardVisible',
+     image_wikiloves_show_categories: 'imageWikiLovesShowCategories',
+     portail_lexical_card_visible: 'portailLexicalCardVisible',
+     cnrs_news_enabled: 'cnrsNewsEnabled',
+     proverbe_card_visible: 'proverbeCardVisible',
+   }
 
 interface UseCardVisibilityOptions {
   storageKey: string
@@ -38,7 +40,7 @@ interface UseCardVisibilityReturn {
   show: boolean
   hasMounted: boolean
   handleToggle: () => void
-  buttonColor: 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange'
+  buttonColor: 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald'
 }
 
 export function useCardVisibility({ storageKey, defaultShow = true, userId }: UseCardVisibilityOptions): UseCardVisibilityReturn {
