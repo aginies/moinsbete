@@ -111,7 +111,7 @@ export function ImageWikimediaFavorites({ userId, onRemoveComplete, sharedIds, o
   const { handleRemove, getFavorites } = useFavoritesList<WikimediaImageFavoriteDoc>({
     userId,
     storageKey: WIKIMEDIA_FAVORITES_KEY,
-    resourceIdGetter: (item) => item.imageUrl,
+    resourceIdGetter: (item) => item.docid,
     bookmarkType: 'IMAGE_WIKIMEDIA',
   })
 
