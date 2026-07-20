@@ -35,7 +35,7 @@ async function getTopicSearches(): Promise<Record<string, string[]>> {
   
   const dbTopics = await prisma.userWikimediaTopic.findMany({})
   
-  for (const dbTopic of dbTopics as any) {
+  for (const dbTopic of dbTopics) {
     let searchTerms: string[] = []
     if (dbTopic.searchTerms) {
       try {
@@ -117,7 +117,7 @@ async function searchFiles(topic: string): Promise<string[]> {
       }
       if (!res.ok) return []
       const data = await res.json()
-      const files = (data?.query?.search || []).map((r: any) => r.title).filter((t: string) => t.startsWith('File:'))
+      const files = (data?.query?.search || []).map((r: Record<string, unknown>) => r.title).filter((t: string) => t.startsWith('File:'))
       
       if (files.length > 0) return files
       
@@ -134,7 +134,7 @@ async function searchFiles(topic: string): Promise<string[]> {
         )
         if (fallbackRes.ok) {
           const fallbackData = await fallbackRes.json()
-          return (fallbackData?.query?.search || []).map((r: any) => r.title).filter((t: string) => t.startsWith('File:'))
+          return (fallbackData?.query?.search || []).map((r: Record<string, unknown>) => r.title).filter((t: string) => t.startsWith('File:'))
         }
       }
       return []
@@ -165,7 +165,7 @@ async function fetchImageInfo(filename: string): Promise<WikimediaImage | null> 
       if (!res.ok) return null
       const data = await res.json()
       const pages = data?.query?.pages || {}
-      const page = Object.values(pages)[0] as Record<string, any>
+      const page = Object.values(pages)[0] as Record<string, unknown>
       if (!page || page.error || page.missing) return null
 
       const imageinfo = page.imageinfo || []

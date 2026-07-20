@@ -133,17 +133,14 @@ export async function scrapeAndCacheRadioEpisodes(): Promise<void> {
 
   console.log(`\n💾 Upsert ${allEpisodes.length} épisodes en DB...`)
   const now = new Date()
-  const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
+  const expiresAt = new Date(now.getTime() + 7 * 60 * 60 * 1000).toISOString()
 
-  let created = 0
-  let updated = 0
   for (const episode of allEpisodes) {
     await prisma.cachedRadioEpisode.upsert({
       where: { link: episode.url },
       update: { title: episode.title, description: episode.description, link: episode.url, imageUrl: episode.image, radio: episode.radio, scrapedAt: now, expiresAt },
       create: { title: episode.title, description: episode.description, link: episode.url, imageUrl: episode.image, radio: episode.radio, scrapedAt: now, expiresAt },
     })
-    updated++
   }
   
   console.log(`  ✅ ${allEpisodes.length} épisodes upserted`)

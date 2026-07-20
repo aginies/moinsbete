@@ -13,6 +13,7 @@ import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import type { SharedLobbyBookmark } from '@/generated/client'
 
 const handleUnshareResult = (r: { error?: string } | null | undefined) => {
   if (r?.error) {
@@ -22,7 +23,7 @@ const handleUnshareResult = (r: { error?: string } | null | undefined) => {
   }
 }
 
-const handleUnshareError = (err: any) => {
+const handleUnshareError = (err: Error & { code?: string }) => {
   toast.error(err?.message || 'Erreur lors de la suppression')
 }
 
@@ -58,7 +59,7 @@ interface SharedBookmark {
   ideaId: string | null
   resourceId: string | null
   resourceType: string
-  meta: any
+  meta: unknown
   createdAt: Date
   idea: {
     id: string

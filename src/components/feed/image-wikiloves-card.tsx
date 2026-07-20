@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Camera, ExternalLink, X } from 'lucide-react'
 import Link from 'next/link'
 import { BaseImageCard } from './base-image-card'
@@ -150,7 +150,7 @@ export function ImageWikiLovesCard({
         onToggle={onToggle}
         isVisible={isVisible}
         renderTopics={() =>
-          topics.filter((t: any) => t.enabled).map((topic: Topic) => (
+          topics.filter((t): t is Topic & { enabled: boolean } => t.enabled).map((topic: Topic) => (
             <button
               key={topic.id}
               onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
@@ -230,8 +230,14 @@ function WikiLovesTopicsModal({
   onToggleActive: (topicId: string) => void | Promise<void>
 }) {
   const [localTopics, setLocalTopics] = useState<Topic[]>(topics)
+  const prevTopicsRef = useRef(topics)
 
-  useEffect(() => { setLocalTopics(topics) }, [topics, open])
+  useEffect(() => {
+    if (prevTopicsRef.current !== topics) {
+      setLocalTopics(topics)
+      prevTopicsRef.current = topics
+    }
+  }, [topics, open])
 
   const toggle = async (topicId: string) => {
     setLocalTopics(prev => prev.map(t => t.id === topicId ? { ...t, active: !t.active } : t))

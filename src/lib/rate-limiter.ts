@@ -17,7 +17,9 @@ if (typeof window === 'undefined') {
 }
 
 // Support Redis dynamically to allow serverless, container, and local dev versatility
-let redisClient: any = null
+type RedisClient = { type: string; url?: string; token?: string } & Record<string, unknown>
+
+let redisClient: RedisClient | 'fallback' | null = null
 
 async function getRedisClient() {
   if (redisClient !== null) return redisClient
@@ -34,9 +36,9 @@ async function getRedisClient() {
   try {
     const { Redis } = await import('ioredis')
     if (process.env.REDIS_URL) {
-      redisClient = new Redis(process.env.REDIS_URL)
+      redisClient = new Redis(process.env.REDIS_URL) as RedisClient
     } else {
-      redisClient = new Redis()
+      redisClient = new Redis() as RedisClient
     }
     redisClient.type = 'ioredis'
     return redisClient
@@ -45,7 +47,7 @@ async function getRedisClient() {
       const { createClient } = await import('redis')
       const client = createClient({ url: process.env.REDIS_URL })
       await client.connect()
-      redisClient = client
+      redisClient = client as RedisClient
       redisClient.type = 'redis'
       return redisClient
     } catch {

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import type { MetadataRoute } from 'next'
 
 describe('robots.txt', () => {
   beforeEach(() => {
@@ -10,7 +11,7 @@ describe('robots.txt', () => {
     const defaultFn = robots.default
     const result = defaultFn()
 
-    expect((result.rules as any).allow).toBe('/')
+    expect((result.rules as MetadataRoute.RobotsRule[]).allow).toBe('/')
   })
 
   it('disallows admin and api paths', async () => {
@@ -18,8 +19,8 @@ describe('robots.txt', () => {
     const defaultFn = robots.default
     const result = defaultFn()
 
-    expect((result.rules as any).disallow).toContain('/admin')
-    expect((result.rules as any).disallow).toContain('/api/')
+    expect((result.rules as MetadataRoute.RobotsRule[]).disallow).toContain('/admin')
+    expect((result.rules as MetadataRoute.RobotsRule[]).disallow).toContain('/api/')
   })
 
   it('includes sitemap URL', async () => {

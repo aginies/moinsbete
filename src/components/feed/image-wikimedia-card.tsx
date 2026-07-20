@@ -199,7 +199,7 @@ export function ImageWikimediaCard({
         onToggle={onToggle}
         isVisible={isVisible}
         renderTopics={() =>
-          topics.filter((t: any) => t.enabled).map((topic: Topic) => (
+          topics.filter((t): t is Topic & { enabled: boolean } => t.enabled).map((topic: Topic) => (
             <button
               key={topic.id}
               onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}

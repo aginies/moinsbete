@@ -40,7 +40,7 @@ describe('createTopicAction', () => {
       color: '#6366f1',
       parentId: null,
       createdAt: new Date(),
-    } as any)
+    } as unknown)
 
     const { createTopicAction } = await import('@/actions/topic-actions')
     const result = await createTopicAction({
@@ -72,7 +72,7 @@ describe('createTopicAction', () => {
       color: '#6366f1',
       parentId: null,
       createdAt: new Date(),
-    } as any)
+    } as unknown)
 
     const { createTopicAction } = await import('@/actions/topic-actions')
     const result = await createTopicAction({ name: 'Existing Topic' })
@@ -92,7 +92,7 @@ describe('createTopicAction', () => {
       color: '#6366f1',
       parentId: null,
       createdAt: new Date(),
-    } as any)
+    } as unknown)
 
     const { createTopicAction } = await import('@/actions/topic-actions')
     await createTopicAction({ name: 'New Topic' })
@@ -126,7 +126,7 @@ describe('updateTopicAction', () => {
       color: '#ec4899',
       parentId: null,
       createdAt: new Date(),
-    } as any)
+    } as unknown)
 
     const { updateTopicAction } = await import('@/actions/topic-actions')
     const result = await updateTopicAction('topic-1', {
@@ -167,7 +167,7 @@ describe('deleteTopicAction', () => {
       color: '#6366f1',
       parentId: null,
       createdAt: new Date(),
-    } as any)
+    } as unknown)
 
     const { deleteTopicAction } = await import('@/actions/topic-actions')
     const result = await deleteTopicAction('topic-1')

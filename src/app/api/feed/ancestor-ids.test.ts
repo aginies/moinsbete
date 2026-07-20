@@ -6,8 +6,8 @@ const mockFindMany = vi.fn()
 vi.mock('@/lib/db', () => ({
   prisma: {
     topic: {
-      findUnique: (...args: any[]) => mockFindUnique(...args),
-      findMany: (...args: any[]) => mockFindMany(...args),
+      findUnique: (...args: unknown[]) => mockFindUnique(...args),
+      findMany: (...args: unknown[]) => mockFindMany(...args),
     },
     collection: {
       findUnique: vi.fn(),

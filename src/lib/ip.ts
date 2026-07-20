@@ -3,7 +3,7 @@
  * Prioritizes native platform-provided client IPs and trusted CDN headers (e.g. Cloudflare)
  * to mitigate header spoofing risks in production systems.
  */
-export function getClientIp(request: any): string {
+export function getClientIp(request: Request | { ip?: string }): string {
   // 1. Prioritize Next.js's built-in request.ip, set securely by the hosting platform (Vercel/Netlify/etc.)
   if (request && typeof request.ip === 'string' && request.ip) {
     return request.ip

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
+import type { UserWikimediaTopic, Topic } from '@/generated/client'
 
 const mockSession = { user: { id: 'user-1', role: 'USER' as const } }
 
@@ -19,12 +20,12 @@ const mockUpsertTopic = vi.fn()
 vi.mock('@/lib/db', () => ({
   prisma: {
     user: {
-      findUnique: (...args: any[]) => mockFindUniqueUser(...args),
+      findUnique: (...args: unknown[]) => mockFindUniqueUser(...args),
     },
     userWikimediaTopic: {
-      findUnique: (...args: any[]) => mockFindUniqueTopic(...args),
-      findMany: (...args: any[]) => mockFindManyTopic(...args),
-      upsert: (...args: any[]) => mockUpsertTopic(...args),
+      findUnique: (...args: unknown[]) => mockFindUniqueTopic(...args),
+      findMany: (...args: unknown[]) => mockFindManyTopic(...args),
+      upsert: (...args: unknown[]) => mockUpsertTopic(...args),
     },
   },
 }))
@@ -62,7 +63,7 @@ describe('Wikimedia Topics API route', () => {
     const data = await response.json()
     expect(data.topics).toBeDefined()
     // Paintings should have active: true and labels from the custom database entry
-    const paintings = data.topics.find((t: any) => t.id === 'paintings')
+    const paintings = data.topics.find((t: Topic) => t.id === 'paintings')
     expect(paintings.active).toBe(true)
     expect(paintings.enabled).toBe(true)
   })

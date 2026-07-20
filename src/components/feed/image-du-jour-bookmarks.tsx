@@ -13,6 +13,8 @@ import { ShareButton } from './share-button'
 import { useItemShare } from './use-item-share'
 import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby-button'
 
+import { ImageDuJourFavoriteDoc } from '@/lib/image-du-jour-bookmark'
+
 export interface ImageDuJourFavoriteDoc {
   id: string
   imageUrl: string
@@ -28,7 +30,7 @@ interface ImageDuJourBookmarksProps {
   userId?: string
   onRemoveComplete?: () => void
   sharedIds?: Set<string>
-  onShareToggle?: (item: any) => void
+  onShareToggle?: (item: ImageDuJourFavoriteDoc) => void
   isSharing?: string | null
 }
 

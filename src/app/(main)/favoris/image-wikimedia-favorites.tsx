@@ -20,7 +20,7 @@ interface ImageWikimediaFavoritesProps {
   userId?: string
   onRemoveComplete?: () => void
   sharedIds?: Set<string>
-  onShareToggle?: (item: any) => void
+  onShareToggle?: (item: WikimediaImageFavoriteDoc) => void
   isSharing?: string | null
 }
 
@@ -100,7 +100,7 @@ function WikimediaFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
 
 interface ImageWikimediaFavoritesInnerProps extends ImageWikimediaFavoritesProps {
   sharedIds: Set<string>
-  onShareToggle: (item: any) => void
+  onShareToggle: (item: WikimediaImageFavoriteDoc) => void
   isSharing: string | null
 }
 

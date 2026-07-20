@@ -88,24 +88,35 @@ export function ProverbesPageClient({ userId, initialVisibility }: { userId?: st
     setLoading(false)
   }, [])
 
+  const [lastVisibility, setLastVisibility] = useState(visibility)
+  const lastVisibilityRef = useRef(visibility)
+
   useEffect(() => {
-    if (visibility) {
-      loadProverbe()
+    if (visibility !== lastVisibilityRef.current) {
+      if (visibility) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        loadProverbe()
+      }
+      lastVisibilityRef.current = visibility
+      setLastVisibility(visibility)
     }
   }, [visibility, loadProverbe])
 
+  const filteredSuggestions = useMemo(() => {
+    if (searchTerm.length < 2) return []
+    return suggestions
+  }, [searchTerm, suggestions])
+
   useEffect(() => {
-    if (searchTerm.length < 2) {
-      setSuggestions([])
-      return
+    if (searchTerm.length >= 2) {
+      const timer = setTimeout(() => {
+        searchProverbes(searchTerm).then(results => {
+          setSuggestions(results)
+          setShowSuggestions(true)
+        })
+      }, 300)
+      return () => clearTimeout(timer)
     }
-    const timer = setTimeout(() => {
-      searchProverbes(searchTerm).then(results => {
-        setSuggestions(results)
-        setShowSuggestions(true)
-      })
-    }, 300)
-    return () => clearTimeout(timer)
   }, [searchTerm])
 
   const handleRefresh = useCallback(async () => {
@@ -186,14 +197,14 @@ export function ProverbesPageClient({ userId, initialVisibility }: { userId?: st
                         setSearchTerm(filtered)
                       }
                     }}
-                    onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                    onFocus={() => filteredSuggestions.length > 0 && setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                     placeholder="Rechercher un proverbe..."
                     className="pl-10 pr-4 border-emerald-200 focus:border-emerald-400 dark:border-emerald-800 dark:focus:border-emerald-600"
                   />
-                  {showSuggestions && suggestions.length > 0 && (
+                  {showSuggestions && filteredSuggestions.length > 0 && (
                     <div className="absolute z-50 mt-1 w-full rounded-lg border border-emerald-200 bg-white dark:border-emerald-800 dark:bg-gray-900 shadow-lg max-h-60 overflow-y-auto">
-                      {suggestions.map((suggestion, i) => (
+                      {filteredSuggestions.map((suggestion, i) => (
                         <button
                           key={i}
                           type="button"

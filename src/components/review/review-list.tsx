@@ -1,8 +1,9 @@
 import { ReviewCard } from './review-card'
 import { Button } from '@/components/ui/button'
+import type { Idea } from '@/generated/client'
 
 interface ReviewListProps {
-  ideas: any[]
+  ideas: Idea[]
   total: number
   loading: boolean
   currentPage: number

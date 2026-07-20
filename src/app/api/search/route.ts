@@ -5,12 +5,13 @@ import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 import { mapIdeaWithTopics } from '@/lib/feed-helpers'
 import { normalizeAccents } from '@/lib/utils'
+import type { JsonValue } from '@prisma/client/runtime/library'
 
 interface SearchCacheEntry {
-  ideas: any[]
-  sources: any[]
-  topics: any[]
-  facts: any[]
+  ideas: JsonValue[]
+  sources: JsonValue[]
+  topics: JsonValue[]
+  facts: JsonValue[]
   expiresAt: number
 }
 
@@ -29,7 +30,7 @@ function getCachedSearch(q: string) {
   return null
 }
 
-function setCachedSearch(q: string, ideas: any[], sources: any[], topics: any[], facts: any[]) {
+function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue[], topics: JsonValue[], facts: JsonValue[]) {
   searchCache.set(q, {
     ideas,
     sources,

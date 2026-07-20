@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Settings } from 'lucide-react'
-import Link from 'next/link'
+import { Bookmark, Filter, EyeOff, RefreshCw, Settings } from 'lucide-react'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
@@ -13,6 +12,7 @@ import { VisibilityButton } from './visibility-button'
 import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import type { BookmarkType } from '@/generated/client'
 
 interface BaseImage {
   docid: string
@@ -136,7 +136,7 @@ export function BaseImageCard<TTopic>({
     setLoading(true)
     setError(false)
     setIsImageLoaded(false)
-    const activeTopicIds = topics.filter((t: any) => t.active).map((t: any) => t.id)
+    const activeTopicIds = topics.filter((t): t is TTopic & { active: boolean } => t.active).map(t => t.id)
     const newImage = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined)
     if (newImage) {
       setImage(newImage)
@@ -156,7 +156,7 @@ export function BaseImageCard<TTopic>({
 
   useEffect(() => {
     if (image) {
-      isBookmarkedAction(resourceType as any, image.docid).then(result => {
+      isBookmarkedAction(resourceType as BookmarkType, image.docid).then(result => {
         setIsFavorite(result.isBookmarked)
       }).catch(() => {})
     }
@@ -167,7 +167,7 @@ export function BaseImageCard<TTopic>({
     initialFavorite: isFavorite,
     onFavoriteChange: setIsFavorite,
     toggleFn: async (action) => {
-      await toggleBookmarkAction(resourceType as any, image!.docid, action, {
+      await toggleBookmarkAction(resourceType as BookmarkType, image!.docid, action, {
         titre: image!.titre,
         auteur: image!.auteur,
         imageUrl: image!.imageUrl,

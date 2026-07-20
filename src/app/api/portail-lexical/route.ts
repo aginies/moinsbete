@@ -99,7 +99,7 @@ async function fetchWordDetails(word: string): Promise<PortailLexicalWord | null
     const tlfidata = data.content?.find((c: WordContent) => c.id === 'tlfi')
     if (tlfidata?.content?.[0]) {
       const tlfidiv = tlfidata.content[0]
-      const html = typeof tlfidiv === 'string' ? tlfidiv : (tlfidiv as any)?.innerHTML || ''
+      const html = typeof tlfidiv === 'string' ? tlfidiv : (tlfidiv as Record<string, unknown>)?.innerHTML || ''
       const tlfidefs = extractDefinitions(html)
       if (tlfidefs.length > 0) {
         tlfidefinitions.push(...tlfidefs)
@@ -110,7 +110,7 @@ async function fetchWordDetails(word: string): Promise<PortailLexicalWord | null
     const wikidata = data.content?.find((c: WordContent) => c.id === 'wiktionnaire')
     if (wikidata?.content?.[0]) {
       const wiktionaryDiv = wikidata.content[0]
-      const html = typeof wiktionaryDiv === 'string' ? wiktionaryDiv : (wiktionaryDiv as any)?.innerHTML || ''
+      const html = typeof wiktionaryDiv === 'string' ? wiktionaryDiv : (wiktionaryDiv as Record<string, unknown>)?.innerHTML || ''
       const wikiDefs = extractDefinitions(html)
       if (wikiDefs.length > 0) {
         wiktionnaireDefinitions.push(...wikiDefs)
@@ -121,7 +121,7 @@ async function fetchWordDetails(word: string): Promise<PortailLexicalWord | null
     const etymData = data.content?.find((c: WordContent) => c.id === 'etymology')
     if (etymData?.content?.[0]) {
       const etymDiv = etymData.content[0]
-      const html = typeof etymDiv === 'string' ? etymDiv : (etymDiv as any)?.innerHTML || (etymDiv as any)?.textContent || ''
+      const html = typeof etymDiv === 'string' ? etymDiv : (etymDiv as Record<string, unknown>)?.innerHTML || (etymDiv as Record<string, unknown>)?.textContent || ''
       etymologie = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
     }
 

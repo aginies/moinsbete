@@ -1,4 +1,4 @@
-import cron from 'node-cron'
+import cron, { ScheduledTask } from 'node-cron'
 
 const CRON_SCHEDULE = '0 4 * * *'
 const API_URL = process.env.NEXTAUTH_URL 
@@ -6,7 +6,7 @@ const API_URL = process.env.NEXTAUTH_URL
   : `http://localhost:3000/api/cron/cache`
 
 let isRunning = false
-let task: any = null
+let task: ScheduledTask | null = null
 
 async function runCron() {
   if (isRunning) {

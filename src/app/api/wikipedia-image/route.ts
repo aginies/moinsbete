@@ -59,7 +59,7 @@ function extractEntries(html: string): ImageEntry[] {
   return entries
 }
 
-async function fetchWithRetry(url: string, maxRetries = 3): Promise<any> {
+async function fetchWithRetry(url: string, maxRetries = 3): Promise<unknown> {
   for (let i = 0; i < maxRetries; i++) {
     try {
       const res = await fetch(url, {

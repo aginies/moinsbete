@@ -1,17 +1,17 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams, usePathname } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
 
-interface PaginatedFavoritesListProps {
-  fetchFn: () => Promise<any[]>
-  renderItem: (item: any, onRemove: () => void) => React.ReactNode
+interface PaginatedFavoritesListProps<T> {
+  fetchFn: () => Promise<T[]>
+  renderItem: (item: T, onRemove: () => void) => React.ReactNode
   emptyTitle: string
   emptyDescription: string
   storageKey: string
   userId?: string
-  removeFavorite: (item: any) => Promise<void>
+  removeFavorite: (item: T) => Promise<void>
   borderColor?: string
   bgGradient?: string
   darkBorderColor?: string
@@ -25,7 +25,7 @@ interface PaginatedFavoritesListProps {
 
 const PAGE_SIZE = 10
 
-export function PaginatedFavoritesList({
+export function PaginatedFavoritesList<T>({
   fetchFn,
   renderItem,
   emptyTitle,
@@ -37,18 +37,21 @@ export function PaginatedFavoritesList({
   bgGradient = 'bg-gradient-to-br from-purple-50 to-violet-50',
   darkBorderColor = 'dark:border-purple-800',
   darkBgGradient = 'dark:from-purple-950/20 dark:to-violet-950/20',
-}: PaginatedFavoritesListProps) {
+}: PaginatedFavoritesListProps<T>) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
-  const [allFavorites, setAllFavorites] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  
   const initialPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
   const [currentPage, setCurrentPage] = useState(initialPage)
+  const [allFavorites, setAllFavorites] = useState<T[]>([])
+  const [loading, setLoading] = useState(true)
+  const searchParamsRef = useRef(searchParams)
 
   useEffect(() => {
-    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-    setCurrentPage(page)
+    if (searchParamsRef.current !== searchParams) {
+      const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+      setCurrentPage(page)
+      searchParamsRef.current = searchParams
+    }
   }, [searchParams])
 
   useEffect(() => {
@@ -71,6 +74,7 @@ export function PaginatedFavoritesList({
   const paginatedFavorites = allFavorites.slice(start, start + PAGE_SIZE)
 
   const loadFavorites = useCallback(async () => {
+    setLoading(true)
     try {
       const result = await fetchFn()
       setAllFavorites(result)
@@ -81,7 +85,7 @@ export function PaginatedFavoritesList({
     setLoading(false)
   }, [fetchFn, storageKey])
 
-  const handleRemove = useCallback(async (item: any) => {
+  const handleRemove = useCallback(async (item: T) => {
     await removeFavorite(item)
     await loadFavorites()
     if (onRemoveComplete) {
