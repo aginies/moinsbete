@@ -103,6 +103,8 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
     },
   })
 
+  console.log('[shareResourceToLobby] Stored meta for', resourceType, resourceId, ':', JSON.stringify(meta))
+
   return { success: true, shared: true }
 }
 
