@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Quote, Search, BookOpen, Clock, Trash2, RefreshCw } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -65,7 +65,7 @@ async function fetchRandomProverbe(): Promise<Proverbe | null> {
   }
 }
 
-export function ProverbesPageClient({ userId, initialVisibility }: { userId?: string; initialVisibility: boolean }) {
+export function ProverbesPageClient({ userId }: { userId?: string }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -73,7 +73,6 @@ export function ProverbesPageClient({ userId, initialVisibility }: { userId?: st
   const [loading, setLoading] = useState(false)
   const [history, setHistory] = useState<string[]>(getHistory())
   const [error, setError] = useState(false)
-  const [visibility, setVisibility] = useState(initialVisibility)
 
   const loadProverbe = useCallback(async () => {
     setLoading(true)
@@ -88,19 +87,13 @@ export function ProverbesPageClient({ userId, initialVisibility }: { userId?: st
     setLoading(false)
   }, [])
 
-  const [lastVisibility, setLastVisibility] = useState(visibility)
-  const lastVisibilityRef = useRef(visibility)
+  const loadedRef = useRef(false)
 
   useEffect(() => {
-    if (visibility !== lastVisibilityRef.current) {
-      if (visibility) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        loadProverbe()
-      }
-      lastVisibilityRef.current = visibility
-      setLastVisibility(visibility)
-    }
-  }, [visibility, loadProverbe])
+    if (currentProverbe || loadedRef.current) return
+    loadedRef.current = true
+    loadProverbe()
+  }, [loadProverbe, currentProverbe])
 
   const filteredSuggestions = useMemo(() => {
     if (searchTerm.length < 2) return []
@@ -162,31 +155,26 @@ export function ProverbesPageClient({ userId, initialVisibility }: { userId?: st
     }
   }, [])
 
-  const toggleVisibility = useCallback(() => {
-    setVisibility(prev => !prev)
-  }, [])
-
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-4xl md:p-6">
-      {visibility && (
-        <div className="mb-6">
-          <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-green-50 p-5 dark:border-emerald-700 dark:from-emerald-950/30 dark:to-green-950/30">
-            <CardHeader
-              icon={<Quote className="h-4 w-4 text-emerald-950" />}
-              iconBgColor="bg-emerald-500"
-              iconDarkColor="dark:bg-emerald-600"
-              title="Proverbes"
-              titleColor="text-emerald-800"
-              titleDarkColor="dark:text-emerald-300"
-              showRefresh={true}
-              loading={loading}
-              onRefresh={handleRefresh}
-            />
+      <div className="mb-6">
+        <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-green-50 p-5 dark:border-emerald-700 dark:from-emerald-950/30 dark:to-green-950/30">
+          <CardHeader
+            icon={<Quote className="h-4 w-4 text-emerald-950" />}
+            iconBgColor="bg-emerald-500"
+            iconDarkColor="dark:bg-emerald-600"
+            title="Proverbes"
+            titleColor="text-emerald-800"
+            titleDarkColor="dark:text-emerald-300"
+            showRefresh={true}
+            loading={loading}
+            onRefresh={handleRefresh}
+          />
 
-            <form onSubmit={handleSearch} className="mt-4 relative">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-400" />
+          <form onSubmit={handleSearch} className="mt-4 relative">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-400" />
                   <Input
                     type="text"
                     value={searchTerm}
@@ -200,71 +188,48 @@ export function ProverbesPageClient({ userId, initialVisibility }: { userId?: st
                     onFocus={() => filteredSuggestions.length > 0 && setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                     placeholder="Rechercher un proverbe..."
-                    className="pl-10 pr-4 border-emerald-200 focus:border-emerald-400 dark:border-emerald-800 dark:focus:border-emerald-600"
+                    className="pl-10 pr-10 border-emerald-200 focus:border-emerald-400 dark:border-emerald-800 dark:focus:border-emerald-600"
                   />
-                  {showSuggestions && filteredSuggestions.length > 0 && (
-                    <div className="absolute z-50 mt-1 w-full rounded-lg border border-emerald-200 bg-white dark:border-emerald-800 dark:bg-gray-900 shadow-lg max-h-60 overflow-y-auto">
-                      {filteredSuggestions.map((suggestion, i) => (
-                        <button
-                          key={i}
-                          type="button"
-                          onMouseDown={() => handleSelectSuggestion(suggestion)}
-                          className="w-full text-left px-4 py-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors flex items-center justify-between"
-                        >
-                          <span className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
-                            {suggestion.text}
-                          </span>
-                          <span className="text-xs text-emerald-600 dark:text-emerald-400">
-                            {suggestion.source}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchTerm('')
+                        setShowSuggestions(false)
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors"
+                    >
+                      <span className="text-lg">×</span>
+                    </button>
                   )}
-                </div>
-                <Button type="submit" disabled={loading || !searchTerm.trim()} className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                  <BookOpen className="h-4 w-4" />
-                  <span className="sr-only">Rechercher</span>
-                </Button>
+                {showSuggestions && filteredSuggestions.length > 0 && (
+                  <div className="absolute z-50 mt-1 w-full rounded-lg border border-emerald-200 bg-white dark:border-emerald-800 dark:bg-gray-900 shadow-lg max-h-60 overflow-y-auto">
+                    {filteredSuggestions.map((suggestion, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onMouseDown={() => handleSelectSuggestion(suggestion)}
+                        className="w-full text-left px-4 py-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors flex items-center justify-between"
+                      >
+                        <span className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
+                          {suggestion.text}
+                        </span>
+                        <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                          {suggestion.source}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {!visibility && (
-        <div className="mb-6">
-          <button
-            onClick={toggleVisibility}
-            className="w-full rounded-xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-green-50 p-3 dark:border-emerald-700 dark:from-emerald-950/30 dark:to-green-950/30 hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center gap-2">
-              <Quote className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Voir les Proverbes</span>
+              <Button type="submit" disabled={loading || !searchTerm.trim()} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                <BookOpen className="h-4 w-4" />
+                <span className="sr-only">Rechercher</span>
+              </Button>
             </div>
-          </button>
+          </form>
         </div>
-      )}
-
-      {currentProverbe && (
-        <ProverbeCard
-          userId={userId}
-          proverbe={currentProverbe}
-          onRefresh={handleRefresh}
-          loading={loading}
-          showToggle={false}
-          title="Proverbes"
-          linkHref={null}
-        />
-      )}
-
-      {error && !loading && (
-        <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-100/50 p-3 dark:border-emerald-800 dark:bg-emerald-900/20">
-          <p className="text-sm text-emerald-700 dark:text-emerald-300 text-center">
-            Erreur lors du chargement du proverbe.
-          </p>
-        </div>
-      )}
+      </div>
 
       {history.length > 0 && (
         <div className="mb-6">
@@ -298,6 +263,26 @@ export function ProverbesPageClient({ userId, initialVisibility }: { userId?: st
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {currentProverbe && (
+        <ProverbeCard
+          userId={userId}
+          proverbe={currentProverbe}
+          onRefresh={handleRefresh}
+          loading={loading}
+          showToggle={false}
+          title="Proverbe"
+          linkHref={null}
+        />
+      )}
+
+      {error && !loading && (
+        <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-100/50 p-3 dark:border-emerald-800 dark:bg-emerald-900/20">
+          <p className="text-sm text-emerald-700 dark:text-emerald-300 text-center">
+            Erreur lors du chargement du proverbe.
+          </p>
         </div>
       )}
 
