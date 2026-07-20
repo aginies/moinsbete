@@ -3,6 +3,7 @@ import { Feed } from '@/components/feed/feed'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 import { RadioFranceCard } from '@/components/feed/radio-france-card'
 import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
+import { ProverbeCard } from '@/components/feed/proverbe-card'
 
 import { getSession } from '@/lib/auth'
 import { getRandomFact } from '@/lib/saviez-vous'
@@ -92,6 +93,10 @@ export default async function HomePage() {
 
       <div className="mb-6">
         <PortailLexicalCard userId={userId} />
+      </div>
+
+      <div className="mb-6">
+        <ProverbeCard userId={userId} />
       </div>
 
       <SearchBar />

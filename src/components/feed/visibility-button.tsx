@@ -3,7 +3,7 @@
 import { Eye } from 'lucide-react'
 
 interface VisibilityButtonProps {
-  color: 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange'
+  color: 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald'
   label: string
   onClick: () => void
 }
@@ -92,6 +92,18 @@ const colorMap: Record<VisibilityButtonProps['color'], { border: string; bg: str
     hoverBg: 'hover:bg-orange-50',
     darkHoverBorder: 'dark:hover:border-orange-700',
     darkHoverBg: 'dark:hover:bg-orange-950/30',
+  },
+  emerald: {
+    border: 'border-emerald-300',
+    bg: 'bg-emerald-50/50',
+    darkBorder: 'dark:border-emerald-800',
+    darkBg: 'dark:bg-emerald-950/20',
+    text: 'text-emerald-700',
+    darkText: 'dark:text-emerald-400',
+    hoverBorder: 'hover:border-emerald-400',
+    hoverBg: 'hover:bg-emerald-50',
+    darkHoverBorder: 'dark:hover:border-emerald-700',
+    darkHoverBg: 'dark:hover:bg-emerald-950/30',
   },
 }
 

@@ -45,7 +45,7 @@ interface BaseImageCardConfig<TTopic> {
   loadingProps?: { borderColor: string; borderDarkColor: string; iconColor: string; iconDarkColor: string }
   imageBorderClass: string
   hintColor: 'teal' | 'blue' | 'purple' | 'green' | 'amber' | 'rose' | 'orange' | 'cyan'
-  buttonColor: 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange'
+  buttonColor: 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald'
   shareTitlePrefix: string
   visibilityLabel: string
   shareTextAuthor: string

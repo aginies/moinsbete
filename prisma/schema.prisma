@@ -30,8 +30,9 @@ model User {
   imageWikimediaShowCategories Boolean  @default(true)
   imagePixabayCardVisible      Boolean  @default(true)
   imagePixabayShowCategories   Boolean  @default(true)
-  portailLexicalCardVisible    Boolean  @default(true)
-  bookmarks       Bookmark[]
+   portailLexicalCardVisible    Boolean  @default(true)
+   proverbeCardVisible         Boolean  @default(true)
+   bookmarks       Bookmark[]
   growthPlan      GrowthPlan?
   resetTokens     PasswordResetToken[]
   viewedIdeas     ViewedIdea[]
@@ -269,8 +270,9 @@ enum BookmarkType {
   SAVIEZ_VOUS
   IMAGE_WIKIMEDIA
   IMAGE_WIKILOVES
-  IMAGE_PIXABAY
-  PORTAIL_LEXICAL
+   IMAGE_PIXABAY
+   PORTAIL_LEXICAL
+   PROVERBE
 }
 
 model CachedCnrsArticle {

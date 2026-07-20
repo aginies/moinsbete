@@ -73,7 +73,7 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
-  const validResourceTypes = ['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES']
+  const validResourceTypes = ['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE']
   if (!validResourceTypes.includes(resourceType)) {
     return { error: 'Type de ressource invalide' }
   }
@@ -99,7 +99,7 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
   return { success: true, shared: true }
 }
 
-const VALID_RESOURCE_TYPES = new Set(['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES'])
+const VALID_RESOURCE_TYPES = new Set(['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE'])
 
 export async function unshareResourceFromLobby(resourceType: string, resourceId: string) {
   const session = await getSession()

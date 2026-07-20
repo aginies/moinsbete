@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2 } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
@@ -20,6 +20,7 @@ import { ImageWikimediaFavorites } from './image-wikimedia-favorites'
 import { ImageWikiLovesFavorites } from './image-wikiloves-favorites'
 import { PixabayFavorites } from './pixabay-favorites'
 import { PortailLexicalBookmarks } from './portail-lexical-bookmarks'
+import { ProverbeBookmarks } from './proverbe-bookmarks'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
@@ -40,9 +41,10 @@ interface FavorisPageClientProps {
   wikilovesFavoritesCount: number
   pixabayFavoritesCount: number
   portailLexicalCount: number
+  proverbeFavoritesCount: number
 }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'proverbe'
 
 interface TabConfig {
   id: Tab
@@ -64,7 +66,7 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
   return <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
 }
 
-export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount }: FavorisPageClientProps) {
+export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
   const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
@@ -181,6 +183,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [wikilovesCount, setWikilovesCount] = useState(wikilovesFavoritesCount)
   const [pixabayCount, setPixabayCount] = useState(pixabayFavoritesCount)
   const [portailLexCount, setPortailLexCount] = useState(portailLexicalCount)
+  const [proverbeCount, setProverbeCount] = useState(proverbeFavoritesCount)
 
   useEffect(() => {
     setRadioCount(radioFavoritesCount)
@@ -191,6 +194,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     setWikilovesCount(wikilovesFavoritesCount)
     setPixabayCount(pixabayFavoritesCount)
     setPortailLexCount(portailLexicalCount)
+    setProverbeCount(proverbeFavoritesCount)
   }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount])
 
   const handleRadioRemove = useCallback(() => {
@@ -223,6 +227,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   const handlePortailLexRemove = useCallback(() => {
     setPortailLexCount(prev => Math.max(0, prev - 1))
+  }, [])
+
+  const handleProverbeRemove = useCallback(() => {
+    setProverbeCount(prev => Math.max(0, prev - 1))
   }, [])
 
   const handleShareToLobby = async (ideaId: string) => {
@@ -376,11 +384,12 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       { id: 'image-wikimedia', label: 'Wikimedia', Icon: BookOpen, count: wikimediaCount },
        { id: 'image-wikiloves', label: 'Wiki Loves', Icon: Earth, count: wikilovesCount },
        { id: 'image-pixabay', label: 'Pixabay', Icon: Video, count: pixabayCount },
-       { id: 'portail-lexical', label: 'Lexique', Icon: BookOpen, count: portailLexCount },
-      { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
+        { id: 'portail-lexical', label: 'Lexique', Icon: BookOpen, count: portailLexCount },
+        { id: 'proverbe', label: 'Proverbes', Icon: Quote, count: proverbeCount },
+       { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
       { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
       { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
-    ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, saviezVousCount, radioCount, cnrsCount])
+    ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount, saviezVousCount, radioCount, cnrsCount])
 
   const sortedTabs = useMemo(() =>
     [...tabConfig].sort((a, b) => b.count - a.count),
@@ -531,6 +540,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       {activeTab === 'image-pixabay' && <div role="tabpanel" id="panel-image-pixabay"><PixabayFavorites userId={userId} onRemoveComplete={handlePixabayRemove} /></div>}
 
       {activeTab === 'portail-lexical' && <div role="tabpanel" id="panel-portail-lexical"><PortailLexicalBookmarks userId={userId} onRemoveComplete={handlePortailLexRemove} /></div>}
+
+      {activeTab === 'proverbe' && <div role="tabpanel" id="panel-proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} /></div>}
     </div>
   )
 }

@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
       imagePixabayShowCategories: true,
       imageWikiLovesShowCategories: true,
       portailLexicalCardVisible: true,
+      proverbeCardVisible: true,
       cnrsNewsEnabled: true,
     },
   })
@@ -69,6 +70,7 @@ export async function POST(request: NextRequest) {
     'imageWikiLovesCardVisible',
     'imageWikiLovesShowCategories',
     'portailLexicalCardVisible',
+    'proverbeCardVisible',
     'cnrsNewsEnabled',
   ]
 
