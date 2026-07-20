@@ -66,6 +66,7 @@ if [ "$RUN_PRISMA" = true ]; then
   echo "Running prisma commands..."
   npx prisma generate
   npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
+  npx prisma migrate resolve --applied 20260720000001_add_card_order 2>/dev/null || true
 
   # Stop pm2 app to release SQLite lock before migrations
   echo "Stopping moinsbete to avoid SQLite lock..."
