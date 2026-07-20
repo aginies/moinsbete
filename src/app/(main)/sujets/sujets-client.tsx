@@ -156,8 +156,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'wikipedia',
-      visibilityKey: 'wikipedia',
-      visibilityField: 'wikipediaImageCardVisible',
       isVisible: visibility.wikipedia,
       toggle: toggleWikipedia,
       renderCard: () => (
@@ -166,8 +164,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'cnrs',
-      visibilityKey: 'cnrs',
-      visibilityField: 'cnrsNewsEnabled',
       isVisible: visibility.cnrs,
       toggle: toggleCnrs,
       renderCard: () => (
@@ -176,8 +172,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'radioFrance',
-      visibilityKey: 'radioFrance',
-      visibilityField: 'radioFranceCardVisible',
       isVisible: visibility.radioFrance,
       toggle: toggleRadioFrance,
       renderCard: () => (
@@ -186,8 +180,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'wikimedia',
-      visibilityKey: 'wikimedia',
-      visibilityField: 'imageWikimediaCardVisible',
       isVisible: visibility.wikimedia,
       toggle: toggleWikimedia,
       renderCard: () => (
@@ -196,8 +188,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'wikiloves',
-      visibilityKey: 'wikiloves',
-      visibilityField: 'imageWikiLovesCardVisible',
       isVisible: visibility.wikiloves,
       toggle: toggleWikiLoves,
       renderCard: () => (
@@ -206,8 +196,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'pixabay',
-      visibilityKey: 'pixabay',
-      visibilityField: 'imagePixabayCardVisible',
       isVisible: visibility.pixabay,
       toggle: togglePixabay,
       renderCard: () => (
@@ -216,8 +204,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'portailLexical',
-      visibilityKey: 'portailLexical',
-      visibilityField: 'portailLexicalCardVisible',
       isVisible: visibility.portailLexical,
       toggle: togglePortailLexical,
       renderCard: () => (
@@ -226,8 +212,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'proverbe',
-      visibilityKey: 'proverbe',
-      visibilityField: 'proverbeCardVisible',
       isVisible: visibility.proverbe,
       toggle: toggleProverbe,
       renderCard: () => (

@@ -79,7 +79,7 @@ function SortableCardItem({
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 sm:hidden"
+          className="h-8 w-8 p-0"
           onClick={() => onMoveUp(card.key)}
           disabled={index === 0}
         >
@@ -88,29 +88,9 @@ function SortableCardItem({
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 sm:hidden"
+          className="h-8 w-8 p-0"
           onClick={() => onMoveDown(card.key)}
           disabled={index === total - 1}
-        >
-          <MoveDown className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 hidden sm:flex"
-          onClick={() => onMoveUp(card.key)}
-          disabled={index === 0}
-          title="Deplacer vers le haut"
-        >
-          <MoveUp className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 hidden sm:flex"
-          onClick={() => onMoveDown(card.key)}
-          disabled={index === total - 1}
-          title="Deplacer vers le bas"
         >
           <MoveDown className="h-4 w-4" />
         </Button>
