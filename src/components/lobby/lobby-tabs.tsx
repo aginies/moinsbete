@@ -123,7 +123,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
         return false
       })
     }
-    return filtered.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage)
+    return filtered.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.proverbe)
   }, [sharedBookmarks, activeType, searchQuery])
 
   return (
