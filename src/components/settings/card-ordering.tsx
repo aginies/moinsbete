@@ -113,18 +113,27 @@ export function CardOrdering({ userId }: { userId?: string }) {
 
   useEffect(() => {
     if (userId) {
+      console.log('[CardOrdering] Fetching order for user:', userId)
       fetch('/api/user-card-order', { credentials: 'include' })
-        .then(res => res.ok ? res.json() : Promise.reject())
+        .then(res => {
+          console.log('[CardOrdering] API response status:', res.status)
+          return res.json()
+        })
         .then(data => {
+          console.log('[CardOrdering] API returned order:', data.order)
           if (Array.isArray(data.order)) {
             setOrder(data.order)
           } else {
             setOrder(DEFAULT_ORDER)
           }
         })
-        .catch(() => setOrder(DEFAULT_ORDER))
+        .catch(err => {
+          console.error('[CardOrdering] Fetch error:', err)
+          setOrder(DEFAULT_ORDER)
+        })
         .finally(() => setLoading(false))
     } else {
+      console.log('[CardOrdering] No userId, using default order')
       setOrder(DEFAULT_ORDER)
       setLoading(false)
     }
