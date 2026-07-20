@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import bcrypt from 'bcryptjs'
 
 const mockUser = {
   id: 'user-1',
@@ -46,6 +47,31 @@ vi.mock('next/headers', () => ({
 vi.mock('next-auth/jwt', () => ({
   decode: vi.fn().mockResolvedValue({ sub: 'user-1', email: 'test@example.com' }),
 }))
+
+describe('authOptions.authorize', () => {
+  it('returns null when user is disabled', async () => {
+    const { prisma } = await import('@/lib/db')
+    const { authOptions } = await import('@/lib/auth')
+    const password = 'correct-password'
+    const passwordHash = await bcrypt.hash(password, 12)
+    const user = { ...mockUser, passwordHash, enabled: false }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(user)
+
+    const result = await (authOptions.providers[0] as any).authorize({ email: 'test@example.com', password })
+
+    expect(result).toBeNull()
+  })
+
+  it('returns null when user not found', async () => {
+    const { prisma } = await import('@/lib/db')
+    const { authOptions } = await import('@/lib/auth')
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
+
+    const result = await (authOptions.providers[0] as any).authorize({ email: 'unknown@example.com', password: 'any' })
+
+    expect(result).toBeNull()
+  })
+})
 
 describe('getSession', () => {
   beforeEach(async () => {
