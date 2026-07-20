@@ -241,7 +241,7 @@ async function verifyFrenchWiktionnaire(proverbs: CachedProverbe[]): Promise<Cac
             verified.push({
               ...p,
               hasWiktionnairePage: true,
-              wiktionnaireUrl: `${WIKTIONARY_BASE}/wiki/${encodeURIComponent(pageData.title)}`,
+              wiktionnaireUrl: pageData.title ? `${WIKTIONARY_BASE}/wiki/${encodeURIComponent(pageData.title)}` : undefined,
               etymologie: etymologie || undefined,
               definitions: definitions.length > 0 ? definitions : undefined
             })
