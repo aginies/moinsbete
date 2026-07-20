@@ -195,7 +195,7 @@ export function ProverbeCard({
               linkHref={linkHref !== undefined ? (linkHref || undefined) : "/proverbes"}
               showToggle={showToggle}
               onToggle={onToggle || handleToggle}
-              showRefresh={true}
+              showRefresh={false}
               loading={loading}
               onRefresh={handleRefresh}
               shareOptions={proverbe ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
