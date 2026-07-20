@@ -31,7 +31,8 @@ model User {
   imagePixabayCardVisible      Boolean  @default(true)
   imagePixabayShowCategories   Boolean  @default(true)
    portailLexicalCardVisible    Boolean  @default(true)
-   proverbeCardVisible         Boolean  @default(true)
+    proverbeCardVisible         Boolean  @default(true)
+   cardOrder                   Json?
    bookmarks       Bookmark[]
   growthPlan      GrowthPlan?
   resetTokens     PasswordResetToken[]

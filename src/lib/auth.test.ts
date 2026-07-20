@@ -24,6 +24,7 @@ const mockUser = {
   lastVisited: null,
   portailLexicalCardVisible: true,
   proverbeCardVisible: true,
+  cardOrder: null,
 }
 
 vi.mock('@/lib/db', () => ({

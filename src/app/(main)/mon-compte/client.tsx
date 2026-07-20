@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Mail, User as UserIcon, Lock, LogOut, MessageSquare } from 'lucide-react'
+import { Mail, User as UserIcon, Lock, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { changePasswordAction, logoutAction } from '@/actions/auth-actions'
 import type { Session } from 'next-auth'
-import Link from 'next/link'
+import { CardOrdering } from '@/components/settings/card-ordering'
 
 export default function MonCompteClient({ session }: { session: Session }) {
   const [isPending, startTransition] = useTransition()
@@ -81,15 +81,7 @@ export default function MonCompteClient({ session }: { session: Session }) {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-4">
-          <Link href="/mon-compte/lobby" className="flex items-center gap-3 hover:opacity-80">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            <div>
-              <p className="font-medium">Mon lobby</p>
-              <p className="text-xs text-muted-foreground">Gérez vos propositions de sujets</p>
-            </div>
-          </Link>
-        </div>
+        {session.user?.id && <CardOrdering userId={session.user.id} />}
 
         <div className="rounded-xl border bg-card p-6">
           <h2 className="mb-4 flex items-center gap-2 font-semibold">
