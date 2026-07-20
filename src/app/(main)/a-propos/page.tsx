@@ -221,10 +221,10 @@ export default function AproposPage() {
              Quand vous bookmark une idée, elle entre automatiquement dans votre cycle de révision.
            </p>
            <p className="mt-2 text-sm text-muted-foreground">
-             Accédez à l'onglet Révision pour revoir les idées au moment optimal.
-             Chaque idée est notée selon votre niveau de mémorisation :
-             "Encore" pour celles que vous avez oubliées, "Difficile", "Bon" ou "Facile" pour celles que vous retenez.
-             L'algorithme ajuste automatiquement les intervalles entre les révisions pour optimiser la mémorisation à long terme.
+              Accédez à l&apos;onglet Révision pour revoir les idées au moment optimal.
+              Chaque idée est notée selon votre niveau de mémorisation :
+              &quot;Encore&quot; pour celles que vous avez oubliées, &quot;Difficile&quot;, &quot;Bon&quot; ou &quot;Facile&quot; pour celles que vous retenez.
+              L&apos;algorithme ajuste automatiquement les intervalles entre les révisions pour optimiser la mémorisation à long terme.
            </p>
         </section>
 
@@ -278,7 +278,7 @@ export default function AproposPage() {
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Sauvegardez vos documentaires préférés dans vos favoris et retrouvez-les
-            facilement dans l'onglet Documentaires Radio France de votre page favoris.
+            facilement dans l&apos;onglet Documentaires Radio France de votre page favoris.
           </p>
         </section>
 
@@ -366,7 +366,7 @@ export default function AproposPage() {
         </section>
 
         <section>
-            <h2 className="mb-3 text-xl font-semibold">L'auteur</h2>
+            <h2 className="mb-3 text-xl font-semibold">L&apos;auteur</h2>
     <p className="text-muted-foreground">
           MoinsBête a été créé par <strong>Antoine Giniès</strong>.
             Le projet s&apos;inspire de la philosophie Deep Stash, popularisée par 
@@ -395,8 +395,8 @@ export default function AproposPage() {
         <section>
            <h2 className="mb-3 text-xl font-semibold">Infrastructure</h2>
            <p className="text-muted-foreground">
-             Le service MoinsBete est hébergé sur un serveur loué personnellement par Antoine Giniès à des fins personnelles.
-             Ce service est offert en l'état et peut être arrêté à tout moment sans annonce préalable.
+              Le service MoinsBete est hébergé sur un serveur loué personnellement par Antoine Giniès à des fins personnelles.
+              Ce service est offert en l&apos;état et peut être arrêté à tout moment sans annonce préalable.
            </p>
          </section>
 

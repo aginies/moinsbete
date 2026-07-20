@@ -31,17 +31,12 @@ export function PaginatedFavoritesList({
   emptyTitle,
   emptyDescription,
   storageKey,
-  userId,
   removeFavorite,
   onRemoveComplete,
   borderColor = 'border-purple-200',
   bgGradient = 'bg-gradient-to-br from-purple-50 to-violet-50',
   darkBorderColor = 'dark:border-purple-800',
   darkBgGradient = 'dark:from-purple-950/20 dark:to-violet-950/20',
-  textColor = 'text-purple-900',
-  darkTextColor = 'dark:text-purple-100',
-  buttonColor = 'text-purple-600',
-  buttonHoverBg = 'hover:bg-purple-100',
 }: PaginatedFavoritesListProps) {
   const searchParams = useSearchParams()
   const pathname = usePathname()

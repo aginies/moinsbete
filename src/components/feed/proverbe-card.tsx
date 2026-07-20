@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Quote, Bookmark, ExternalLink, RefreshCw, Share2 } from 'lucide-react'
+import { Quote, Bookmark, ExternalLink, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
@@ -58,7 +58,6 @@ export function ProverbeCard({
   proverbe: externalProverbe,
   onRefresh: externalOnRefresh,
   loading: externalLoading,
-  showRefresh = true,
   title,
   linkHref
 }: ProverbeCardProps) {
@@ -233,7 +232,7 @@ export function ProverbeCard({
               <>
                 <div className="mb-4 text-center">
                   <p className="text-xl font-bold text-emerald-900 dark:text-emerald-100 leading-relaxed italic">
-                    "{proverbe.text}"
+                     &quot;{proverbe.text}&quot;
                   </p>
                 </div>
 

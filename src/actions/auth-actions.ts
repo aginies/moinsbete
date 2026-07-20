@@ -3,11 +3,10 @@
 import { prisma } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
-import { encode, decode } from 'next-auth/jwt'
+import { encode } from 'next-auth/jwt'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limiter'
-import { headers } from 'next/headers'
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_LOGIN_MAX, SESSION_COOKIE_MAX_AGE_MS, SESSION_MAX_AGE_SECONDS, MIN_PASSWORD_LENGTH } from '@/lib/constants'
 import { getClientIpFromHeaders } from '@/lib/ip'
 
@@ -179,7 +178,7 @@ export async function loginAction(formData: {
   return { success: true }
 }
 
-export async function logoutAction(formData?: FormData) {
+export async function logoutAction() {
   const cookieStore = await cookies()
   const pastDate = new Date('1970-01-01T00:00:00Z')
   

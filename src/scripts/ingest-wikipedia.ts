@@ -568,7 +568,7 @@ async function ingestArticle(title: string, index: number) {
 
   console.log('  🤖 Distillation des idées avec LLM...')
 
-  const ideasData = await distillIdeas(title, summary.extract, source.url!, existingTopics)
+  const ideasData = await distillIdeas(title, summary.extract, source.url!)
 
   if (ideasData.length === 0) {
     console.log('  ⚠️ Aucune idée générée par le LLM')
@@ -578,7 +578,7 @@ async function ingestArticle(title: string, index: number) {
   for (let i = 0; i < Math.min(ideasData.length, 3); i++) {
     const ideaData = ideasData[i]
 
-    const idea = await prisma.idea.create({
+    await prisma.idea.create({
       data: {
         title: ideaData.title,
         content: ideaData.content,

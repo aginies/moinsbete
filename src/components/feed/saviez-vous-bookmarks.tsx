@@ -82,7 +82,6 @@ function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage, isShared, onS
           isShared={isShared}
           onToggle={onShareToggle}
           loading={isSharing}
-          resourceId={item.id}
         />
         <Link
           href={`/saviez-vous/${item.id}`}

@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ idea: null }, { status: 400 })
     }
 
-    let whereClause: Record<string, any> = { isPublished: true }
+    const whereClause: Record<string, any> = { isPublished: true }
 
     if (userId && followed === '1') {
       const user = await prisma.user.findUnique({

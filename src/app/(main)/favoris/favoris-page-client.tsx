@@ -1,8 +1,6 @@
 'use client'
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import { useTransition } from 'react'
 import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import Link from 'next/link'
@@ -25,7 +23,6 @@ import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
 import { toast } from 'sonner'
-import { ShareToLobbyFavoritesButton } from './share-to-lobby-button'
 
 interface FavorisPageClientProps {
   ideas: CompactIdea[]
@@ -69,7 +66,7 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
 export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [searchQuery, setSearchQuery] = useState('')
-  const { savedIdeaIds, handleBookmark, isPending } = useBookmarkToggle(ideas)
+  const { savedIdeaIds, handleBookmark } = useBookmarkToggle(ideas)
   const [sharedIdeaIds, setSharedIdeaIds] = useState<Set<string>>(new Set())
   const [sharedSaviezIds, setSharedSaviezIds] = useState<Set<string>>(new Set())
   const [sharedImageIds, setSharedImageIds] = useState<Set<string>>(new Set())
@@ -506,7 +503,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           </div>
 
           {searchQuery && filteredIdeas.length === 0 && (
-            <p className="py-8 text-center text-sm text-muted-foreground">Aucun favori pour "{searchQuery}"</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">Aucun favori pour &quot;{searchQuery}&quot;</p>
           )}
 
           {derivedIdeasCount === 0 ? (

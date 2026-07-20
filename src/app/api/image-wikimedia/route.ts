@@ -30,11 +30,6 @@ const DEFAULT_TOPIC_SEARCHES: Record<string, string[]> = {
   'deep-space': ['Deep space', 'Nebula', 'Hubble space telescope', 'Andromeda galaxy', 'Supernova'],
 }
 
-const DEFAULT_TOPIC_IDS = [
-  'paintings', 'aviation', 'nasa', 'posters', 'ww', 'art',
-  'advertisements', 'maps', 'sports-car', 'design', 'deep-space',
-]
-
 async function getTopicSearches(): Promise<Record<string, string[]>> {
   const searches: Record<string, string[]> = { ...DEFAULT_TOPIC_SEARCHES }
   

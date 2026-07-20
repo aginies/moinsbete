@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import Link from 'next/link'
-import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { Button } from '@/components/ui/button'
 
 interface AdminUser {

@@ -183,7 +183,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
 
       {isOpen && !hasResults && query.length >= 2 && !searching && (
         <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-border/60 bg-card p-6 text-center shadow-lg">
-          <p className="text-sm text-muted-foreground">Aucun résultat pour "{query}"</p>
+          <p className="text-sm text-muted-foreground">Aucun résultat pour &quot;{query}&quot;</p>
         </div>
       )}
 

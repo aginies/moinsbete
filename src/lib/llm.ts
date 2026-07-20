@@ -122,7 +122,6 @@ export async function distillIdeas(
   title: string,
   content: string,
   sourceUrl: string,
-  existingTopics: Array<{ id: string; name: string }>
 ): Promise<Array<{ title: string; content: string; takeaway: string }>> {
   const systemPrompt = `Extrait 5 idées. Retourne UNIQUEMENT JSON: [{"title":"T","content":"C","takeaway":"A"},...]`
 

@@ -63,7 +63,7 @@ async function getCustomTopics(userId: string): Promise<Topic[]> {
   })
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const session = await getServerSession(authOptions)
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 })

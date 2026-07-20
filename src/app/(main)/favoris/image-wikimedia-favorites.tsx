@@ -85,7 +85,6 @@ function WikimediaFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
           isShared={isShared}
           onToggle={onShareToggle}
           loading={isSharing}
-          resourceId={item.imageUrl}
         />
         <button
           onClick={onRemove}

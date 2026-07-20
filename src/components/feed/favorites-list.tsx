@@ -1,8 +1,5 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
-import { X } from 'lucide-react'
-
 export interface FavoriteItemBase {
   id: string
   favoritedAt: string
@@ -29,20 +26,14 @@ interface FavoritesListProps<T extends FavoriteItemBase> {
 
 export function FavoritesList<T extends FavoriteItemBase>({
   favorites,
-  loading,
   emptyTitle,
   emptyDescription,
-  userId,
   removeFavorite,
   renderItem,
   borderColor = 'border-purple-200',
   bgGradient = 'bg-gradient-to-br from-purple-50 to-violet-50',
   darkBorderColor = 'dark:border-purple-800',
   darkBgGradient = 'dark:from-purple-950/20 dark:to-violet-950/20',
-  textColor = 'text-purple-900',
-  darkTextColor = 'dark:text-purple-100',
-  buttonColor = 'text-purple-600',
-  buttonHoverBg = 'hover:bg-purple-100',
 }: FavoritesListProps<T>) {
   if (favorites.length === 0) {
     return (

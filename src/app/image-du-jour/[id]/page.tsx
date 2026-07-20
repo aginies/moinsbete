@@ -6,13 +6,10 @@ import { decodeImageFromUrl } from '@/lib/image-url-encoder'
 import { sanitizeUrl } from '@/lib/utils'
 
 export async function generateMetadata({
-  params,
   searchParams,
 }: {
-  params: Promise<{ id: string }>
   searchParams: Promise<{ d?: string }>
 }): Promise<Metadata> {
-  const { id } = await params
   const { d } = await searchParams
   const image = d ? decodeImageFromUrl(d) : null
   
@@ -39,13 +36,10 @@ export async function generateMetadata({
 }
 
 export default async function ImageDuJourSharePage({
-  params,
   searchParams,
 }: {
-  params: Promise<{ id: string }>
   searchParams: Promise<{ d?: string }>
 }) {
-  const { id } = await params
   const { d } = await searchParams
   const image = d ? decodeImageFromUrl(d) : null
 

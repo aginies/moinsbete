@@ -6,10 +6,9 @@ interface ShareToLobbyFavoritesButtonProps {
   isShared: boolean
   onToggle: () => void
   loading: boolean
-  resourceId: string
 }
 
-export function ShareToLobbyFavoritesButton({ isShared, onToggle, loading, resourceId }: ShareToLobbyFavoritesButtonProps) {
+export function ShareToLobbyFavoritesButton({ isShared, onToggle, loading }: ShareToLobbyFavoritesButtonProps) {
   return (
     <button
       type="button"

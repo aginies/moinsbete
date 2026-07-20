@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/db'
-import { Feed } from '@/components/feed/feed'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 import { RadioFranceCard } from '@/components/feed/radio-france-card'
 import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'

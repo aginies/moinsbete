@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { resolveWikimediaImageUrls } from '@/lib/utils'
-import crypto from 'node:crypto'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { resolveWikimediaImageUrlsViaREST } from '@/lib/utils'
 import { getClientIp } from '@/lib/ip'

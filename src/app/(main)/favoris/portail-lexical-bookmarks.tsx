@@ -1,15 +1,14 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import Link from 'next/link'
-import { ExternalLink, X, ArrowUpRight } from 'lucide-react'
+import { X, ArrowUpRight } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
 import { getPortailLexicalFavoritesAction } from '@/actions/portail-lexical-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
-import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby-button'
 
 export interface PortailLexicalFavoriteDoc {
   id: string
@@ -29,7 +28,6 @@ interface PortailLexicalBookmarksProps {
 }
 
 function PortailLexicalFavoriteItem({ item, onRemove }: { item: PortailLexicalFavoriteDoc; onRemove: () => void }) {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
   const shareUrl = `https://www.portail-lexical.fr/definition/${encodeURIComponent(item.form)}`
   const { handleShare, copied } = useItemShare({
     shareUrl,

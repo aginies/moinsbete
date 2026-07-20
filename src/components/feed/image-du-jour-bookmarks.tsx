@@ -81,7 +81,6 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, on
           isShared={isShared}
           onToggle={onShareToggle}
           loading={isSharing}
-          resourceId={item.fileUrl}
         />
         <button
           onClick={onRemove}

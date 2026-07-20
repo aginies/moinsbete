@@ -1,5 +1,4 @@
 import type { BookmarkType } from '@/generated/client'
-import type { ProverbeFavoriteDoc } from '@/app/(main)/favoris/proverbe-bookmarks'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
 export interface ProverbeFavoriteMeta {

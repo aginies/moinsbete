@@ -1,19 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
-interface TopicWithChildren {
-  id: string
-  children: Array<{ id: string }>
-}
-
-interface CollectionWithTopics {
-  id: string
-  topics: Array<{
-    id: string
-    children: Array<{ id: string }>
-  }>
-}
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }

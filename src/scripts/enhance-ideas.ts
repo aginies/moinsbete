@@ -40,7 +40,7 @@ function parseArgs(): { resume?: boolean; batch?: number; retry?: boolean; topic
   }
 }
 
-async function processIdea(idea: { id: string; title: string; content: string; takeaway: string }, retry: boolean = false): Promise<{ success: boolean; expandedContent: string | null; attempt: number }> {
+async function processIdea(idea: { id: string; title: string; content: string; takeaway: string }): Promise<{ success: boolean; expandedContent: string | null; attempt: number }> {
   let attempt = 0
   let expandedContent: string | null = null
 
@@ -67,7 +67,7 @@ async function main() {
   
   console.log('🚀 Enhancement des idées courtes\n')
   
-  let ideas = await prisma.idea.findMany({
+  const ideas = await prisma.idea.findMany({
     where: {
       isPublished: true,
       isEnhanced: false,
@@ -125,7 +125,6 @@ async function main() {
     // Batch mode
     if (args.batch && args.batch !== batchNum) continue
     
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(0)
     const etaSeconds = Number(((Date.now() - startTime) / (processed + 1) * (total - (processed + 1))).toFixed(0))
     const hours = Math.floor(etaSeconds / 3600)
     const minutes = Math.floor((etaSeconds % 3600) / 60)

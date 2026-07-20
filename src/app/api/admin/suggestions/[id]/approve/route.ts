@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { slugify, getRandomIcon, getRandomColor } from '@/lib/utils'
+import { slugify, getRandomColor } from '@/lib/utils'
 import { getSession } from '@/lib/auth'
 import { isCsrfValid } from '@/lib/csrf'
 

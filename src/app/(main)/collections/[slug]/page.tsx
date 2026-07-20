@@ -26,21 +26,6 @@ interface CollectionIdea {
   source: IdeaSource
 }
 
-interface CollectionIdeaTopic {
-  idea: CollectionIdea
-}
-
-interface TopicWithIdeas {
-  ideaTopics: CollectionIdeaTopic[]
-}
-
-interface CollectionData {
-  id: string
-  title: string
-  description: string | null
-  topics: TopicWithIdeas[]
-}
-
 export default async function CollectionPage({
   params,
 }: {

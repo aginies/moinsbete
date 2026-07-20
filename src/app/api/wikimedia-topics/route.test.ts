@@ -56,7 +56,7 @@ describe('Wikimedia Topics API route', () => {
 
     const { GET } = await import('./route')
     const req = new NextRequest('http://localhost/api/wikimedia-topics')
-    const response = await GET(req)
+    const response = await GET()
     expect(response.status).toBe(200)
 
     const data = await response.json()

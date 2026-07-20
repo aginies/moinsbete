@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { suggestTopic } from '@/lib/llm'
-import { slugify } from '@/lib/utils'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'

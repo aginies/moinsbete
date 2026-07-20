@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { ExternalLink, X, Play } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
@@ -8,7 +9,6 @@ import { type PixabayVideoFavoriteDoc } from '@/lib/image-pixabay-bookmark'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { ShareButton } from '@/components/feed/share-button'
-import { useState, useCallback } from 'react'
 import { useItemShare } from '@/components/feed/use-item-share'
 
 const PIXABAY_FAVORITES_KEY = 'image_pixabay_favorites'
@@ -78,7 +78,7 @@ function PixabayFavoriteItem({ item, onRemove }: PixabayFavoriteItemProps) {
 }
 
 export function PixabayFavorites({ userId, onRemoveComplete }: { userId?: string; onRemoveComplete?: () => void }) {
-  const { handleRemove, getFavorites } = useFavoritesList<PixabayVideoFavoriteDoc>({
+  const { handleRemove } = useFavoritesList<PixabayVideoFavoriteDoc>({
     userId,
     storageKey: PIXABAY_FAVORITES_KEY,
     resourceIdGetter: (item) => item.docid,

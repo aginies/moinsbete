@@ -103,11 +103,6 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
     }
   }, [hasMounted, show, word, loading, error, loadWord])
 
-  const handleRefresh = useCallback(async () => {
-    if (loading) return
-    await loadWord()
-  }, [loading, loadWord])
-
   const shareUrl = word ? `https://www.portail-lexical.fr/definition/${encodeURIComponent(word.form)}` : ''
   const { handleShare, copied, shareUrl: shareUrlResult } = useItemShare({
     shareUrl,

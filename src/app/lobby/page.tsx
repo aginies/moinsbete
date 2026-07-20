@@ -37,7 +37,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     redirect('/login')
   }
 
-  let userFavoriteIds: UserFavoriteIds = {
+  const userFavoriteIds: UserFavoriteIds = {
     IDEA: new Set(),
     SAVIEZ_VOUS: new Set(),
     IMAGE_DU_JOUR: new Set(),

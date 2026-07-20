@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limiter'

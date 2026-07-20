@@ -10,7 +10,6 @@ import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { toggleUserEnabled } from '@/actions/user-actions'
-import { useState } from 'react'
 
 interface AdminStats {
   ideas: number

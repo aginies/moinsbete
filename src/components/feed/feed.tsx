@@ -28,7 +28,6 @@ export function Feed({
   initialIdeas = [],
   initialHasMore = false,
   initialPage = 1,
-  initialTotal = 0,
   onBookmark,
   savedIdeaIds = new Set(),
   userId,
@@ -81,7 +80,7 @@ export function Feed({
 
       setHasMore(data.hasMore)
       setPage(pageNum)
-    } catch (err) {
+    } catch {
       setError('Erreur lors du chargement des idées')
     } finally {
       setLoading(false)

@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from './button'
 
 interface PaginationProps {
   currentPage: number

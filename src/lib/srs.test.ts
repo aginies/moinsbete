@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { calculateNextReview, getInitialNextReviewAt, type SrsRating } from './srs'
+import { calculateNextReview, getInitialNextReviewAt } from './srs'
 
 describe('calculateNextReview', () => {
   const now = new Date('2026-07-10T00:00:00.000Z')
