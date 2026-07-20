@@ -14,7 +14,6 @@ interface UseSimpleBookmarkToggleOptions {
 export function useSimpleBookmarkToggle({
   toggleFn,
   resourceId,
-  meta,
   guard,
   initialFavorite = false,
   onFavoriteChange,
@@ -41,7 +40,7 @@ export function useSimpleBookmarkToggle({
     } finally {
       setIsPending(false)
     }
-  }, [toggleFn, resourceId, meta, guard, isFavorite, onFavoriteChange])
+  }, [toggleFn, resourceId, guard, isFavorite, onFavoriteChange])
 
   return { isFavorite, isPending, handleBookmark, setIsFavorite }
 }

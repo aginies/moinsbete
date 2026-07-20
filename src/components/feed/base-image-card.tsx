@@ -88,8 +88,6 @@ export function BaseImageCard<TTopic>({
   renderMetadata,
   swipeable = false,
   fullImage = false,
-  largeImage = false,
-  showLink = true,
   showToggle = true,
   onToggle,
   isVisible,
@@ -178,18 +176,6 @@ export function BaseImageCard<TTopic>({
       })
     },
   })
-
-  const handleTopicToggle = useCallback(async (topicId: string) => {
-    const topicWasActive = (topics.find((t: any) => t.id === topicId) as any)?.active
-    await onToggleTopic(topicId)
-    if (onTopicsChange) {
-      await onTopicsChange()
-    }
-    // Reload image only when a topic was activated (not when deactivated)
-    if (!topicWasActive) {
-      await loadImage()
-    }
-  }, [topics, onToggleTopic, onTopicsChange, loadImage])
 
   const shareUrl = image?.link ?? ''
   const { handleShare, copied, shareUrl: shareUrlResult } = useItemShare({
