@@ -237,22 +237,6 @@ export function BaseImageCard<TTopic>({
         storageKey={storageKey}
         extraActions={
           <>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onSettingsClick() }}
-              className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
-              title={settingsButtonTitle}
-            >
-              <Settings className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onToggleCategories() }}
-              className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
-              title={showCategories ? 'Masquer les catégories' : 'Afficher les catégories'}
-            >
-              <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
-            </button>
             {handleToggleVisibility && (
               <button
                 type="button"
@@ -323,6 +307,31 @@ export function BaseImageCard<TTopic>({
       )}
 
       {image && renderMetadata(image)}
+
+      {image && (onSettingsClick || onToggleCategories) && (
+        <div className="flex items-center justify-end gap-2 mt-3">
+          {onSettingsClick && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onSettingsClick() }}
+              className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
+              title={settingsButtonTitle}
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+          )}
+          {onToggleCategories && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onToggleCategories() }}
+              className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
+              title={showCategories ? 'Masquer les catégories' : 'Afficher les catégories'}
+            >
+              <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 
