@@ -1,15 +1,17 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe } from 'lucide-react'
+import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { toggleUserEnabled } from '@/actions/user-actions'
+import { updateGlobalCardVisibility } from '@/actions/card-actions'
 import { useLocale, useTranslations } from 'next-intl'
 import { useSetLocale } from '@/hooks/use-set-locale'
 
@@ -55,7 +57,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
   const [isPending, startTransition] = useTransition()
   const locale = useLocale()
   const { setLocale } = useSetLocale()
-  const t = useTranslations()
+  const t = useTranslations('Admin')
 
   const handleRefresh = () => {
     startTransition(() => {
@@ -89,9 +91,10 @@ export function AdminContent({ stats, users }: AdminContentProps) {
       </div>
 
       <Tabs defaultValue="stats" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="stats">{t('feed.stats')}</TabsTrigger>
           <TabsTrigger value="users">{t('feed.users')}</TabsTrigger>
+          <TabsTrigger value="cartes">{t('admin.cartes_title')}</TabsTrigger>
           <TabsTrigger value="cleanup">{t('feed.cleanup')}</TabsTrigger>
         </TabsList>
 
@@ -206,6 +209,10 @@ export function AdminContent({ stats, users }: AdminContentProps) {
           </div>
         </TabsContent>
 
+        <TabsContent value="cartes">
+          <CartesTab />
+        </TabsContent>
+
         <TabsContent value="cleanup">
           <div className="space-y-6">
             <div className="rounded-xl border border-border/60 bg-card p-6">
@@ -301,6 +308,7 @@ function StatCard({ icon, label, value, sublabel }: { icon: React.ReactNode; lab
 function UserRow({ user }: { user: AdminUser }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const t = useTranslations('Admin')
 
   const handleToggle = async () => {
     startTransition(async () => {
@@ -376,5 +384,104 @@ function UserRow({ user }: { user: AdminUser }) {
         </Button>
       </td>
     </tr>
+  )
+}
+
+const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode }> = [
+  { key: 'saviezVous', labelKey: 'feed.saviez_vous_tab', icon: <BookOpen className="h-4 w-4" /> },
+  { key: 'wikipedia', labelKey: 'feed.wikipedia_tab', icon: <Globe className="h-4 w-4" /> },
+  { key: 'cnrs', labelKey: 'feed.cnrs_tab', icon: <Newspaper className="h-4 w-4" /> },
+  { key: 'radioFrance', labelKey: 'feed.radio_tab', icon: <Radio className="h-4 w-4" /> },
+  { key: 'wikimedia', labelKey: 'feed.wikimedia_tab', icon: <Image className="h-4 w-4" /> },
+  { key: 'wikiloves', labelKey: 'feed.wiki_loves_tab', icon: <ImagePlus className="h-4 w-4" /> },
+  { key: 'pixabay', labelKey: 'feed.pixabay_tab', icon: <Image className="h-4 w-4" /> },
+  { key: 'portailLexical', labelKey: 'feed.lexical_tab', icon: <Quote className="h-4 w-4" /> },
+  { key: 'proverbe', labelKey: 'feed.proverbe_tab', icon: <Podcast className="h-4 w-4" /> },
+]
+
+function CartesTab() {
+  const [isPending, startTransition] = useTransition()
+  const t = useTranslations('Admin')
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-muted-foreground">
+        {t('admin.cartes_desc')}
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {cardConfigs.map(card => (
+          <Card key={card.key}>
+            <CardContent className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
+                  {card.icon}
+                </div>
+                <span className="text-sm font-medium">{t(card.labelKey)}</span>
+              </div>
+              <CardToggle cardKey={card.key} />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CardToggle({ cardKey }: { cardKey: string }) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const t = useTranslations('Admin')
+  const [enabled, setEnabled] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/card-visibility')
+        if (res.ok) {
+          const data = await res.json()
+          setEnabled(data[cardKey] ?? true)
+        }
+      } catch {
+        setEnabled(true)
+      }
+    }
+    load()
+  }, [cardKey])
+
+  const handleToggle = () => {
+    const next = !enabled
+    setEnabled(next)
+    startTransition(async () => {
+      const result = await updateGlobalCardVisibility(cardKey as import('@/actions/card-actions').CardKey, next)
+      if (result.success) {
+        toast.success(next ? t('feed.enable') : t('feed.disable'))
+        router.refresh()
+      } else if (result.error) {
+        toast.error(result.error)
+        setEnabled(!next)
+      }
+    })
+  }
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleToggle}
+      disabled={isPending}
+      className={enabled ? 'text-green-600 hover:text-green-700' : 'text-destructive hover:text-destructive'}
+    >
+      {enabled ? (
+        <>
+          <UserCheck className="mr-1 h-3 w-3" />
+          {t('feed.card_enabled')}
+        </>
+      ) : (
+        <>
+          <UserX className="mr-1 h-3 w-3" />
+          {t('feed.card_disabled')}
+        </>
+      )}
+    </Button>
   )
 }
