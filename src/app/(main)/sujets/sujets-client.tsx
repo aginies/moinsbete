@@ -21,7 +21,7 @@ interface SujetsClientProps {
   saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null
   userId?: string
   initialVisibility?: CardVisibility
-  globalVisibility: Record<string, boolean>
+  globalVisibility?: Record<string, boolean>
   csrfToken: string
 }
 
@@ -152,7 +152,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const cardConfigs: CardConfig[] = useMemo(() => [
     {
       key: 'saviezVous',
-      isVisible: visibility.saviezVous && (globalVisibility.saviezVous ?? true),
+      isVisible: visibility.saviezVous && (globalVisibility?.saviezVous ?? true),
       toggle: toggleSaviezVous,
       renderCard: () => {
         if (!saviezVousFact) return null
@@ -163,7 +163,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'wikipedia',
-      isVisible: visibility.wikipedia && (globalVisibility.wikipedia ?? true),
+      isVisible: visibility.wikipedia && (globalVisibility?.wikipedia ?? true),
       toggle: toggleWikipedia,
       renderCard: () => (
         <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} isVisible={visibility.wikipedia} />
@@ -171,7 +171,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'cnrs',
-      isVisible: visibility.cnrs && (globalVisibility.cnrs ?? true),
+      isVisible: visibility.cnrs && (globalVisibility?.cnrs ?? true),
       toggle: toggleCnrs,
       renderCard: () => (
         <CnrsNewsCard onToggle={toggleCnrs} userId={userId} isVisible={visibility.cnrs} />
@@ -179,7 +179,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'radioFrance',
-      isVisible: visibility.radioFrance && (globalVisibility.radioFrance ?? true),
+      isVisible: visibility.radioFrance && (globalVisibility?.radioFrance ?? true),
       toggle: toggleRadioFrance,
       renderCard: () => (
         <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} isVisible={visibility.radioFrance} />
@@ -187,7 +187,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'wikimedia',
-      isVisible: visibility.wikimedia && (globalVisibility.wikimedia ?? true),
+      isVisible: visibility.wikimedia && (globalVisibility?.wikimedia ?? true),
       toggle: toggleWikimedia,
       renderCard: () => (
         <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage isVisible={visibility.wikimedia} />
@@ -195,7 +195,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'wikiloves',
-      isVisible: visibility.wikiloves && (globalVisibility.wikiloves ?? true),
+      isVisible: visibility.wikiloves && (globalVisibility?.wikiloves ?? true),
       toggle: toggleWikiLoves,
       renderCard: () => (
         <ImageWikiLovesCard onToggle={toggleWikiLoves} userId={userId} largeImage isVisible={visibility.wikiloves} />
@@ -203,7 +203,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'pixabay',
-      isVisible: visibility.pixabay && (globalVisibility.pixabay ?? true),
+      isVisible: visibility.pixabay && (globalVisibility?.pixabay ?? true),
       toggle: togglePixabay,
       renderCard: () => (
         <ImagePixabayCard onToggle={togglePixabay} userId={userId} largeImage isVisible={visibility.pixabay} />
@@ -211,7 +211,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'portailLexical',
-      isVisible: visibility.portailLexical && (globalVisibility.portailLexical ?? true),
+      isVisible: visibility.portailLexical && (globalVisibility?.portailLexical ?? true),
       toggle: togglePortailLexical,
       renderCard: () => (
         <PortailLexicalCard onToggle={togglePortailLexical} userId={userId} isVisible={visibility.portailLexical} />
@@ -219,7 +219,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'proverbe',
-      isVisible: visibility.proverbe && (globalVisibility.proverbe ?? true),
+      isVisible: visibility.proverbe && (globalVisibility?.proverbe ?? true),
       toggle: toggleProverbe,
       renderCard: () => (
         <ProverbeCard onToggle={toggleProverbe} userId={userId} isVisible={visibility.proverbe} />
