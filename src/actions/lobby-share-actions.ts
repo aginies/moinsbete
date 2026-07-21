@@ -223,7 +223,7 @@ export async function getAllUsers() {
   if (!session?.user) return { users: [] }
 
   const users = await prisma.user.findMany({
-    where: { id: { not: session.user.id } },
+    where: { id: { not: session.user.id }, enabled: true },
     select: { id: true, displayName: true, email: true, role: true },
     orderBy: { displayName: 'asc' },
   })
@@ -238,6 +238,7 @@ export async function searchUsers(query: string) {
   const users = await prisma.user.findMany({
     where: {
       id: { not: session.user.id },
+      enabled: true,
       OR: [
         { displayName: { contains: query } },
         { email: { contains: query } },
