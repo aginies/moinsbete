@@ -9,7 +9,10 @@ import { getSession } from '@/lib/auth'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { cookies } from 'next/headers'
+import { getMessages, getLocale } from 'next-intl/server'
+import { NextIntlClientProvider } from 'next-intl'
 import '@/lib/cron-runner'
+import { defaultLocale } from '@/i18n/request'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -53,9 +56,11 @@ export default async function RootLayout({
   const session = await getSession()
   const cookieStore = await cookies()
   const nonce = cookieStore.get('csp-nonce')?.value || ''
+  const locale = await getLocale()
+  const messages = await getMessages()
 
   return (
-    <html lang="fr" className="dark">
+    <html lang={locale} className="dark">
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icon-192.svg" />
@@ -76,26 +81,28 @@ export default async function RootLayout({
           }} />
       </head>
       <body className={`${inter.className} min-h-screen bg-background antialiased`}>
-        <div className="flex min-h-screen flex-col">
-          {process.env.REGISTRATION_LOCKED !== 'false' && (
-            <div className="bg-amber-500 text-center text-xs font-semibold text-amber-900 py-1.5 px-4">
-              AMÉLIORATION EN COURS DE LA DB des SUJETS<br />
-              CRÉATION DE COMPTE IMPOSSIBLE
-            </div>
-          )}
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <footer className="py-6 pb-16 md:pb-0 text-center text-xs text-muted-foreground">
-              <Link href="/a-propos" className="hover:underline">À propos</Link>
-              {' · '}
-              <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
-              {' · '}
-              guibo.com ©
-              {' · '}
-              v{appVersion}
-           </footer>
-           <BottomNav isLoggedIn={!!session?.user} />
-        </div>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <div className="flex min-h-screen flex-col">
+            {process.env.REGISTRATION_LOCKED !== 'false' && (
+              <div className="bg-amber-500 text-center text-xs font-semibold text-amber-900 py-1.5 px-4">
+                AMÉLIORATION EN COURS DE LA DB des SUJETS<br />
+                CRÉATION DE COMPTE IMPOSSIBLE
+              </div>
+            )}
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <footer className="py-6 pb-16 md:pb-0 text-center text-xs text-muted-foreground">
+                <Link href="/a-propos" className="hover:underline">À propos</Link>
+                {' · '}
+                <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
+                {' · '}
+                guibo.com ©
+                {' · '}
+                v{appVersion}
+             </footer>
+            <BottomNav isLoggedIn={!!session?.user} />
+          </div>
+        </NextIntlClientProvider>
         <Toaster />
       </body>
     </html>
