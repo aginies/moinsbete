@@ -308,7 +308,7 @@ export function BaseImageCard<TTopic>({
 
       {image && renderMetadata(image)}
 
-      {image && (onSettingsClick || onToggleCategories) && (
+      {image && (
         <div className="flex items-center justify-end gap-2 mt-3">
           {onSettingsClick && (
             <button
