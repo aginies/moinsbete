@@ -124,7 +124,7 @@ export function CardHeader({
           </h3>
         )}
       </div>
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-1 sm:gap-2">
         {enableAutoRefresh && onRefresh && (
           <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/20 px-2 py-0.5 shadow-sm">
             <button
