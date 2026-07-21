@@ -51,7 +51,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       where: { userId: session.user.id },
       select: { resourceId: true, type: true },
     })
-    const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'BNF_GALICA'] as const
+    const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL'] as const
     for (const bm of bookmarks) {
       if (bm.resourceId && knownTypes.includes(bm.type as typeof knownTypes[number])) {
         userFavoriteIds[bm.type as keyof UserFavoriteIds].add(bm.resourceId)
