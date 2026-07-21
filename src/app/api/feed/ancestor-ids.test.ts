@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockFindUnique = vi.fn()
 const mockFindMany = vi.fn()
+const mockQueryRawUnsafe = vi.fn()
 
 vi.mock('@/lib/db', () => ({
   prisma: {
@@ -12,6 +13,7 @@ vi.mock('@/lib/db', () => ({
     collection: {
       findUnique: vi.fn(),
     },
+    $queryRawUnsafe: (...args: unknown[]) => mockQueryRawUnsafe(...args),
   },
 }))
 
@@ -19,15 +21,16 @@ describe('getAllDescendantTopicIds', () => {
   beforeEach(async () => {
     mockFindUnique.mockReset()
     mockFindMany.mockReset()
+    mockQueryRawUnsafe.mockReset()
     const { topicCache } = await import('@/lib/feed-helpers')
-    topicCache.clear()
+    await topicCache.clear()
   })
 
   it('returns single topic id with no children', async () => {
     mockFindUnique.mockResolvedValueOnce({
       id: 'topic-1',
-      children: [],
     })
+    mockQueryRawUnsafe.mockResolvedValueOnce([{ id: 'topic-1' }])
 
     const { getAllDescendantTopicIds } = await import('@/lib/feed-helpers')
     const result = await getAllDescendantTopicIds('test-slug')
@@ -37,10 +40,12 @@ describe('getAllDescendantTopicIds', () => {
   it('returns topic with direct children', async () => {
     mockFindUnique.mockResolvedValueOnce({
       id: 'topic-1',
-      children: [{ id: 'topic-2' }, { id: 'topic-3' }],
     })
-    mockFindMany.mockResolvedValueOnce([{ id: 'topic-2' }])
-    mockFindMany.mockResolvedValueOnce([{ id: 'topic-3' }])
+    mockQueryRawUnsafe.mockResolvedValueOnce([
+      { id: 'topic-1' },
+      { id: 'topic-2' },
+      { id: 'topic-3' },
+    ])
 
     const { getAllDescendantTopicIds } = await import('@/lib/feed-helpers')
     const result = await getAllDescendantTopicIds('test-slug')
@@ -50,10 +55,12 @@ describe('getAllDescendantTopicIds', () => {
   it('returns multi-level hierarchy', async () => {
     mockFindUnique.mockResolvedValueOnce({
       id: 'root',
-      children: [{ id: 'child-1' }],
     })
-    mockFindMany.mockResolvedValueOnce([{ id: 'grandchild-1' }])
-    mockFindMany.mockResolvedValueOnce([])
+    mockQueryRawUnsafe.mockResolvedValueOnce([
+      { id: 'root' },
+      { id: 'child-1' },
+      { id: 'grandchild-1' },
+    ])
 
     const { getAllDescendantTopicIds } = await import('@/lib/feed-helpers')
     const result = await getAllDescendantTopicIds('multi-level-slug')

@@ -1,75 +1,71 @@
 import { prisma } from '@/lib/db'
 import type { IdeaTopic, IdeaSource } from '@/types/idea'
-import { createTtlCache } from '@/lib/ttl-cache'
+import { createRedisTtlCache } from '@/lib/redis-cache'
 
-export const topicCache = createTtlCache<string[]>({ ttlMs: 5 * 60 * 1000 })
+export const topicCache = createRedisTtlCache<string[]>({ ttlMs: 5 * 60 * 1000 })
 
 function setTopicChildren(topicId: string, children: string[]) {
   topicCache.set(topicId, children)
 }
 
 export async function getAllDescendantTopicIds(topicSlug: string): Promise<string[]> {
-  const cached = topicCache.get(topicSlug)
+  const cached = await topicCache.get(topicSlug)
   if (cached !== null) {
     return cached
   }
 
   const topicRecord = await prisma.topic.findUnique({
     where: { slug: topicSlug },
-    select: { id: true, children: { select: { id: true } } },
+    select: { id: true },
   })
 
   if (!topicRecord) return []
 
-  const allIds = new Set<string>()
-  allIds.add(topicRecord.id)
-  const queue = topicRecord.children.map((c: { id: string }) => c.id)
+  const rows = await prisma.$queryRawUnsafe<string[]>(
+    `WITH RECURSIVE descendants AS (
+      SELECT id FROM Topic WHERE id = ${topicRecord.id}
+      UNION ALL
+      SELECT t.id FROM Topic t
+      INNER JOIN descendants d ON t."parentId" = d.id
+    )
+    SELECT id FROM descendants`
+  )
 
-  while (queue.length > 0) {
-    const currentId = queue.shift()!
-    if (allIds.has(currentId)) continue
-    allIds.add(currentId)
-    const children = await prisma.topic.findMany({
-      where: { parentId: currentId },
-      select: { id: true },
-    })
-    queue.push(...children.map((c: { id: string }) => c.id))
-  }
+  const allIds = rows.map((row: any) => row.id)
 
-  setTopicChildren(topicSlug, Array.from(allIds))
-  return Array.from(allIds)
+  setTopicChildren(topicSlug, allIds)
+  return allIds
 }
 
 export async function getAllDescendantCollectionTopicIds(collectionSlug: string): Promise<string[]> {
   const cachedKey = `collection:${collectionSlug}`
-  const cached = topicCache.get(cachedKey)
+  const cached = await topicCache.get(cachedKey)
   if (cached !== null) {
     return cached
   }
 
   const collectionRecord = await prisma.collection.findUnique({
     where: { slug: collectionSlug },
-    select: { topics: { select: { id: true, children: { select: { id: true } } } } },
+    select: { topics: { select: { id: true } } },
   })
 
-  if (!collectionRecord) return []
+  if (!collectionRecord || collectionRecord.topics.length === 0) return []
 
-  const allIds = new Set<string>()
-  const queue = collectionRecord.topics.map((t: { id: string }) => t.id)
+  const topicIds = collectionRecord.topics.map((t: { id: string }) => t.id).join("','")
+  const rows = await prisma.$queryRawUnsafe<string[]>(
+    `WITH RECURSIVE descendants AS (
+      SELECT id FROM Topic WHERE id IN ('${topicIds}')
+      UNION ALL
+      SELECT t.id FROM Topic t
+      INNER JOIN descendants d ON t."parentId" = d.id
+    )
+    SELECT id FROM descendants`
+  )
 
-  while (queue.length > 0) {
-    const currentId = queue.shift()!
-    if (allIds.has(currentId)) continue
-    allIds.add(currentId)
-    const children = await prisma.topic.findMany({
-      where: { parentId: currentId },
-      select: { id: true },
-    })
-    queue.push(...children.map((c: { id: string }) => c.id))
-  }
+  const allIds = rows.map((row: any) => row.id)
 
-  setTopicChildren(cachedKey, Array.from(allIds))
-  return Array.from(allIds)
+  setTopicChildren(cachedKey, allIds)
+  return allIds
 }
 
 export function mapIdeaWithTopics(idea: { ideaTopics: Array<{ topic: IdeaTopic }> }): IdeaTopic[] {

@@ -59,4 +59,7 @@ export function stopCron() {
 }
 
 // Auto-start on import (singleton)
-startCron()
+// Only start in first worker to avoid duplicate cron jobs
+if (process.env.NODE_APP_INSTANCE === '0' || !process.env.NODE_APP_INSTANCE) {
+  startCron()
+}

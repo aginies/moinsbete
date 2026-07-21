@@ -5,6 +5,7 @@ import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 import { mapIdeaWithTopics } from '@/lib/feed-helpers'
 import { normalizeAccents } from '@/lib/utils'
+import { createRedisTtlCache } from '@/lib/redis-cache'
 import type { JsonValue } from '@prisma/client/runtime/library'
 
 interface SearchCacheEntry {
@@ -15,23 +16,23 @@ interface SearchCacheEntry {
   expiresAt: number
 }
 
-const searchCache = new Map<string, SearchCacheEntry>()
+const searchCache = createRedisTtlCache<SearchCacheEntry>({ ttlMs: 5 * 60 * 1000 })
 const SEARCH_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
-function getCachedSearch(q: string) {
+async function getCachedSearch(q: string) {
   const normalized = normalizeAccents(q).toLowerCase()
-  const cached = searchCache.get(normalized)
+  const cached = await searchCache.get(normalized)
   if (cached && cached.expiresAt > Date.now()) {
     return cached
   }
   if (cached) {
-    searchCache.delete(normalized)
+    await searchCache.del(normalized)
   }
   return null
 }
 
-function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue[], topics: JsonValue[], facts: JsonValue[]) {
-  searchCache.set(q, {
+async function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue[], topics: JsonValue[], facts: JsonValue[]) {
+  await searchCache.set(q, {
     ideas,
     sources,
     topics,
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check cache
-    const cached = getCachedSearch(q)
+    const cached = await getCachedSearch(q)
     if (cached) {
       return NextResponse.json({ ideas: cached.ideas, sources: cached.sources, topics: cached.topics, facts: cached.facts })
     }
@@ -159,7 +160,7 @@ export async function GET(request: NextRequest) {
     }))
 
     // Cache results
-    setCachedSearch(normalizedQ, formattedIdeas as any, filteredSources as any, filteredTopics as any, filteredFacts as any)
+    await setCachedSearch(normalizedQ, formattedIdeas as any, filteredSources as any, filteredTopics as any, filteredFacts as any)
 
     return NextResponse.json({ ideas: formattedIdeas, sources: filteredSources, topics: filteredTopics, facts: filteredFacts })
   } catch (error) {

@@ -163,6 +163,7 @@ model Bookmark {
 
   @@unique([userId, ideaId])
   @@unique([userId, resourceId])
+  @@index([userId])
 }
 
 model GrowthPlan {

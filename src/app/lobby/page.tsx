@@ -47,11 +47,10 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     PORTAIL_LEXICAL: new Set(),
   }
   if (session?.user?.id) {
-    const bookmarks = await prisma.$queryRaw<Array<{ resourceId: string; type: string }>>`
-      SELECT "resourceId" AS "resourceId", "type" AS "type"
-      FROM "Bookmark"
-      WHERE "userId" = ${session.user.id}
-    `
+    const bookmarks = await prisma.bookmark.findMany({
+      where: { userId: session.user.id },
+      select: { resourceId: true, type: true },
+    })
     const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL'] as const
     for (const bm of bookmarks) {
       if (bm.resourceId && knownTypes.includes(bm.type as typeof knownTypes[number])) {
@@ -60,16 +59,14 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     }
   }
 
-  const suggestions = await prisma.userSuggestion.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: {
-      _count: { select: { comments: true } },
-      user: { select: { id: true, displayName: true, email: true } },
-    },
-  })
-
-  const [total, sharedBookmarks] = await prisma.$transaction([
-    prisma.sharedLobbyBookmark.count(),
+  const [suggestions, sharedBookmarks, proverbeConfig] = await prisma.$transaction([
+    prisma.userSuggestion.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: { select: { comments: true } },
+        user: { select: { id: true, displayName: true, email: true } },
+      },
+    }),
     prisma.sharedLobbyBookmark.findMany({
       include: {
         idea: {
@@ -88,45 +85,30 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       skip,
       take: PAGE_SIZE,
     }),
+    prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } }),
   ])
 
-  const saviezBookmarks = sharedBookmarks.filter(b => b.resourceType === 'SAVIEZ_VOUS' && b.resourceId)
-  const imageBookmarks = sharedBookmarks.filter(b => b.resourceType === 'IMAGE_DU_JOUR' && b.resourceId)
-  const wikiMediaBookmarks = sharedBookmarks.filter(b => b.resourceType === 'IMAGE_WIKIMEDIA' && b.resourceId)
-  const wikiLovesBookmarks = sharedBookmarks.filter(b => b.resourceType === 'IMAGE_WIKILOVES' && b.resourceId)
+  const total = await prisma.sharedLobbyBookmark.count()
 
-  const saviezFacts = saviezBookmarks.length > 0
-    ? await prisma.saviezVousFact.findMany({
-        where: { id: { in: saviezBookmarks.map(b => b.resourceId!) } },
-      })
-    : []
+  const saviezBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'SAVIEZ_VOUS' && b.resourceId)
+  const imageBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'IMAGE_DU_JOUR' && b.resourceId)
+  const wikiMediaBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'IMAGE_WIKIMEDIA' && b.resourceId)
+  const wikiLovesBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'IMAGE_WIKILOVES' && b.resourceId)
 
-  const wikiImages = imageBookmarks.length > 0
-    ? await prisma.cachedWikipediaImage.findMany({
-        where: { fileUrl: { in: imageBookmarks.map(b => b.resourceId!) } },
-      })
-    : []
+  const saviezIds = saviezBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
+  const imageIds = imageBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
+  const wikiMediaIds = wikiMediaBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
+  const wikiLovesIds = wikiLovesBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
 
-  const wikiMediaImages = wikiMediaBookmarks.length > 0
-    ? await prisma.cachedWikiLovesImage.findMany({
-        where: { 
-          docid: { in: wikiMediaBookmarks.map(b => b.resourceId!) },
-          source: 'EARTH'
-        },
-      })
-    : []
+  const [saviezFacts, wikiImages, wikiMediaImages, wikiLovesImages] = await prisma.$transaction([
+    prisma.saviezVousFact.findMany({ where: saviezIds.length > 0 ? { id: { in: saviezIds } } : {} }),
+    prisma.cachedWikipediaImage.findMany({ where: imageIds.length > 0 ? { fileUrl: { in: imageIds } } : {} }),
+    prisma.cachedWikiLovesImage.findMany({ where: wikiMediaIds.length > 0 ? { docid: { in: wikiMediaIds }, source: 'EARTH' } : {} }),
+    prisma.cachedWikiLovesImage.findMany({ where: wikiLovesIds.length > 0 ? { docid: { in: wikiLovesIds } } : {} }),
+  ])
 
-  const wikiLovesImages = wikiLovesBookmarks.length > 0
-    ? await prisma.cachedWikiLovesImage.findMany({
-        where: { docid: { in: wikiLovesBookmarks.map(b => b.resourceId!) } },
-      })
-    : []
-
-  const proverbeBookmarks = sharedBookmarks.filter(b => b.resourceType === 'PROVERBE' && b.resourceId)
-  const cachedConfig = await prisma.cachedConfig.findUnique({
-    where: { key: 'proverbes_all' },
-  })
-  const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = cachedConfig ? JSON.parse(cachedConfig.value) : []
+  const proverbeBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'PROVERBE' && b.resourceId)
+  const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = proverbeConfig ? JSON.parse(proverbeConfig.value) : []
   const proverbeMap = new Map<string, typeof cachedProverbes[0]>()
   for (const p of cachedProverbes) {
     const slug = p.text.toLowerCase()
@@ -136,11 +118,11 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     proverbeMap.set(slug, p)
   }
 
-  const saviezMap = new Map(saviezFacts.map(f => [f.id, f]))
+  const saviezMap = new Map(saviezFacts.map((f: SaviezVousFact) => [f.id, f]))
   const imageMap = new Map<string, CachedWikipediaImage>()
-  wikiImages.forEach(i => imageMap.set(i.fileUrl, i))
-  const wikiMediaMap = new Map(wikiMediaImages.map(i => [i.docid, i]))
-  const wikiLovesMap = new Map(wikiLovesImages.map(i => [i.docid, i]))
+  wikiImages.forEach((i: CachedWikipediaImage) => imageMap.set(i.fileUrl, i))
+  const wikiMediaMap = new Map(wikiMediaImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
+  const wikiLovesMap = new Map(wikiLovesImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
 
   const enrichedBookmarks = sharedBookmarks.map(bookmark => {
     if (bookmark.resourceType === 'SAVIEZ_VOUS' && bookmark.resourceId) {
