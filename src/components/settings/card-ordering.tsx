@@ -149,6 +149,7 @@ export function CardOrdering({ userId }: { userId?: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order: newOrder }),
       }).catch(() => {})
+      localStorage.removeItem('card_order')
     }, 500)
   }, [])
 
