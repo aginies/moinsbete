@@ -555,6 +555,10 @@
     "items_deleted": "{count} expired items deleted",
     "nothing_to_clean": "Nothing to clean",
     "cartes_title": "Cards",
-    "cartes_desc": "Enable or disable cards globally on the site"
+    "cartes_desc": "Enable or disable cards globally on the site",
+    "admin": "Admin",
+    "user": "User",
+    "active": "Active",
+    "disabled": "Disabled"
   }
 }
