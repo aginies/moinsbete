@@ -531,6 +531,24 @@
     "cartes_title": "Cards",
     "cartes_desc": "Enable or disable cards globally on the site",
     "admin_title": "Administration",
-    "back_to_site": "← Back to site"
+    "back_to_site": "← Back to site",
+    "admin": "Admin",
+    "user": "User",
+    "active": "Active",
+    "disabled": "Disabled",
+    "feed": {
+      "card_enabled": "enabled",
+      "card_disabled": "disabled",
+      "enable": "Enable",
+      "disable": "Disable",
+      "wikipedia_tab": "Wikipedia",
+      "cnrs_tab": "CNRS",
+      "radio_tab": "Radio France",
+      "wikimedia_tab": "Wikimedia",
+      "wiki_loves_tab": "Wiki Loves",
+      "pixabay_tab": "Pixabay",
+      "lexical_tab": "Portail Lexical",
+      "proverbe_tab": "Proverbe"
+    }
   }
 }

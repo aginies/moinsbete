@@ -552,6 +552,24 @@
     "cartes_title": "Cartes",
     "cartes_desc": "Activer ou désactiver les cartes globalement sur le site",
     "admin_title": "Administration",
-    "back_to_site": "← Retour au site"
+    "back_to_site": "← Retour au site",
+    "admin": "Admin",
+    "user": "Utilisateur",
+    "active": "Actif",
+    "disabled": "Désactivé",
+    "feed": {
+      "card_enabled": "activée",
+      "card_disabled": "désactivée",
+      "enable": "Activer",
+      "disable": "Désactiver",
+      "wikipedia_tab": "Wikipedia",
+      "cnrs_tab": "CNRS",
+      "radio_tab": "Radio France",
+      "wikimedia_tab": "Wikimedia",
+      "wiki_loves_tab": "Wiki Loves",
+      "pixabay_tab": "Pixabay",
+      "lexical_tab": "Portail Lexical",
+      "proverbe_tab": "Proverbe"
+    }
   }
 }
