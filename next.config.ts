@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
+import type { PWAConfig } from 'next-pwa';
 import withPWA from 'next-pwa';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
   turbopack: {},
@@ -36,11 +38,27 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/fr/:path*',
+        destination: '/:path*',
+      },
+      {
+        source: '/en/:path*',
+        destination: '/:path*',
+      },
+    ];
+  },
 };
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
+const integratedConfig = withNextIntl(nextConfig);
 
 export default withPWA({
   dest: 'public',
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
-})(nextConfig as any);
+} as PWAConfig)(integratedConfig as any) as any;
