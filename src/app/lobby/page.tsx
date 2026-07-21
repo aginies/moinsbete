@@ -109,7 +109,10 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
 
   const wikiMediaImages = wikiMediaBookmarks.length > 0
     ? await prisma.cachedWikiLovesImage.findMany({
-        where: { docid: { in: wikiMediaBookmarks.map(b => b.resourceId!) } },
+        where: { 
+          docid: { in: wikiMediaBookmarks.map(b => b.resourceId!) },
+          source: 'EARTH'
+        },
       })
     : []
 

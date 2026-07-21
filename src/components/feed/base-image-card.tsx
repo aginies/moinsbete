@@ -120,8 +120,10 @@ export function BaseImageCard<TTopic>({
     onSettingsClick,
   } = config
 
+  const imageStorageKey = storageKey ? `base_image_${storageKey}` : 'base_image'
+
   const [image, setImage] = useState<BaseImage | null>(() => {
-    const saved = sessionStorage.getItem('base_image')
+    const saved = sessionStorage.getItem(imageStorageKey)
     return saved ? JSON.parse(saved) : null
   })
   const [loading, setLoading] = useState(false)
@@ -145,13 +147,14 @@ export function BaseImageCard<TTopic>({
     const newImage = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined)
     if (newImage) {
       setImage(newImage)
-      sessionStorage.setItem('base_image', JSON.stringify(newImage))
+      sessionStorage.setItem(imageStorageKey, JSON.stringify(newImage))
       setError(false)
     } else {
       setError(true)
+      sessionStorage.removeItem(imageStorageKey)
     }
     setLoading(false)
-  }, [fetchFn, topics])
+  }, [fetchFn, topics, imageStorageKey])
 
   useEffect(() => {
     if (hasMounted && show && !image && !loading && !error) {
