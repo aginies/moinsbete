@@ -280,7 +280,7 @@ export function BaseImageCard<TTopic>({
                </button>
              )}
              {image && config.resourceType && (
-               <ShareToLobbyButton resourceId={image.docid} resourceType={config.resourceType} />
+               <ShareToLobbyButton resourceId={image.docid} resourceType={config.resourceType} meta={{ titre: image.titre, auteur: image.auteur, imageUrl: image.imageUrl, link: image.link, droits: image.droits }} />
              )}
           </>
         }

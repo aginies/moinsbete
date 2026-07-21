@@ -10,7 +10,6 @@ import { VisibilityButton } from './visibility-button'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { CardHeader } from './card-header'
-import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 interface PortailLexicalWord {
   form: string
@@ -159,20 +158,17 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
               loading={loading}
               shareOptions={word ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
                extraActions={word ? (
-                 <div className="flex items-center gap-1">
-                   <ShareToLobbyButton resourceId={word.form} resourceType="PORTAIL_LEXICAL" />
-                   <button
-                     type="button"
-                     onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                     disabled={isPending || loading}
-                     className="rounded-full p-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all disabled:opacity-50"
-                     title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                   >
-                     <Bookmark
-                       className={`h-4 w-4 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
-                     />
-                   </button>
-                 </div>
+                 <button
+                   type="button"
+                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                   disabled={isPending || loading}
+                   className="rounded-full p-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all disabled:opacity-50"
+                   title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                 >
+                   <Bookmark
+                     className={`h-4 w-4 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
+                   />
+                 </button>
                ) : undefined}
             />
 

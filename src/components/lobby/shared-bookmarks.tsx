@@ -83,25 +83,6 @@ interface SharedBookmark {
     etymologie?: string
     definitions?: string[]
   } | null
-  portailLexicalWord?: {
-    form: string
-    pos: string
-    full_form: string
-    full_pos: string
-    description: string
-    ipa: string
-    tlfidefinitions: string[]
-    wiktionnaireDefinitions: string[]
-    etymologie: string
-    concordance: Array<{
-      name: string
-      title: string
-      date: string
-      left: string
-      matching: string
-      right: string
-    }>
-  } | null
   user: { id: string; displayName: string | null; email: string }
 }
 
@@ -116,7 +97,6 @@ interface SharedBookmarksProps {
     IMAGE_WIKIMEDIA: Set<string>
     IMAGE_WIKILOVES: Set<string>
     PROVERBE: Set<string>
-    PORTAIL_LEXICAL: Set<string>
   }
   typeFilters?: { value: string; label: string }[]
   activeType?: string
@@ -845,120 +825,6 @@ function ProverbeBookmarkItem({
   )
 }
 
-function PortailLexicalBookmarkItem({
-  bookmark,
-  currentUserId,
-  isAdmin = false,
-  userFavoriteIds,
-}: {
-  bookmark: SharedBookmark & { portailLexicalWord: NonNullable<SharedBookmark['portailLexicalWord']> }
-  currentUserId: string | null
-  isAdmin?: boolean
-  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
-}) {
-  const [isAdding, setIsAdding] = useState(false)
-  const [hovered, setHovered] = useState(false)
-  const isFavorite = bookmark.resourceId ? userFavoriteIds.PORTAIL_LEXICAL.has(bookmark.resourceId) : false
-
-  const handleAddToFavorites = async () => {
-    if (!bookmark.resourceId || isAdding) return
-    setIsAdding(true)
-    try {
-      const result = await addToFavoritesFromLobby('PORTAIL_LEXICAL', bookmark.resourceId, bookmark.portailLexicalWord)
-      if (result.success) {
-        toast.success('Ajouté aux favoris')
-      } else {
-        toast.error(result.error)
-      }
-    } catch {
-      toast.error('Erreur lors de l\'ajout aux favoris')
-    } finally {
-      setIsAdding(false)
-    }
-  }
-
-  const showBookmarkBtn = !!currentUserId && !isFavorite
-
-  return (
-    <div
-      className="rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:shadow-md"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <div className="mb-2 flex items-start justify-between">
-        <div className="flex-1">
-          <h4 className="text-lg font-bold text-amber-900 dark:text-amber-100">
-            {bookmark.portailLexicalWord.form}
-          </h4>
-          <div className="mt-1 flex items-center gap-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-              {bookmark.portailLexicalWord.full_pos}
-            </span>
-            {bookmark.portailLexicalWord.ipa && (
-              <span className="text-xs text-amber-600 dark:text-amber-400 font-mono">
-                /{bookmark.portailLexicalWord.ipa}/
-              </span>
-            )}
-          </div>
-          <p className="mt-2 text-sm leading-relaxed text-amber-800 dark:text-amber-200">
-            {bookmark.portailLexicalWord.description}
-          </p>
-          {bookmark.portailLexicalWord.etymologie && (
-            <div className="mt-2">
-              <h5 className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400 mb-1">
-                Étymologie
-              </h5>
-              <p className="text-sm leading-relaxed text-amber-800 dark:text-amber-200 whitespace-pre-wrap">
-                {bookmark.portailLexicalWord.etymologie}
-              </p>
-            </div>
-          )}
-        </div>
-        {showBookmarkBtn && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            onClick={handleAddToFavorites}
-            disabled={isAdding}
-          >
-            {isAdding ? (
-              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-            ) : (
-              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
-            )}
-          </Button>
-        )}
-        {(currentUserId === bookmark.user.id || isAdmin) && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
-            onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby('PORTAIL_LEXICAL', bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
-            }}
-          >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
-          </Button>
-        )}
-      </div>
-      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <BookOpen className="h-3 w-3" />
-          Portail Lexical
-        </span>
-        <span>·</span>
-        <span>
-          Par {bookmark.user.displayName || maskEmail(bookmark.user.email)}
-        </span>
-      </div>
-      <div className="mt-1 text-xs text-muted-foreground">
-        Partagé le {bookmark.createdAt.toLocaleDateString('fr-FR')}
-      </div>
-    </div>
-  )
-}
-
 export function SharedBookmarks({
   sharedBookmarks,
   currentUserId,
@@ -970,7 +836,7 @@ export function SharedBookmarks({
   onTypeChange,
   onSearchChange,
 }: SharedBookmarksProps) {
-  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.proverbe || b.portailLexicalWord)
+  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.proverbe)
 
   const hasFilters = typeFilters.length > 0 || searchQuery
 
@@ -1040,9 +906,6 @@ export function SharedBookmarks({
             }
             if (bookmark.proverbe) {
               return <ProverbeBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { proverbe: NonNullable<SharedBookmark['proverbe']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
-            }
-            if (bookmark.portailLexicalWord) {
-              return <PortailLexicalBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { portailLexicalWord: NonNullable<SharedBookmark['portailLexicalWord']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
             }
             return null
           })}
