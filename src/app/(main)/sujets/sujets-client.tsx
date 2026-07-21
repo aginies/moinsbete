@@ -60,7 +60,7 @@ async function fetchCardOrder(userId: string): Promise<string[]> {
       if (Array.isArray(data.order)) return data.order
     }
   } catch {}
-  return ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe']
+  return ['pixabay', 'saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'portailLexical', 'proverbe']
 }
 
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, csrfToken: initialCsrfToken }: SujetsClientProps) {
