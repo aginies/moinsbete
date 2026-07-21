@@ -1,40 +1,56 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { scrapeAndCacheCnrs } from '@/scripts/cache-cnrs'
 import { scrapeAndCacheRadioEpisodes } from '@/scripts/cache-radio-france'
 import { scrapeAndCacheWikipediaImages } from '@/scripts/cache-wikipedia-image'
 import { cleanupExpired } from '@/lib/cache-helpers'
 
-export async function GET(request: Request) {
+const CRON_SECRET = process.env.CRON_SECRET || ''
+const ALLOWED_IPS = ['62.210.207.184', '127.0.0.1', '::1']
+
+function ipInPrivateRange(ip: string): boolean {
+  if (ip.startsWith('10.')) return true
+  if (ip.startsWith('100.64.') || ip.startsWith('100.127.')) return true
+  if (ip.startsWith('192.168.')) return true
+  if (ip.startsWith('172.16.') || ip.startsWith('172.31.')) return true
+  if (ip === '::1' || ip.startsWith('fe80:')) return true
+  return false
+}
+
+function isAuthorized(request: NextRequest): { authorized: boolean; ip: string; reason: string } {
+  const token = request.nextUrl.searchParams.get('token')
+  const headerToken = request.headers.get('x-cron-token')
+  const providedToken = token || headerToken
+  
+  if (CRON_SECRET && providedToken === CRON_SECRET) {
+    return { authorized: true, ip: '', reason: 'token' }
+  }
+  
   const forwardedIp = request.headers.get('x-forwarded-for')
   const realIp = request.headers.get('x-real-ip')
-  const ip = forwardedIp?.split(',')[0].trim() || realIp || 'unknown'
+  const ip = (forwardedIp?.split(',')[0].trim() || realIp || 'unknown').trim()
   
-  const allowedIps = ['62.210.207.184', '127.0.0.1', '::1', '10.0.0.0/8', '100.0.0.0/8', '192.168.0.0/16']
-  
-  function ipMatchesNetwork(ip: string, network: string, prefixLen: number): boolean {
-    const ipInt = ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0
-    const networkInt = network.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0
-    const mask = prefixLen === 0 ? 0 : (~0 << (32 - prefixLen)) >>> 0
-    return (ipInt & mask) === (networkInt & mask)
+  if (ALLOWED_IPS.includes(ip)) {
+    return { authorized: true, ip, reason: 'ip-whitelist' }
   }
   
-  function isAllowedIp(checkIp: string): boolean {
-    if (allowedIps.includes(checkIp)) return true
-    for (const cidr of allowedIps) {
-      if (cidr.includes('/')) {
-        const [network, prefixLen] = cidr.split('/')
-        if (ipMatchesNetwork(checkIp, network, parseInt(prefixLen, 10))) return true
-      }
-    }
-    return false
+  if (ipInPrivateRange(ip)) {
+    return { authorized: true, ip, reason: 'private-range' }
   }
   
-  if (!isAllowedIp(ip)) {
-    return NextResponse.json({ error: 'unauthorized', ip }, { status: 401 })
+  return { authorized: false, ip, reason: 'unauthorized' }
+}
+
+export async function GET(request: NextRequest) {
+  const auth = isAuthorized(request)
+  
+  if (!auth.authorized) {
+    return NextResponse.json({ error: 'unauthorized', ip: auth.ip }, { status: 401 })
   }
+  
+  const ip = auth.ip || (request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown')
   
   const startTime = Date.now()
-  console.log(`[cron] Starting cache update from IP: ${ip}`)
+  console.log(`[cron] Starting cache update from IP: ${ip} (auth: ${auth.reason})`)
   
   const results: Record<string, string> = {}
   
