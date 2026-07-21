@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { decodeHtmlEntities } from '@/lib/utils'
 
 const NEWSROOM_BASE = 'https://www.cnrs.fr'
 
@@ -38,7 +39,7 @@ async function scrapeFreshArticles(): Promise<CnrsArticle[]> {
 
         if (!titleMatch || !linkMatch || !imgMatch) continue
 
-        const title = titleMatch[1].replace(/<[^>]*>/g, '').trim()
+        const title = decodeHtmlEntities(titleMatch[1].replace(/<[^>]*>/g, '').trim())
         const href = linkMatch[1]
         const category = linkMatch[2]
         const imageUrl = imgMatch[1]
