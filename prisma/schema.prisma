@@ -10,39 +10,39 @@ datasource db {
 }
 
 model User {
-  id              String               @id @default(cuid())
-  email           String               @unique
-  passwordHash    String
-  displayName     String?
-  role            UserRole @default(USER)
-  enabled         Boolean              @default(true)
-  lastLogin       DateTime?
-  lastVisited     DateTime?
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
-  cnrsNewsEnabled Boolean              @default(true)
-  wikipediaImageCardVisible Boolean     @default(true)
-  saviezVousCardVisible Boolean         @default(true)
-  radioFranceCardVisible Boolean        @default(true)
-  imageWikimediaCardVisible Boolean     @default(true)
-  imageWikiLovesCardVisible Boolean     @default(true)
-  imageWikiLovesShowCategories Boolean  @default(true)
-  imageWikimediaShowCategories Boolean  @default(true)
-  imagePixabayCardVisible      Boolean  @default(true)
-  imagePixabayShowCategories   Boolean  @default(true)
-   portailLexicalCardVisible    Boolean  @default(true)
-    proverbeCardVisible         Boolean  @default(true)
-   cardOrder                   Json?
-   bookmarks       Bookmark[]
-  growthPlan      GrowthPlan?
-  resetTokens     PasswordResetToken[]
-  viewedIdeas     ViewedIdea[]
-  following       Topic[]              @relation("UserFollowing")
-  wikimediaTopics UserWikimediaTopic[]
-  userSuggestions UserSuggestion[]
-  suggestionComments SuggestionComment[]
-  sharedBookmarks SharedLobbyBookmark[]
-  topicSuggestions TopicSuggestion[]
+  id                           String                @id @default(cuid())
+  email                        String                @unique
+  passwordHash                 String
+  displayName                  String?
+  role                         UserRole              @default("USER")
+  enabled                      Boolean               @default(true)
+  lastLogin                    DateTime?
+  lastVisited                  DateTime?
+  createdAt                    DateTime              @default(now())
+  updatedAt                    DateTime              @updatedAt
+  cnrsNewsEnabled              Boolean               @default(true)
+  wikipediaImageCardVisible    Boolean               @default(true)
+  saviezVousCardVisible        Boolean               @default(true)
+  radioFranceCardVisible       Boolean               @default(true)
+  imageWikimediaCardVisible    Boolean               @default(true)
+  imageWikiLovesCardVisible    Boolean               @default(true)
+  imageWikiLovesShowCategories Boolean               @default(true)
+  imageWikimediaShowCategories Boolean               @default(true)
+  imagePixabayCardVisible      Boolean               @default(true)
+  imagePixabayShowCategories   Boolean               @default(true)
+  portailLexicalCardVisible    Boolean               @default(true)
+  proverbeCardVisible          Boolean               @default(true)
+  cardOrder                    Json?
+  bookmarks                    Bookmark[]
+  growthPlan                   GrowthPlan?
+  resetTokens                  PasswordResetToken[]
+  sharedBookmarks              SharedLobbyBookmark[]
+  suggestionComments           SuggestionComment[]
+  topicSuggestions             TopicSuggestion[]
+  userSuggestions              UserSuggestion[]
+  wikimediaTopics              UserWikimediaTopic[]
+  viewedIdeas                  ViewedIdea[]
+  following                    Topic[]               @relation("UserFollowing")
 }
 
 model Topic {
@@ -58,8 +58,8 @@ model Topic {
   sourceTopics      SourceTopic[]
   parent            Topic?            @relation("TopicHierarchy", fields: [parentId], references: [id])
   children          Topic[]           @relation("TopicHierarchy")
-  suggestionMerges  TopicSuggestion[] @relation("MergeRelation")
   suggestionParents TopicSuggestion[] @relation("ParentSuggestion")
+  suggestionMerges  TopicSuggestion[] @relation("MergeRelation")
   collections       Collection[]      @relation("CollectionToTopic")
   users             User[]            @relation("UserFollowing")
 
@@ -72,7 +72,7 @@ model Source {
   title        String
   slug         String        @unique
   author       String?
-  type         SourceType @default(WIKIPEDIA)
+  type         SourceType    @default("WIKIPEDIA")
   url          String?
   coverUrl     String?
   description  String?
@@ -96,30 +96,30 @@ model SourceTopic {
 }
 
 model Idea {
-  id          String       @id @default(cuid())
-  title       String
-  content     String
-  takeaway    String
-  saviezVous  String?
-  slug        String       @unique
-  sourceId    String
-  orderIndex  Int          @default(0)
-  isPublished Boolean      @default(true)
-  isEnhanced  Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-   bookmarks   Bookmark[]
-   sharedBookmarks SharedLobbyBookmark[]
-   source      Source       @relation(fields: [sourceId], references: [id])
-  ideaTopics  IdeaTopic[]
-   viewedIdeas ViewedIdea[]
+  id              String                @id @default(cuid())
+  title           String
+  content         String
+  takeaway        String
+  saviezVous      String?
+  slug            String                @unique
+  sourceId        String
+  orderIndex      Int                   @default(0)
+  isPublished     Boolean               @default(true)
+  isEnhanced      Boolean               @default(false)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  bookmarks       Bookmark[]
+  source          Source                @relation(fields: [sourceId], references: [id])
+  ideaTopics      IdeaTopic[]
+  sharedBookmarks SharedLobbyBookmark[]
+  viewedIdeas     ViewedIdea[]
 
-   @@index([slug])
-   @@index([isPublished])
-   @@index([sourceId])
-   @@index([isPublished, orderIndex])
-   @@index([orderIndex])
-   @@index([title])
+  @@index([slug])
+  @@index([isPublished])
+  @@index([sourceId])
+  @@index([isPublished, orderIndex])
+  @@index([orderIndex])
+  @@index([title])
 }
 
 model IdeaTopic {
@@ -147,19 +147,19 @@ model Collection {
 }
 
 model Bookmark {
-  id           String            @id @default(cuid())
+  id           String       @id @default(cuid())
   userId       String
   ideaId       String?
-  resourceId   String?
-  type         BookmarkType      @default(IDEA)
+  type         BookmarkType @default("IDEA")
   meta         Json?
-  createdAt    DateTime          @default(now())
+  createdAt    DateTime     @default(now())
+  resourceId   String?
   lastReviewAt DateTime?
   nextReviewAt DateTime?
-  reviewCount  Int              @default(0)
-  easeFactor   Float            @default(2.5)
-  idea         Idea?             @relation(fields: [ideaId], references: [id], onDelete: SetNull)
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewCount  Int          @default(0)
+  easeFactor   Float        @default(2.5)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idea         Idea?        @relation(fields: [ideaId], references: [id])
 
   @@unique([userId, ideaId])
   @@unique([userId, resourceId])
@@ -181,14 +181,14 @@ model TopicSuggestion {
   parentId     String?
   icon         String           @default("🤖")
   userId       String?
-  user         User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
   confidence   Float
   articleCount Int              @default(0)
-  status       SuggestionStatus @default(PENDING)
+  status       SuggestionStatus @default("PENDING")
   mergedIntoId String?
   createdAt    DateTime         @default(now())
-  mergedInto   Topic?           @relation("MergeRelation", fields: [mergedIntoId], references: [id])
   parentTopic  Topic?           @relation("ParentSuggestion", fields: [parentId], references: [id])
+  mergedInto   Topic?           @relation("MergeRelation", fields: [mergedIntoId], references: [id])
+  user         User?            @relation(fields: [userId], references: [id])
 
   @@index([status])
   @@index([userId])
@@ -230,18 +230,122 @@ model SaviezVousFact {
 }
 
 model UserWikimediaTopic {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   userId      String
   topicId     String
-  enabled     Boolean  @default(true)
-  active      Boolean  @default(false)
-  label       String?
+  enabled     Boolean @default(true)
+  active      Boolean @default(false)
   icon        String?
+  label       String?
   searchTerms Json?
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, topicId])
   @@index([userId])
+}
+
+model CachedCnrsArticle {
+  id        String   @id @default(cuid())
+  title     String
+  link      String   @unique
+  imageUrl  String
+  category  String
+  scrapedAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
+model CachedRadioEpisode {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  link        String   @unique
+  imageUrl    String?
+  audioUrl    String?
+  radio       String
+  scrapedAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
+
+model CachedWikipediaImage {
+  id          String   @id @default(cuid())
+  imageUrl    String
+  description String
+  fileUrl     String
+  date        String
+  archive     String
+  scrapedAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@unique([imageUrl, date])
+  @@index([expiresAt])
+}
+
+model CachedConfig {
+  key   String @id
+  value String
+}
+
+model CachedWikiLovesImage {
+  id         String   @id @default(cuid())
+  docid      String   @unique
+  title      String
+  author     String
+  imageUrl   String
+  commonsUrl String?
+  license    String
+  year       Int
+  source     String
+  scrapedAt  DateTime @default(now())
+  expiresAt  DateTime
+
+  @@index([expiresAt])
+  @@index([source, year])
+}
+
+model UserSuggestion {
+  id          String              @id @default(cuid())
+  userId      String
+  title       String
+  description String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @default(now())
+  comments    SuggestionComment[]
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+}
+
+model SuggestionComment {
+  id           String         @id @default(cuid())
+  suggestionId String
+  userId       String
+  content      String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now())
+  user         User           @relation(fields: [userId], references: [id])
+  suggestion   UserSuggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+
+  @@index([suggestionId, createdAt])
+  @@index([userId])
+}
+
+model SharedLobbyBookmark {
+  id           String   @id @default(cuid())
+  userId       String
+  ideaId       String?
+  resourceId   String?
+  resourceType String
+  createdAt    DateTime @default(now())
+  meta         Json?
+  idea         Idea?    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([resourceType])
 }
 
 enum UserRole {
@@ -271,111 +375,7 @@ enum BookmarkType {
   SAVIEZ_VOUS
   IMAGE_WIKIMEDIA
   IMAGE_WIKILOVES
-   IMAGE_PIXABAY
-   PORTAIL_LEXICAL
-   PROVERBE
-}
-
-model CachedCnrsArticle {
-  id         String   @id @default(cuid())
-  title      String
-  link       String   @unique
-  imageUrl   String
-  category   String
-  scrapedAt  DateTime @default(now())
-  expiresAt  DateTime
-
-  @@index([expiresAt])
-}
-
-model CachedRadioEpisode {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  link        String   @unique
-  imageUrl    String?
-  audioUrl    String?
-  radio       String
-  scrapedAt   DateTime @default(now())
-  expiresAt   DateTime
-
-  @@index([expiresAt])
-}
-
-model CachedWikipediaImage {
-  id          String   @id @default(cuid())
-  imageUrl    String
-  description String
-  fileUrl     String
-  date        String
-  archive     String
-  scrapedAt   DateTime @default(now())
-  expiresAt   DateTime
-
-  @@index([expiresAt])
-  @@unique([imageUrl, date])
-}
-
-model CachedConfig {
-  key   String @id
-  value String
-}
-
-model CachedWikiLovesImage {
-  id         String   @id @default(cuid())
-  docid      String   @unique
-  title      String
-  author     String
-  imageUrl   String
-  commonsUrl String?
-  license    String
-  year       Int
-  source     String
-  scrapedAt  DateTime @default(now())
-  expiresAt  DateTime
-
-  @@index([expiresAt])
-  @@index([source, year])
-}
-
-model UserSuggestion {
-  id          String            @id @default(cuid())
-  userId      String
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title       String
-  description String
-  comments    SuggestionComment[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @default(now())
-
-  @@index([createdAt])
-}
-
-model SuggestionComment {
-  id           String           @id @default(cuid())
-  suggestionId String
-  suggestion   UserSuggestion   @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
-  userId       String
-  user         User             @relation(fields: [userId], references: [id])
-  content      String
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @default(now())
-
-  @@index([suggestionId, createdAt])
-  @@index([userId])
-}
-
-model SharedLobbyBookmark {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ideaId       String?
-  idea         Idea?    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
-  resourceId   String?
-  resourceType String
-  meta         Json?
-  createdAt    DateTime @default(now())
-
-  @@index([userId, createdAt])
-  @@index([resourceType])
+  IMAGE_PIXABAY
+  PORTAIL_LEXICAL
+  PROVERBE
 }
