@@ -11,7 +11,22 @@ export function useSetLocale() {
     
     document.cookie = `locale=${newLocale};path=/;max-age=${365*24*60*60};SameSite=Lax`
     
-    window.location.reload()
+    const pathname = window.location.pathname
+    let newPathname = pathname
+
+    if (pathname.startsWith('/fr/')) {
+      newPathname = pathname.replace(/^\/fr\//, `/${newLocale}/`)
+    } else if (pathname.startsWith('/en/')) {
+      newPathname = pathname.replace(/^\/en\//, `/${newLocale}/`)
+    } else if (pathname === '/fr') {
+      newPathname = `/${newLocale}`
+    } else if (pathname === '/en') {
+      newPathname = `/${newLocale}`
+    } else {
+      newPathname = `/${newLocale}${pathname}`
+    }
+
+    window.location.href = newPathname
   }, [locale])
 
   return { setLocale, locale }
