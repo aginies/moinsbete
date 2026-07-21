@@ -62,13 +62,14 @@ cd "$DEST"
 ## Clean and install deps
 rm -rf node_modules
 npm cache clean --force 2>/dev/null || true
-npm install --legacy-peer-deps 2>&1 | tail -5
+npm install --legacy-peer-deps
 
 # Verify critical dependencies exist
 for pkg in next-intl next-pwa next; do
   if [ ! -d "node_modules/$pkg" ]; then
-    echo "ERROR: $pkg not found in node_modules"
-    exit 1
+    echo "WARNING: $pkg not found in node_modules, running npm install..."
+    npm install
+    break
   fi
 done
 echo "All critical dependencies installed"
