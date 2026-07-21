@@ -120,7 +120,6 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
             },
           },
           user: { select: { id: true, displayName: true, email: true } },
-          sharedWithUser: { select: { id: true, displayName: true, email: true } },
         },
         where: { userId: session.user.id, sharedWithUserId: { not: null } },
         orderBy: { createdAt: 'desc' },
@@ -304,20 +303,20 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
 
     const enrichedSharedWithMe = sharedWithMeBookmarks.map(enrichBookmark) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }>
 
-    const sharedByMeMap = new Map<string, { bookmark: typeof sharedByMeBookmarks[0]; recipients: Array<{ id: string; displayName: string | null; email: string }> }>()
+    const sharedByMeMap = new Map<string, { bookmark: typeof sharedByMeBookmarks[0]; recipientIds: string[] }>()
     for (const bookmark of sharedByMeBookmarks) {
       const key = `${bookmark.resourceType}:${bookmark.resourceId || bookmark.ideaId}`
       if (!sharedByMeMap.has(key)) {
-        sharedByMeMap.set(key, { bookmark, recipients: [] })
+        sharedByMeMap.set(key, { bookmark, recipientIds: [] })
       }
       const entry = sharedByMeMap.get(key)!
-      if (bookmark.sharedWithUser) {
-        entry.recipients.push(bookmark.sharedWithUser)
+      if (bookmark.sharedWithUserId) {
+        entry.recipientIds.push(bookmark.sharedWithUserId)
       }
     }
-    const enrichedSharedByMe = Array.from(sharedByMeMap.entries()).map(([key, { bookmark, recipients }]) => {
+    const enrichedSharedByMe = Array.from(sharedByMeMap.entries()).map(([key, { bookmark, recipientIds }]) => {
       const enriched = enrichBookmark(bookmark) as SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }
-      return { ...enriched, sharedWithUsers: recipients }
+      return { ...enriched, sharedWithUserIds: recipientIds }
     })
 
     return (
