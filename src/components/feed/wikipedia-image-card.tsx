@@ -191,8 +191,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
 
   const cardContent = (
     <div
-      onClick={swipeable ? undefined : loadImage}
-      className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-50 p-5 dark:border-teal-700 dark:from-teal-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
+      className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-50 p-5 dark:border-teal-700 dark:from-teal-950/30 dark:to-emerald-950/30 hover:shadow-md transition-shadow"
     >
       <CardHeader
          icon={<Camera className="h-4 w-4 text-teal-950" />}

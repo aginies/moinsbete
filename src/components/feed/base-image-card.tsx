@@ -214,7 +214,6 @@ export function BaseImageCard<TTopic>({
 
   const cardContent = (
     <div
-      onClick={loadImage}
       className={`${cardClassName}`}
     >
       <CardHeader
