@@ -42,7 +42,13 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
 }
 
 export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: RadioFranceCardProps) {
-  const [doc, setDoc] = useState<RadioFranceDoc | null>(initialDoc || null)
+  const [doc, setDoc] = useState<RadioFranceDoc | null>(() => {
+    const saved = sessionStorage.getItem('radio_france_doc')
+    if (saved) {
+      try { return JSON.parse(saved) } catch { /* ignore */ }
+    }
+    return initialDoc || null
+  })
   const [loading, setLoading] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'radio_france_card_visible', userId })
@@ -63,6 +69,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
         fetchRandomDoc().then(d => {
           if (d) {
             setDoc(d)
+            sessionStorage.setItem('radio_france_doc', JSON.stringify(d))
           }
           setLoading(false)
         })
@@ -77,6 +84,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
     const newDoc = await fetchRandomDoc(doc?.id)
     if (newDoc) {
       setDoc(newDoc)
+      sessionStorage.setItem('radio_france_doc', JSON.stringify(newDoc))
     }
     setLoading(false)
   }, [loading, doc])
