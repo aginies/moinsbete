@@ -60,7 +60,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       }
     }
 
-    const [suggestions, sharedBookmarks, proverbeConfig] = await prisma.$transaction([
+    const [suggestions, sharedBookmarks, proverbeConfig, sharedWithMeBookmarks, sharedByMeBookmarks] = await prisma.$transaction([
       prisma.userSuggestion.findMany({
         orderBy: { createdAt: 'desc' },
         include: {
@@ -82,14 +82,62 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           },
           user: { select: { id: true, displayName: true, email: true } },
         },
+        where: { sharedWithUserId: null },
         orderBy: { createdAt: 'desc' },
         skip,
         take: PAGE_SIZE,
       }),
       prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } }),
+      prisma.sharedLobbyBookmark.findMany({
+        include: {
+          idea: {
+            include: {
+              ideaTopics: {
+                include: {
+                  topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+                },
+              },
+              source: { select: { title: true, type: true, url: true } },
+            },
+          },
+          user: { select: { id: true, displayName: true, email: true } },
+        },
+        where: { sharedWithUserId: session.user.id },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: PAGE_SIZE,
+      }),
+      prisma.sharedLobbyBookmark.findMany({
+        include: {
+          idea: {
+            include: {
+              ideaTopics: {
+                include: {
+                  topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+                },
+              },
+              source: { select: { title: true, type: true, url: true } },
+            },
+          },
+          user: { select: { id: true, displayName: true, email: true } },
+          sharedWithUser: { select: { id: true, displayName: true, email: true } },
+        },
+        where: { userId: session.user.id, sharedWithUserId: { not: null } },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: PAGE_SIZE,
+      }),
     ])
 
-    const total = await prisma.sharedLobbyBookmark.count()
+    const total = await prisma.sharedLobbyBookmark.count({
+      where: { sharedWithUserId: null },
+    })
+    const totalSharedWithMe = await prisma.sharedLobbyBookmark.count({
+      where: { sharedWithUserId: session.user.id },
+    })
+    const totalSharedByMe = await prisma.sharedLobbyBookmark.count({
+      where: { userId: session.user.id, sharedWithUserId: { not: null } },
+    })
 
     const saviezBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'SAVIEZ_VOUS' && b.resourceId)
     const imageBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'IMAGE_DU_JOUR' && b.resourceId)
@@ -125,7 +173,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const wikiMediaMap = new Map(wikiMediaImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
     const wikiLovesMap = new Map(wikiLovesImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
 
-    const enrichedBookmarks = sharedBookmarks.map(bookmark => {
+    const enrichBookmark = (bookmark: SharedLobbyBookmark & { idea: any; user: any }): SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } } => {
       if (bookmark.resourceType === 'SAVIEZ_VOUS' && bookmark.resourceId) {
         const fact = saviezMap.get(bookmark.resourceId)
         return { ...bookmark, saviezFact: fact as SaviezVousFact | null }
@@ -236,7 +284,6 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           meta = {}
         }
         const m = meta as Record<string, unknown>
-        console.log('[Lobby] PROVERBE meta:', JSON.stringify(m, null, 2))
         return {
           ...bookmark,
           proverbe: {
@@ -251,7 +298,27 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         }
       }
       return bookmark
-    }) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }>
+    }
+
+    const enrichedBookmarks = sharedBookmarks.map(enrichBookmark) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }>
+
+    const enrichedSharedWithMe = sharedWithMeBookmarks.map(enrichBookmark) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }>
+
+    const sharedByMeMap = new Map<string, { bookmark: typeof sharedByMeBookmarks[0]; recipients: Array<{ id: string; displayName: string | null; email: string }> }>()
+    for (const bookmark of sharedByMeBookmarks) {
+      const key = `${bookmark.resourceType}:${bookmark.resourceId || bookmark.ideaId}`
+      if (!sharedByMeMap.has(key)) {
+        sharedByMeMap.set(key, { bookmark, recipients: [] })
+      }
+      const entry = sharedByMeMap.get(key)!
+      if (bookmark.sharedWithUser) {
+        entry.recipients.push(bookmark.sharedWithUser)
+      }
+    }
+    const enrichedSharedByMe = Array.from(sharedByMeMap.entries()).map(([key, { bookmark, recipients }]) => {
+      const enriched = enrichBookmark(bookmark) as SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }
+      return { ...enriched, sharedWithUsers: recipients }
+    })
 
     return (
       <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
@@ -260,9 +327,13 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         <LobbyTabs
           suggestions={suggestions}
           sharedBookmarks={enrichedBookmarks}
+          sharedWithMeBookmarks={enrichedSharedWithMe}
+          sharedByMeBookmarks={enrichedSharedByMe}
           currentUserId={session?.user?.id ?? null}
           isAdmin={session?.user?.role === 'ADMIN'}
           totalPages={Math.max(1, Math.ceil(total / PAGE_SIZE))}
+          totalPagesSharedWithMe={Math.max(1, Math.ceil(totalSharedWithMe / PAGE_SIZE))}
+          totalPagesSharedByMe={Math.max(1, Math.ceil(totalSharedByMe / PAGE_SIZE))}
           currentPage={page}
           userFavoriteIds={userFavoriteIds}
         />

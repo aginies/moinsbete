@@ -7,7 +7,7 @@ import type { BookmarkType } from '@/generated/client'
 import type { JsonValue } from '@prisma/client/runtime/library'
 import { Prisma } from '@/generated/client'
 
-export async function shareToLobby(ideaId: string) {
+export async function shareToLobby(ideaId: string, sharedWithUserIds?: string[]) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
@@ -16,19 +16,37 @@ export async function shareToLobby(ideaId: string) {
   })
   if (!bookmark) return { error: 'Bookmark non trouvé' }
 
-  const existing = await prisma.sharedLobbyBookmark.findFirst({
-    where: { userId: session.user.id, ideaId },
+  const communityAlreadyShared = await prisma.sharedLobbyBookmark.findFirst({
+    where: { userId: session.user.id, ideaId, sharedWithUserId: null },
   })
-  if (existing) return { error: 'Déjà partagé' }
+  if (communityAlreadyShared) return { error: 'Déjà partagé au lobby' }
 
-  await prisma.sharedLobbyBookmark.create({
-    data: { userId: session.user.id, ideaId, resourceType: 'IDEA' },
+  const existingUserShares = await prisma.sharedLobbyBookmark.findMany({
+    where: {
+      userId: session.user.id,
+      ideaId,
+      sharedWithUserId: { in: sharedWithUserIds || [] },
+    },
   })
+  const alreadySharedToUserIds = existingUserShares.map(b => b.sharedWithUserId!).filter(Boolean)
+  const newSharedUserIds = (sharedWithUserIds || []).filter(id => !alreadySharedToUserIds.includes(id))
 
-  return { success: true, shared: true }
+  const data: { userId: string; ideaId: string; resourceType: string; sharedWithUserId?: string | null; meta?: Prisma.InputJsonValue } = {
+    userId: session.user.id,
+    ideaId,
+    resourceType: 'IDEA',
+  }
+
+  if (newSharedUserIds.length > 0) {
+    await prisma.sharedLobbyBookmark.createMany({
+      data: newSharedUserIds.map(userId => ({ ...data, sharedWithUserId: userId })),
+    })
+  }
+
+  return { success: true, shared: true, sharedToUsers: newSharedUserIds }
 }
 
-export async function unshareFromLobby(ideaId: string) {
+export async function unshareFromLobby(ideaId: string, sharedWithUserId?: string | null) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
@@ -38,6 +56,7 @@ export async function unshareFromLobby(ideaId: string) {
     where: {
       ...(isAdmin ? {} : { userId: session.user.id }),
       ideaId,
+      ...(sharedWithUserId ? { sharedWithUserId } : {}),
     },
   })
 
@@ -76,7 +95,7 @@ function toPrismaMeta(meta: JsonValue | null) {
   return meta === null ? Prisma.JsonNull : meta
 }
 
-export async function shareResourceToLobby(resourceType: string, resourceId: string, meta?: JsonValue) {
+export async function shareResourceToLobby(resourceType: string, resourceId: string, meta?: JsonValue | Record<string, unknown>, sharedWithUserIds?: string[]) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
@@ -94,25 +113,30 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
   })
   if (existing) return { error: 'Déjà partagé' }
 
-  console.log('[shareResourceToLobby] Received meta:', JSON.stringify(meta, null, 2))
-  
-  await prisma.sharedLobbyBookmark.create({
-    data: {
-      userId: session.user.id,
-      resourceId,
-      resourceType,
-      meta: toPrismaMeta(validateMeta(meta)),
-    },
-  })
+  const validatedMeta = meta ? validateMeta(meta) : null
+  const createData = {
+    userId: session.user.id,
+    resourceId,
+    resourceType,
+    meta: toPrismaMeta(validatedMeta),
+  }
 
-  console.log('[shareResourceToLobby] Stored meta for', resourceType, resourceId)
+  if (sharedWithUserIds && sharedWithUserIds.length > 0) {
+    await prisma.sharedLobbyBookmark.createMany({
+      data: sharedWithUserIds.map(userId => ({ ...createData, sharedWithUserId: userId })),
+    })
+  } else {
+    await prisma.sharedLobbyBookmark.create({
+      data: { ...createData, sharedWithUserId: null },
+    })
+  }
 
   return { success: true, shared: true }
 }
 
 const VALID_RESOURCE_TYPES = new Set(['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE'])
 
-export async function unshareResourceFromLobby(resourceType: string, resourceId: string) {
+export async function unshareResourceFromLobby(resourceType: string, resourceId: string, sharedWithUserId?: string | null) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
@@ -127,6 +151,7 @@ export async function unshareResourceFromLobby(resourceType: string, resourceId:
       ...(isAdmin ? {} : { userId: session.user.id }),
       resourceId,
       resourceType,
+      ...(sharedWithUserId ? { sharedWithUserId } : {}),
     },
   })
 
@@ -166,4 +191,62 @@ export async function isInFavorites(resourceType: string, resourceId: string): P
   const session = await getSession()
   if (!session?.user) return false
   return isBookmarked(session.user.id, resourceType as BookmarkType, resourceId)
+}
+
+export async function getSharedWithMe() {
+  const session = await getSession()
+  if (!session?.user) return { bookmarks: [] as Array<{ id: string; userId: string; ideaId: string | null; resourceId: string | null; resourceType: string; sharedWithUserId: string | null; createdAt: Date; meta: JsonValue | null }> }
+
+  const bookmarks = await prisma.sharedLobbyBookmark.findMany({
+    where: { sharedWithUserId: session.user.id },
+    include: {
+      user: { select: { id: true, displayName: true, email: true } },
+      idea: {
+        include: {
+          ideaTopics: {
+            include: {
+              topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+            },
+          },
+          source: { select: { title: true, type: true, url: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+
+  return { bookmarks }
+}
+
+export async function getAllUsers() {
+  const session = await getSession()
+  if (!session?.user) return { users: [] }
+
+  const users = await prisma.user.findMany({
+    where: { id: { not: session.user.id } },
+    select: { id: true, displayName: true, email: true, role: true },
+    orderBy: { displayName: 'asc' },
+  })
+
+  return { users }
+}
+
+export async function searchUsers(query: string) {
+  const session = await getSession()
+  if (!session?.user) return { users: [] }
+
+  const users = await prisma.user.findMany({
+    where: {
+      id: { not: session.user.id },
+      OR: [
+        { displayName: { contains: query } },
+        { email: { contains: query } },
+      ],
+    },
+    select: { id: true, displayName: true, email: true, role: true },
+    orderBy: { displayName: 'asc' },
+    take: 20,
+  })
+
+  return { users }
 }

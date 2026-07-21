@@ -68,6 +68,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   linkAs,
 }: SaviezVousCardProps) {
   const [fact, setFact] = useState(() => {
+    if (typeof sessionStorage === 'undefined') return { id, text, sourceUrl, imageFilename }
     const saved = sessionStorage.getItem('saviez_vous_fact')
     if (saved) {
       try { return JSON.parse(saved) } catch { /* ignore */ }
