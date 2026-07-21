@@ -21,6 +21,11 @@
 | **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) |
 | **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
 | **SaviezVousFact** | Faits "Le saviez-vous" | 8 136 |
+| **SourceTopic** | Junction Source ↔ Topic |
+| **ViewedIdea** | Idées vues par utilisateur |
+| **PasswordResetToken** | Tokens de réinitialisation mot de passe |
+| **UserSuggestion** | Suggestions utilisateur |
+| **SuggestionComment** | Commentaires sur suggestions utilisateur |
 
 ## Topics disponibles (21)
 
@@ -32,6 +37,37 @@
 - 👥 Sociologie (20+), ⚛️ Physique (20+)
 - 🍳 Cuisine & Alimentation (20+), 🧬 Biologie & Évolution (20+)
 - 🔢 Mathématiques (20+), 🎨 Art & Design (20+), 🎤 Débat & Rhétorique (20+)
+- 💪 En forme 40+ (15+)
+
+## Remplir la base de données
+
+Séquence pour peupler la DB :
+
+```bash
+# Étape 1: Créer les topics (21 sujets)
+npx tsx prisma/seed.ts
+
+# Étape 2: Idées manuelles (148+ idées bite-sized)
+npx tsx src/scripts/seed-ideas.ts
+
+# Étape 3: Idées LLM (~1380 idées, 60 par topic)
+npx tsx src/scripts/generate-ideas.ts
+
+# Étape 4: Idées depuis Wikipédia (~890 idées + 183 sources)
+npx tsx src/scripts/ingest-wikipedia.ts
+
+# Étape 5: Faits "Le saviez-vous ?" (8136+)
+./scripts/update le-saviez-vous
+
+# Étape 6: Proverbes depuis Wiktionary
+npm run fetch-proverbes
+
+# Étape 7: Cache sources externes
+npm run cache:all
+npx tsx src/scripts/scrape-wikiloves.ts
+```
+
+**Prérequis**: `OPENROUTER_API_KEY` ou `LLM_API_KEY` dans `.env` pour étapes 3 et 4.
 
 ## Génération de contenu
 
@@ -58,14 +94,14 @@ Ajouter une idée dans `IDEAS` :
 
 ### 2. Génération LLM (`src/scripts/generate-ideas.ts`)
 
-Fetch Wikipédia → LLM distille 5 idées/article → création automatique (~490 idées).
+Fetch Wikipédia → LLM distille ~60 idées/topic → création automatique (~1380 idées).
 
 **Prérequis**: Variable `OPENROUTER_API_KEY` ou `LLM_API_KEY` définie dans `.env`.
 
 ```bash
 # Pipeline 1: Génération LLM par topic
 npx tsx src/scripts/generate-ideas.ts
-# Résultat: ~490 idées supplémentaires (20 par topic)
+# Résultat: ~1380 idées supplémentaires (60 par topic)
 
 # Pipeline 2: Ingestion Wikipédia à grande échelle
 npx tsx src/scripts/ingest-wikipedia.ts
@@ -89,7 +125,7 @@ Scrap automatiquement les archives de Wikipédia (2016-2025) :
 
 ```bash
 # Scraper les archives Wikipédia
-npx tsx scripts/scrape-saviez-vous.ts
+npx tsx src/scripts/scrape-saviez-vous.ts
 
 # Réinsérer les faits hardcodés
 npx tsx scripts/insert_saviez_vous.ts
@@ -97,6 +133,10 @@ npx tsx scripts/insert_saviez_vous.ts
 # Ou directement
 ./scripts/update scrape
 ./scripts/update le-saviez-vous
+./scripts/update ideas
+./scripts/update ingest
+./scripts/update all
+./scripts/update seed
 ```
 
 ### 4. Amélioration de contenu (`src/scripts/enhance-ideas.ts`)
@@ -116,18 +156,20 @@ npx tsx scripts/insert_saviez_vous.ts
 | `cache-wikipedia-image.ts` | Images Wikipédia | 30 jours | Mensuel |
 | `scrape-wikiloves.ts` | Images Wiki Loves | 30 jours | Mensuel |
 
+`npm run cache:all` lance cache-cnrs, cache-radio-france, cache-wikipedia-image + cleanup (pas scrape-wikiloves).
+
 ```bash
-# Lancer tous les caches
+# Lancer tous les caches (sans wikiloves)
 npm run cache:all
 
 # Ou individuellement
-npx tsx scripts/cache-cnrs.ts
-npx tsx scripts/cache-radio-france.ts
-npx tsx scripts/cache-wikipedia-image.ts
-npx tsx scripts/scrape-wikiloves.ts
+npx tsx src/scripts/cache-cnrs.ts
+npx tsx src/scripts/cache-radio-france.ts
+npx tsx src/scripts/cache-wikipedia-image.ts
+npx tsx src/scripts/scrape-wikiloves.ts
 
 # Nettoyer les items expirés
-npx tsx scripts/cleanup-cached.ts
+npx tsx src/scripts/cleanup-cached.ts
 ```
 
 ### 6. Proverbes
