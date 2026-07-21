@@ -13,6 +13,7 @@ interface SharedBookmarkRaw extends SharedLobbyBookmark {
     source: { title: string; type: string; url: string | null }
   }) | null
   user: { id: string; displayName: string | null; email: string }
+  sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }>
 }
 
 interface UserFavoriteIds {
@@ -314,9 +315,26 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         entry.recipientIds.push(bookmark.sharedWithUserId)
       }
     }
+    
+    const allRecipientIds = [...new Set(sharedByMeBookmarks
+      .filter(b => b.sharedWithUserId)
+      .map(b => b.sharedWithUserId!))]
+    
+    const recipientUsers = allRecipientIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: allRecipientIds } },
+          select: { id: true, displayName: true, email: true },
+        })
+      : []
+    
+    const recipientMap = new Map(recipientUsers.map(u => [u.id, u]))
+    
     const enrichedSharedByMe = Array.from(sharedByMeMap.entries()).map(([key, { bookmark, recipientIds }]) => {
       const enriched = enrichBookmark(bookmark) as SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }
-      return { ...enriched, sharedWithUserIds: recipientIds }
+      return { 
+        ...enriched, 
+        sharedWithUsers: recipientIds.map(id => recipientMap.get(id)).filter(Boolean) as Array<{ id: string; displayName: string | null; email: string }>
+      }
     })
 
     return (

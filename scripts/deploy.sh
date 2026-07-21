@@ -74,6 +74,7 @@ rm -rf .next
 # Mark legacy migrations as applied
 npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
 npx prisma migrate resolve --applied 20260720000001_add_card_order 2>/dev/null || true
+npx prisma migrate resolve --applied 20260721190000_add_shared_with_user_to_shared_lobby_bookmark 2>/dev/null || true
 
 # Always regenerate Prisma client to keep types in sync
 echo "Regenerating Prisma client..."
