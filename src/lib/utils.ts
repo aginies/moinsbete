@@ -203,7 +203,8 @@ export function sanitizeMessage(content: string): { valid: true; clean: string }
     }
   }
 
-  return { valid: true, clean: trimmed }
+  const clean = plainText.trim()
+  return { valid: true, clean }
 }
 
 export function escapeHtml(text: string): string {

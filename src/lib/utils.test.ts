@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS, generateImageId } from '@/lib/utils'
+import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS, generateImageId, sanitizeMessage, parseHTML, escapeHtml, isValidUrl, sanitizeUrl } from '@/lib/utils'
 
 describe('slugify', () => {
   it('converts to lowercase', () => {
@@ -170,5 +170,120 @@ describe('generateImageId', () => {
     const id1 = generateImageId('https://example.com/image.jpg', '2024-01-01')
     const id2 = generateImageId('https://example.com/image.jpg', '2024-01-02')
     expect(id1).not.toBe(id2)
+  })
+})
+
+describe('sanitizeMessage', () => {
+  it('accepts plain text', () => {
+    const result = sanitizeMessage('hello world')
+    expect(result).toEqual({ valid: true, clean: 'hello world' })
+  })
+
+  it('rejects empty string', () => {
+    const result = sanitizeMessage('')
+    expect(result).toEqual({ valid: false, error: 'Message vide' })
+  })
+
+  it('rejects whitespace only', () => {
+    const result = sanitizeMessage('   ')
+    expect(result).toEqual({ valid: false, error: 'Message vide' })
+  })
+
+  it('rejects over max length', () => {
+    const result = sanitizeMessage('a'.repeat(251))
+    expect(result).toEqual({ valid: false, error: 'Maximum 250 caract\u00e8res' })
+  })
+
+  it('accepts exactly max length', () => {
+    const result = sanitizeMessage('a'.repeat(250))
+    expect(result).toEqual({ valid: true, clean: 'a'.repeat(250) })
+  })
+
+  it('strips HTML tags from output', () => {
+    const result = sanitizeMessage('<script>alert(1)</script> hello')
+    expect(result).toEqual({ valid: true, clean: 'alert(1)  hello' })
+  })
+
+  it('strips nested HTML tags', () => {
+    const result = sanitizeMessage('<div><b>bold</b></div>')
+    expect((result as { valid: true; clean: string }).clean).not.toContain('<')
+    expect((result as { valid: true; clean: string }).clean).not.toContain('>')
+  })
+
+  it('strips XSS payload', () => {
+    const result = sanitizeMessage('<img src=x onerror=alert(1)>')
+    expect((result as { valid: true; clean: string }).clean).not.toContain('<img')
+  })
+
+  it('preserves URLs in output', () => {
+    const result = sanitizeMessage('Check https://example.com for more')
+    expect(result).toEqual({ valid: true, clean: 'Check https://example.com for more' })
+  })
+
+  it('trims whitespace', () => {
+    const result = sanitizeMessage('  hello  ')
+    expect(result).toEqual({ valid: true, clean: 'hello' })
+  })
+})
+
+describe('parseHTML', () => {
+  it('escapes HTML entities', () => {
+    expect(parseHTML('<b>hello</b>')).toBe('&lt;b&gt;hello&lt;/b&gt;')
+  })
+
+  it('converts URLs to links', () => {
+    const result = parseHTML('Visit https://example.com today')
+    expect(result).toContain('<a href="https://example.com"')
+    expect(result).toContain('rel="noopener noreferrer"')
+    expect(result).toContain('</a>')
+  })
+
+  it('escapes non-URL text', () => {
+    const result = parseHTML('<script>alert(1)</script>')
+    expect(result).toBe('&lt;script&gt;alert(1)&lt;/script&gt;')
+  })
+})
+
+describe('escapeHtml', () => {
+  it('escapes all dangerous characters', () => {
+    expect(escapeHtml('<a href="test" onclick="x">')).toBe('&lt;a href=&quot;test&quot; onclick=&quot;x&quot;&gt;')
+  })
+
+  it('escapes ampersand first', () => {
+    expect(escapeHtml('&lt;')).toBe('&amp;lt;')
+  })
+})
+
+describe('isValidUrl', () => {
+  it('accepts http and https URLs', () => {
+    expect(isValidUrl('https://example.com')).toBe(true)
+    expect(isValidUrl('http://example.com')).toBe(true)
+  })
+
+  it('rejects javascript: protocol', () => {
+    expect(isValidUrl('javascript:alert(1)')).toBe(false)
+  })
+
+  it('rejects data: protocol', () => {
+    expect(isValidUrl('data:text/html,<script>alert(1)</script>')).toBe(false)
+  })
+
+  it('rejects null and empty', () => {
+    expect(isValidUrl(null)).toBe(false)
+    expect(isValidUrl('')).toBe(false)
+  })
+})
+
+describe('sanitizeUrl', () => {
+  it('returns valid URL', () => {
+    expect(sanitizeUrl('https://example.com')).toBe('https://example.com')
+  })
+
+  it('returns fallback for invalid URL', () => {
+    expect(sanitizeUrl('javascript:alert(1)', '/fallback')).toBe('/fallback')
+  })
+
+  it('returns fallback for null', () => {
+    expect(sanitizeUrl(null)).toBe('/')
   })
 })
