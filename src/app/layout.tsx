@@ -9,7 +9,7 @@ import { getSession } from '@/lib/auth'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { cookies } from 'next/headers'
-import { getMessages, getLocale } from 'next-intl/server'
+import { getMessages } from 'next-intl/server'
 import { NextIntlClientProvider } from 'next-intl'
 import '@/lib/cron-runner'
 import { defaultLocale } from '@/i18n/request'
@@ -56,7 +56,7 @@ export default async function RootLayout({
   const session = await getSession()
   const cookieStore = await cookies()
   const nonce = cookieStore.get('csp-nonce')?.value || ''
-  const locale = await getLocale()
+  const locale = (cookieStore.get('locale')?.value || defaultLocale) as 'fr' | 'en'
   const messages = await getMessages()
 
   return (
