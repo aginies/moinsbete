@@ -57,14 +57,9 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
     if (userId) {
       const dbField = DB_FIELD_MAP[storageKey]
       if (dbField) {
-        console.log(`[useCardVisibility] Fetching visibility on mount for: ${dbField}, userId: ${userId}`)
         fetch(`/api/user-card-visibility?field=${dbField}`, { credentials: 'include' })
-          .then(res => {
-            console.log(`[useCardVisibility] GET Response status for ${dbField}: ${res.status}`)
-            return res.json()
-          })
+          .then(res => res.json())
           .then(data => {
-            console.log(`[useCardVisibility] GET Data for ${dbField}:`, data)
             if (data[dbField] !== undefined) {
               setShow(data[dbField])
             }
@@ -73,8 +68,6 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
             console.error(`[useCardVisibility] GET Fetch Error for ${dbField}:`, err)
           })
       }
-    } else {
-      console.log(`[useCardVisibility] No userId on mount for storageKey: ${storageKey}`)
     }
   }, [userId, storageKey])
 
@@ -84,10 +77,8 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
       if (userId) {
         const dbField = DB_FIELD_MAP[storageKey]
         if (dbField) {
-          console.log(`[useCardVisibility] Toggling visibility for ${dbField} to ${next}, userId: ${userId}`)
           import('next-auth/react').then(({ getCsrfToken }) => {
             getCsrfToken().then(token => {
-              console.log(`[useCardVisibility] CSRF Token fetched: ${token ? 'Present' : 'Missing'}`)
               const headers: Record<string, string> = { 'Content-Type': 'application/json' }
               if (token) {
                 headers['X-CSRF-Token'] = token
@@ -99,7 +90,6 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
                 body: JSON.stringify({ field: dbField, value: next }),
               })
               .then(res => {
-                console.log(`[useCardVisibility] POST Response status for ${dbField}: ${res.status}`)
                 if (!res.ok) {
                   return res.text().then(text => {
                     console.error(`[useCardVisibility] POST Error response: ${text}`)
