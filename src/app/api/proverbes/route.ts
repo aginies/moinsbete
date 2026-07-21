@@ -51,6 +51,11 @@ const CATEGORY_PAGES = [
   { category: 'Comparaisons en français', source: 'Comparaison française' },
 ]
 
+const ALL_SOURCES = Array.from(new Set([
+  ...ANNEXE_PAGES.map(p => p.source),
+  ...CATEGORY_PAGES.map(p => p.source),
+])).sort()
+
 let fetchProgress: { 
   status: 'idle' | 'fetching' | 'done' | 'stopped'
   progress: string
@@ -837,6 +842,10 @@ export async function GET(request: Request) {
     }
   }
 
+  if (action === 'sources') {
+    return NextResponse.json({ sources: ALL_SOURCES })
+  }
+
   if (action === 'search' && q) {
     try {
       let allProverbes = await fetchAllProverbesFromDb()
@@ -849,8 +858,17 @@ export async function GET(request: Request) {
         }
       }
       
+      const categoriesParam = searchParams.get('categories')
+      let filtered = allProverbes
+      if (categoriesParam) {
+        const selected = categoriesParam.split(',').filter(Boolean)
+        if (selected.length > 0) {
+          filtered = filtered.filter(p => selected.includes(p.source))
+        }
+      }
+      
       const qLower = q.toLowerCase()
-      const results = allProverbes.filter(p =>
+      const results = filtered.filter(p =>
         p.text.toLowerCase().includes(qLower) ||
         p.signification.toLowerCase().includes(qLower) ||
         p.source.toLowerCase().includes(qLower)
@@ -859,6 +877,35 @@ export async function GET(request: Request) {
       return NextResponse.json({ proverbs: enriched })
     } catch (error) {
       console.error('Proverbe search error:', error)
+      return NextResponse.json({ proverbs: [] })
+    }
+  }
+
+  if (action === 'all') {
+    try {
+      let allProverbes = await fetchAllProverbesFromDb()
+      
+      if (allProverbes.length === 0) {
+        const newProverbes = await fetchRandomAnnexPage()
+        if (newProverbes.length > 0) {
+          await saveProverbesToDb(newProverbes)
+          allProverbes = newProverbes
+        }
+      }
+      
+      const categoriesParam = searchParams.get('categories')
+      if (categoriesParam) {
+        const selected = categoriesParam.split(',').filter(Boolean)
+        if (selected.length > 0) {
+          allProverbes = allProverbes.filter(p => selected.includes(p.source))
+        }
+      }
+      
+      const sorted = allProverbes.sort((a, b) => a.text.localeCompare(b.text, 'fr')).slice(0, 20)
+      const enriched = await enrichWithWiktionnaire(sorted)
+      return NextResponse.json({ proverbs: enriched })
+    } catch (error) {
+      console.error('Proverbe all error:', error)
       return NextResponse.json({ proverbs: [] })
     }
   }
