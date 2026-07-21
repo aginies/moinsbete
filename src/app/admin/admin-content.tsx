@@ -64,11 +64,6 @@ export function AdminContent({ stats, users }: AdminContentProps) {
     })
   }
 
-  const toggleLocale = () => {
-    const newLocale = locale === 'fr' ? 'en' : 'fr'
-    setLocale(newLocale)
-  }
-
   return (
     <div className="mx-auto max-w-4xl p-4 md:p-6">
       <div className="mb-6 flex items-center justify-between">
@@ -76,10 +71,17 @@ export function AdminContent({ stats, users }: AdminContentProps) {
           <h1 className="text-2xl font-heading font-bold">{t('admin.admin_title')}</h1>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={toggleLocale} className="gap-2">
-            <Globe className="h-4 w-4" />
-            {locale === 'fr' ? 'EN' : 'FR'}
-          </Button>
+          <div className="flex items-center gap-1.5 rounded-lg border border-input bg-background px-2.5 py-1 h-9 dark:bg-zinc-950">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <select
+              value={locale}
+              onChange={(e) => setLocale(e.target.value as 'fr' | 'en')}
+              className="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="fr" className="dark:bg-zinc-900">FR</option>
+              <option value="en" className="dark:bg-zinc-900">EN</option>
+            </select>
+          </div>
           <Link href="/" className="text-sm text-primary hover:underline">
             {t('admin.back_to_site')}
           </Link>
