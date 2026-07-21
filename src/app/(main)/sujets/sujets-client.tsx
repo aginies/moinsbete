@@ -40,6 +40,7 @@ interface CardVisibility {
 interface CardConfig {
   key: string
   isVisible: boolean
+  isGloballyVisible: boolean
   toggle: () => void
   renderCard: () => React.ReactElement | null
 }
@@ -153,6 +154,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     {
       key: 'saviezVous',
       isVisible: visibility.saviezVous && (globalVisibility?.saviezVous ?? true),
+      isGloballyVisible: globalVisibility?.saviezVous ?? true,
       toggle: toggleSaviezVous,
       renderCard: () => {
         if (!saviezVousFact) return null
@@ -164,6 +166,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     {
       key: 'wikipedia',
       isVisible: visibility.wikipedia && (globalVisibility?.wikipedia ?? true),
+      isGloballyVisible: globalVisibility?.wikipedia ?? true,
       toggle: toggleWikipedia,
       renderCard: () => (
         <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} isVisible={visibility.wikipedia} />
@@ -172,6 +175,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     {
       key: 'cnrs',
       isVisible: visibility.cnrs && (globalVisibility?.cnrs ?? true),
+      isGloballyVisible: globalVisibility?.cnrs ?? true,
       toggle: toggleCnrs,
       renderCard: () => (
         <CnrsNewsCard onToggle={toggleCnrs} userId={userId} isVisible={visibility.cnrs} />
@@ -180,6 +184,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     {
       key: 'radioFrance',
       isVisible: visibility.radioFrance && (globalVisibility?.radioFrance ?? true),
+      isGloballyVisible: globalVisibility?.radioFrance ?? true,
       toggle: toggleRadioFrance,
       renderCard: () => (
         <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} isVisible={visibility.radioFrance} />
@@ -188,6 +193,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     {
       key: 'wikimedia',
       isVisible: visibility.wikimedia && (globalVisibility?.wikimedia ?? true),
+      isGloballyVisible: globalVisibility?.wikimedia ?? true,
       toggle: toggleWikimedia,
       renderCard: () => (
         <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage isVisible={visibility.wikimedia} />
@@ -196,6 +202,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     {
       key: 'wikiloves',
       isVisible: visibility.wikiloves && (globalVisibility?.wikiloves ?? true),
+      isGloballyVisible: globalVisibility?.wikiloves ?? true,
       toggle: toggleWikiLoves,
       renderCard: () => (
         <ImageWikiLovesCard onToggle={toggleWikiLoves} userId={userId} largeImage isVisible={visibility.wikiloves} />
@@ -204,6 +211,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     {
       key: 'pixabay',
       isVisible: visibility.pixabay && (globalVisibility?.pixabay ?? true),
+      isGloballyVisible: globalVisibility?.pixabay ?? true,
       toggle: togglePixabay,
       renderCard: () => (
         <ImagePixabayCard onToggle={togglePixabay} userId={userId} largeImage isVisible={visibility.pixabay} />
@@ -212,6 +220,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     {
       key: 'portailLexical',
       isVisible: visibility.portailLexical && (globalVisibility?.portailLexical ?? true),
+      isGloballyVisible: globalVisibility?.portailLexical ?? true,
       toggle: togglePortailLexical,
       renderCard: () => (
         <PortailLexicalCard onToggle={togglePortailLexical} userId={userId} isVisible={visibility.portailLexical} />
@@ -220,6 +229,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     {
       key: 'proverbe',
       isVisible: visibility.proverbe && (globalVisibility?.proverbe ?? true),
+      isGloballyVisible: globalVisibility?.proverbe ?? true,
       toggle: toggleProverbe,
       renderCard: () => (
         <ProverbeCard onToggle={toggleProverbe} userId={userId} isVisible={visibility.proverbe} />
@@ -238,7 +248,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   }, [cardConfigs, cardOrder, orderLoaded])
 
   const visibleCards = orderedConfigs.filter(c => c.isVisible)
-  const hiddenCards = orderedConfigs.filter(c => !c.isVisible)
+  const hiddenCards = orderedConfigs.filter(c => !c.isVisible && c.isGloballyVisible)
 
   if (!orderLoaded) {
     return null

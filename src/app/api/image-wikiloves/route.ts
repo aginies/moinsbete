@@ -198,22 +198,6 @@ async function fetchRandomImage(event?: string): Promise<WikiLovesImage | null> 
     }
   }
 
-  const searchTerms: string[] = []
-  for (const evt of events) {
-    if (WIKILOVES_EVENTS[evt]) searchTerms.push(...WIKILOVES_EVENTS[evt])
-  }
-  searchTerms.sort(() => Math.random() - 0.5)
-
-  for (const term of searchTerms) {
-    const files = await searchFiles(term)
-    if (files.length === 0) continue
-    const shuffledFiles = [...files].sort(() => Math.random() - 0.5)
-    const maxAttempts = Math.min(shuffledFiles.length, 5)
-    for (let i = 0; i < maxAttempts; i++) {
-      const image = await fetchImageInfo(shuffledFiles[i])
-      if (image && image.imageUrl) return image
-    }
-  }
   return null
 }
 
