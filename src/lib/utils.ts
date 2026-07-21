@@ -194,7 +194,9 @@ export function sanitizeMessage(content: string): { valid: true; clean: string }
   if (!trimmed) return { valid: false, error: 'Message vide' }
   if (trimmed.length > MAX_MESSAGE_LENGTH) return { valid: false, error: `Maximum ${MAX_MESSAGE_LENGTH} caractères` }
 
-  const urls = trimmed.match(URL_REGEX) || []
+  // Strip any HTML tags to prevent injection
+  const plainText = trimmed.replace(/<[^>]*>/g, ' ')
+  const urls = plainText.match(URL_REGEX) || []
   for (const url of urls) {
     if (!isValidUrl(url)) {
       return { valid: false, error: `URL invalide: ${url}` }
@@ -205,11 +207,7 @@ export function sanitizeMessage(content: string): { valid: true; clean: string }
 }
 
 export function escapeHtml(text: string): string {
-  const div = typeof document !== 'undefined' ? document.createElement('div') : null
-  if (div) {
-    div.textContent = text
-    return div.innerHTML
-  }
+  if (typeof text !== 'string') return String(text)
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -239,7 +237,10 @@ export function parseHTML(text: string): string {
     
     const sanitized = sanitizeUrl(url, url)
     if (sanitized !== '/') {
-      const link = `<a href="${escapeHtml(sanitized)}" rel="noopener noreferrer" target="_blank">${escapeHtml(url)}</a>`
+      const safeHref = sanitized
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+      const link = `<a href="${safeHref}" rel="noopener noreferrer" target="_blank">${escapeHtml(url)}</a>`
       const idx = text.indexOf(url, lastIndex)
       if (idx !== -1) {
         result += escapeHtml(text.slice(lastIndex, idx)) + link
