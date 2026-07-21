@@ -189,6 +189,8 @@
     "disabled": "Désactivé",
     "disable": "Désactiver",
     "enable": "Activer",
+    "card_enabled": "activée",
+    "card_disabled": "désactivée",
     "name": "Nom",
     "role": "Rôle",
     "status": "Statut",
@@ -544,6 +546,8 @@
     "user_disabled": "Utilisateur désactivé",
     "user_enabled": "Utilisateur activé",
     "items_deleted": "{count} éléments expirés supprimés",
-    "nothing_to_clean": "Rien à nettoyer"
+    "nothing_to_clean": "Rien à nettoyer",
+    "cartes_title": "Cartes",
+    "cartes_desc": "Activer ou désactiver les cartes globalement sur le site"
   }
 }

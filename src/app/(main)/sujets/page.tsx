@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { SujetsClient } from './sujets-client'
 import { getRandomFact } from '@/lib/saviez-vous'
+import { getGlobalCardVisibility } from '@/actions/card-actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,6 +59,8 @@ export default async function SujetsPage() {
 
   const saviezVousFact = await getRandomFact()
 
+  const globalVisibility = await getGlobalCardVisibility()
+
   return (
     <>
       {process.env.REGISTRATION_LOCKED !== 'false' && (
@@ -80,6 +83,7 @@ export default async function SujetsPage() {
         saviezVousFact={saviezVousFact}
         userId={userId}
         initialVisibility={initialVisibility}
+        globalVisibility={globalVisibility}
         csrfToken=""
       />
     </>
