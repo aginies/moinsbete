@@ -308,7 +308,7 @@ function StatCard({ icon, label, value, sublabel }: { icon: React.ReactNode; lab
 function UserRow({ user }: { user: AdminUser }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const t = useTranslations('Admin')
+  const t = useTranslations('admin')
 
   const handleToggle = async () => {
     startTransition(async () => {
@@ -401,7 +401,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
 
 function CartesTab() {
   const [isPending, startTransition] = useTransition()
-  const t = useTranslations('Admin')
+  const t = useTranslations('admin')
 
   return (
     <div className="space-y-6">
@@ -430,7 +430,7 @@ function CartesTab() {
 function CardToggle({ cardKey }: { cardKey: string }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const t = useTranslations('Admin')
+  const t = useTranslations('admin')
   const [enabled, setEnabled] = useState(true)
 
   useEffect(() => {
