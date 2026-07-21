@@ -14,7 +14,7 @@ model User {
   email                        String                @unique
   passwordHash                 String
   displayName                  String?
-  role                         UserRole              @default("USER")
+  role                         UserRole              @default(USER)
   enabled                      Boolean               @default(true)
   lastLogin                    DateTime?
   lastVisited                  DateTime?
@@ -72,7 +72,7 @@ model Source {
   title        String
   slug         String        @unique
   author       String?
-  type         SourceType    @default("WIKIPEDIA")
+  type         SourceType    @default(WIKIPEDIA)
   url          String?
   coverUrl     String?
   description  String?
@@ -150,7 +150,7 @@ model Bookmark {
   id           String       @id @default(cuid())
   userId       String
   ideaId       String?
-  type         BookmarkType @default("IDEA")
+  type         BookmarkType @default(IDEA)
   meta         Json?
   createdAt    DateTime     @default(now())
   resourceId   String?
@@ -184,7 +184,7 @@ model TopicSuggestion {
   userId       String?
   confidence   Float
   articleCount Int              @default(0)
-  status       SuggestionStatus @default("PENDING")
+  status       SuggestionStatus @default(PENDING)
   mergedIntoId String?
   createdAt    DateTime         @default(now())
   parentTopic  Topic?           @relation("ParentSuggestion", fields: [parentId], references: [id])
