@@ -30,7 +30,7 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
         setIsShared(false)
         toast.success('Retiré du lobby')
       } else {
-        await shareResourceToLobby(resourceType, resourceId, meta)
+        await shareResourceToLobby(resourceType, resourceId, meta as any)
         setIsShared(true)
         toast.success('Partagé au lobby')
       }
