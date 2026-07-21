@@ -58,11 +58,13 @@ export function AdminContent({ stats, users }: AdminContentProps) {
   const locale = useLocale()
   const { setLocale } = useSetLocale()
   const t = useTranslations()
+  const adminT = useTranslations('admin')
+  const feedT = useTranslations('feed')
 
   const handleRefresh = () => {
     startTransition(() => {
       router.refresh()
-      toast.success(t('statistics_updated'))
+      toast.success(adminT('statistics_updated'))
     })
   }
 
@@ -70,7 +72,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
     <div className="mx-auto max-w-4xl p-4 md:p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-bold">{t('admin.admin_title')}</h1>
+          <h1 className="text-2xl font-heading font-bold">{adminT('admin_title')}</h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 rounded-lg border border-input bg-background px-2.5 py-1 h-9 dark:bg-zinc-950">
@@ -85,7 +87,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
             </select>
           </div>
           <Link href="/" className="text-sm text-primary hover:underline">
-            {t('admin.back_to_site')}
+            {adminT('back_to_site')}
           </Link>
         </div>
       </div>
@@ -94,7 +96,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="stats">{t('feed.stats')}</TabsTrigger>
           <TabsTrigger value="users">{t('feed.users')}</TabsTrigger>
-          <TabsTrigger value="cartes">{t('admin.cartes_title')}</TabsTrigger>
+          <TabsTrigger value="cartes">{adminT('cartes_title')}</TabsTrigger>
           <TabsTrigger value="cleanup">{t('feed.cleanup')}</TabsTrigger>
         </TabsList>
 
@@ -268,10 +270,10 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   startTransition(async () => {
                     const result = await cleanupExpiredCache()
                     if (result.totalDeleted > 0) {
-                      toast.success(t('admin.items_deleted', { count: result.totalDeleted }))
+                      toast.success(adminT('items_deleted', { count: result.totalDeleted }))
                       router.refresh()
                     } else {
-                      toast.info(t('admin.nothing_to_clean'))
+                      toast.info(adminT('nothing_to_clean'))
                     }
                   })
                 }}
@@ -308,13 +310,14 @@ function StatCard({ icon, label, value, sublabel }: { icon: React.ReactNode; lab
 function UserRow({ user }: { user: AdminUser }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const t = useTranslations('admin')
+  const adminT = useTranslations('admin')
+  const feedT = useTranslations('feed')
 
   const handleToggle = async () => {
     startTransition(async () => {
       const result = await toggleUserEnabled(user.id, !user.enabled)
       if (result.success) {
-        toast.success(user.enabled ? t('admin.user_disabled') : t('admin.user_enabled'))
+        toast.success(user.enabled ? adminT('user_disabled') : adminT('user_enabled'))
         router.refresh()
       } else if (result.error) {
         toast.error(result.error)
@@ -332,7 +335,7 @@ function UserRow({ user }: { user: AdminUser }) {
             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
             : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
         }`}>
-          {user.role === 'ADMIN' ? t('admin') : t('user')}
+          {user.role === 'ADMIN' ? adminT('admin') : adminT('user')}
         </span>
       </td>
       <td className="px-4 py-3">
@@ -341,7 +344,7 @@ function UserRow({ user }: { user: AdminUser }) {
             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
             : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
         }`}>
-          {user.enabled ? t('active') : t('disabled')}
+          {user.enabled ? adminT('active') : adminT('disabled')}
         </span>
       </td>
       <td className="px-4 py-3 text-sm text-muted-foreground">
@@ -373,12 +376,12 @@ function UserRow({ user }: { user: AdminUser }) {
           {user.enabled ? (
             <>
               <UserX className="mr-1 h-3 w-3" />
-              {t('feed.disable')}
+              {feedT('disable')}
             </>
           ) : (
             <>
               <UserCheck className="mr-1 h-3 w-3" />
-              {t('feed.enable')}
+              {feedT('enable')}
             </>
           )}
         </Button>
@@ -401,12 +404,12 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
 
 function CartesTab() {
   const [isPending, startTransition] = useTransition()
-  const t = useTranslations('admin')
+  const adminT = useTranslations('admin')
 
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
-        {t('admin.cartes_desc')}
+        {adminT('cartes_desc')}
       </p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {cardConfigs.map(card => (
@@ -416,7 +419,7 @@ function CartesTab() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
                   {card.icon}
                 </div>
-                <span className="text-sm font-medium">{t(card.labelKey)}</span>
+                <span className="text-sm font-medium">{adminT(card.labelKey)}</span>
               </div>
               <CardToggle cardKey={card.key} />
             </CardContent>
