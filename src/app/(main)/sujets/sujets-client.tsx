@@ -106,18 +106,16 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true,
   })
 
-  const [cardOrder, setCardOrder] = useState<string[]>([])
-  const [orderLoaded, setOrderLoaded] = useState(false)
+  const hasUserId = !!userId
+  const [cardOrder, setCardOrder] = useState<string[]>(() => hasUserId ? [] : ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe'])
+  const [orderLoaded, setOrderLoaded] = useState(!hasUserId)
 
   useEffect(() => {
-    if (userId) {
+    if (hasUserId) {
       fetchCardOrder(userId).then(order => {
         setCardOrder(order)
         setOrderLoaded(true)
       })
-    } else {
-      setCardOrder(['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe'])
-      setOrderLoaded(true)
     }
   }, [userId])
 
@@ -263,6 +261,11 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
   const visibleCards = orderedConfigs.filter(c => c.isVisible)
   const hiddenCards = orderedConfigs.filter(c => !c.isVisible && c.isGloballyVisible)
+
+  if (typeof window !== 'undefined') {
+    console.log('SujetsClient debug:', { userId, orderLoaded, cardOrder, visibility, globalVisibility, visibleCount: visibleCards.length, hiddenCount: hiddenCards.length })
+    orderedConfigs.forEach(c => console.log(`  ${c.key}: isVisible=${c.isVisible}, isGloballyVisible=${c.isGloballyVisible}, visibility=${visibility[c.key as keyof CardVisibility]}`))
+  }
 
   if (!orderLoaded) {
     return null

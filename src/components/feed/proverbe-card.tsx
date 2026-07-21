@@ -139,7 +139,7 @@ export function ProverbeCard({
               icon={<Quote className="h-4 w-4 text-emerald-950" />}
               iconBgColor="bg-emerald-500"
               iconDarkColor="dark:bg-emerald-600"
-              title={title || "Proverbe du jour"}
+              title={title || "Proverbe aléatoire"}
               titleColor="text-emerald-800"
               titleDarkColor="dark:text-emerald-300"
               linkHref={linkHref !== undefined ? (linkHref || undefined) : "/proverbes"}
