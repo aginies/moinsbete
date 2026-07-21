@@ -147,23 +147,33 @@ export default function AproposPage() {
           </p>
         </section>
 
-        <section>
-           <h2 className="mb-3 text-xl font-semibold">Le Lobby</h2>
-           <p className="text-muted-foreground">
-             Le Lobby est un espace communautaire avec deux onglets : les favoris partagés par la communauté et un forum de discussion.
-           </p>
-           <h3 className="mt-4 mb-2 text-lg font-semibold">Favoris partagés</h3>
-           <p className="text-muted-foreground">
-             Chaque utilisateur peut partager ses favoris avec la communauté. Pour qu&apos;un contenu apparaisse dans les favoris partagés,
-             il doit d&apos;abord être ajouté aux favoris de l&apos;utilisateur. Les favoris incluent les idées, faits surprenants, images du jour,
-             images Wikimedia et Wiki Loves.
-           </p>
-           <h3 className="mt-4 mb-2 text-lg font-semibold">Discuter</h3>
-           <p className="text-muted-foreground">
-             L&apos;onglet Discuter est un espace pour partager des idées d&apos;amélioration de l&apos;application, suggérer de nouveaux sujets,
-             proposer des modifications ou simplement discuter avec la communauté.
-           </p>
-        </section>
+         <section>
+            <h2 className="mb-3 text-xl font-semibold">Le Lobby</h2>
+            <p className="text-muted-foreground">
+              Le Lobby est un espace communautaire avec quatre onglets : les favoris partagés par la communauté, les contenus partagés avec vous, vos partages vers d&apos;autres utilisateurs, et un forum de discussion.
+            </p>
+            <h3 className="mt-4 mb-2 text-lg font-semibold">Favoris partagés</h3>
+            <p className="text-muted-foreground">
+              Chaque utilisateur peut partager ses favoris avec la communauté. Pour qu&apos;un contenu apparaisse dans les favoris partagés,
+              il doit d&apos;abord être ajouté aux favoris de l&apos;utilisateur. Les favoris incluent les idées, faits surprenants, images du jour,
+              images Wikimedia et Wiki Loves.
+            </p>
+            <h3 className="mt-4 mb-2 text-lg font-semibold">Partagé avec vous</h3>
+            <p className="text-muted-foreground">
+              Cet onglet affiche les contenus qu&apos;un autre utilisateur a spécifiquement partagés avec vous. Vous pouvez les ajouter à vos favoris
+              ou les découvrir selon les goûts de vos camarades.
+            </p>
+            <h3 className="mt-4 mb-2 text-lg font-semibold">Ce que j&apos;ai partagé</h3>
+            <p className="text-muted-foreground">
+              Consultez ici tous les contenus que vous avez partagés à des utilisateurs spécifiques. Quand vous partagez un favori,
+              vous pouvez choisir de le partager à toute la communauté ou sélectionner des destinataires précis.
+            </p>
+            <h3 className="mt-4 mb-2 text-lg font-semibold">Discuter</h3>
+            <p className="text-muted-foreground">
+              L&apos;onglet Discuter est un espace pour partager des idées d&apos;amélioration de l&apos;application, suggérer de nouveaux sujets,
+              proposer des modifications ou simplement discuter avec la communauté.
+            </p>
+         </section>
 
         <section>
            <h2 className="mb-3 text-xl font-semibold">Le saviez-vous ?</h2>
