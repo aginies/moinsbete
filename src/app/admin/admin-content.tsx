@@ -15,7 +15,7 @@ import { updateGlobalCardVisibility } from '@/actions/card-actions'
 import { useLocale, useTranslations } from 'next-intl'
 import { useSetLocale } from '@/hooks/use-set-locale'
 
-interface AdminStats {
+export interface AdminStats {
   ideas: number
   topics: number
   sources: number
@@ -36,7 +36,7 @@ interface AdminStats {
   proverbesCached: number
 }
 
-interface AdminUser {
+export interface AdminUser {
   id: string
   email: string
   displayName: string | null
@@ -332,7 +332,7 @@ function UserRow({ user }: { user: AdminUser }) {
             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
             : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
         }`}>
-          {user.role === 'ADMIN' ? t('admin.admin') : t('admin.user')}
+          {user.role === 'ADMIN' ? t('admin') : t('user')}
         </span>
       </td>
       <td className="px-4 py-3">
@@ -341,7 +341,7 @@ function UserRow({ user }: { user: AdminUser }) {
             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
             : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
         }`}>
-          {user.enabled ? t('admin.active') : t('admin.disabled')}
+          {user.enabled ? t('active') : t('disabled')}
         </span>
       </td>
       <td className="px-4 py-3 text-sm text-muted-foreground">
