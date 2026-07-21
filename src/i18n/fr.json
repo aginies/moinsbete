@@ -576,6 +576,10 @@
     "items_deleted": "{count} éléments expirés supprimés",
     "nothing_to_clean": "Rien à nettoyer",
     "cartes_title": "Cartes",
-    "cartes_desc": "Activer ou désactiver les cartes globalement sur le site"
+    "cartes_desc": "Activer ou désactiver les cartes globalement sur le site",
+    "admin": "Admin",
+    "user": "Utilisateur",
+    "active": "Actif",
+    "disabled": "Désactivé"
   }
 }
