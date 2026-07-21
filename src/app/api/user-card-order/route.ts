@@ -18,7 +18,9 @@ export async function GET() {
     where: { id: session.user.id },
     select: { cardOrder: true },
   })
-  return NextResponse.json({ order: user?.cardOrder ?? DEFAULT_ORDER })
+  const cardOrder = user?.cardOrder
+  const order = typeof cardOrder === 'string' ? JSON.parse(cardOrder) : cardOrder
+  return NextResponse.json({ order: order ?? DEFAULT_ORDER })
 }
 
 export async function POST(request: NextRequest) {
