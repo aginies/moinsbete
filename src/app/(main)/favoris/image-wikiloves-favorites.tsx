@@ -12,7 +12,7 @@ import { ImageHint } from '@/components/feed/image-hint'
 import { ShareButton } from '@/components/feed/share-button'
 import { useState, useCallback } from 'react'
 import { useItemShare } from '@/components/feed/use-item-share'
-import { ShareToLobbyFavoritesButton } from './share-to-lobby-button'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 const WIKILOVES_FAVORITES_KEY = 'image_wikiloves_favorites'
 
@@ -73,11 +73,7 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
-      <ShareToLobbyFavoritesButton
-        isShared={isShared}
-        onToggle={onShareToggle}
-        loading={isSharing}
-      />
+        <ShareToLobbyButton resourceId={item.docid} resourceType="IMAGE_WIKILOVES" />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-indigo-600 opacity-60 hover:opacity-100 hover:text-indigo-800 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:text-indigo-200 dark:hover:bg-indigo-900/40 transition-all"

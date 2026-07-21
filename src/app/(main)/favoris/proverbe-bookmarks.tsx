@@ -9,7 +9,7 @@ import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-li
 import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
-import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby-button'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { ProverbeFavoriteDoc } from '@/lib/proverbe-bookmark'
 
 const PROVERBE_FAVORITES_KEY = 'proverbe_favorites'
@@ -75,7 +75,7 @@ function ProverbeFavoriteItem({ item, onRemove, onShareToggle, isShared, isShari
         >
           <ArrowUpRight className="h-4 w-4" />
         </Link>
-        <ShareToLobbyFavoritesButton isShared={isShared} onToggle={onShareToggle} loading={isSharing} />
+        <ShareToLobbyButton resourceId={item.id} resourceType="PROVERBE" />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-emerald-600 opacity-60 hover:opacity-100 hover:text-emerald-800 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:text-emerald-200 dark:hover:bg-emerald-900/40 transition-all"

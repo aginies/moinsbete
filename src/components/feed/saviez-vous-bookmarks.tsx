@@ -11,7 +11,7 @@ import { ShareButton } from './share-button'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { useItemShare } from './use-item-share'
-import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby-button'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 export interface SaviezVousFavoriteDoc {
   id: string
@@ -78,11 +78,7 @@ function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage, isShared, onS
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={itemShareUrl} />
-        <ShareToLobbyFavoritesButton
-          isShared={isShared}
-          onToggle={onShareToggle}
-          loading={isSharing}
-        />
+        <ShareToLobbyButton resourceId={item.id} resourceType="SAVIEZ_VOUS" />
         <Link
           href={`/saviez-vous/${item.id}`}
           className="rounded-full p-1.5 text-blue-600 opacity-60 hover:opacity-100 hover:text-blue-800 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"
