@@ -219,12 +219,12 @@ export function ImageWikimediaCard({
           )
 
           return (
-            <div className="flex flex-col gap-1.5 w-full">
-              <div className="flex gap-1.5 flex-wrap">
+            <div className="flex flex-col gap-1.5 w-full overflow-hidden">
+              <div className="flex gap-1.5 overflow-x-auto pb-1 flex-nowrap md:flex-wrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {row1.map(renderTopicButton)}
               </div>
               {row2.length > 0 && (
-                <div className="flex gap-1.5 flex-wrap">
+                <div className="flex gap-1.5 overflow-x-auto pb-1 flex-nowrap md:flex-wrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                   {row2.map(renderTopicButton)}
                 </div>
               )}
