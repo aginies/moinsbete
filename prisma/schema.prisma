@@ -14,7 +14,7 @@ model User {
   email                        String                @unique
   passwordHash                 String
   displayName                  String?
-  role                         UserRole              @default(USER)
+  role                         UserRole              @default("USER")
   enabled                      Boolean               @default(true)
   lastLogin                    DateTime?
   lastVisited                  DateTime?
@@ -37,7 +37,6 @@ model User {
   growthPlan                   GrowthPlan?
   resetTokens                  PasswordResetToken[]
   sharedBookmarks              SharedLobbyBookmark[]
-  sharedWithMe                 SharedLobbyBookmark[] @relation("SharedWithUser")
   suggestionComments           SuggestionComment[]
   topicSuggestions             TopicSuggestion[]
   userSuggestions              UserSuggestion[]
@@ -73,7 +72,7 @@ model Source {
   title        String
   slug         String        @unique
   author       String?
-  type         SourceType    @default(WIKIPEDIA)
+  type         SourceType    @default("WIKIPEDIA")
   url          String?
   coverUrl     String?
   description  String?
@@ -151,7 +150,7 @@ model Bookmark {
   id           String       @id @default(cuid())
   userId       String
   ideaId       String?
-  type         BookmarkType @default(IDEA)
+  type         BookmarkType @default("IDEA")
   meta         Json?
   createdAt    DateTime     @default(now())
   resourceId   String?
@@ -164,7 +163,6 @@ model Bookmark {
 
   @@unique([userId, ideaId])
   @@unique([userId, resourceId])
-  @@index([userId])
 }
 
 model GrowthPlan {
@@ -185,7 +183,7 @@ model TopicSuggestion {
   userId       String?
   confidence   Float
   articleCount Int              @default(0)
-  status       SuggestionStatus @default(PENDING)
+  status       SuggestionStatus @default("PENDING")
   mergedIntoId String?
   createdAt    DateTime         @default(now())
   parentTopic  Topic?           @relation("ParentSuggestion", fields: [parentId], references: [id])
@@ -341,12 +339,11 @@ model SharedLobbyBookmark {
   ideaId           String?
   resourceId       String?
   resourceType     String
-  sharedWithUserId String?
   createdAt        DateTime @default(now())
   meta             Json?
+  sharedWithUserId String?
   idea             Idea?    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sharedWithUser   User?    @relation("SharedWithUser", fields: [sharedWithUserId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([resourceType])

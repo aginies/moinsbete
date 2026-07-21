@@ -29,7 +29,7 @@ export function middleware(request: NextRequest) {
     `form-action 'self'`,
     `worker-src 'self' blob:`,
     `manifest-src 'self'`,
-    `upgrade-insecure-requests`,
+    ...(isDev ? [] : ['upgrade-insecure-requests']),
   ].join('; ')
 
   response.headers.set('Content-Security-Policy', csp)
