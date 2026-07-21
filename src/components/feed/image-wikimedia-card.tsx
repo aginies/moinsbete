@@ -203,7 +203,7 @@ export function ImageWikimediaCard({
             <button
               key={topic.id}
               onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
-              className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+              className={`px-2.5 py-1 text-xs rounded-full border transition-colors min-w-[7rem] ${
                 topic.active
                   ? 'bg-rose-600 text-white border-rose-600'
                   : 'bg-white dark:bg-neutral-800 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:border-rose-400'
