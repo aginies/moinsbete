@@ -131,8 +131,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
         <VisibilityButton color={buttonColor} label="Afficher Actualité CNRS" onClick={onToggle || handleToggle} />
       ) : (
         <div
-          onClick={loadArticle}
-          className="flex h-full flex-col rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow"
+          className="flex h-full flex-col rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 hover:shadow-md transition-shadow"
         >
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">

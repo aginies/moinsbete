@@ -176,8 +176,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
 
   const cardContent = (
     <div
-      onClick={swipeable ? undefined : handleClick}
-      className="rounded-xl border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-cyan-950/30 cursor-pointer hover:shadow-md transition-shadow"
+      className="rounded-xl border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-cyan-950/30 hover:shadow-md transition-shadow"
     >
       <CardHeader
         icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
