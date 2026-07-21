@@ -547,7 +547,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
                   disabled={isSharing === idea.id}
                   title="Partager au lobby"
                 >
-                  <Share2 className={`h-4 w-4 ${sharedIdeaIds.has(idea.id) ? 'text-green-500' : 'text-red-500'}`} />
+                  <Share2 className={`h-4 w-4 ${sharedIdeaIds.has(idea.id) ? 'text-green-500' : 'text-muted-foreground'}`} />
                   <span className="text-xs">Lobby</span>
                 </button>
                 <button
