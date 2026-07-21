@@ -184,6 +184,17 @@ async function fetchFromCache(source: string): Promise<WikiLovesImage | null> {
   }
 }
 
+async function cacheFallbackImage(image: WikiLovesImage): Promise<void> {
+  const now = new Date()
+  const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+  
+  await prisma.cachedWikiLovesImage.upsert({
+    where: { docid: image.docid },
+    update: { title: image.titre, author: image.auteur, imageUrl: image.imageUrl, commonsUrl: image.link, license: image.droits, year: new Date().getFullYear(), source: 'FALLBACK', scrapedAt: now, expiresAt },
+    create: { docid: image.docid, title: image.titre, author: image.auteur, imageUrl: image.imageUrl, commonsUrl: image.link, license: image.droits, year: new Date().getFullYear(), source: 'FALLBACK', scrapedAt: now, expiresAt },
+  })
+}
+
 async function fetchRandomImage(event?: string): Promise<WikiLovesImage | null> {
   const events = event && WIKILOVES_EVENTS[event] ? [event] : Object.keys(WIKILOVES_EVENTS)
   
@@ -195,6 +206,28 @@ async function fetchRandomImage(event?: string): Promise<WikiLovesImage | null> 
     if (evt === 'wle') {
       const cached = await fetchFromCache('EARTH')
       if (cached) return cached
+    }
+  }
+
+  const cachedFallback = await fetchFromCache('FALLBACK')
+  if (cachedFallback) return cachedFallback
+
+  const fallbackSearchTerms = ['Wiki Loves Earth', 'Wiki Loves Monuments', 'Nature', 'Architecture', 'France', 'Wildlife']
+  const shuffled = fallbackSearchTerms.sort(() => Math.random() - 0.5)
+  
+  for (const term of shuffled) {
+    const files = await searchFiles(term)
+    if (files.length === 0) continue
+    
+    const shuffledFiles = [...files].sort(() => Math.random() - 0.5)
+    const maxAttempts = Math.min(shuffledFiles.length, 5)
+    
+    for (let i = 0; i < maxAttempts; i++) {
+      const image = await fetchImageInfo(shuffledFiles[i])
+      if (image && image.imageUrl) {
+        await cacheFallbackImage(image)
+        return image
+      }
     }
   }
 
