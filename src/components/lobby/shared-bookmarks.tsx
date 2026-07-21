@@ -84,6 +84,7 @@ interface SharedBookmark {
     definitions?: string[]
   } | null
   user: { id: string; displayName: string | null; email: string }
+  sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }>
 }
 
 interface SharedBookmarksProps {
@@ -103,6 +104,7 @@ interface SharedBookmarksProps {
   searchQuery?: string
   onTypeChange?: (value: string) => void
   onSearchChange?: (value: string) => void
+  emptyMessage?: string
 }
 
 function IdeaBookmarkItem({
@@ -159,6 +161,12 @@ function IdeaBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
         {showBookmarkBtn && (
           <Button
             variant="ghost"
@@ -255,6 +263,12 @@ function SaviezVousBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
         {showBookmarkBtn && (
           <Button
             variant="ghost"
@@ -377,6 +391,12 @@ function WikiImageBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
         {showBookmarkBtn && (
           <Button
             variant="ghost"
@@ -653,6 +673,12 @@ function WikiMediaBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
         {showBookmarkBtn && (
           <Button
             variant="ghost"
@@ -790,6 +816,12 @@ function ProverbeBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
         {showBookmarkBtn && (
           <Button
             variant="ghost"
@@ -835,6 +867,7 @@ export function SharedBookmarks({
   searchQuery = '',
   onTypeChange,
   onSearchChange,
+  emptyMessage,
 }: SharedBookmarksProps) {
   const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.proverbe)
 
@@ -884,7 +917,7 @@ export function SharedBookmarks({
 
       {items.length === 0 ? (
         <div className="rounded-xl border border-border/60 bg-card p-12 text-center">
-          <p className="text-muted-foreground">Aucun favori partagé</p>
+          <p className="text-muted-foreground">{emptyMessage || 'Aucun favori partagé'}</p>
         </div>
       ) : (
         <div className="space-y-4">
