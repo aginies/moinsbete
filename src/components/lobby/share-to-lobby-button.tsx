@@ -247,14 +247,7 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
       <DialogContent className="sm:max-w-md">
         <DialogTitle className="sr-only">Partager au lobby</DialogTitle>
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm">Partager au lobby</h3>
-            {!isAnyoneShared && (
-              <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={handleToggle}>
-                Partager
-              </Button>
-            )}
-          </div>
+          <h3 className="font-semibold text-sm">Partager au lobby</h3>
 
           {isAnyoneShared && (
             <div className="space-y-2">
@@ -339,10 +332,9 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
                     <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                       <span className="text-xs font-medium">{(user.displayName || user.email)[0].toUpperCase()}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{user.displayName || user.email}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{user.displayName || user.email}</p>
+                  </div>
                     {recentUserIds.includes(user.id) && (
                       <Badge variant="outline" className="h-4 text-[10px] px-1">Récent</Badge>
                     )}

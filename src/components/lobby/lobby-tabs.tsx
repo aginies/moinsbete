@@ -1,6 +1,7 @@
 'use client'
 
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SuggestionList } from './suggestion-list'
 import { SharedBookmarks } from './shared-bookmarks'
@@ -40,6 +41,7 @@ const TYPE_FILTERS = [
 ]
 
 export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks, sharedByMeBookmarks, currentUserId, isAdmin, totalPages, totalPagesSharedWithMe, totalPagesSharedByMe, currentPage, userFavoriteIds }: LobbyTabsProps) {
+  const t = useTranslations()
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
@@ -222,10 +224,10 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
       <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="favoris">Favoris partagés</TabsTrigger>
-        <TabsTrigger value="partage">Partagé avec vous</TabsTrigger>
-        <TabsTrigger value="mies">Ce que j'ai partagé</TabsTrigger>
-        <TabsTrigger value="discuter">Discuter</TabsTrigger>
+        <TabsTrigger value="favoris">{t('feed.shared_favorites')}</TabsTrigger>
+        <TabsTrigger value="partage">{t('feed.partage_avec_vous')}</TabsTrigger>
+        <TabsTrigger value="mies">{t('feed.partage_utilisateurs')}</TabsTrigger>
+        <TabsTrigger value="discuter">{t('feed.discuss')}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="discuter">
