@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Share2 } from 'lucide-react'
 import { shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
 import { toast } from 'sonner'
@@ -16,9 +16,14 @@ interface ShareToLobbyButtonProps {
 export function ShareToLobbyButton({ resourceId, resourceType, icon, className, meta }: ShareToLobbyButtonProps) {
   const [isShared, setIsShared] = useState(false)
   const [loading, setLoading] = useState(false)
+  const checkedRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
-    isSharedResourceToLobby(resourceType, resourceId).then(setIsShared).catch(() => {})
+    const key = `${resourceType}:${resourceId}`
+    if (!checkedRef.current.has(key)) {
+      checkedRef.current.add(key)
+      isSharedResourceToLobby(resourceType, resourceId).then(setIsShared).catch(() => {})
+    }
   }, [resourceType, resourceId])
 
   const handleToggle = useCallback(async () => {
