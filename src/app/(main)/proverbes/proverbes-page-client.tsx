@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import { Quote, Search, BookOpen, Clock, Trash2, RefreshCw } from 'lucide-react'
+import { Quote, Search, BookOpen, Clock, Trash2, RefreshCw, ChevronDown, ChevronUp, Filter } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { CardHeader } from '@/components/feed/card-header'
 import { ProverbeCard, type Proverbe } from '@/components/feed/proverbe-card'
+import { Badge } from '@/components/ui/badge'
+import { useTranslations } from 'next-intl'
 
 interface SearchSuggestion {
   id: string
@@ -40,9 +42,41 @@ function addToHistory(text: string) {
   } catch {}
 }
 
-async function searchProverbes(term: string): Promise<SearchSuggestion[]> {
+async function fetchSources(): Promise<string[]> {
   try {
-    const res = await fetch(`/api/proverbes?action=search&q=${encodeURIComponent(term)}`, {
+    const res = await fetch('/api/proverbes?action=sources', {
+      signal: AbortSignal.timeout(5000),
+    })
+    const data = await res.json()
+    return data.sources || []
+  } catch {
+    return []
+  }
+}
+
+async function fetchAllProverbes(categories?: string[]): Promise<SearchSuggestion[]> {
+  try {
+    const params = new URLSearchParams({ action: 'all' })
+    if (categories && categories.length > 0) {
+      params.set('categories', categories.join(','))
+    }
+    const res = await fetch(`/api/proverbes?${params.toString()}`, {
+      signal: AbortSignal.timeout(15000),
+    })
+    const data = await res.json()
+    return data.proverbs || []
+  } catch {
+    return []
+  }
+}
+
+async function searchProverbes(term: string, categories?: string[]): Promise<SearchSuggestion[]> {
+  try {
+    const params = new URLSearchParams({ action: 'search', q: term })
+    if (categories && categories.length > 0) {
+      params.set('categories', categories.join(','))
+    }
+    const res = await fetch(`/api/proverbes?${params.toString()}`, {
       signal: AbortSignal.timeout(10000),
     })
     const data = await res.json()
@@ -73,6 +107,13 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
   const [loading, setLoading] = useState(false)
   const [history, setHistory] = useState<string[]>(getHistory())
   const [error, setError] = useState(false)
+  const [allSources, setAllSources] = useState<string[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [showCategories, setShowCategories] = useState(false)
+  const [allProverbes, setAllProverbes] = useState<SearchSuggestion[]>([])
+  const [showAllList, setShowAllList] = useState(false)
+
+  const t = useTranslations()
 
   const loadProverbe = useCallback(async () => {
     setLoading(true)
@@ -95,6 +136,16 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
     loadProverbe()
   }, [loadProverbe, currentProverbe])
 
+  useEffect(() => {
+    fetchSources().then(sources => setAllSources(sources))
+  }, [])
+
+  useEffect(() => {
+    fetchAllProverbes(selectedCategories).then(proverbes => {
+      setAllProverbes(proverbes)
+    })
+  }, [selectedCategories])
+
   const filteredSuggestions = useMemo(() => {
     if (searchTerm.length < 2) return []
     return suggestions
@@ -103,14 +154,17 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
   useEffect(() => {
     if (searchTerm.length >= 2) {
       const timer = setTimeout(() => {
-        searchProverbes(searchTerm).then(results => {
+        searchProverbes(searchTerm, selectedCategories).then(results => {
           setSuggestions(results)
           setShowSuggestions(true)
         })
       }, 300)
       return () => clearTimeout(timer)
+    } else {
+      setSuggestions([])
+      setShowSuggestions(false)
     }
-  }, [searchTerm])
+  }, [searchTerm, selectedCategories])
 
   const handleRefresh = useCallback(async () => {
     await loadProverbe()
@@ -119,7 +173,28 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
   const handleSelectSuggestion = useCallback((suggestion: SearchSuggestion) => {
     setSearchTerm(suggestion.text)
     setShowSuggestions(false)
+    setShowAllList(false)
     setCurrentProverbe(suggestion as Proverbe)
+  }, [])
+
+  const handleSelectFromAllList = useCallback((proverb: SearchSuggestion) => {
+    setSearchTerm(proverb.text)
+    setShowAllList(false)
+    setCurrentProverbe(proverb as Proverbe)
+  }, [])
+
+  const handleInputFocus = useCallback(() => {
+    if (searchTerm.length < 2) {
+      setShowAllList(true)
+      setShowSuggestions(false)
+    }
+  }, [searchTerm])
+
+  const handleInputBlur = useCallback(() => {
+    setTimeout(() => {
+      setShowAllList(false)
+      setShowSuggestions(false)
+    }, 200)
   }, [])
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
@@ -131,22 +206,22 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
     setHistory(getHistory())
 
     setLoading(true)
-    const results = await searchProverbes(trimmed)
+    const results = await searchProverbes(trimmed, selectedCategories)
     if (results.length > 0) {
       setCurrentProverbe(results[0] as Proverbe)
     }
     setLoading(false)
-  }, [searchTerm])
+  }, [searchTerm, selectedCategories])
 
   const handleHistoryClick = useCallback(async (text: string) => {
     setSearchTerm(text)
     setLoading(true)
-    const results = await searchProverbes(text)
+    const results = await searchProverbes(text, selectedCategories)
     if (results.length > 0) {
       setCurrentProverbe(results[0] as Proverbe)
     }
     setLoading(false)
-  }, [])
+  }, [selectedCategories])
 
   const handleClearHistory = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -154,6 +229,20 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
       setHistory([])
     }
   }, [])
+
+  const toggleCategory = useCallback((category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    )
+  }, [])
+
+  const clearCategories = useCallback(() => {
+    setSelectedCategories([])
+  }, [])
+
+  const hasActiveCategories = selectedCategories.length > 0
 
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-4xl md:p-6">
@@ -183,11 +272,14 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
                       const filtered = val.replace(/[^a-zA-ZàâäéèêëîïôöùûüçÂÀÆÉÈÊËÎÏÔÖÙÛÜÇœŒ\s'-]/g, '')
                       if (filtered.length <= 100) {
                         setSearchTerm(filtered)
+                        if (filtered.length >= 2) {
+                          setShowAllList(false)
+                        }
                       }
                     }}
-                    onFocus={() => filteredSuggestions.length > 0 && setShowSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    placeholder="Rechercher un proverbe..."
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
+                    placeholder={t('feed.search_proverbe_placeholder')}
                     className="pl-10 pr-10 border-emerald-200 focus:border-emerald-400 dark:border-emerald-800 dark:focus:border-emerald-600"
                   />
                   {searchTerm && (
@@ -196,6 +288,7 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
                       onClick={() => {
                         setSearchTerm('')
                         setShowSuggestions(false)
+                        setShowAllList(false)
                       }}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors"
                     >
@@ -221,6 +314,31 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
                     ))}
                   </div>
                 )}
+
+                {showAllList && allProverbes.length > 0 && (
+                  <div className="absolute z-50 mt-1 w-full rounded-lg border border-emerald-200 bg-white dark:border-emerald-800 dark:bg-gray-900 shadow-lg max-h-80 overflow-y-auto">
+                    <div className="sticky top-0 bg-white dark:bg-gray-900 px-4 py-2 border-b border-emerald-200 dark:border-emerald-800">
+                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        {t('feed.all_proverbes', { count: allProverbes.length })}
+                      </span>
+                    </div>
+                    {allProverbes.map((proverb, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onMouseDown={() => handleSelectFromAllList(proverb)}
+                        className="w-full text-left px-4 py-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors flex items-center justify-between"
+                      >
+                        <span className="text-sm text-emerald-900 dark:text-emerald-100 truncate pr-4">
+                          {proverb.text}
+                        </span>
+                        <span className="text-xs text-emerald-600 dark:text-emerald-400 shrink-0">
+                          {proverb.source}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <Button type="submit" disabled={loading || !searchTerm.trim()} className="bg-emerald-500 hover:bg-emerald-600 text-white">
                 <BookOpen className="h-4 w-4" />
@@ -228,6 +346,78 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
               </Button>
             </div>
           </form>
+
+          <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800">
+              <button
+                type="button"
+                onClick={() => setShowCategories(!showCategories)}
+                className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 transition-colors"
+              >
+                <Filter className="h-4 w-4" />
+                {t('feed.categories')}
+                {hasActiveCategories && (
+                  <span className="inline-flex items-center justify-center rounded-full bg-emerald-500 text-white text-xs min-w-[20px] h-5 px-1">
+                    {selectedCategories.length}
+                  </span>
+                )}
+                {showCategories ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              </button>
+
+              {showCategories && (
+                <div className="mt-3 space-y-2">
+                  {allSources.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {allSources.map((source) => (
+                        <label
+                          key={source}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors text-sm"
+                          style={{
+                            borderColor: selectedCategories.includes(source)
+                              ? 'rgb(16, 185, 129)'
+                              : 'rgb(187, 247, 208)',
+                            backgroundColor: selectedCategories.includes(source)
+                              ? 'rgb(16, 185, 129)'
+                              : 'rgb(240, 253, 244)',
+                            color: selectedCategories.includes(source)
+                              ? 'white'
+                              : 'rgb(22, 101, 52)',
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedCategories.includes(source)}
+                            onChange={() => toggleCategory(source)}
+                            className="sr-only"
+                          />
+                          <span className="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors"
+                            style={{
+                              borderColor: selectedCategories.includes(source) ? 'white' : 'rgb(16, 185, 129)',
+                              backgroundColor: selectedCategories.includes(source) ? 'white' : 'transparent',
+                            }}
+                          >
+                            {selectedCategories.includes(source) && (
+                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </span>
+                          <span>{source}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                  {hasActiveCategories && (
+                    <button
+                      type="button"
+                      onClick={clearCategories}
+                      className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200 underline"
+                    >
+                      {t('feed.clear_filters')}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
         </div>
       </div>
 
@@ -238,7 +428,7 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 <h3 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-                  Recherches récentes
+                  {t('feed.recent_searches')}
                 </h3>
               </div>
               <button
@@ -247,7 +437,7 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
                 className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border border-emerald-300 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:border-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 dark:hover:bg-emerald-800/40 transition-colors"
               >
                 <Trash2 className="h-3 w-3" />
-                Effacer
+                {t('feed.clear')}
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -273,7 +463,7 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
           onRefresh={handleRefresh}
           loading={loading}
           showToggle={false}
-          title="Proverbe"
+          title={t('feed.proverbe')}
           linkHref={null}
         />
       )}
@@ -281,7 +471,7 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
       {error && !loading && (
         <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-100/50 p-3 dark:border-emerald-800 dark:bg-emerald-900/20">
           <p className="text-sm text-emerald-700 dark:text-emerald-300 text-center">
-            Erreur lors du chargement du proverbe.
+            {t('feed.proverbe_load_error')}
           </p>
         </div>
       )}
