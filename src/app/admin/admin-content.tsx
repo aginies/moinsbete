@@ -57,12 +57,12 @@ export function AdminContent({ stats, users }: AdminContentProps) {
   const [isPending, startTransition] = useTransition()
   const locale = useLocale()
   const { setLocale } = useSetLocale()
-  const t = useTranslations('Admin')
+  const t = useTranslations('admin')
 
   const handleRefresh = () => {
     startTransition(() => {
       router.refresh()
-      toast.success(t('admin.statistics_updated'))
+      toast.success(t('statistics_updated'))
     })
   }
 
@@ -70,7 +70,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
     <div className="mx-auto max-w-4xl p-4 md:p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-bold">{t('admin.admin_title')}</h1>
+          <h1 className="text-2xl font-heading font-bold">{t('admin_title')}</h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 rounded-lg border border-input bg-background px-2.5 py-1 h-9 dark:bg-zinc-950">
@@ -85,7 +85,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
             </select>
           </div>
           <Link href="/" className="text-sm text-primary hover:underline">
-            {t('admin.back_to_site')}
+            {t('back_to_site')}
           </Link>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="stats">{t('feed.stats')}</TabsTrigger>
           <TabsTrigger value="users">{t('feed.users')}</TabsTrigger>
-          <TabsTrigger value="cartes">{t('admin.cartes_title')}</TabsTrigger>
+          <TabsTrigger value="cartes">{t('cartes_title')}</TabsTrigger>
           <TabsTrigger value="cleanup">{t('feed.cleanup')}</TabsTrigger>
         </TabsList>
 
@@ -268,10 +268,10 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   startTransition(async () => {
                     const result = await cleanupExpiredCache()
                     if (result.totalDeleted > 0) {
-                      toast.success(t('admin.items_deleted', { count: result.totalDeleted }))
+                      toast.success(t('items_deleted', { count: result.totalDeleted }))
                       router.refresh()
                     } else {
-                      toast.info(t('admin.nothing_to_clean'))
+                      toast.info(t('nothing_to_clean'))
                     }
                   })
                 }}
@@ -314,7 +314,7 @@ function UserRow({ user }: { user: AdminUser }) {
     startTransition(async () => {
       const result = await toggleUserEnabled(user.id, !user.enabled)
       if (result.success) {
-        toast.success(user.enabled ? t('admin.user_disabled') : t('admin.user_enabled'))
+        toast.success(user.enabled ? t('user_disabled') : t('user_enabled'))
         router.refresh()
       } else if (result.error) {
         toast.error(result.error)
@@ -406,7 +406,7 @@ function CartesTab() {
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
-        {t('admin.cartes_desc')}
+        {t('cartes_desc')}
       </p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {cardConfigs.map(card => (
