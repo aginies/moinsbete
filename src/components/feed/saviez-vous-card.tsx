@@ -34,6 +34,7 @@ interface SaviezVousCardProps {
   storageKey?: string
   userId?: string
   isVisible?: boolean
+  linkAs?: string
 }
 
 async function fetchRandomFact() {
@@ -64,6 +65,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   storageKey = 'saviez_vous',
   userId,
   isVisible,
+  linkAs,
 }: SaviezVousCardProps) {
   const [fact, setFact] = useState(() => {
     const saved = sessionStorage.getItem('saviez_vous_fact')
@@ -194,7 +196,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         title="Le saviez-vous ?"
         titleColor="text-blue-800"
         titleDarkColor="dark:text-blue-300"
-        linkHref={showLink ? '/le-saviez-vous' : undefined}
+        linkHref={showLink ? (linkAs || '/le-saviez-vous') : undefined}
         showToggle={showToggle}
         onToggle={onToggle || handleToggle}
         onRefresh={handleClick}
