@@ -161,7 +161,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
               <EyeOff className="h-4 w-4" />
             </button>
           )}
-          <RefreshCw className={`h-4 w-4 text-green-600 dark:text-green-400 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 text-green-600 dark:text-green-400 cursor-pointer transition-transform hover:scale-110 ${loading ? 'animate-spin' : ''}`} onClick={(e) => { e.stopPropagation(); loadArticle() }} />
              {article && (
             <button
               onClick={(e) => {
@@ -193,7 +193,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
             src={article.imageUrl}
             alt={article.title}
             loading="lazy"
-            className="w-full h-72 object-cover transition-opacity hover:opacity-90"
+            className="w-full h-80 object-cover transition-opacity hover:opacity-90"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none'
             }}

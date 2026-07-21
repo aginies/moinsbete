@@ -7,6 +7,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 # Agent Rules
 
 - Run test after changes
+- Run build after major code changes (new features, dependency updates, config changes)
+- Check for new vulnerabilities when modifying code (XSS, CSRF, auth bypass, injection)
 - Sanitize URL always
 - Avoid duplicate code
 - Find simple solution
