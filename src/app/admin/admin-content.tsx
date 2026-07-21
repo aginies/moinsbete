@@ -5,6 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
@@ -55,6 +63,7 @@ interface AdminContentProps {
 export function AdminContent({ stats, users }: AdminContentProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [cleanupOpen, setCleanupOpen] = useState(false)
   const locale = useLocale()
   const { setLocale } = useSetLocale()
   const t = useTranslations()
@@ -263,25 +272,49 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  startTransition(async () => {
-                    const result = await cleanupExpiredCache()
-                    if (result.totalDeleted > 0) {
-                      toast.success(adminT('items_deleted', { count: result.totalDeleted }))
-                      router.refresh()
-                    } else {
-                      toast.info(adminT('nothing_to_clean'))
-                    }
-                  })
-                }}
-                disabled={isPending}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {t('feed.delete_expired_cache')}
-              </Button>
+              <Dialog open={cleanupOpen} onOpenChange={setCleanupOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isPending}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {t('feed.delete_expired_cache')}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Confirmer le nettoyage</DialogTitle>
+                    <DialogDescription>
+                      Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired} éléments expirés ?
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setCleanupOpen(false)} disabled={isPending}>
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={async () => {
+                        setCleanupOpen(false)
+                        startTransition(async () => {
+                          const result = await cleanupExpiredCache()
+                          if (result.totalDeleted > 0) {
+                            toast.success(adminT('items_deleted', { count: result.totalDeleted }))
+                            router.refresh()
+                          } else {
+                            toast.info(adminT('nothing_to_clean'))
+                          }
+                        })
+                      }}
+                      disabled={isPending}
+                    >
+                      Supprimer
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </TabsContent>
