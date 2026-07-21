@@ -13,6 +13,7 @@ import { ImagePixabayCard } from '@/components/feed/image-pixabay-card'
 import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
 import { ProverbeCard } from '@/components/feed/proverbe-card'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
@@ -64,6 +65,7 @@ async function fetchCardOrder(userId: string): Promise<string[]> {
 
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, csrfToken: initialCsrfToken }: SujetsClientProps) {
   const [csrfToken, setCsrfToken] = useState(initialCsrfToken || '')
+  const router = useRouter()
 
   useEffect(() => {
     const loadCsrf = async () => {
@@ -107,11 +109,15 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     setVisibility(prev => {
       const next = !prev[key]
       if (userId) {
-        updateCardVisibility(field, next, csrfToken).catch(() => {})
+        updateCardVisibility(field, next, csrfToken)
+          .then(() => {
+            router.refresh()
+          })
+          .catch(() => {})
       }
       return { ...prev, [key]: next }
     })
-  }, [userId, csrfToken])
+  }, [userId, csrfToken, router])
 
   const toggleSaviezVous = useCallback(() => toggleVisibility('saviezVousCardVisible', 'saviezVous'), [toggleVisibility])
   const toggleWikipedia = useCallback(() => toggleVisibility('wikipediaImageCardVisible', 'wikipedia'), [toggleVisibility])

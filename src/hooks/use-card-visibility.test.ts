@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useCardVisibility } from './use-card-visibility'
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    refresh: vi.fn(),
+  }),
+}))
+
 vi.mock('react', () => {
   let stateVal: any
   return {
