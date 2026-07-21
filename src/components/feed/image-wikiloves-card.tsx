@@ -98,7 +98,7 @@ export function ImageWikiLovesCard({
   }, [userId])
 
   const cardClassName = fullImage
-    ? 'rounded-xl border-2 border-indigo-800 bg-gradient-to-br from-indigo-50 to-emerald-50 dark:border-indigo-900 dark:from-indigo-950/30 dark:to-emerald-950/30'
+    ? 'rounded-xl border-2 border-indigo-800 bg-gradient-to-br from-indigo-50 to-emerald-50 p-5 dark:border-indigo-900 dark:from-indigo-950/30 dark:to-emerald-950/30'
     : 'rounded-xl border-2 border-indigo-800 bg-gradient-to-br from-indigo-50 to-emerald-50 p-5 dark:border-indigo-900 dark:from-indigo-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow'
 
   return (
