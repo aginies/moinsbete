@@ -22,7 +22,6 @@ interface LobbyTabsProps {
     IMAGE_WIKIMEDIA: Set<string>
     IMAGE_WIKILOVES: Set<string>
     PROVERBE: Set<string>
-    PORTAIL_LEXICAL: Set<string>
   }
 }
 
@@ -34,7 +33,6 @@ const TYPE_FILTERS = [
   { value: 'IMAGE_WIKIMEDIA', label: 'Wikimedia' },
   { value: 'IMAGE_WIKILOVES', label: 'Wiki Loves' },
   { value: 'PROVERBE', label: 'Proverbes' },
-  { value: 'PORTAIL_LEXICAL', label: 'Lexical' },
 ]
 
 export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin, totalPages, currentPage, userFavoriteIds }: LobbyTabsProps) {
@@ -118,15 +116,10 @@ export function LobbyTabs({ suggestions, sharedBookmarks, currentUserId, isAdmin
           const source = ((b as any).proverbe.source || '').toLowerCase()
           if (text.includes(q) || signification.includes(q) || source.includes(q)) return true
         }
-        if ((b as any).portailLexicalWord) {
-          const form = ((b as any).portailLexicalWord.form || '').toLowerCase()
-          const description = ((b as any).portailLexicalWord.description || '').toLowerCase()
-          if (form.includes(q) || description.includes(q)) return true
-        }
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage || (b as any).wikiMediaImage || (b as any).wikiLovesImage || (b as any).proverbe || (b as any).portailLexicalWord)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).proverbe)
   }, [sharedBookmarks, activeType, searchQuery])
 
   return (

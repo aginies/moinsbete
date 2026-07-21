@@ -119,6 +119,20 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       })
     : []
 
+  const proverbeBookmarks = sharedBookmarks.filter(b => b.resourceType === 'PROVERBE' && b.resourceId)
+  const cachedConfig = await prisma.cachedConfig.findUnique({
+    where: { key: 'proverbes_all' },
+  })
+  const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = cachedConfig ? JSON.parse(cachedConfig.value) : []
+  const proverbeMap = new Map<string, typeof cachedProverbes[0]>()
+  for (const p of cachedProverbes) {
+    const slug = p.text.toLowerCase()
+      .replace(/[^a-zàâäéèêëîïôöùûüçÂÀÆÉÈÊËÎÏÔÖÙÛÜÇœŒ\s'-]/g, '')
+      .replace(/\s+/g, '_')
+      .substring(0, 100)
+    proverbeMap.set(slug, p)
+  }
+
   const saviezMap = new Map(saviezFacts.map(f => [f.id, f]))
   const imageMap = new Map<string, CachedWikipediaImage>()
   wikiImages.forEach(i => imageMap.set(i.fileUrl, i))
@@ -153,12 +167,12 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       if (!image && bookmark.meta) {
         try {
           const m = typeof bookmark.meta === 'string' ? JSON.parse(bookmark.meta) : bookmark.meta
-          if (typeof m === 'object' && m !== null) {
+          if (typeof m === 'object' && m !== null && 'imageUrl' in m) {
             image = {
               id: bookmark.resourceId,
               docid: bookmark.resourceId,
-              title: (m as Record<string, unknown>).titre || '',
-              author: (m as Record<string, unknown>).auteur || '',
+              title: (m as Record<string, unknown>).titre || (m as Record<string, unknown>).title || '',
+              author: (m as Record<string, unknown>).auteur || (m as Record<string, unknown>).author || '',
               imageUrl: (m as Record<string, unknown>).imageUrl || '',
               commonsUrl: (m as Record<string, unknown>).link || null,
               license: (m as Record<string, unknown>).droits || '',
@@ -197,6 +211,37 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       return { ...bookmark, wikiLovesImage: image as CachedWikiLovesImage | null }
     }
     if (bookmark.resourceType === 'PROVERBE' && bookmark.resourceId) {
+      let proverbe = proverbeMap.get(bookmark.resourceId)
+      if (!proverbe && bookmark.meta) {
+        let meta = bookmark.meta as JsonValue | null
+        if (typeof meta === 'string') {
+          try { meta = JSON.parse(meta) as JsonValue } catch { meta = {} }
+        }
+        if (typeof meta === 'object' && meta !== null && 'text' in meta) {
+          const text = (meta as Record<string, unknown>).text as string
+          if (text) {
+            const slug = text.toLowerCase()
+              .replace(/[^a-zàâäéèêëîïôöùûüçÂÀÆÉÈÊËÎÏÔÖÙÛÜÇœŒ\s'-]/g, '')
+              .replace(/\s+/g, '_')
+              .substring(0, 100)
+            proverbe = proverbeMap.get(slug)
+          }
+        }
+      }
+      if (proverbe) {
+        return {
+          ...bookmark,
+          proverbe: {
+            id: bookmark.resourceId,
+            text: proverbe.text,
+            signification: proverbe.signification || '',
+            source: proverbe.source || '',
+            wiktionnaireUrl: proverbe.wiktionnaireUrl,
+            etymologie: proverbe.etymologie || '',
+            definitions: proverbe.definitions || [],
+          },
+        }
+      }
       let meta = bookmark.meta as JsonValue | null
       if (typeof meta === 'string') {
         try { meta = JSON.parse(meta) as JsonValue } catch { meta = {} }

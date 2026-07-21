@@ -10,9 +10,10 @@ interface ShareToLobbyButtonProps {
   resourceType: string
   icon?: React.ReactNode
   className?: string
+  meta?: Record<string, unknown>
 }
 
-export function ShareToLobbyButton({ resourceId, resourceType, icon, className }: ShareToLobbyButtonProps) {
+export function ShareToLobbyButton({ resourceId, resourceType, icon, className, meta }: ShareToLobbyButtonProps) {
   const [isShared, setIsShared] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -29,7 +30,7 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className }
         setIsShared(false)
         toast.success('Retiré du lobby')
       } else {
-        await shareResourceToLobby(resourceType, resourceId)
+        await shareResourceToLobby(resourceType, resourceId, meta)
         setIsShared(true)
         toast.success('Partagé au lobby')
       }
@@ -38,7 +39,7 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className }
     } finally {
       setLoading(false)
     }
-  }, [isShared, resourceId, resourceType, loading])
+  }, [isShared, resourceId, resourceType, loading, meta])
 
   return (
     <button
