@@ -7,7 +7,7 @@ import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardHeader } from './card-header'
@@ -63,8 +63,7 @@ export function ProverbeCard({
   const [internalProverbe, setInternalProverbe] = useState<Proverbe | null>(null)
   const [internalLoading, setInternalLoading] = useState(false)
   const [error, setError] = useState(false)
-  const [isFavorite, setIsFavorite] = useState(false)
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'proverbe_card_visible', userId })
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'proverbe_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
 
   const proverbe = externalProverbe !== undefined ? externalProverbe : internalProverbe
@@ -87,19 +86,11 @@ export function ProverbeCard({
     }
   }, [externalOnRefresh])
 
-  useEffect(() => {
-    if (userId && proverbe) {
-      isBookmarkedAction('PROVERBE', proverbe.id).then(result => {
-        setIsFavorite(result.isBookmarked)
-      }).catch(() => {})
-    }
-  }, [userId, proverbe])
-
-  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
+  const { isPending, handleBookmark, isFavorite } = useSimpleBookmarkToggle({
     resourceId: proverbe?.id,
     guard: () => !proverbe || !userId,
-    initialFavorite: isFavorite,
-    onFavoriteChange: setIsFavorite,
+    initialFavorite: false,
+    onFavoriteChange: () => {},
     toggleFn: async (action) => {
       await toggleBookmarkAction('PROVERBE', proverbe!.id, action, {
         text: proverbe!.text,

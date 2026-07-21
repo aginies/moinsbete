@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Bookmark, Filter, EyeOff, RefreshCw, Settings } from 'lucide-react'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
@@ -131,6 +131,7 @@ export function BaseImageCard<TTopic>({
   const [error, setError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const checkedImageIdsRef = useRef<Set<string>>(new Set())
 
   const { show: showFromHook, hasMounted, handleToggle: handleVisibilityToggle, buttonColor: visibilityButtonColor } = useCardVisibility({
     storageKey: visibilityStorageKey,
@@ -164,7 +165,8 @@ export function BaseImageCard<TTopic>({
   }, [hasMounted, show, image, loading, error, loadImage])
 
   useEffect(() => {
-    if (image) {
+    if (image && !checkedImageIdsRef.current.has(image.docid)) {
+      checkedImageIdsRef.current.add(image.docid)
       isBookmarkedAction(resourceType as BookmarkType, image.docid).then(result => {
         setIsFavorite(result.isBookmarked)
       }).catch(() => {})

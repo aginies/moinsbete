@@ -9,7 +9,7 @@ import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { VisibilityButton } from './visibility-button'
 import { ImageLoading } from './image-loading'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 
 interface PixabayVideo {
@@ -100,7 +100,6 @@ export function ImagePixabayCard({
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isFavorite, setIsFavorite] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string>('bird')
   const [showCategories, setShowCategories] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -109,6 +108,7 @@ export function ImagePixabayCard({
     storageKey: 'image_pixabay_card_visible',
     defaultShow: true,
     userId,
+    initialShow: isVisible,
   })
 
   const show = isVisible !== undefined ? isVisible : showFromHook
@@ -135,14 +135,6 @@ export function ImagePixabayCard({
       return () => clearTimeout(timer)
     }
   }, [hasMounted, show, video, loading, error, loadVideo])
-
-  useEffect(() => {
-    if (userId && video) {
-      isBookmarkedAction('IMAGE_PIXABAY', String(video.id)).then(result => {
-        setIsFavorite(result.isBookmarked)
-      }).catch(() => {})
-    }
-  }, [userId, video])
 
   useEffect(() => {
     const el = videoRef.current
@@ -196,10 +188,10 @@ export function ImagePixabayCard({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [])
 
-  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
+  const { isPending, handleBookmark, isFavorite } = useSimpleBookmarkToggle({
     resourceId: video ? String(video.id) : undefined,
-    initialFavorite: isFavorite,
-    onFavoriteChange: setIsFavorite,
+    initialFavorite: false,
+    onFavoriteChange: () => {},
     toggleFn: async (action) => {
       await toggleBookmarkAction('IMAGE_PIXABAY', String(video!.id), action, {
         pageURL: video!.pageURL,

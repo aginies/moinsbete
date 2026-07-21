@@ -8,7 +8,7 @@ import { decodeHtmlEntities } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { CardHeader } from './card-header'
 
@@ -56,9 +56,8 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
   const [word, setWord] = useState<PortailLexicalWord | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  const [isFavorite, setIsFavorite] = useState(false)
   const [renderError, setRenderError] = useState<Error | null>(null)
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'portail_lexical_card_visible', userId })
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'portail_lexical_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
 
   const loadWord = useCallback(async () => {
@@ -74,19 +73,11 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
     setLoading(false)
   }, [])
 
-  useEffect(() => {
-    if (userId && word) {
-      isBookmarkedAction('PORTAIL_LEXICAL', word.form).then(result => {
-        setIsFavorite(result.isBookmarked)
-      }).catch(() => {})
-    }
-  }, [userId, word])
-
-  const { isPending, handleBookmark } = useSimpleBookmarkToggle({
+  const { isPending, handleBookmark, isFavorite } = useSimpleBookmarkToggle({
     resourceId: word?.form,
     guard: () => !word || !userId,
-    initialFavorite: isFavorite,
-    onFavoriteChange: setIsFavorite,
+    initialFavorite: false,
+    onFavoriteChange: () => {},
     toggleFn: async (action) => {
       await toggleBookmarkAction('PORTAIL_LEXICAL', word!.form, action, {
         description: word!.description,
