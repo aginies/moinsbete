@@ -272,17 +272,19 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCleanupOpen(true)}
+                  disabled={isPending}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t('feed.delete_expired_cache')}
+                </Button>
+              </div>
+
               <Dialog open={cleanupOpen} onOpenChange={setCleanupOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={isPending}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    {t('feed.delete_expired_cache')}
-                  </Button>
-                </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle>Confirmer le nettoyage</DialogTitle>
