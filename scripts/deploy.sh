@@ -3,12 +3,6 @@ set -euo pipefail
 
 SRC="/home/aginies/moinsbete"
 DEST="/srv/http/moinsbete"
-RUN_PRISMA=false
-for arg in "$@"; do
-  if [ "$arg" = "--prisma" ]; then
-    RUN_PRISMA=true
-  fi
-done
 
 mkdir -p "$DEST"
 
@@ -77,32 +71,18 @@ echo "All critical dependencies installed"
 # Clear Next.js cache to avoid stale types
 rm -rf .next
 
-if [ "$RUN_PRISMA" = true ]; then
-  echo "Running prisma commands..."
-  npx prisma generate
-  npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
-  npx prisma migrate resolve --applied 20260720000001_add_card_order 2>/dev/null || true
+# Mark legacy migrations as applied
+npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
+npx prisma migrate resolve --applied 20260720000001_add_card_order 2>/dev/null || true
 
-  # Stop pm2 app to release SQLite lock before migrations
-  echo "Stopping moinsbete to avoid SQLite lock..."
-  pm2 stop moinsbete 2>/dev/null || true
-  sleep 1
-
-  # Retry prisma migrate deploy with timeout (SQLite can be flaky)
-  MAX_RETRIES=3
-  RETRY=0
-  while [ $RETRY -lt $MAX_RETRIES ]; do
-    if npx prisma migrate deploy 2>/dev/null; then
-      break
-    fi
-    RETRY=$((RETRY + 1))
-    echo "Prisma migrate failed (attempt $RETRY/$MAX_RETRIES), retrying in 2s..."
-    sleep 2
-  done
-fi
 # Always regenerate Prisma client to keep types in sync
 echo "Regenerating Prisma client..."
 npx prisma generate
+
+# Always apply pending migrations
+echo "Applying pending migrations..."
+pm2 stop moinsbete 2>/dev/null || true
+npx prisma migrate deploy
 
 npm run build 2>&1 | tail -20
 if [ -f "ecosystem.config.js" ]; then
