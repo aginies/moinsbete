@@ -35,6 +35,7 @@ interface UseCardVisibilityOptions {
   storageKey: string
   defaultShow?: boolean
   userId?: string
+  initialShow?: boolean
 }
 
 interface UseCardVisibilityReturn {
@@ -44,8 +45,8 @@ interface UseCardVisibilityReturn {
   buttonColor: 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald'
 }
 
-export function useCardVisibility({ storageKey, defaultShow = true, userId }: UseCardVisibilityOptions): UseCardVisibilityReturn {
-  const [show, setShow] = useState(defaultShow)
+export function useCardVisibility({ storageKey, defaultShow = true, userId, initialShow }: UseCardVisibilityOptions): UseCardVisibilityReturn {
+  const [show, setShow] = useState(initialShow !== undefined ? initialShow : defaultShow)
   const [hasMounted, setHasMounted] = useState(false)
   const buttonColor = COLOR_MAP[storageKey] || 'blue'
   const router = useRouter()
@@ -54,7 +55,7 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasMounted(true)
     
-    if (userId) {
+    if (userId && initialShow === undefined) {
       const dbField = DB_FIELD_MAP[storageKey]
       if (dbField) {
         fetch(`/api/user-card-visibility?field=${dbField}`, { credentials: 'include' })
@@ -69,7 +70,7 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
           })
       }
     }
-  }, [userId, storageKey])
+  }, [userId, storageKey, initialShow])
 
   const handleToggle = useCallback(async () => {
     setShow(prev => {

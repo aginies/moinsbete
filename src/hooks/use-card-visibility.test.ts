@@ -49,4 +49,13 @@ describe('useCardVisibility', () => {
       { credentials: 'include' }
     )
   })
+
+  it('skips fetch when initialShow is provided', () => {
+    useCardVisibility({
+      storageKey: 'portail_lexical_card_visible',
+      userId: 'user-1',
+      initialShow: false,
+    })
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
 })

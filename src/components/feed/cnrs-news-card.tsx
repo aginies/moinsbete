@@ -65,7 +65,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'cnrs_news_enabled', userId })
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'cnrs_news_enabled', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
 
   const loadArticle = useCallback(async () => {

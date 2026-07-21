@@ -13,7 +13,7 @@ import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
@@ -80,7 +80,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   const [imageError, setImageError] = useState(false)
   const [imageKey, setImageKey] = useState(0)
   const [showFullImage, setShowFullImage] = useState(false)
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'saviez_vous_card_visible', userId })
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'saviez_vous_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
   const prefetchNextFact = useCallback(async () => {
     const fetched = await fetchRandomFact()
@@ -152,23 +152,11 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     text: fact.text,
   })
 
-  const [isFavorite, setIsFavorite] = useState(false)
-  const factId = fact.id
-
-  useEffect(() => {
-    if (!factId) return
-    let mounted = true
-    isBookmarkedAction('SAVIEZ_VOUS', factId).then((result) => {
-      if (mounted) setIsFavorite(result.isBookmarked)
-    })
-    return () => { mounted = false }
-  }, [factId])
-
-  const { isPending, handleBookmark: handleToggleFavorite } = useSimpleBookmarkToggle({
+  const { isPending, handleBookmark: handleToggleFavorite, isFavorite } = useSimpleBookmarkToggle({
     resourceId: fact?.id,
     guard: () => !fact,
-    initialFavorite: isFavorite,
-    onFavoriteChange: setIsFavorite,
+    initialFavorite: false,
+    onFavoriteChange: () => {},
     toggleFn: async (action) => {
       await toggleBookmarkAction('SAVIEZ_VOUS', fact!.id, action, {
         text: fact!.text,

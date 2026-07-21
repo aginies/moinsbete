@@ -13,7 +13,7 @@ import { CardHeader } from './card-header'
 import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { ImageLoading } from './image-loading'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { encodeImageToUrl } from '@/lib/image-url-encoder'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
@@ -76,7 +76,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   const [rateLimitError, setRateLimitError] = useState<string | null>(null)
   const [imageError, setImageError] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'wikipedia_image_card_visible', userId })
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'wikipedia_image_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
 
   // Background pre-fetching
@@ -161,23 +161,11 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     text: image ? `${image.description}\n\nDate: ${image.date}` : '',
   })
 
-  const [isFavorite, setIsFavorite] = useState(false)
-  const imageId = image?.fileUrl || ''
-
-  useEffect(() => {
-    if (!imageId) return
-    let mounted = true
-    isBookmarkedAction('IMAGE_DU_JOUR', imageId).then((result) => {
-      if (mounted) setIsFavorite(result.isBookmarked)
-    })
-    return () => { mounted = false }
-  }, [imageId])
-
-  const { isPending, handleBookmark: handleToggleFavorite } = useSimpleBookmarkToggle({
+  const { isPending, handleBookmark: handleToggleFavorite, isFavorite } = useSimpleBookmarkToggle({
     resourceId: image?.fileUrl,
     guard: () => !image,
-    initialFavorite: isFavorite,
-    onFavoriteChange: setIsFavorite,
+    initialFavorite: false,
+    onFavoriteChange: () => {},
     toggleFn: async (action) => {
       await toggleBookmarkAction('IMAGE_DU_JOUR', image!.fileUrl, action, {
         imageUrl: image!.imageUrl,
