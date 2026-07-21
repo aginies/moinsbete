@@ -58,7 +58,10 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
 }
 
 export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }: CnrsNewsCardProps) {
-  const [article, setArticle] = useState<CnrsArticle | null>(null)
+  const [article, setArticle] = useState<CnrsArticle | null>(() => {
+    const saved = sessionStorage.getItem('cnrs_article')
+    return saved ? JSON.parse(saved) : null
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
@@ -71,6 +74,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
     const newArticle = await fetchRandomArticle()
     if (newArticle) {
       setArticle(newArticle)
+      sessionStorage.setItem('cnrs_article', JSON.stringify(newArticle))
       setError(false)
     } else {
       setError(true)

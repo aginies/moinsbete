@@ -91,7 +91,10 @@ export function ImagePixabayCard({
   storageKey?: string
   isVisible?: boolean
 }) {
-  const [video, setVideo] = useState<PixabayVideo | null>(null)
+  const [video, setVideo] = useState<PixabayVideo | null>(() => {
+    const saved = sessionStorage.getItem('pixabay_video')
+    return saved ? JSON.parse(saved) : null
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -116,6 +119,7 @@ export function ImagePixabayCard({
     const newVideo = await fetchRandomVideo(activeCategory)
     if (newVideo) {
       setVideo(newVideo)
+      sessionStorage.setItem('pixabay_video', JSON.stringify(newVideo))
       setError(false)
     } else {
       setError(true)

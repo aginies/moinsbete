@@ -65,7 +65,13 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   userId,
   isVisible,
 }: SaviezVousCardProps) {
-  const [fact, setFact] = useState({ id, text, sourceUrl, imageFilename })
+  const [fact, setFact] = useState(() => {
+    const saved = sessionStorage.getItem('saviez_vous_fact')
+    if (saved) {
+      try { return JSON.parse(saved) } catch { /* ignore */ }
+    }
+    return { id, text, sourceUrl, imageFilename }
+  })
   const [nextFact, setNextFact] = useState<{ id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null>(null)
   const [loading, setLoading] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
@@ -92,6 +98,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     if (nextFact) {
       // Instant transition!
       setFact(nextFact)
+      sessionStorage.setItem('saviez_vous_fact', JSON.stringify(nextFact))
       setNextFact(null)
       setImageKey(prev => prev + 1)
     } else {
@@ -100,7 +107,9 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
       setImageError(false)
       const newFact = await fetchRandomFact()
       if (newFact) {
-        setFact({ id: newFact.id, text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename })
+        const factData = { id: newFact.id, text: newFact.text, sourceUrl: newFact.sourceUrl, imageFilename: newFact.imageFilename }
+        setFact(factData)
+        sessionStorage.setItem('saviez_vous_fact', JSON.stringify(factData))
         setImageKey(prev => prev + 1)
       }
       setLoading(false)

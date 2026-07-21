@@ -120,7 +120,10 @@ export function BaseImageCard<TTopic>({
     onSettingsClick,
   } = config
 
-  const [image, setImage] = useState<BaseImage | null>(null)
+  const [image, setImage] = useState<BaseImage | null>(() => {
+    const saved = sessionStorage.getItem('base_image')
+    return saved ? JSON.parse(saved) : null
+  })
   const [loading, setLoading] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [error, setError] = useState(false)
@@ -142,6 +145,7 @@ export function BaseImageCard<TTopic>({
     const newImage = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined)
     if (newImage) {
       setImage(newImage)
+      sessionStorage.setItem('base_image', JSON.stringify(newImage))
       setError(false)
     } else {
       setError(true)

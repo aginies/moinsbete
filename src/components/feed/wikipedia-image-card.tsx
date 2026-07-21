@@ -63,7 +63,10 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
   userId,
   isVisible,
 }: WikipediaImageCardProps) {
-  const [image, setImage] = useState<ImageData | null>(null)
+  const [image, setImage] = useState<ImageData | null>(() => {
+    const saved = sessionStorage.getItem('wikipedia_image')
+    return saved ? JSON.parse(saved) : null
+  })
   const [nextImage, setNextImage] = useState<ImageData | null>(null)
   const [loading, setLoading] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
@@ -104,6 +107,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
       const { data: newImage, error } = await fetchRandomImage()
       if (newImage) {
         setImage(newImage)
+        sessionStorage.setItem('wikipedia_image', JSON.stringify(newImage))
         setError(false)
       } else {
         setError(true)
