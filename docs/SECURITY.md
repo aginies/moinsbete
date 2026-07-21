@@ -3,13 +3,17 @@
 ## Authentification & Rôles
 
 - **Mots de passe**: hashés avec bcrypt (12 rounds)
-- **Session**: JWT (NextAuth v4), cookie `next-auth.session-token`
+- **Session**: JWT (NextAuth v5), cookie `next-auth.session-token`
 - **Rôles**: `USER` (default), `ADMIN` — stocké dans JWT + DB
 - **Admin RBAC**: page `/admin` et routes API vérifient `session.user.role === 'ADMIN'`
-- **CSRF**: validation par `origin` vs `request.nextUrl.origin` sur tous les endpoints POST
-- **Rate limiting**: async `checkRateLimit()` avec support Redis (in-memory, ioredis, Upstash). Login (5/min), register (3/min), search (30/min), suggest (10/min) — `src/lib/rate-limiter.ts`
+- **CSRF**: validation par token (`X-CSRF-Token` header) sur tous les endpoints POST utilisateur
+- **Rate limiting**: async `checkRateLimit()` avec support Redis (in-memory, ioredis, Upstash). Login (5/min), register (3/min), search (30/min), suggest (10/min), saviez-vous (20/min), radio (30/min), wiki-image (10/min), image-wikimedia (30/min), image-wikiloves (30/min), history (60/min/user), lobby (30/min), lobby mutate (10/min) — `src/lib/rate-limiter.ts`
 - **IP resolution**: Cloudflare `cf-connecting-ip`, Next.js `request.ip`, `x-forwarded-for` avec `TRUST_PROXY` guard en production
 - **Secret**: `NEXTAUTH_SECRET` avec fallback fort généré par `openssl rand -base64 32`
+- **CSP**: Content Security Policy avec nonce par requête (script/src, style/src, img/src, connect/src, font/src, frame-src, object-src, media-src, worker-src)
+- **Turnstile**: Cloudflare Turnstile captcha sur inscription
+- **User enabled**: vérifié dans NextAuth authorize() — utilisateur désactivé = session invalidée
+- **Last visited tracking**: debounce côté serveur via API
 
 ## Audit de sécurité (dernière mise à jour)
 
@@ -30,6 +34,8 @@ Voir aussi `SECURITY_REVIEW.md` pour l'audit détaillé.
 | LOW | Password length inconsistent (6 vs 8) | **FIXED** — register now requires 8 |
 | LOW | Cookie missing `__Secure-` prefix | **FIXED** — conditional prefix in prod |
 | LOW | DB file 644 world-readable | Documented — use `chmod 600` in production |
+| MEDIUM | Proverbe scraper accessible public | **FIXED** — restricted to localhost/admin session |
+| LOW | Middleware file convention deprecated | **FIXED** — migrated to Next.js 16 proxy |
 
 ## Admin setup
 
@@ -45,6 +51,8 @@ echo "UPDATE \"User\" SET role = 'ADMIN' WHERE email = 'your@email.com';" | npx 
 |----------|-------------|
 | `NEXTAUTH_SECRET` | Clé de signature JWT — générer avec `openssl rand -base64 32` |
 | `NEXTAUTH_URL` | URL de l'app (HTTPS en production) |
+| `TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (captcha inscription) |
+| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key |
 
 ## Migration de rôle
 

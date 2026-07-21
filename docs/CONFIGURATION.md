@@ -55,6 +55,10 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token | — |
 | `RESEND_API_KEY` | Clé API resend pour envoi d'emails | — |
 | `EMAIL_FROM` | Adresse expéditeur des emails | `Moins Bete <noreply@moinsbete.com>` |
+| `TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (captcha inscription) | — |
+| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key | — |
+| `PIXABAY_API_KEY` | Clé API Pixabay pour vidéos | — |
+| `REGISTRATION_LOCKED` | Verrouiller l'inscription | `false` |
 
 ## Configuration email (réinitialisation de mot de passe)
 
@@ -111,9 +115,13 @@ Endpoints rate limités:
 | `/api/saviez-vous` | 20/min | IP client |
 | `/api/radio-france` | 30/min | IP client |
 | `/api/wikipedia-image` | 10/min | IP client |
+| `/api/image-wikimedia` | 30/min | IP client |
+| `/api/image-wikiloves` | 30/min | IP client |
 | `/api/history` | 60/min | User ID |
 | `/api/auth/reset-password/generate` | 3/min | IP client |
 | `/api/auth/reset-password` | 5/min | IP client |
+| `/api/lobby` | 30/min | IP client |
+| `/api/lobby/[id]` | 10/min | IP client |
 
 ### Résolution d'IP client
 

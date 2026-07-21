@@ -6,6 +6,7 @@
 - **ORM**: Prisma v6
 - **Fichier**: `dev.db` à la racine du projet (dans `.gitignore`)
 - **Emplacement**: à la racine du projet (`dev.db`)
+- **Optimisations**: WAL mode, synchronous normal, busy timeout (see `src/lib/db.ts`)
 
 ## Statistiques actuelles
 
@@ -17,12 +18,19 @@
 | **IdeaTopic** | Association Idea ↔ Topic (1 par idée) | 736 |
 | **SaviezVousFact** | Faits "Le saviez-vous" | 8 136 |
 | **Collection** | Collections d'idées | 6 |
-| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN) | variable |
+| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN, enabled, lastLogin, lastVisited) | variable |
 | **Bookmark** | Bookmarks utilisateur | variable |
 | **ViewedIdea** | Historique de consultation | variable |
 | **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) | variable |
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) | variable |
 | **PasswordResetToken** | Tokens de réinitialisation de mot de passe | variable |
+| **SharedLobbyBookmark** | Favoris partagés dans le lobby | variable |
+| **CachedConfig** | Config cachée (proverbes, global card visibility, card order) | variable |
+| **CachedCnrsArticle** | Articles CNRS en cache (TTL: 24h) | variable |
+| **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) | variable |
+| **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) | variable |
+| **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) | variable |
+| **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur | variable |
 
 ## Gestion de la base de données
 
