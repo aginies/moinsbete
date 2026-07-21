@@ -336,6 +336,12 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         sharedWithUsers: recipientIds.map(id => recipientMap.get(id)).filter(Boolean) as Array<{ id: string; displayName: string | null; email: string }>
       }
     })
+    
+    // Ensure all sharedByMe bookmarks have sharedWithUsers field
+    const finalSharedByMe = enrichedSharedByMe.map(bookmark => ({
+      ...bookmark,
+      sharedWithUsers: bookmark.sharedWithUsers || []
+    }))
 
     return (
       <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
@@ -345,7 +351,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           suggestions={suggestions}
           sharedBookmarks={enrichedBookmarks}
           sharedWithMeBookmarks={enrichedSharedWithMe}
-          sharedByMeBookmarks={enrichedSharedByMe}
+          sharedByMeBookmarks={finalSharedByMe}
           currentUserId={session?.user?.id ?? null}
           isAdmin={session?.user?.role === 'ADMIN'}
           totalPages={Math.max(1, Math.ceil(total / PAGE_SIZE))}
