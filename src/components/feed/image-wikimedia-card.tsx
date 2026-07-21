@@ -198,8 +198,13 @@ export function ImageWikimediaCard({
         showToggle={showToggle}
         onToggle={onToggle}
         isVisible={isVisible}
-        renderTopics={() =>
-          topics.filter((t): t is Topic & { enabled: boolean } => t.enabled).map((topic: Topic) => (
+        renderTopics={() => {
+          const enabledTopics = topics.filter((t): t is Topic & { enabled: boolean } => t.enabled)
+          const half = Math.ceil(enabledTopics.length / 2)
+          const row1 = enabledTopics.slice(0, half)
+          const row2 = enabledTopics.slice(half)
+          
+          const renderTopicButton = (topic: Topic) => (
             <button
               key={topic.id}
               onClick={(e) => { e.stopPropagation(); handleTopicToggle(topic.id) }}
@@ -211,8 +216,21 @@ export function ImageWikimediaCard({
             >
               {topic.icon} {topic.label}
             </button>
-          ))
-        }
+          )
+
+          return (
+            <div className="flex flex-col gap-1.5 w-full">
+              <div className="flex gap-1.5 flex-wrap">
+                {row1.map(renderTopicButton)}
+              </div>
+              {row2.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap">
+                  {row2.map(renderTopicButton)}
+                </div>
+              )}
+            </div>
+          )
+        }}
         renderImage={(img) => (
           <img
             src={img.imageUrl}
