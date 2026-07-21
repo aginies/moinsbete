@@ -176,3 +176,57 @@ FROM "SharedLobbyBookmark"
 GROUP BY resourceType;
 EOF
 ```
+
+## Cache: vérifier les éléments expirés
+
+```bash
+# Articles CNRS expirés
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedCnrsArticle" WHERE "expiresAt" < datetime('now');
+EOF
+
+# Épisodes Radio France expirés
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedRadioEpisode" WHERE "expiresAt" < datetime('now');
+EOF
+
+# Images Wikipédia expirées
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedWikipediaImage" WHERE "expiresAt" < datetime('now');
+EOF
+
+# Images Wiki Loves expirées
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedWikiLovesImage" WHERE "expiresAt" < datetime('now');
+EOF
+```
+
+## Cache: forcer le refresh
+
+```bash
+# Arrêter tous les caches expirés
+npm run cache:all
+
+# Ou individuellement
+npx tsx scripts/cache-cnrs.ts
+npx tsx scripts/cache-radio-france.ts
+npx tsx scripts/cache-wikipedia-image.ts
+npx tsx scripts/scrape-wikiloves.ts
+
+# Nettoyer les éléments expirés
+npx tsx scripts/cleanup-cached.ts
+```
+
+## Card visibility: vérifier la config globale
+
+```bash
+# Voir la visibilité globale des cartes
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT key, value FROM "CachedConfig" WHERE key = 'cartes_global_visibility';
+EOF
+
+# Réinitialiser à toutes visibles (true)
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+UPDATE "CachedConfig" SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"proverbe":true}' WHERE key = 'cartes_global_visibility';
+EOF
+```

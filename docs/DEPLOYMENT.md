@@ -121,8 +121,8 @@ npm run build
 # Démarrer avec PM2 (gestionnaire de processus)
 sudo npm install -g pm2
 
-# Démarrer l'application
-pm2 start npm --name "moinsbete" -- start
+# Configurer PM2 (cluster mode recommandé pour prod)
+pm2 start ecosystem.config.js
 
 # Configurer le démarrage automatique
 pm2 save
@@ -134,6 +134,24 @@ pm2 logs moinsbete
 ```
 
 L'application écoute sur `http://localhost:3000`.
+
+**PM2 ecosystem.config.js:**
+
+```js
+module.exports = {
+  apps: [{
+    name: 'moinsbete',
+    script: 'npm',
+    args: 'start',
+    instances: 'max',
+    exec_mode: 'cluster',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3000,
+    },
+  }],
+}
+```
 
 ## Étape 6 : Configuration Apache
 
@@ -305,7 +323,7 @@ curl -I https://moinsbete.example.com/icon-512.svg
 ## Maintenance
 
 ```bash
-# Redémarrer l'application
+# Redémarrer l'application (cluster mode)
 pm2 restart moinsbete
 
 # Voir les logs
@@ -325,6 +343,9 @@ cp /srv/http/moinsbete/dev.db "/srv/http/moinsbete/dev.db.backup.$(date +%Y%m%d)
 
 # Restaurer
 cp "/srv/http/moinsbete/dev.db.backup.20260707" /srv/http/moinsbete/dev.db
+
+# Nettoyage cache expiré
+npx tsx scripts/cleanup-cached.ts
 ```
 
 ## Vérification

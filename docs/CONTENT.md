@@ -4,7 +4,7 @@
 
 | Modèle | Description |
 |--------|-------------|
-| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN) |
+| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN, enabled, lastLogin, lastVisited) |
 | **Topic** | Sujets de connaissance (21 topics, hiérarchie parent/enfant) |
 | **Source** | Sources (Wikipédia, livres, articles, podcasts) |
 | **Idea** | Idées bite-sized (titre, contenu, takeaway, image source) | 736 |
@@ -13,6 +13,14 @@
 | **Collection** | Collections d'idées |
 | **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) |
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) |
+| **SharedLobbyBookmark** | Favoris partagés dans le lobby |
+| **CachedConfig** | Config cachée (proverbes, global card visibility, card order) |
+| **CachedCnrsArticle** | Articles CNRS en cache (TTL: 24h) |
+| **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) |
+| **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) |
+| **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) |
+| **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
+| **SaviezVousFact** | Faits "Le saviez-vous" | 8 136 |
 
 ## Topics disponibles (21)
 
@@ -97,6 +105,36 @@ npx tsx scripts/insert_saviez_vous.ts
 
 ```bash
 ./scripts/update enhance
+```
+
+### 5. Cache sources externes
+
+| Script | Source | TTL | Fréquence recommandée |
+|--------|--------|-----|----------------------|
+| `cache-cnrs.ts` | Articles CNRS | 24h | Quotidien |
+| `cache-radio-france.ts` | Épisodes Radio France | 24h | Quotidien |
+| `cache-wikipedia-image.ts` | Images Wikipédia | 30 jours | Mensuel |
+| `scrape-wikiloves.ts` | Images Wiki Loves | 30 jours | Mensuel |
+
+```bash
+# Lancer tous les caches
+npm run cache:all
+
+# Ou individuellement
+npx tsx scripts/cache-cnrs.ts
+npx tsx scripts/cache-radio-france.ts
+npx tsx scripts/cache-wikipedia-image.ts
+npx tsx scripts/scrape-wikiloves.ts
+
+# Nettoyer les items expirés
+npx tsx scripts/cleanup-cached.ts
+```
+
+### 6. Proverbes
+
+```bash
+# Récupérer les proverbes depuis Wiktionary
+npm run fetch-proverbes
 ```
 
 ## Ajouter de nouveaux articles Wikipédia
