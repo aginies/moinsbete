@@ -15,6 +15,7 @@ import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 interface SaviezVousCardProps {
   id: string
@@ -195,7 +196,9 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={showBookmark ? (
-          <button
+          <div className="flex items-center gap-1">
+            <ShareToLobbyButton resourceId={fact.id} resourceType="SAVIEZ_VOUS" />
+            <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
             disabled={isPending || !fact}
@@ -205,7 +208,8 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
             <Bookmark
               className={`h-4 w-4 ${isFavorite ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
             />
-          </button>
+            </button>
+          </div>
         ) : undefined}
       />
 

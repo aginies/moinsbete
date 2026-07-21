@@ -13,6 +13,7 @@ import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import type { BookmarkType } from '@/generated/client'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 interface BaseImage {
   docid: string
@@ -28,6 +29,7 @@ interface BaseImage {
 
 interface BaseImageCardConfig<TTopic> {
   resourceType: string
+  resourceId?: string
   fetchFn: (topicIds: string | undefined) => Promise<BaseImage | null>
   defaultTopics: TTopic[]
   cardClassName: string
@@ -266,17 +268,20 @@ export function BaseImageCard<TTopic>({
               >
                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
-            {image && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                disabled={isPending}
-                className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
-                title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-              >
-                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
-              </button>
-            )}
+             {image && (
+               <button
+                 type="button"
+                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                 disabled={isPending}
+                 className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
+                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+               >
+                 <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+               </button>
+             )}
+             {image && config.resourceType && (
+               <ShareToLobbyButton resourceId={image.docid} resourceType={config.resourceType} />
+             )}
           </>
         }
       />

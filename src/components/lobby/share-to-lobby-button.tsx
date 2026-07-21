@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Share2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
 import { toast } from 'sonner'
 
@@ -42,10 +41,9 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className }
   }, [isShared, resourceId, resourceType, loading])
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className={className}
+    <button
+      type="button"
+      className={`rounded-full px-2 py-1.5 flex items-center gap-1 opacity-60 hover:opacity-100 hover:bg-muted transition-all ${isShared ? 'text-green-500' : 'text-muted-foreground'} ${className || ''}`}
       onClick={(e) => {
         e.stopPropagation()
         handleToggle()
@@ -53,7 +51,8 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className }
       disabled={loading}
       title={isShared ? 'Retirer du lobby' : 'Partager au lobby'}
     >
-      {icon || <Share2 className={`h-4 w-4 ${isShared ? 'text-green-500' : 'text-muted-foreground'}`} />}
-    </Button>
+      {icon || <Share2 className="h-4 w-4" />}
+      <span className="text-xs">Lobby</span>
+    </button>
   )
 }

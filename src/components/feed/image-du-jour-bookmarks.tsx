@@ -11,7 +11,7 @@ import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { ShareButton } from './share-button'
 import { useItemShare } from './use-item-share'
-import { ShareToLobbyFavoritesButton } from '@/app/(main)/favoris/share-to-lobby-button'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 import { ImageDuJourFavoriteDoc } from '@/lib/image-du-jour-bookmark'
 
@@ -70,11 +70,7 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, on
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
-        <ShareToLobbyFavoritesButton
-          isShared={isShared}
-          onToggle={onShareToggle}
-          loading={isSharing}
-        />
+        <ShareToLobbyButton resourceId={item.fileUrl} resourceType="IMAGE_DU_JOUR" />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-teal-600 opacity-60 hover:opacity-100 hover:text-teal-800 hover:bg-teal-100 dark:text-teal-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"

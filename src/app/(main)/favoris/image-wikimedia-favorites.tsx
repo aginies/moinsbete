@@ -12,7 +12,7 @@ import { ImageHint } from '@/components/feed/image-hint'
 import { ShareButton } from '@/components/feed/share-button'
 import { useState, useCallback } from 'react'
 import { useItemShare } from '@/components/feed/use-item-share'
-import { ShareToLobbyFavoritesButton } from './share-to-lobby-button'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 
 const WIKIMEDIA_FAVORITES_KEY = 'image_wikimedia_favorites'
 
@@ -81,11 +81,7 @@ function WikimediaFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
-        <ShareToLobbyFavoritesButton
-          isShared={isShared}
-          onToggle={onShareToggle}
-          loading={isSharing}
-        />
+        <ShareToLobbyButton resourceId={item.docid} resourceType="IMAGE_WIKIMEDIA" />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-rose-600 opacity-60 hover:opacity-100 hover:text-rose-800 hover:bg-rose-100 dark:text-rose-400 dark:hover:text-rose-200 dark:hover:bg-rose-900/40 transition-all"
