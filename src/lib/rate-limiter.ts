@@ -35,17 +35,20 @@ async function getRedisClient() {
 
   try {
     const { Redis } = await import('ioredis')
-    if (process.env.REDIS_URL) {
-      redisClient = new Redis(process.env.REDIS_URL) as unknown as RedisClient
-    } else {
-      redisClient = new Redis() as unknown as RedisClient
-    }
+    const client = process.env.REDIS_URL ? new Redis(process.env.REDIS_URL) : new Redis()
+    client.on('error', (err) => {
+      console.error('ioredis connection error, falling back:', err)
+    })
+    redisClient = client as unknown as RedisClient
     (redisClient as any).type = 'ioredis'
     return redisClient
   } catch {
     try {
       const { createClient } = await import('redis')
       const client = createClient({ url: process.env.REDIS_URL })
+      client.on('error', (err) => {
+        console.error('redis client connection error, falling back:', err)
+      })
       await client.connect()
       redisClient = client as unknown as RedisClient
       (redisClient as any).type = 'redis'
