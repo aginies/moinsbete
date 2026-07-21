@@ -59,8 +59,22 @@ if [ -f "$DEST/dev.db" ]; then
 fi
 
 cd "$DEST"
-## Install deps
-npm ci
+## Clean and install deps
+rm -rf node_modules
+npm cache clean --force 2>/dev/null || true
+npm install --legacy-peer-deps 2>&1 | tail -5
+
+# Verify critical dependencies exist
+for pkg in next-intl next-pwa next; do
+  if [ ! -d "node_modules/$pkg" ]; then
+    echo "ERROR: $pkg not found in node_modules"
+    exit 1
+  fi
+done
+echo "All critical dependencies installed"
+
+# Clear Next.js cache to avoid stale types
+rm -rf .next
 
 if [ "$RUN_PRISMA" = true ]; then
   echo "Running prisma commands..."
@@ -85,7 +99,7 @@ if [ "$RUN_PRISMA" = true ]; then
     sleep 2
   done
 fi
-npm run build
+npm run build 2>&1 | tail -20
 if [ -f "ecosystem.config.js" ]; then
   echo "Reloading/starting via PM2 ecosystem.config.js..."
   pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
