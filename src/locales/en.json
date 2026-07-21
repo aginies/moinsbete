@@ -190,6 +190,8 @@
     "disabled": "Disabled",
     "disable": "Disable",
     "enable": "Enable",
+    "card_enabled": "enabled",
+    "card_disabled": "disabled",
     "name": "Name",
     "email": "Email",
     "role": "Role",
@@ -526,6 +528,8 @@
     "user_enabled": "User enabled",
     "items_deleted": "{count} expired items deleted",
     "nothing_to_clean": "Nothing to clean",
+    "cartes_title": "Cards",
+    "cartes_desc": "Enable or disable cards globally on the site",
     "admin_title": "Administration",
     "back_to_site": "← Back to site"
   }

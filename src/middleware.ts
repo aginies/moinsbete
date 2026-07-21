@@ -1,6 +1,13 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import i18nMiddleware from '@/i18n/middleware'
 
-export function middleware() {
+export function middleware(request: NextRequest) {
+  // Run next-intl locale middleware first
+  const i18nResponse = i18nMiddleware(request)
+  
+  // Then add CSP headers
+  const response = i18nResponse instanceof NextResponse ? i18nResponse : NextResponse.next()
   const nonce = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64')
   const isDev = process.env.NODE_ENV === 'development'
 
@@ -25,7 +32,6 @@ export function middleware() {
     `upgrade-insecure-requests`,
   ].join('; ')
 
-  const response = NextResponse.next()
   response.headers.set('Content-Security-Policy', csp)
   response.cookies.set('csp-nonce', nonce, { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' })
   return response
