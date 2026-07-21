@@ -100,6 +100,10 @@ if [ "$RUN_PRISMA" = true ]; then
     sleep 2
   done
 fi
+# Always regenerate Prisma client to keep types in sync
+echo "Regenerating Prisma client..."
+npx prisma generate
+
 npm run build 2>&1 | tail -20
 if [ -f "ecosystem.config.js" ]; then
   echo "Reloading/starting via PM2 ecosystem.config.js..."
