@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Languages, Bookmark, ExternalLink, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
+import { decodeHtmlEntities } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
@@ -248,19 +249,19 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
                       Exemples littéraires
                     </h4>
                     <div className="space-y-2">
-                      {word.concordance.slice(0, 2).map((ex, i) => (
-                        <blockquote key={i} className="border-l-2 border-amber-300 dark:border-amber-700 pl-3 text-sm italic text-amber-700 dark:text-amber-300">
-                          <p className="leading-relaxed text-amber-700 dark:text-amber-300">
-                            <span className="mr-1">{`&ldquo;`}</span>{ex.left}{' '}
-                            <strong className="not-italic text-amber-900 dark:text-amber-100">{ex.matching}</strong>{' '}
-                            {ex.right}
-                            <span className="ml-1">{`&rdquo;`}</span>
-                          </p>
-                          <footer className="text-xs not-italic mt-1 text-amber-600 dark:text-amber-400">
-                            — {ex.name}, <em>{ex.title}</em> ({ex.date})
-                          </footer>
-                        </blockquote>
-                      ))}
+                       {word.concordance.slice(0, 2).map((ex, i) => (
+                         <blockquote key={i} className="border-l-2 border-amber-300 dark:border-amber-700 pl-3 text-sm italic text-amber-700 dark:text-amber-300">
+                           <p className="leading-relaxed text-amber-700 dark:text-amber-300">
+                             <span className="mr-1">{"\u201C"}</span>{decodeHtmlEntities(ex.left)}{' '}
+                             <strong className="not-italic text-amber-900 dark:text-amber-100">{decodeHtmlEntities(ex.matching)}</strong>{' '}
+                             {decodeHtmlEntities(ex.right)}
+                             <span className="ml-1">{"\u201D"}</span>
+                           </p>
+                           <footer className="text-xs not-italic mt-1 text-amber-600 dark:text-amber-400">
+                             — {ex.name}, <em>{ex.title}</em> ({ex.date})
+                           </footer>
+                         </blockquote>
+                       ))}
                     </div>
                   </div>
                 )}
