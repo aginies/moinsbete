@@ -169,7 +169,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       isGloballyVisible: globalVisibility?.wikipedia ?? true,
       toggle: toggleWikipedia,
       renderCard: () => (
-        <WikipediaImageCard onToggle={toggleWikipedia} largeImage userId={userId} isVisible={visibility.wikipedia} />
+        <WikipediaImageCard onToggle={toggleWikipedia} mediumImage userId={userId} isVisible={visibility.wikipedia} />
       ),
     },
     {

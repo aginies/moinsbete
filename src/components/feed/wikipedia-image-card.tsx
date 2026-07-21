@@ -28,6 +28,7 @@ interface ImageData {
 interface WikipediaImageCardProps {
   fullImage?: boolean
   largeImage?: boolean
+  mediumImage?: boolean
   showLink?: boolean
   showToggle?: boolean
   showBookmark?: boolean
@@ -53,6 +54,7 @@ async function fetchRandomImage(): Promise<{ data: ImageData | null; error: stri
 export const WikipediaImageCard = function WikipediaImageCardInner({
   fullImage,
   largeImage = false,
+  mediumImage = false,
   showLink = true,
   showToggle = true,
   showBookmark = true,
@@ -264,7 +266,7 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
             src={image?.imageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
             alt={image?.description || 'Image'}
             loading="lazy"
-            className={`w-full transition-opacity ${largeImage ? 'h-[22vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
+            className={`w-full transition-opacity ${largeImage ? 'h-[22vh] object-cover bg-neutral-100 dark:bg-neutral-800' : mediumImage ? 'h-[30vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-48 object-cover pointer-events-none hover:opacity-90'}`}
             onLoad={() => setIsImageLoaded(true)}
             onError={() => setImageError(true)}
           />
