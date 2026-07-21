@@ -2,17 +2,7 @@ import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-
-interface AdminUser {
-  id: string
-  email: string
-  displayName: string | null
-  role: string
-  enabled: boolean
-  createdAt: Date
-  lastLogin: Date | null
-  lastVisited: Date | null
-}
+import { AdminUser } from './admin-content'
 
 export default async function AdminPage() {
   const session = await getSession()
