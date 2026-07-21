@@ -56,10 +56,24 @@ async function updateCardVisibility(field: string, value: boolean, csrfToken: st
 
 async function fetchCardOrder(userId: string): Promise<string[]> {
   try {
+    const cached = localStorage.getItem('card_order')
+    if (cached) {
+      const { data, expiresAt } = JSON.parse(cached)
+      if (data && Date.now() < expiresAt) {
+        return data
+      }
+      localStorage.removeItem('card_order')
+    }
     const res = await fetch('/api/user-card-order', { credentials: 'include' })
     if (res.ok) {
       const data = await res.json()
-      if (Array.isArray(data.order)) return data.order
+      if (Array.isArray(data.order)) {
+        localStorage.setItem('card_order', JSON.stringify({
+          data: data.order,
+          expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+        }))
+        return data.order
+      }
     }
   } catch {}
   return ['pixabay', 'saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'portailLexical', 'proverbe']

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
@@ -65,6 +65,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const checkedArticleLinkRef = useRef<Set<string>>(new Set())
   const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'cnrs_news_enabled', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
 
@@ -94,7 +95,8 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
   }, [isCardVisible, article, loading, error, loadArticle])
 
   useEffect(() => {
-    if (userId && article) {
+    if (userId && article && !checkedArticleLinkRef.current.has(article.link)) {
+      checkedArticleLinkRef.current.add(article.link)
       isCnrsFavoriteAction(article.link).then(result => {
         setIsFavorite(result.isBookmarked)
       }).catch(() => {})
