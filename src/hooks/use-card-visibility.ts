@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald'> = {
   wikipedia_image_card_visible: 'teal',
@@ -47,6 +48,7 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
   const [show, setShow] = useState(defaultShow)
   const [hasMounted, setHasMounted] = useState(false)
   const buttonColor = COLOR_MAP[storageKey] || 'blue'
+  const router = useRouter()
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -84,14 +86,18 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId }: Us
                 credentials: 'include',
                 headers,
                 body: JSON.stringify({ field: dbField, value: next }),
-              }).catch(() => {})
+              })
+              .then(() => {
+                router.refresh()
+              })
+              .catch(() => {})
             })
           })
         }
       }
       return next
     })
-  }, [storageKey, userId])
+  }, [storageKey, userId, router])
 
   return { show, hasMounted, handleToggle, buttonColor }
 }
