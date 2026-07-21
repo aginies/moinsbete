@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
     }
 
     const field = request.nextUrl.searchParams.get('field')
-    console.log(`[API/user-card-visibility] GET request for user ${session.user.id}, field target: ${field}`)
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -38,11 +37,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (field && field in user) {
-      console.log(`[API/user-card-visibility] GET returning field ${field} = ${user[field as keyof typeof user]}`)
       return NextResponse.json({ [field]: user[field as keyof typeof user] })
     }
 
-    console.log('[API/user-card-visibility] GET returning full user configuration:', user)
     return NextResponse.json(user)
   } catch (err: any) {
     console.error('[API/user-card-visibility] GET uncaught error:', err)
@@ -72,7 +69,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const { field, value } = body
-    console.log(`[API/user-card-visibility] POST: Request body:`, body, `user: ${userId}`)
 
     const validFields = [
       'wikipediaImageCardVisible',
@@ -94,13 +90,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid field' }, { status: 400 })
     }
 
-    console.log(`[API/user-card-visibility] POST: Updating ${field} to ${value} in DB for user ${session.user.id}`)
     await prisma.user.update({
       where: { id: session.user.id },
       data: { [field]: value },
     })
 
-    console.log(`[API/user-card-visibility] POST: Update successful!`)
     return NextResponse.json({ success: true })
   } catch (err: any) {
     console.error('[API/user-card-visibility] POST uncaught error:', err)
