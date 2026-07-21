@@ -4,12 +4,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote } from 'lucide-react'
+import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { toggleUserEnabled } from '@/actions/user-actions'
+import { useLocale, useTranslations } from 'next-intl'
+import { useSetLocale } from '@/hooks/use-set-locale'
 
 interface AdminStats {
   ideas: number
@@ -51,115 +53,129 @@ interface AdminContentProps {
 export function AdminContent({ stats, users }: AdminContentProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const locale = useLocale()
+  const { setLocale } = useSetLocale()
+  const t = useTranslations()
 
   const handleRefresh = () => {
     startTransition(() => {
       router.refresh()
-      toast.success('Statistiques actualisées')
+      toast.success(t('admin.statistics_updated'))
     })
+  }
+
+  const toggleLocale = () => {
+    const newLocale = locale === 'fr' ? 'en' : 'fr'
+    setLocale(newLocale)
   }
 
   return (
     <div className="mx-auto max-w-4xl p-4 md:p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-bold">Administration</h1>
+          <h1 className="text-2xl font-heading font-bold">{t('admin.admin_title')}</h1>
         </div>
-        <Link href="/" className="text-sm text-primary hover:underline">
-          ← Retour au site
-        </Link>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={toggleLocale} className="gap-2">
+            <Globe className="h-4 w-4" />
+            {locale === 'fr' ? 'EN' : 'FR'}
+          </Button>
+          <Link href="/" className="text-sm text-primary hover:underline">
+            {t('admin.back_to_site')}
+          </Link>
+        </div>
       </div>
 
       <Tabs defaultValue="stats" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="stats">Statistiques</TabsTrigger>
-          <TabsTrigger value="users">Utilisateurs</TabsTrigger>
-          <TabsTrigger value="cleanup">Nettoyage</TabsTrigger>
+          <TabsTrigger value="stats">{t('feed.stats')}</TabsTrigger>
+          <TabsTrigger value="users">{t('feed.users')}</TabsTrigger>
+          <TabsTrigger value="cleanup">{t('feed.cleanup')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="stats">
           <div className="mb-4 flex justify-end">
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isPending}>
               <RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
-              Actualiser
+              {t('feed.refresh')}
             </Button>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
               icon={<BookOpen className="h-5 w-5" />}
-              label="Idées publiées"
+              label={t('feed.published_ideas')}
               value={stats.ideas}
             />
             <StatCard
               icon={<Database className="h-5 w-5" />}
-              label="Sujets"
+              label={t('feed.topics')}
               value={stats.topics}
             />
             <StatCard
               icon={<Files className="h-5 w-5" />}
-              label="Sources"
+              label={t('feed.sources')}
               value={stats.sources}
             />
             <StatCard
               icon={<Bookmark className="h-5 w-5" />}
-              label="Signets totaux"
+              label={t('feed.total_bookmarks')}
               value={stats.bookmarks}
             />
 
             <StatCard
               icon={<Users className="h-5 w-5" />}
-              label="Utilisateurs"
+              label={t('feed.users')}
               value={stats.users}
             />
             <StatCard
               icon={<Eye className="h-5 w-5" />}
-              label="Idées consultées"
+              label={t('feed.viewed_ideas')}
               value={stats.viewedIdeas}
             />
             <StatCard
               icon={<CheckCircle2 className="h-5 w-5" />}
-              label="Séries actives"
+              label={t('feed.active_streaks')}
               value={stats.activeStreaks}
             />
             <StatCard
               icon={<Clock className="h-5 w-5" />}
-              label="Révisions dues (SRS)"
+              label={t('feed.srs_due')}
               value={stats.srsDue}
             />
 
             <StatCard
               icon={<Newspaper className="h-5 w-5" />}
-              label="Articles CNRS"
+              label={t('feed.cnrs_articles')}
               value={stats.cnrsArticles}
-              sublabel={stats.cnrsExpired > 0 ? `${stats.cnrsExpired} expirés` : undefined}
+              sublabel={stats.cnrsExpired > 0 ? `${stats.cnrsExpired} ${t('feed.expired')}` : undefined}
             />
             <StatCard
               icon={<Radio className="h-5 w-5" />}
-              label="Épisodes radio"
+              label={t('feed.radio_episodes')}
               value={stats.radioEpisodes}
-              sublabel={stats.radioExpired > 0 ? `${stats.radioExpired} expirés` : undefined}
+              sublabel={stats.radioExpired > 0 ? `${stats.radioExpired} ${t('feed.expired')}` : undefined}
             />
             <StatCard
               icon={<Image className="h-5 w-5" />}
-              label="Images Wikipédia"
+              label={t('feed.wiki_images')}
               value={stats.wikiImages}
-              sublabel={stats.wikiImageExpired > 0 ? `${stats.wikiImageExpired} expirés` : undefined}
+              sublabel={stats.wikiImageExpired > 0 ? `${stats.wikiImageExpired} ${t('feed.expired')}` : undefined}
             />
             <StatCard
               icon={<ImagePlus className="h-5 w-5" />}
-              label="Images Wiki Loves"
+              label={t('feed.wiki_loves_images')}
               value={stats.wikiLovesImages}
-              sublabel={stats.wikiLovesExpired > 0 ? `${stats.wikiLovesExpired} expirés` : undefined}
+              sublabel={stats.wikiLovesExpired > 0 ? `${stats.wikiLovesExpired} ${t('feed.expired')}` : undefined}
             />
             <StatCard
               icon={<Podcast className="h-5 w-5" />}
-              label="Le saviez-vous ?"
+              label={t('feed.saviez_vous_facts')}
               value={stats.saviezVousFacts}
             />
             <StatCard
               icon={<Quote className="h-5 w-5" />}
-              label="Proverbes"
+              label={t('feed.proverbes')}
               value={stats.proverbesCached}
             />
           </div>
@@ -170,13 +186,13 @@ export function AdminContent({ stats, users }: AdminContentProps) {
             <table className="w-full text-sm">
               <thead className="border-b border-border/60 bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium">Nom</th>
-                  <th className="px-4 py-3 text-left font-medium">Email</th>
-                  <th className="px-4 py-3 text-left font-medium">Rôle</th>
-                  <th className="px-4 py-3 text-left font-medium">Statut</th>
-                  <th className="px-4 py-3 text-left font-medium">Dernière connexion</th>
-                  <th className="px-4 py-3 text-left font-medium">Dernière visite</th>
-                  <th className="px-4 py-3 text-left font-medium">Actions</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('feed.name')}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('feed.email')}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('feed.role')}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('feed.status')}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('feed.last_login')}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('feed.last_visit')}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('feed.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -193,14 +209,14 @@ export function AdminContent({ stats, users }: AdminContentProps) {
             <div className="rounded-xl border border-border/60 bg-card p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
                 <Trash2 className="h-5 w-5 text-destructive" />
-                Cache expiré
+                {t('feed.expired_cache', { fallback: 'Expired cache' })}
               </h3>
               <div className="mb-4 space-y-2 text-sm">
                 {stats.cnrsExpired > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
                       <Newspaper className="h-4 w-4 text-muted-foreground" />
-                      Articles CNRS expirés
+                      {t('feed.cnrs_expired')}
                     </span>
                     <span className="font-medium text-destructive">{stats.cnrsExpired}</span>
                   </div>
@@ -209,7 +225,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
                       <Radio className="h-4 w-4 text-muted-foreground" />
-                      Épisodes radio expirés
+                      {t('feed.radio_expired')}
                     </span>
                     <span className="font-medium text-destructive">{stats.radioExpired}</span>
                   </div>
@@ -218,7 +234,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
                       <Image className="h-4 w-4 text-muted-foreground" />
-                      Images Wikipédia expirées
+                      {t('feed.wiki_images_expired')}
                     </span>
                     <span className="font-medium text-destructive">{stats.wikiImageExpired}</span>
                   </div>
@@ -227,13 +243,13 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
                       <ImagePlus className="h-4 w-4 text-muted-foreground" />
-                      Images Wiki Loves expirées
+                      {t('feed.wiki_loves_expired')}
                     </span>
                     <span className="font-medium text-destructive">{stats.wikiLovesExpired}</span>
                   </div>
                 )}
                 {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && (
-                  <p className="text-muted-foreground">Aucun élément expiré</p>
+                  <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
               <Button
@@ -243,17 +259,17 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   startTransition(async () => {
                     const result = await cleanupExpiredCache()
                     if (result.totalDeleted > 0) {
-                      toast.success(`${result.totalDeleted} éléments expirés supprimés`)
+                      toast.success(t('admin.items_deleted', { count: result.totalDeleted }))
                       router.refresh()
                     } else {
-                      toast.info('Rien à nettoyer')
+                      toast.info(t('admin.nothing_to_clean'))
                     }
                   })
                 }}
                 disabled={isPending}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                Supprimer cache expiré
+                {t('feed.delete_expired_cache')}
               </Button>
             </div>
           </div>
@@ -288,7 +304,7 @@ function UserRow({ user }: { user: AdminUser }) {
     startTransition(async () => {
       const result = await toggleUserEnabled(user.id, !user.enabled)
       if (result.success) {
-        toast.success(user.enabled ? 'Utilisateur désactivé' : 'Utilisateur activé')
+        toast.success(user.enabled ? t('admin.user_disabled') : t('admin.user_enabled'))
         router.refresh()
       } else if (result.error) {
         toast.error(result.error)
@@ -306,7 +322,7 @@ function UserRow({ user }: { user: AdminUser }) {
             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
             : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
         }`}>
-          {user.role === 'ADMIN' ? 'Admin' : 'User'}
+          {user.role === 'ADMIN' ? t('feed.admin') : t('feed.user')}
         </span>
       </td>
       <td className="px-4 py-3">
@@ -315,7 +331,7 @@ function UserRow({ user }: { user: AdminUser }) {
             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
             : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
         }`}>
-          {user.enabled ? 'Actif' : 'Désactivé'}
+          {user.enabled ? t('feed.active') : t('feed.disabled')}
         </span>
       </td>
       <td className="px-4 py-3 text-sm text-muted-foreground">
@@ -347,12 +363,12 @@ function UserRow({ user }: { user: AdminUser }) {
           {user.enabled ? (
             <>
               <UserX className="mr-1 h-3 w-3" />
-              Désactiver
+              {t('feed.disable')}
             </>
           ) : (
             <>
               <UserCheck className="mr-1 h-3 w-3" />
-              Activer
+              {t('feed.enable')}
             </>
           )}
         </Button>
