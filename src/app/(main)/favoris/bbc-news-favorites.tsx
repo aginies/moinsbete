@@ -86,7 +86,7 @@ export function BbcNewsFavorites({ userId, onRemoveComplete, searchQuery }: BbcN
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
             >
-              Lire sur BBC
+              Lire l'article
               <ExternalLink className="h-3 w-3" />
             </Link>
           </div>
@@ -99,8 +99,8 @@ export function BbcNewsFavorites({ userId, onRemoveComplete, searchQuery }: BbcN
           </button>
         </div>
       )}
-      emptyTitle="Aucun favori BBC News"
-      emptyDescription="Ajoutez des articles BBC depuis la page d'accueil pour les voir ici."
+      emptyTitle="Aucun favori NEWS"
+      emptyDescription="Ajoutez des articles NEWS depuis la page d'accueil pour les voir ici."
       storageKey={FAVORITES_KEY}
       userId={userId}
       removeFavorite={handleRemove}
