@@ -272,7 +272,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   }, [cardConfigs, cardOrder, orderLoaded])
 
   const visibleCards = orderedConfigs.filter(c => c.isVisible)
-  const hiddenCards = orderedConfigs.filter(c => !c.isVisible && c.isGloballyVisible)
+  const hiddenCards = orderedConfigs.filter(c => !c.isVisible && c.isGloballyVisible && (c.key !== 'bbcNews' || hasUserId))
 
   if (typeof window !== 'undefined') {
     console.log('SujetsClient debug:', { userId, orderLoaded, cardOrder, visibility, globalVisibility, visibleCount: visibleCards.length, hiddenCount: hiddenCards.length })
