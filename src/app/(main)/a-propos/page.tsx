@@ -391,7 +391,7 @@ export default function AproposPage() {
             <h2 className="mb-3 text-xl font-semibold">L&apos;auteur</h2>
     <p className="text-muted-foreground">
           MoinsBête a été créé par <strong>Antoine Giniès</strong>.
-            Le projet s&apos;inspire de la philosophie Deep Stash, popularisée par 
+            Le projet s&apos;inspire de la philosophie Deep Stash, popularisée par&nbsp;
             <a
               href="https://deepstash.com"
               target="_blank"
