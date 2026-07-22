@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote } from 'lucide-react'
+import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -14,6 +14,16 @@ import { ImageHint } from '@/components/feed/image-hint'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import type { SharedLobbyBookmark } from '@/generated/client'
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  List: List,
+  Lightbulb: Lightbulb,
+  Camera: Camera,
+  Info: Info,
+  Image: ImageIcon,
+  Earth: Earth,
+  Quote: Quote,
+}
 
 const handleUnshareResult = (r: { error?: string } | null | undefined) => {
   if (r?.error) {
@@ -99,7 +109,7 @@ interface SharedBookmarksProps {
     IMAGE_WIKILOVES: Set<string>
     PROVERBE: Set<string>
   }
-  typeFilters?: { value: string; label: string }[]
+  typeFilters?: { value: string; label: string; icon: string }[]
   activeType?: string
   searchQuery?: string
   onTypeChange?: (value: string) => void
@@ -879,16 +889,20 @@ export function SharedBookmarks({
         <div className="space-y-3">
           {typeFilters.length > 0 && onTypeChange && (
             <div className="flex flex-wrap gap-2">
-              {typeFilters.map(filter => (
-                <Badge
-                  key={filter.value || 'all'}
-                  variant={activeType === filter.value ? 'default' : 'outline'}
-                  className="cursor-pointer select-none rounded-md"
-                  onClick={() => onTypeChange(filter.value)}
-                >
-                  {filter.label}
-                </Badge>
-              ))}
+              {typeFilters.map(filter => {
+                const Icon = ICON_MAP[filter.icon]
+                return (
+                  <Badge
+                    key={filter.value || 'all'}
+                    variant={activeType === filter.value ? 'default' : 'outline'}
+                    className="cursor-pointer select-none rounded-md flex items-center gap-1.5"
+                    onClick={() => onTypeChange(filter.value)}
+                  >
+                    {Icon && <Icon className="h-4 w-4" />}
+                    {filter.label}
+                  </Badge>
+                )
+              })}
             </div>
           )}
           {onSearchChange && (

@@ -2,6 +2,7 @@
 
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { Share2, Users } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SuggestionList } from './suggestion-list'
 import { SharedBookmarks } from './shared-bookmarks'
@@ -30,14 +31,20 @@ interface LobbyTabsProps {
   }
 }
 
-const TYPE_FILTERS = [
-  { value: '', label: 'Tous' },
-  { value: 'IDEA', label: 'Idées' },
-  { value: 'IMAGE_DU_JOUR', label: 'Image du jour' },
-  { value: 'SAVIEZ_VOUS', label: 'Saviez-vous ?' },
-  { value: 'IMAGE_WIKIMEDIA', label: 'Wikimedia' },
-  { value: 'IMAGE_WIKILOVES', label: 'Wiki Loves' },
-  { value: 'PROVERBE', label: 'Proverbes' },
+interface TypeFilter {
+  value: string
+  label: string
+  icon: string
+}
+
+const TYPE_FILTERS: TypeFilter[] = [
+  { value: '', label: 'Tous', icon: 'List' },
+  { value: 'IDEA', label: 'Idées', icon: 'Lightbulb' },
+  { value: 'IMAGE_DU_JOUR', label: 'Image du jour', icon: 'Camera' },
+  { value: 'SAVIEZ_VOUS', label: 'Saviez-vous ?', icon: 'Info' },
+  { value: 'IMAGE_WIKIMEDIA', label: 'Wikimedia', icon: 'Image' },
+  { value: 'IMAGE_WIKILOVES', label: 'Wiki Loves', icon: 'Earth' },
+  { value: 'PROVERBE', label: 'Proverbes', icon: 'Quote' },
 ]
 
 export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks, sharedByMeBookmarks, currentUserId, isAdmin, totalPages, totalPagesSharedWithMe, totalPagesSharedByMe, currentPage, userFavoriteIds }: LobbyTabsProps) {
@@ -224,9 +231,9 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
       <TabsList className="grid w-full grid-cols-4 h-auto pt-0 pb-1">
-        <TabsTrigger value="favoris" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>{t('feed.shared_favorites')}</TabsTrigger>
-        <TabsTrigger value="partage" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>{t('feed.partage_avec_vous')}</TabsTrigger>
-        <TabsTrigger value="mies" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>{t('feed.partage_utilisateurs')}</TabsTrigger>
+        <TabsTrigger value="favoris" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> Favoris</TabsTrigger>
+        <TabsTrigger value="partage" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> Avec vous</TabsTrigger>
+        <TabsTrigger value="mies" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> Utilisateurs</TabsTrigger>
         <TabsTrigger value="discuter" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>{t('feed.discuss')}</TabsTrigger>
       </TabsList>
 
