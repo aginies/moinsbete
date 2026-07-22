@@ -186,6 +186,7 @@
     "nothing_to_clean": "Nothing to clean",
     "expired_cache": "Expired cache",
     "delete_expired_cache": "Delete expired cache",
+    "published_on": "Published on",
     "clear_all_bbc_news": "Clear all NEWS",
     "delete_all": "Delete all",
     "bbc_news_cleared": "{count} NEWS articles cleared",
