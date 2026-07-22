@@ -471,6 +471,26 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   return (
     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-6">
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Rechercher dans les favoris..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 pr-10"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md p-0 text-muted-foreground hover:text-foreground"
+            onClick={() => setSearchQuery('')}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
       <div className="w-full">
         <TabsList className="flex flex-wrap gap-x-1 gap-y-3 md:gap-y-2 lg:gap-y-2 xl:gap-y-1 h-auto pt-0 pb-20 bg-muted rounded-lg min-h-0">
           {sortedTabs.map(({ id, label, Icon, count }) => (
@@ -483,26 +503,6 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       </div>
 
       <TabsContent value="idees" className="mt-4">
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Rechercher dans les favoris..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md p-0 text-muted-foreground hover:text-foreground"
-                onClick={() => setSearchQuery('')}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-
           {searchQuery && filteredIdeas.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">Aucun favori pour &quot;{searchQuery}&quot;</p>
           )}
