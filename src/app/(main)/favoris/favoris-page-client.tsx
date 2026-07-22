@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
@@ -79,30 +80,12 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [searchQuery, setSearchQuery] = useState('')
   const previousTabRef = useRef<Tab | null>(null)
   const { savedIdeaIds, handleBookmark } = useBookmarkToggle(ideas)
-  const [sharedIdeaIds, setSharedIdeaIds] = useState<Set<string>>(new Set())
   const [sharedSaviezIds, setSharedSaviezIds] = useState<Set<string>>(new Set())
   const [sharedImageIds, setSharedImageIds] = useState<Set<string>>(new Set())
   const [sharedWikiLovesIds, setSharedWikiLovesIds] = useState<Set<string>>(new Set())
   const [sharedWikimediaIds, setSharedWikimediaIds] = useState<Set<string>>(new Set())
   const [sharedProverbeIds, setSharedProverbeIds] = useState<Set<string>>(new Set())
   const [isSharing, setIsSharing] = useState<string | null>(null)
-
-  useEffect(() => {
-    const loadSharedState = async () => {
-      const ideaIds = ideas.map(i => i.id).join(',')
-      if (!ideaIds) return
-      try {
-        const res = await fetch(`/api/lobby/shared-ideas?ideaIds=${ideaIds}`)
-        const data = await res.json()
-        if (data.ideaIds) {
-          setSharedIdeaIds(new Set(data.ideaIds))
-        }
-      } catch (err) {
-        console.error('Failed to load shared state:', err)
-      }
-    }
-    loadSharedState()
-  }, [ideas])
 
   useEffect(() => {
     const loadSaviezSharedState = async () => {
@@ -267,32 +250,6 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const handleBbcRemove = useCallback(() => {
     setBbcCount(prev => Math.max(0, prev - 1))
   }, [])
-
-  const handleShareToLobby = async (ideaId: string) => {
-    setIsSharing(ideaId)
-    try {
-      const isShared = sharedIdeaIds.has(ideaId)
-      if (isShared) {
-        await unshareFromLobby(ideaId)
-        setSharedIdeaIds(prev => {
-          const next = new Set(prev)
-          next.delete(ideaId)
-          return next
-        })
-        toast.success('Retiré du lobby')
-      } else {
-        const result = await shareToLobby(ideaId)
-        if (result.success) {
-          setSharedIdeaIds(prev => new Set([...prev, ideaId]))
-          toast.success('Partagé au lobby')
-        } else {
-          toast.error(result.error)
-        }
-      }
-    } finally {
-      setIsSharing(null)
-    }
-  }
 
   const handleSaviezVousShareToLobby = async (resourceId: string) => {
     setIsSharing(resourceId)
@@ -683,20 +640,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
                   <CompactIdeaCard idea={{ ...idea, viewedAt: new Date().toISOString() }} />
             <div className="absolute right-2 top-2 z-10 flex items-center gap-1">
                 <IdeaShareButton idea={idea} />
-                <button
-                  type="button"
-                  className="rounded-full bg-card/90 px-2 py-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted flex items-center gap-1"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleShareToLobby(idea.id)
-                  }}
-                  disabled={isSharing === idea.id}
-                  title="Partager au lobby"
-                >
-                  <Share2 className={`h-4 w-4 ${sharedIdeaIds.has(idea.id) ? 'text-green-500' : 'text-muted-foreground'}`} />
-                  <span className="text-xs">Lobby</span>
-                </button>
+                <ShareToLobbyButton resourceId={idea.id} resourceType="IDEA" />
                 <button
                  type="button"
                  className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
