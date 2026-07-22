@@ -471,9 +471,9 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   return (
     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-6">
-      <TabsList className="flex flex-wrap gap-x-1 gap-y-3 md:gap-y-2 lg:gap-y-2 xl:gap-y-1 h-auto pt-0 pb-4">
+      <TabsList className="flex flex-wrap gap-x-1 gap-y-3 md:gap-y-2 lg:gap-y-2 xl:gap-y-1 h-auto pt-0 pb-12 bg-muted rounded-lg">
         {sortedTabs.map(({ id, label, Icon, count }) => (
-          <TabsTrigger key={id} value={id} className="flex-shrink-0 w-full sm:w-[calc(50%-4px)] md:w-[calc(33.33%-4px)] lg:w-[calc(16.66%-4px)] xl:w-[calc(20%-4px)] h-auto flex items-start justify-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer" style={{ height: 'auto' }}>
+          <TabsTrigger key={id} value={id} className="flex-shrink-0 w-full sm:w-[calc(50%-4px)] md:w-[calc(33.33%-4px)] lg:w-[calc(16.66%-4px)] xl:w-[calc(20%-4px)] h-auto flex items-start justify-center gap-1.5 px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer bg-muted data-active:bg-background" style={{ height: 'auto' }}>
             <Icon className="h-4 w-4" />
             {label} ({count})
           </TabsTrigger>
