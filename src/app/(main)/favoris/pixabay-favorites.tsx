@@ -77,7 +77,7 @@ function PixabayFavoriteItem({ item, onRemove }: PixabayFavoriteItemProps) {
   )
 }
 
-export function PixabayFavorites({ userId, onRemoveComplete }: { userId?: string; onRemoveComplete?: () => void }) {
+export function PixabayFavorites({ userId, onRemoveComplete, searchQuery }: { userId?: string; onRemoveComplete?: () => void; searchQuery?: string }) {
   const { handleRemove } = useFavoritesList<PixabayVideoFavoriteDoc>({
     userId,
     storageKey: PIXABAY_FAVORITES_KEY,
@@ -98,6 +98,8 @@ export function PixabayFavorites({ userId, onRemoveComplete }: { userId?: string
     <PaginatedFavoritesList
       onRemoveComplete={onRemoveComplete}
       fetchFn={fetchFn}
+      searchQuery={searchQuery}
+      searchFields={(item) => `${item.tags} ${item.author}`}
       renderItem={(item, onRemove) => (
         <PixabayFavoriteItem item={item} onRemove={onRemove} />
       )}

@@ -23,6 +23,7 @@ interface ImageDuJourBookmarksProps {
   sharedIds?: Set<string>
   onShareToggle?: (item: ImageDuJourFavoriteDoc) => void
   isSharing?: string | null
+  searchQuery?: string
 }
 
 function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareToggle, isSharing }: { item: ImageDuJourFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void; isShared: boolean; onShareToggle: () => void; isSharing: boolean }) {
@@ -88,7 +89,7 @@ interface ImageDuJourBookmarksInnerProps extends ImageDuJourBookmarksProps {
   isSharing: string | null
 }
 
-export function ImageDuJourBookmarks({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: ImageDuJourBookmarksInnerProps) {
+export function ImageDuJourBookmarks({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing, searchQuery }: ImageDuJourBookmarksInnerProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
   const { handleRemove, getFavorites } = useFavoritesList<ImageDuJourFavoriteDoc>({
     userId,
@@ -110,6 +111,8 @@ export function ImageDuJourBookmarks({ userId, onRemoveComplete, sharedIds, onSh
       <PaginatedFavoritesList
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
+        searchQuery={searchQuery}
+        searchFields={(item) => item.description}
         renderItem={(item, onRemove) => (
           <ImageDuJourFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.fileUrl)} onShareToggle={() => onShareToggle && onShareToggle(item)} isSharing={isSharing === item.fileUrl} />
         )}

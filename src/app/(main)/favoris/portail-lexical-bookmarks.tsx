@@ -25,6 +25,7 @@ const PORTAIL_LEXICAL_FAVORITES_KEY = 'portail_lexical_favorites'
 interface PortailLexicalBookmarksProps {
   userId?: string
   onRemoveComplete?: () => void
+  searchQuery?: string
 }
 
 function PortailLexicalFavoriteItem({ item, onRemove }: { item: PortailLexicalFavoriteDoc; onRemove: () => void }) {
@@ -81,7 +82,7 @@ function PortailLexicalFavoriteItem({ item, onRemove }: { item: PortailLexicalFa
   )
 }
 
-export function PortailLexicalBookmarks({ userId, onRemoveComplete }: PortailLexicalBookmarksProps) {
+export function PortailLexicalBookmarks({ userId, onRemoveComplete, searchQuery }: PortailLexicalBookmarksProps) {
   const { handleRemove, getFavorites } = useFavoritesList<PortailLexicalFavoriteDoc>({
     userId,
     storageKey: PORTAIL_LEXICAL_FAVORITES_KEY,
@@ -101,6 +102,8 @@ export function PortailLexicalBookmarks({ userId, onRemoveComplete }: PortailLex
     <PaginatedFavoritesList
       onRemoveComplete={onRemoveComplete}
       fetchFn={fetchFn}
+      searchQuery={searchQuery}
+      searchFields={(item) => `${item.form} ${item.description || ''}`}
       renderItem={(item, onRemove) => (
         <PortailLexicalFavoriteItem item={item} onRemove={onRemove} />
       )}

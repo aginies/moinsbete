@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useSearchParams, usePathname } from 'next/navigation'
 import { Pagination } from '@/components/ui/pagination'
+import { normalizeAccents } from '@/lib/utils'
 
 interface PaginatedFavoritesListProps<T> {
   fetchFn: () => Promise<T[]>
   renderItem: (item: T, onRemove: () => void) => React.ReactNode
   emptyTitle: string
   emptyDescription: string
+  noResultsTitle?: string
   storageKey: string
   userId?: string
   removeFavorite: (item: T) => Promise<void>
@@ -21,6 +23,8 @@ interface PaginatedFavoritesListProps<T> {
   buttonColor?: string
   buttonHoverBg?: string
   onRemoveComplete?: () => Promise<void> | void
+  searchQuery?: string
+  searchFields?: (item: T) => string
 }
 
 const PAGE_SIZE = 10
@@ -30,6 +34,7 @@ export function PaginatedFavoritesList<T>({
   renderItem,
   emptyTitle,
   emptyDescription,
+  noResultsTitle,
   storageKey,
   removeFavorite,
   onRemoveComplete,
@@ -37,6 +42,8 @@ export function PaginatedFavoritesList<T>({
   bgGradient = 'bg-gradient-to-br from-purple-50 to-violet-50',
   darkBorderColor = 'dark:border-purple-800',
   darkBgGradient = 'dark:from-purple-950/20 dark:to-violet-950/20',
+  searchQuery,
+  searchFields,
 }: PaginatedFavoritesListProps<T>) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -71,7 +78,17 @@ export function PaginatedFavoritesList<T>({
   const totalPages = Math.max(1, Math.ceil(allFavorites.length / PAGE_SIZE))
   const safePage = Math.min(currentPage, totalPages)
   const start = (safePage - 1) * PAGE_SIZE
-  const paginatedFavorites = allFavorites.slice(start, start + PAGE_SIZE)
+
+  const filteredFavorites = useMemo(() => {
+    if (!searchQuery?.trim() || !searchFields) return allFavorites
+    const q = normalizeAccents(searchQuery).toLowerCase()
+    return allFavorites.filter(item => {
+      const text = searchFields(item)
+      return normalizeAccents(text).toLowerCase().includes(q)
+    })
+  }, [allFavorites, searchQuery, searchFields])
+
+  const paginatedFavorites = filteredFavorites.slice(start, start + PAGE_SIZE)
 
   const loadFavorites = useCallback(async () => {
     setLoading(true)
@@ -104,7 +121,7 @@ export function PaginatedFavoritesList<T>({
   if (paginatedFavorites.length === 0) {
     return (
       <div className="rounded-xl border border-border/60 bg-card p-12 text-center">
-        <p className="mb-2 text-lg font-semibold">{emptyTitle}</p>
+        <p className="mb-2 text-lg font-semibold">{noResultsTitle || emptyTitle}</p>
         <p className="text-sm text-muted-foreground">{emptyDescription}</p>
       </div>
     )
@@ -136,7 +153,7 @@ export function PaginatedFavoritesList<T>({
 
       {allFavorites.length > 0 && (
         <p className="py-4 text-center text-xs text-muted-foreground">
-          Page {safePage} sur {totalPages} · {allFavorites.length} favori{allFavorites.length !== 1 ? 's' : ''}
+          Page {safePage} sur {totalPages} · {filteredFavorites.length} favori{filteredFavorites.length !== 1 ? 's' : ''}
         </p>
       )}
     </div>

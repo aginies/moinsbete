@@ -573,23 +573,23 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
       </TabsContent>
 
-      <TabsContent value="radio-france"><RadioFranceFavorites userId={userId} onRemoveComplete={handleRadioRemove} /></TabsContent>
+      <TabsContent value="radio-france"><RadioFranceFavorites userId={userId} onRemoveComplete={handleRadioRemove} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="cnrs-news"><CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} /></TabsContent>
+      <TabsContent value="cnrs-news"><CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} sharedIds={sharedImageIds} onShareToggle={handleImageShareToLobby} isSharing={isSharing} /></TabsContent>
+      <TabsContent value="image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} sharedIds={sharedImageIds} onShareToggle={handleImageShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} sharedIds={sharedSaviezIds} onShareToggle={handleSaviezVousShareToLobby} isSharing={isSharing} /></TabsContent>
+      <TabsContent value="saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} sharedIds={sharedSaviezIds} onShareToggle={handleSaviezVousShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} sharedIds={sharedWikimediaIds} onShareToggle={handleWikimediaShareToLobby} isSharing={isSharing} /></TabsContent>
+      <TabsContent value="image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} sharedIds={sharedWikimediaIds} onShareToggle={handleWikimediaShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} sharedIds={sharedWikiLovesIds} onShareToggle={handleWikiLovesShareToLobby} isSharing={isSharing} /></TabsContent>
+      <TabsContent value="image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} sharedIds={sharedWikiLovesIds} onShareToggle={handleWikiLovesShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="image-pixabay"><PixabayFavorites userId={userId} onRemoveComplete={handlePixabayRemove} /></TabsContent>
+      <TabsContent value="image-pixabay"><PixabayFavorites userId={userId} onRemoveComplete={handlePixabayRemove} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="portail-lexical"><PortailLexicalBookmarks userId={userId} onRemoveComplete={handlePortailLexRemove} /></TabsContent>
+      <TabsContent value="portail-lexical"><PortailLexicalBookmarks userId={userId} onRemoveComplete={handlePortailLexRemove} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} sharedIds={sharedProverbeIds} onShareToggle={handleProverbeShareToLobby} isSharing={isSharing} /></TabsContent>
+      <TabsContent value="proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} sharedIds={sharedProverbeIds} onShareToggle={handleProverbeShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
     </Tabs>
     </>
   )

@@ -29,6 +29,7 @@ interface SaviezVousBookmarksProps {
   sharedIds?: Set<string>
   onShareToggle?: (resourceId: string) => void
   isSharing?: string | null
+  searchQuery?: string
 }
 
 function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareToggle, isSharing }: { item: SaviezVousFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void; isShared: boolean; onShareToggle: () => void; isSharing: boolean }) {
@@ -104,7 +105,7 @@ interface SaviezVousBookmarksInnerProps extends SaviezVousBookmarksProps {
   isSharing: string | null
 }
 
-export function SaviezVousBookmarks({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: SaviezVousBookmarksInnerProps) {
+export function SaviezVousBookmarks({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing, searchQuery }: SaviezVousBookmarksInnerProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
   const { handleRemove, getFavorites } = useFavoritesList<SaviezVousFavoriteDoc>({
     userId,
@@ -126,6 +127,8 @@ export function SaviezVousBookmarks({ userId, onRemoveComplete, sharedIds, onSha
       <PaginatedFavoritesList
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
+        searchQuery={searchQuery}
+        searchFields={(item) => item.text}
         renderItem={(item, onRemove) => (
           <SaviezVousFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.id)} onShareToggle={() => onShareToggle(item.id)} isSharing={isSharing === item.id} />
         )}
