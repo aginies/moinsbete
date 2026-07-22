@@ -205,7 +205,11 @@ function IdeaBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.idea && unshareFromLobby(bookmark.idea.id).then(handleUnshareResult).catch(handleUnshareError)
+              if (bookmark.resourceType === 'IDEA' && bookmark.resourceId) {
+                unshareResourceFromLobby('IDEA', bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+              } else if (bookmark.ideaId) {
+                unshareFromLobby(bookmark.ideaId).then(handleUnshareResult).catch(handleUnshareError)
+              }
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
