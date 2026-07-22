@@ -11,6 +11,7 @@ pm2 stop moinsbete 2>/dev/null || true
 mkdir -p "$DEST"
 
 rsync -a --delete --checksum \
+  --exclude='.git/' \
   --exclude='dev.db*' \
   --exclude='data.db*' \
   --exclude='*.test.ts' \
