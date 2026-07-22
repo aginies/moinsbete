@@ -19,7 +19,8 @@
     "cache:radio": "tsx src/scripts/cache-radio-france.ts",
     "cache:wikipedia": "tsx src/scripts/cache-wikipedia-image.ts",
     "cache:cleanup": "tsx src/scripts/cleanup-cached.ts",
-    "cache:all": "tsx src/scripts/cache-cnrs.ts && tsx src/scripts/cache-radio-france.ts && tsx src/scripts/cache-wikipedia-image.ts && tsx src/scripts/cleanup-cached.ts",
+    "cache:bbc": "tsx src/scripts/cache-bbc-news.ts",
+    "cache:all": "tsx src/scripts/cache-cnrs.ts && tsx src/scripts/cache-radio-france.ts && tsx src/scripts/cache-wikipedia-image.ts && tsx src/scripts/cache-bbc-news.ts && tsx src/scripts/cleanup-cached.ts",
     "fetch-proverbes": "tsx src/scripts/fetch-proverbes.ts"
   },
   "prisma": {
