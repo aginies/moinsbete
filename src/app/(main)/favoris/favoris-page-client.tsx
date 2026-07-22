@@ -47,7 +47,7 @@ interface FavorisPageClientProps {
   proverbeFavoritesCount: number
 }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'proverbe'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'proverbe' | 'results'
 
 interface TabConfig {
   id: Tab
@@ -71,9 +71,11 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
 
 export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
+  const [previousTab, setPreviousTab] = useState<Tab | null>(null)
   const hasInitialSet = useRef(false)
   const initialTabSetRef = useRef(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const previousTabRef = useRef<Tab | null>(null)
   const { savedIdeaIds, handleBookmark } = useBookmarkToggle(ideas)
   const [sharedIdeaIds, setSharedIdeaIds] = useState<Set<string>>(new Set())
   const [sharedSaviezIds, setSharedSaviezIds] = useState<Set<string>>(new Set())
@@ -571,6 +573,18 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     
     return results
   }, [searchQuery, filteredIdeas, radioCount, cnrsCount, imageDuJourCount, saviezVousCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount])
+
+  useEffect(() => {
+    if (searchQuery?.trim()) {
+      if (activeTab !== 'results') {
+        previousTabRef.current = activeTab
+        setActiveTab('results')
+      }
+    } else if (previousTabRef.current) {
+      setActiveTab(previousTabRef.current)
+      previousTabRef.current = null
+    }
+  }, [searchQuery, activeTab])
 
   useEffect(() => {
     if (!hasInitialSet.current && !initialTabSetRef.current && activeTab === 'idees' && derivedIdeasCount === 0) {
