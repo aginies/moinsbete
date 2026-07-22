@@ -383,7 +383,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                         startTransition(async () => {
                           const result = await clearAllBbcNewsAction()
                           if (result.success && result.deletedCount > 0) {
-                            toast.success(adminT('bbc_news_cleared', { count: result.deletedCount }))
+                            toast.success(t('feed.bbc_news_cleared', { count: result.deletedCount }))
                             router.refresh()
                           } else if (result.error) {
                             toast.error(result.error)
