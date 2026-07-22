@@ -26,3 +26,14 @@ export async function cleanupExpiredCache() {
     totalDeleted: cnrsDeleted.count + radioDeleted.count + wikiImageDeleted.count + wikiLovesDeleted.count,
   }
 }
+
+export async function clearAllBbcNewsAction() {
+  const session = await getSession()
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return { error: 'Non autorisé', deletedCount: 0 }
+  }
+
+  const result = await prisma.cachedBbcArticle.deleteMany({})
+
+  return { success: true, deletedCount: result.count }
+}
