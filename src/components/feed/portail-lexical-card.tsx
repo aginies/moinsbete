@@ -157,9 +157,9 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
                    className="rounded-full p-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all disabled:opacity-50"
                    title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                  >
-                   <Bookmark
-                     className={`h-4 w-4 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
-                   />
+                    <Bookmark
+                      className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
+                    />
                  </button>
                ) : undefined}
             />

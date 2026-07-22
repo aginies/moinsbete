@@ -240,7 +240,7 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
           disabled={loading}
           title={isAnyoneShared ? 'Gérer le partage' : 'Partager au lobby'}
         >
-          {icon || <Share2 className="h-4 w-4" />}
+          {icon || <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />}
           <span className="text-xs">Lobby</span>
         </button>
       </div>

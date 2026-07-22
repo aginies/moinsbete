@@ -142,7 +142,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 dark:bg-green-600">
-            <Newspaper className="h-4 w-4 text-white" />
+            <Newspaper className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </div>
           <h3 className="text-sm font-bold uppercase tracking-wide text-green-800 dark:text-green-300">
             Actualité CNRS
@@ -158,10 +158,10 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
               className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 transition-colors"
               title="Masquer la carte"
             >
-              <EyeOff className="h-4 w-4" />
+              <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           )}
-          <RefreshCw className={`h-4 w-4 text-green-600 dark:text-green-400 cursor-pointer transition-transform hover:scale-110 ${loading ? 'animate-spin' : ''}`} onClick={(e) => { e.stopPropagation(); loadArticle() }} />
+          <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400 cursor-pointer transition-transform hover:scale-110 ${loading ? 'animate-spin' : ''}`} onClick={(e) => { e.stopPropagation(); loadArticle() }} />
              {article && (
             <button
               onClick={(e) => {
@@ -172,7 +172,7 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
               className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 transition-colors disabled:opacity-50"
               title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
-              <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current text-green-600 dark:text-green-400' : 'text-green-600 dark:text-green-400'}`} />
+              <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-green-600 dark:text-green-400' : 'text-green-600 dark:text-green-400'}`} />
             </button>
           )}
           <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />

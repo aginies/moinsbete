@@ -177,7 +177,7 @@ export function CardHeader({
             className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors`}
             title="Masquer la carte"
           >
-            <EyeOff className="h-4 w-4" />
+            <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         )}
         {showRefresh && onRefresh && (
@@ -190,7 +190,7 @@ export function CardHeader({
             className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors cursor-pointer`}
             title="Rafraîchir"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
         )}
         {extraActions}
