@@ -282,6 +282,10 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
                     </span>
                   </div>
 
+                  <div className="mb-2 text-xs text-muted-foreground">
+                    {new Date(article.publishedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </div>
+
                   <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
                     {article.title}
                   </h4>
