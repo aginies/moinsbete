@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { CompactIdeaCard } from '@/components/feed/idea-card'
+import { useTranslations } from 'next-intl'
 
 interface SearchResult {
-  ideas: Array<{ id: string; title: string; slug: string; topics: Array<{ name: string; icon: string }> }>
+  ideas: Array<{ id: string; title: string; slug: string; content: string; takeaway: string; topics: Array<{ id: string; name: string; slug: string; icon: string; color: string }>; source: { title: string; type: string; url: string | null; coverUrl: string | null } }>
   sources: Array<{ id: string; title: string; slug: string }>
   topics: Array<{ id: string; name: string; slug: string; icon: string }>
   facts: Array<{ id: string; text: string }>
@@ -21,6 +23,7 @@ interface SearchBarProps {
 }
 
 export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarProps) {
+  const t = useTranslations('search')
   const router = useRouter()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult | null>(null)
@@ -60,11 +63,20 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+        const res = await fetch(`/fr/api/search?q=${encodeURIComponent(query)}`, {
+          credentials: 'include',
+        })
+        if (!res.ok) {
+          console.error('Search API error:', res.status, res.statusText)
+          setResults(null)
+          return
+        }
         const data = await res.json()
+        console.log('Search results:', data.ideas?.length || 0, 'ideas')
         setResults(data)
         setIsOpen(true)
-      } catch {
+      } catch (err) {
+        console.error('Search fetch error:', err)
         setResults(null)
       } finally {
         setSearching(false)
@@ -82,7 +94,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Rechercher des idées, sources, sujets, faits..."
+          placeholder={t('placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-10 pr-10"
@@ -123,22 +135,21 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
           {results.ideas.length > 0 && (
             <div className="mb-3">
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Idées</h4>
-              <div className="space-y-1">
-                {results.ideas.slice(0, 5).map((idea) => (
-                  <Link
-                    key={idea.id}
-                    href={`/idees/${idea.slug}`}
-                    className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                    onClick={closeResults}
-                  >
-                    <span className="font-medium">{idea.title}</span>
-                    {idea.topics.length > 0 && (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        {idea.topics[0].icon} {idea.topics[0].name}
-                      </span>
-                    )}
-                  </Link>
-                ))}
+              <div className="space-y-2">
+                {results.ideas.slice(0, 5).map((idea) => {
+                  const compactIdea = {
+                    id: idea.id,
+                    title: idea.title,
+                    slug: idea.slug,
+                    source: { title: idea.source.title, type: idea.source.type, url: idea.source.url, coverUrl: idea.source.coverUrl },
+                    topics: idea.topics.map(t => ({ id: t.id || '', name: t.name, slug: t.slug || '', icon: t.icon, color: t.color })),
+                    viewedAt: new Date().toISOString(),
+                  }
+                  console.log('CompactIdeaCard idea:', compactIdea.id, 'title:', compactIdea.title, 'topics:', compactIdea.topics.length)
+                  return (
+                    <CompactIdeaCard key={idea.id} idea={compactIdea} />
+                  )
+                })}
               </div>
             </div>
           )}
@@ -183,13 +194,17 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
 
       {isOpen && !hasResults && query.length >= 2 && !searching && (
         <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-border/60 bg-card p-6 text-center shadow-lg">
-          <p className="text-sm text-muted-foreground">Aucun résultat pour &quot;{query}&quot;</p>
+          <p className="text-sm text-muted-foreground">{t('no_results', { query })}</p>
         </div>
       )}
 
       {searching && (
         <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-border/60 bg-card p-6 text-center shadow-lg">
-          <p className="text-sm text-muted-foreground">Recherche en cours...</p>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">{t('searching')}</p>
+          </div>
+          <p className="text-xs text-muted-foreground/60">{t('time_estimate')}</p>
         </div>
       )}
     </div>
