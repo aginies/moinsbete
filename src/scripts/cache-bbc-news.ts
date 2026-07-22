@@ -27,7 +27,6 @@ interface BbcArticle {
 }
 
 const CATEGORIES = ['allNews', 'world', 'business', 'tech', 'entertainment', 'sports', 'science', 'health'] as const
-const COUNTRIES = ['fr'] as const
 
 async function fetchFromApi(category: string): Promise<BbcArticle[]> {
   if (!NEWS_API_KEY) {
@@ -37,41 +36,39 @@ async function fetchFromApi(category: string): Promise<BbcArticle[]> {
 
   const allArticles: BbcArticle[] = []
 
-  for (const country of COUNTRIES) {
-    try {
-      const url = `${NEWS_API_BASE}/top-headlines?country=${country}&category=${category}&apiKey=${NEWS_API_KEY}`
-      const res = await fetch(url, {
-        signal: AbortSignal.timeout(15000),
-      })
-      
-      if (!res.ok) {
-        console.log(`  ${country}/${category}: HTTP ${res.status}`)
-        continue
-      }
-
-      const data: NewsApiResponse = await res.json()
-      if (data.status !== 'ok' || !data.articles) {
-        continue
-      }
-
-      for (const article of data.articles) {
-        if (!article.url || !article.title) continue
-        
-        allArticles.push({
-          title: article.title,
-          description: article.description || '',
-          url: article.url,
-          imageUrl: article.urlToImage || '',
-          source: article.source.name,
-          category,
-          publishedAt: article.publishedAt,
-        })
-      }
-
-      console.log(`  ${country}/${category}: ${data.articles.length} articles`)
-    } catch {
-      console.log(`  ${country}/${category}: erreur`)
+  try {
+    const url = `${NEWS_API_BASE}/everything?q=${category}&language=fr&sortBy=publishedAt&pageSize=100&apiKey=${NEWS_API_KEY}`
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(15000),
+    })
+    
+    if (!res.ok) {
+      console.log(`  ${category}: HTTP ${res.status}`)
+      return []
     }
+
+    const data: NewsApiResponse = await res.json()
+    if (data.status !== 'ok' || !data.articles) {
+      return []
+    }
+
+    for (const article of data.articles) {
+      if (!article.url || !article.title) continue
+      
+      allArticles.push({
+        title: article.title,
+        description: article.description || '',
+        url: article.url,
+        imageUrl: article.urlToImage || '',
+        source: article.source.name,
+        category,
+        publishedAt: article.publishedAt,
+      })
+    }
+
+    console.log(`  ${category}: ${data.articles.length} articles`)
+  } catch {
+    console.log(`  ${category}: erreur`)
   }
 
   return allArticles
