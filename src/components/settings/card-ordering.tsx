@@ -26,6 +26,7 @@ const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
   { key: 'wikipedia', label: 'Wikipedia', icon: '📖' },
   { key: 'cnrs', label: 'CNRS', icon: '🔬' },
   { key: 'radioFrance', label: 'Radio France', icon: '📻' },
+  { key: 'bbcNews', label: 'NEWS', icon: '📰' },
   { key: 'wikimedia', label: 'Wikimedia', icon: '🖼️' },
   { key: 'wikiloves', label: 'Wiki Loves', icon: '🏛️' },
   { key: 'pixabay', label: 'Pixabay', icon: '🎨' },
@@ -33,7 +34,7 @@ const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
   { key: 'proverbe', label: 'Proverbe', icon: '🗣️' },
 ]
 
-const DEFAULT_ORDER = ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe']
+const DEFAULT_ORDER = ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'bbcNews', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe']
 
 function SortableCardItem({
   card,
@@ -117,7 +118,8 @@ export function CardOrdering({ userId }: { userId?: string }) {
         .then(res => res.ok ? res.json() : Promise.reject())
         .then(data => {
           if (Array.isArray(data.order)) {
-            setOrder(data.order)
+            const merged = [...new Set([...DEFAULT_ORDER, ...data.order])]
+            setOrder(merged)
           } else {
             setOrder(DEFAULT_ORDER)
           }
