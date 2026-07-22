@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { useBookmarkToggle } from '@/hooks/use-bookmark-toggle'
 import { RadioFranceFavorites } from './radio-france-favorites'
 import { CnrsBookmarks } from '@/components/feed/cnrs-bookmarks'
@@ -469,31 +470,17 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   }, [sortedTabs, activeTab, derivedIdeasCount])
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-1 md:gap-2 mb-4 md:mb-6 border-b border-border" role="tablist" aria-label="Favoris">
+    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-6">
+      <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-10 gap-1 h-auto pt-0 pb-1">
         {sortedTabs.map(({ id, label, Icon, count }) => (
-          <Badge
-            key={id}
-            role="tab"
-            aria-selected={activeTab === id}
-            aria-controls={`panel-${id}`}
-            onClick={() => setActiveTab(id)}
-            variant={activeTab === id ? 'default' : 'outline'}
-            rounded={activeTab === id ? 'none' : 'none'}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
-              activeTab === id
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
+          <TabsTrigger key={id} value={id} className="flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer" style={{ height: 'auto' }}>
             <Icon className="h-4 w-4" />
             {label} ({count})
-          </Badge>
+          </TabsTrigger>
         ))}
-      </div>
+      </TabsList>
 
-      {activeTab === 'idees' && (
-        <div role="tabpanel" id="panel-idees" className="mt-4">
+      <TabsContent value="idees" className="mt-4">
           <div className="relative mb-6">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -580,26 +567,26 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
               )}
             </div>
           )}
-        </div>
-      )}
 
-      {activeTab === 'radio-france' && <div role="tabpanel" id="panel-radio-france"><RadioFranceFavorites userId={userId} onRemoveComplete={handleRadioRemove} /></div>}
+      </TabsContent>
 
-      {activeTab === 'cnrs-news' && <div role="tabpanel" id="panel-cnrs-news"><CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} /></div>}
+      <TabsContent value="radio-france"><RadioFranceFavorites userId={userId} onRemoveComplete={handleRadioRemove} /></TabsContent>
 
-      {activeTab === 'image-du-jour' && <div role="tabpanel" id="panel-image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} sharedIds={sharedImageIds} onShareToggle={handleImageShareToLobby} isSharing={isSharing} /></div>}
+      <TabsContent value="cnrs-news"><CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} /></TabsContent>
 
-      {activeTab === 'saviez-vous' && <div role="tabpanel" id="panel-saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} sharedIds={sharedSaviezIds} onShareToggle={handleSaviezVousShareToLobby} isSharing={isSharing} /></div>}
+      <TabsContent value="image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} sharedIds={sharedImageIds} onShareToggle={handleImageShareToLobby} isSharing={isSharing} /></TabsContent>
 
-      {activeTab === 'image-wikimedia' && <div role="tabpanel" id="panel-image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} sharedIds={sharedWikimediaIds} onShareToggle={handleWikimediaShareToLobby} isSharing={isSharing} /></div>}
+      <TabsContent value="saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} sharedIds={sharedSaviezIds} onShareToggle={handleSaviezVousShareToLobby} isSharing={isSharing} /></TabsContent>
 
-      {activeTab === 'image-wikiloves' && <div role="tabpanel" id="panel-image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} sharedIds={sharedWikiLovesIds} onShareToggle={handleWikiLovesShareToLobby} isSharing={isSharing} /></div>}
+      <TabsContent value="image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} sharedIds={sharedWikimediaIds} onShareToggle={handleWikimediaShareToLobby} isSharing={isSharing} /></TabsContent>
 
-      {activeTab === 'image-pixabay' && <div role="tabpanel" id="panel-image-pixabay"><PixabayFavorites userId={userId} onRemoveComplete={handlePixabayRemove} /></div>}
+      <TabsContent value="image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} sharedIds={sharedWikiLovesIds} onShareToggle={handleWikiLovesShareToLobby} isSharing={isSharing} /></TabsContent>
 
-      {activeTab === 'portail-lexical' && <div role="tabpanel" id="panel-portail-lexical"><PortailLexicalBookmarks userId={userId} onRemoveComplete={handlePortailLexRemove} /></div>}
+      <TabsContent value="image-pixabay"><PixabayFavorites userId={userId} onRemoveComplete={handlePixabayRemove} /></TabsContent>
 
-      {activeTab === 'proverbe' && <div role="tabpanel" id="panel-proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} sharedIds={sharedProverbeIds} onShareToggle={handleProverbeShareToLobby} isSharing={isSharing} /></div>}
-    </div>
+      <TabsContent value="portail-lexical"><PortailLexicalBookmarks userId={userId} onRemoveComplete={handlePortailLexRemove} /></TabsContent>
+
+      <TabsContent value="proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} sharedIds={sharedProverbeIds} onShareToggle={handleProverbeShareToLobby} isSharing={isSharing} /></TabsContent>
+    </Tabs>
   )
 }
