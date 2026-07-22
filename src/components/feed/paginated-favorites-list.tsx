@@ -75,10 +75,6 @@ export function PaginatedFavoritesList<T>({
     loadFavorites()
   }, [fetchFn, storageKey])
 
-  const totalPages = Math.max(1, Math.ceil(allFavorites.length / PAGE_SIZE))
-  const safePage = Math.min(currentPage, totalPages)
-  const start = (safePage - 1) * PAGE_SIZE
-
   const filteredFavorites = useMemo(() => {
     if (!searchQuery?.trim() || !searchFields) return allFavorites
     const q = normalizeAccents(searchQuery).toLowerCase()
@@ -88,6 +84,9 @@ export function PaginatedFavoritesList<T>({
     })
   }, [allFavorites, searchQuery, searchFields])
 
+  const totalPages = Math.max(1, Math.ceil(filteredFavorites.length / PAGE_SIZE))
+  const safePage = Math.min(currentPage, totalPages)
+  const start = (safePage - 1) * PAGE_SIZE
   const paginatedFavorites = filteredFavorites.slice(start, start + PAGE_SIZE)
 
   const loadFavorites = useCallback(async () => {
@@ -151,7 +150,7 @@ export function PaginatedFavoritesList<T>({
         />
       )}
 
-      {allFavorites.length > 0 && (
+      {filteredFavorites.length > 0 && (
         <p className="py-4 text-center text-xs text-muted-foreground">
           Page {safePage} sur {totalPages} · {filteredFavorites.length} favori{filteredFavorites.length !== 1 ? 's' : ''}
         </p>
