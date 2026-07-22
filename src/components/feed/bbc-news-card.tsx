@@ -187,7 +187,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
   return (
     <>
       {!show && hasMounted ? (
-        <VisibilityButton color={buttonColor} label="Afficher BBC News" onClick={onToggle || handleToggle} />
+        <VisibilityButton color={buttonColor} label="Afficher NEWS" onClick={onToggle || handleToggle} />
       ) : (
         <div className="flex h-full flex-col rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow">
           <div className="mb-3 flex items-center justify-between">
@@ -196,7 +196,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
                 <Newspaper className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
               <h3 className="text-sm font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">
-                BBC News
+                NEWS
               </h3>
             </div>
             <div className="flex items-center gap-4">
@@ -265,7 +265,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
                         src={sanitizeUrl(article.imageUrl, '')}
                         alt={article.title}
                         loading="lazy"
-                        className="w-full h-40 object-cover transition-opacity hover:opacity-90"
+                        className="w-full h-64 object-cover transition-opacity hover:opacity-90"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none'
                         }}
@@ -300,7 +300,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
                       className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      Lire sur BBC
+                      Lire l'article
                       <ExternalLink className="h-3 w-3" />
                     </Link>
                     <button

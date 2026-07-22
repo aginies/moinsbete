@@ -42,6 +42,8 @@ export interface AdminStats {
   saviezVousFacts: number
   srsDue: number
   proverbesCached: number
+  bbcNewsArticles: number
+  bbcNewsExpired: number
 }
 
 export interface AdminUser {
@@ -173,6 +175,12 @@ export function AdminContent({ stats, users }: AdminContentProps) {
               sublabel={stats.radioExpired > 0 ? `${stats.radioExpired} ${t('feed.expired')}` : undefined}
             />
             <StatCard
+              icon={<Newspaper className="h-5 w-5" />}
+              label={t('feed.bbc_news_articles')}
+              value={stats.bbcNewsArticles}
+              sublabel={stats.bbcNewsExpired > 0 ? `${stats.bbcNewsExpired} ${t('feed.expired')}` : undefined}
+            />
+            <StatCard
               icon={<Image className="h-5 w-5" />}
               label={t('feed.wiki_images')}
               value={stats.wikiImages}
@@ -268,7 +276,16 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                     <span className="font-medium text-destructive">{stats.wikiLovesExpired}</span>
                   </div>
                 )}
-                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && (
+                {stats.bbcNewsExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Newspaper className="h-4 w-4 text-muted-foreground" />
+                      {t('feed.bbc_news_expired')}
+                    </span>
+                    <span className="font-medium text-destructive">{stats.bbcNewsExpired}</span>
+                  </div>
+                )}
+                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.bbcNewsExpired === 0 && (
                   <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
@@ -289,7 +306,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <DialogHeader>
                     <DialogTitle>Confirmer le nettoyage</DialogTitle>
                     <DialogDescription>
-                      Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired} éléments expirés ?
+                      Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.bbcNewsExpired} éléments expirés ?
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -430,6 +447,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
   { key: 'wikipedia', labelKey: 'feed.wikipedia_tab', icon: <Globe className="h-4 w-4" /> },
   { key: 'cnrs', labelKey: 'feed.cnrs_tab', icon: <Newspaper className="h-4 w-4" /> },
   { key: 'radioFrance', labelKey: 'feed.radio_tab', icon: <Radio className="h-4 w-4" /> },
+  { key: 'news', labelKey: 'feed.news_tab', icon: <Newspaper className="h-4 w-4" /> },
   { key: 'wikimedia', labelKey: 'feed.wikimedia_tab', icon: <Image className="h-4 w-4" /> },
   { key: 'wikiloves', labelKey: 'feed.wiki_loves_tab', icon: <ImagePlus className="h-4 w-4" /> },
   { key: 'pixabay', labelKey: 'feed.pixabay_tab', icon: <Image className="h-4 w-4" /> },

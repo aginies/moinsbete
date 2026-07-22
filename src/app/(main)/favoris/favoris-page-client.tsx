@@ -458,7 +458,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
        { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
        { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
        { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
-       { id: 'bbc-news', label: 'BBC News', Icon: Newspaper, count: bbcCount },
+       { id: 'bbc-news', label: 'NEWS', Icon: Newspaper, count: bbcCount },
     ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount, saviezVousCount, radioCount, cnrsCount, bbcCount])
 
   const sortedTabs = useMemo(() =>
@@ -506,9 +506,9 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     if (bbcCount > 0) {
       results.push({
         id: 'bbc-placeholder',
-        title: `${bbcCount} actualités BBC News`,
+        title: `${bbcCount} actualités NEWS`,
         description: 'Cliquez pour voir les résultats',
-        source: 'BBC News',
+        source: 'NEWS',
         sourceTab: 'bbc-news',
         navigateTo: () => setActiveTab('bbc-news'),
       })
