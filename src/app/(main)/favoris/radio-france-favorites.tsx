@@ -24,9 +24,10 @@ const FAVORITES_KEY = 'rf_favorites'
 interface RadioFranceFavoritesProps {
   userId?: string
   onRemoveComplete?: () => void
+  searchQuery?: string
 }
 
-export function RadioFranceFavorites({ userId, onRemoveComplete }: RadioFranceFavoritesProps) {
+export function RadioFranceFavorites({ userId, onRemoveComplete, searchQuery }: RadioFranceFavoritesProps) {
   const { handleRemove, getFavorites } = useFavoritesList<FavoriteDoc>({
     userId,
     storageKey: FAVORITES_KEY,
@@ -46,6 +47,8 @@ export function RadioFranceFavorites({ userId, onRemoveComplete }: RadioFranceFa
     <PaginatedFavoritesList
       onRemoveComplete={onRemoveComplete}
       fetchFn={fetchFn}
+      searchQuery={searchQuery}
+      searchFields={(item) => `${item.title} ${item.description}`}
       renderItem={(item, onRemove) => (
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">

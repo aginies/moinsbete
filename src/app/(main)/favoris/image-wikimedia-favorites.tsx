@@ -22,6 +22,7 @@ interface ImageWikimediaFavoritesProps {
   sharedIds?: Set<string>
   onShareToggle?: (item: WikimediaImageFavoriteDoc) => void
   isSharing?: string | null
+  searchQuery?: string
 }
 
 interface WikimediaFavoriteItemProps {
@@ -100,7 +101,7 @@ interface ImageWikimediaFavoritesInnerProps extends ImageWikimediaFavoritesProps
   isSharing: string | null
 }
 
-export function ImageWikimediaFavorites({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing }: ImageWikimediaFavoritesInnerProps) {
+export function ImageWikimediaFavorites({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing, searchQuery }: ImageWikimediaFavoritesInnerProps) {
   const [showFullImage, setShowFullImage] = useState<string | null>(null)
 
   const { handleRemove, getFavorites } = useFavoritesList<WikimediaImageFavoriteDoc>({
@@ -123,6 +124,8 @@ export function ImageWikimediaFavorites({ userId, onRemoveComplete, sharedIds, o
       <PaginatedFavoritesList
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
+        searchQuery={searchQuery}
+        searchFields={(item) => `${item.titre} ${item.auteur}`}
         renderItem={(item, onRemove) => (
           <WikimediaFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.docid)} onShareToggle={() => onShareToggle && onShareToggle(item)} isSharing={isSharing === item.docid} />
         )}

@@ -23,9 +23,10 @@ const CNRS_FAVORITES_KEY = 'cnrs_favorites'
 interface CnrsBookmarksProps {
   userId?: string
   onRemoveComplete?: () => void
+  searchQuery?: string
 }
 
-export function CnrsBookmarks({ userId, onRemoveComplete }: CnrsBookmarksProps) {
+export function CnrsBookmarks({ userId, onRemoveComplete, searchQuery }: CnrsBookmarksProps) {
   const { handleRemove, getFavorites } = useFavoritesList<CnrsFavoriteDoc>({
     userId,
     storageKey: CNRS_FAVORITES_KEY,
@@ -45,6 +46,8 @@ export function CnrsBookmarks({ userId, onRemoveComplete }: CnrsBookmarksProps) 
     <PaginatedFavoritesList
       onRemoveComplete={onRemoveComplete}
       fetchFn={fetchFn}
+      searchQuery={searchQuery}
+      searchFields={(item) => `${item.title} ${item.category}`}
       renderItem={(item, onRemove) => (
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
