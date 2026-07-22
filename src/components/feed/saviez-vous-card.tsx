@@ -195,7 +195,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={showBookmark ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ShareToLobbyButton resourceId={fact.id} resourceType="SAVIEZ_VOUS" />
             <button
             type="button"

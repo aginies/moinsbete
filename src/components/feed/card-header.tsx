@@ -124,7 +124,7 @@ export function CardHeader({
           </h3>
         )}
       </div>
-      <div className="flex items-center gap-1 sm:gap-2">
+      <div className="flex items-center gap-2 sm:gap-3">
         {enableAutoRefresh && onRefresh && (
           <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/20 px-2 py-0.5 shadow-sm">
             <button
@@ -174,7 +174,7 @@ export function CardHeader({
               e.stopPropagation()
               onToggle()
             }}
-            className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors`}
+            className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors mr-2 sm:mr-4`}
             title="Masquer la carte"
           >
             <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
