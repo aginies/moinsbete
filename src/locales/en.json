@@ -572,6 +572,7 @@
   "lobby": {
     "favoris": "Favorites",
     "avec_vous": "Shared with you",
-    "utilisateurs": "shared with users"
+    "utilisateurs_before": "shared ",
+    "utilisateurs_after": " with users"
   }
 }
