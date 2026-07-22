@@ -261,7 +261,7 @@ export function ImagePixabayCard({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
-                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
+                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors mr-2 sm:mr-4"
                 title="Masquer la carte"
               >
                 <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -280,7 +280,7 @@ export function ImagePixabayCard({
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
                 disabled={isPending}
-                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors disabled:opacity-50"
+                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors disabled:opacity-50 ml-2 sm:ml-4"
                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               >
                 <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-800 dark:text-amber-300'}`} />
