@@ -24,6 +24,7 @@ import { ImageWikiLovesFavorites } from './image-wikiloves-favorites'
 import { PixabayFavorites } from './pixabay-favorites'
 import { PortailLexicalBookmarks } from './portail-lexical-bookmarks'
 import { ProverbeBookmarks } from './proverbe-bookmarks'
+import { BbcNewsFavorites } from './bbc-news-favorites'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby } from '@/actions/lobby-share-actions'
@@ -45,9 +46,10 @@ interface FavorisPageClientProps {
   pixabayFavoritesCount: number
   portailLexicalCount: number
   proverbeFavoritesCount: number
+  bbcNewsFavoritesCount: number
 }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'proverbe' | 'results'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'proverbe' | 'bbc-news' | 'results'
 
 interface TabConfig {
   id: Tab
@@ -69,7 +71,7 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
   return <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
 }
 
-export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount }: FavorisPageClientProps) {
+export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, bbcNewsFavoritesCount }: FavorisPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [previousTab, setPreviousTab] = useState<Tab | null>(null)
   const hasInitialSet = useRef(false)
@@ -208,7 +210,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [pixabayCount, setPixabayCount] = useState(pixabayFavoritesCount)
   const [portailLexCount, setPortailLexCount] = useState(portailLexicalCount)
   const [proverbeCount, setProverbeCount] = useState(proverbeFavoritesCount)
-  const prevCountsRef = useRef({ radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount })
+  const [bbcCount, setBbcCount] = useState(bbcNewsFavoritesCount)
+  const prevCountsRef = useRef({ radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, bbcNewsFavoritesCount })
 
   useEffect(() => {
     const prev = prevCountsRef.current
@@ -221,7 +224,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     if (prev.pixabayFavoritesCount !== pixabayFavoritesCount) setPixabayCount(pixabayFavoritesCount)
     if (prev.portailLexicalCount !== portailLexicalCount) setPortailLexCount(portailLexicalCount)
     if (prev.proverbeFavoritesCount !== proverbeFavoritesCount) setProverbeCount(proverbeFavoritesCount)
-    prevCountsRef.current = { radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount }
+    if (prev.bbcNewsFavoritesCount !== bbcNewsFavoritesCount) setBbcCount(bbcNewsFavoritesCount)
+    prevCountsRef.current = { radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, bbcNewsFavoritesCount }
   }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount])
 
   const handleRadioRemove = useCallback(() => {
@@ -258,6 +262,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   const handleProverbeRemove = useCallback(() => {
     setProverbeCount(prev => Math.max(0, prev - 1))
+  }, [])
+
+  const handleBbcRemove = useCallback(() => {
+    setBbcCount(prev => Math.max(0, prev - 1))
   }, [])
 
   const handleShareToLobby = async (ideaId: string) => {
@@ -448,9 +456,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         { id: 'portail-lexical', label: 'Lexique', Icon: BookOpen, count: portailLexCount },
         { id: 'proverbe', label: 'Proverbes', Icon: Quote, count: proverbeCount },
        { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
-      { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
-      { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
-    ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount, saviezVousCount, radioCount, cnrsCount])
+       { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
+       { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
+       { id: 'bbc-news', label: 'BBC News', Icon: Newspaper, count: bbcCount },
+    ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount, saviezVousCount, radioCount, cnrsCount, bbcCount])
 
   const sortedTabs = useMemo(() =>
     [...tabConfig].sort((a, b) => b.count - a.count),
@@ -491,6 +500,17 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         source: 'CNRS',
         sourceTab: 'cnrs-news',
         navigateTo: () => setActiveTab('cnrs-news'),
+      })
+    }
+    
+    if (bbcCount > 0) {
+      results.push({
+        id: 'bbc-placeholder',
+        title: `${bbcCount} actualités BBC News`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'BBC News',
+        sourceTab: 'bbc-news',
+        navigateTo: () => setActiveTab('bbc-news'),
       })
     }
     
@@ -572,7 +592,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     }
     
     return results
-  }, [searchQuery, filteredIdeas, radioCount, cnrsCount, imageDuJourCount, saviezVousCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount])
+  }, [searchQuery, filteredIdeas, radioCount, cnrsCount, bbcCount, imageDuJourCount, saviezVousCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount])
 
   useEffect(() => {
     if (searchQuery?.trim()) {
@@ -717,6 +737,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       <TabsContent value="radio-france"><RadioFranceFavorites userId={userId} onRemoveComplete={handleRadioRemove} searchQuery={searchQuery} /></TabsContent>
 
       <TabsContent value="cnrs-news"><CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} searchQuery={searchQuery} /></TabsContent>
+
+      <TabsContent value="bbc-news"><BbcNewsFavorites userId={userId} onRemoveComplete={handleBbcRemove} searchQuery={searchQuery} /></TabsContent>
 
       <TabsContent value="image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} sharedIds={sharedImageIds} onShareToggle={handleImageShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
 
