@@ -1,5 +1,7 @@
 'use client'
 
+import { useState, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
@@ -11,7 +13,6 @@ import { unshareFromLobby, unshareResourceFromLobby, addToFavoritesFromLobby } f
 import { sanitizeUrl, isValidUrl, maskEmail } from '@/lib/utils'
 import { ImageLightbox } from '@/components/feed/image-lightbox'
 import { ImageHint } from '@/components/feed/image-hint'
-import { useState } from 'react'
 import { toast } from 'sonner'
 import type { SharedLobbyBookmark } from '@/generated/client'
 
@@ -71,6 +72,7 @@ interface SharedBookmark {
   resourceType: string
   meta: unknown
   createdAt: Date
+  formattedCreatedAt: string
   idea: {
     id: string
     title: string
@@ -101,6 +103,7 @@ interface SharedBookmarksProps {
   sharedBookmarks: SharedBookmark[]
   currentUserId: string | null
   isAdmin?: boolean
+  locale: string
   userFavoriteIds: {
     IDEA: Set<string>
     SAVIEZ_VOUS: Set<string>
@@ -122,11 +125,15 @@ function IdeaBookmarkItem({
   currentUserId,
   isAdmin,
   userFavoriteIds,
+  locale,
+  t,
 }: {
   bookmark: SharedBookmark & { idea: NonNullable<SharedBookmark['idea']> }
   currentUserId: string | null
   isAdmin: boolean
   userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
 }) {
   const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
@@ -139,7 +146,7 @@ function IdeaBookmarkItem({
     slug: bookmark.idea.slug,
     source: { title: bookmark.idea.source.title, type: bookmark.idea.source.type, url: bookmark.idea.source.url },
     topics,
-    viewedAt: new Date().toISOString(),
+    viewedAt: '',
   }
 
   const handleAddToFavorites = async () => {
@@ -206,7 +213,7 @@ function IdeaBookmarkItem({
         )}
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
-        Partagé le {bookmark.createdAt.toLocaleDateString('fr-FR')}
+        {t('shared_on')} {bookmark.formattedCreatedAt}
       </div>
     </div>
   )
@@ -217,11 +224,15 @@ function SaviezVousBookmarkItem({
   currentUserId,
   isAdmin,
   userFavoriteIds,
+  locale,
+  t,
 }: {
   bookmark: SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']> }
   currentUserId: string | null
   isAdmin: boolean
   userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
 }) {
   const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
@@ -308,7 +319,7 @@ function SaviezVousBookmarkItem({
         )}
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
-        Partagé le {bookmark.createdAt.toLocaleDateString('fr-FR')}
+        {t('shared_on')} {bookmark.formattedCreatedAt}
       </div>
     </div>
   )
@@ -319,11 +330,15 @@ function WikiImageBookmarkItem({
   currentUserId,
   isAdmin,
   userFavoriteIds,
+  locale,
+  t,
 }: {
   bookmark: SharedBookmark & { wikiImage: NonNullable<SharedBookmark['wikiImage']> }
   currentUserId: string | null
   isAdmin: boolean
   userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
 }) {
   const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
@@ -436,7 +451,7 @@ function WikiImageBookmarkItem({
         )}
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
-        Partagé le {bookmark.createdAt.toLocaleDateString('fr-FR')}
+        {t('shared_on')} {bookmark.formattedCreatedAt}
       </div>
       {showFullImage && (
         <ImageLightbox
@@ -454,11 +469,15 @@ function WikiLovesBookmarkItem({
   currentUserId,
   isAdmin,
   userFavoriteIds,
+  locale,
+  t,
 }: {
   bookmark: SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }
   currentUserId: string | null
   isAdmin: boolean
   userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
 }) {
   const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
@@ -574,7 +593,7 @@ function WikiLovesBookmarkItem({
         )}
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
-        Partagé le {bookmark.createdAt.toLocaleDateString('fr-FR')}
+        {t('shared_on')} {bookmark.formattedCreatedAt}
       </div>
       {showFullImage && (
         <ImageLightbox
@@ -592,11 +611,15 @@ function WikiMediaBookmarkItem({
   currentUserId,
   isAdmin,
   userFavoriteIds,
+  locale,
+  t,
 }: {
   bookmark: SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }
   currentUserId: string | null
   isAdmin: boolean
   userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
 }) {
   const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
@@ -718,7 +741,7 @@ function WikiMediaBookmarkItem({
         )}
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
-        Partagé le {bookmark.createdAt.toLocaleDateString('fr-FR')}
+        {t('shared_on')} {bookmark.formattedCreatedAt}
       </div>
       {showFullImage && (
         <ImageLightbox
@@ -736,11 +759,15 @@ function ProverbeBookmarkItem({
   currentUserId,
   isAdmin,
   userFavoriteIds,
+  locale,
+  t,
 }: {
   bookmark: SharedBookmark & { proverbe: NonNullable<SharedBookmark['proverbe']> }
   currentUserId: string | null
   isAdmin: boolean
   userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
 }) {
   const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
@@ -861,7 +888,7 @@ function ProverbeBookmarkItem({
         )}
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
-        Partagé le {bookmark.createdAt.toLocaleDateString('fr-FR')}
+        {t('shared_on')} {bookmark.formattedCreatedAt}
       </div>
     </div>
   )
@@ -871,6 +898,7 @@ export function SharedBookmarks({
   sharedBookmarks,
   currentUserId,
   isAdmin = false,
+  locale,
   userFavoriteIds,
   typeFilters = [],
   activeType = '',
@@ -879,6 +907,7 @@ export function SharedBookmarks({
   onSearchChange,
   emptyMessage,
 }: SharedBookmarksProps) {
+  const t = useTranslations('feed')
   const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.proverbe)
 
   const hasFilters = typeFilters.length > 0 || searchQuery
@@ -937,22 +966,22 @@ export function SharedBookmarks({
         <div className="space-y-4">
           {items.map((bookmark) => {
             if (bookmark.idea) {
-              return <IdeaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { idea: NonNullable<SharedBookmark['idea']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
+              return <IdeaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { idea: NonNullable<SharedBookmark['idea']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             if (bookmark.saviezFact) {
-              return <SaviezVousBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
+              return <SaviezVousBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             if (bookmark.wikiImage) {
-              return <WikiImageBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiImage: NonNullable<SharedBookmark['wikiImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
+              return <WikiImageBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiImage: NonNullable<SharedBookmark['wikiImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             if (bookmark.wikiMediaImage) {
-              return <WikiMediaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
+              return <WikiMediaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiMediaImage: NonNullable<SharedBookmark['wikiMediaImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             if (bookmark.wikiLovesImage) {
-              return <WikiLovesBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
+              return <WikiLovesBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             if (bookmark.proverbe) {
-              return <ProverbeBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { proverbe: NonNullable<SharedBookmark['proverbe']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} />
+              return <ProverbeBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { proverbe: NonNullable<SharedBookmark['proverbe']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             return null
           })}

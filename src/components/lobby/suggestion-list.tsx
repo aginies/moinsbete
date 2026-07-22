@@ -19,6 +19,7 @@ interface PropositionItem {
   title: string
   description: string
   createdAt: Date
+  formattedCreatedAt: string
   _count: { comments: number }
   user: { id: string; displayName: string | null; email: string }
 }
@@ -84,7 +85,7 @@ export function SuggestionList({ suggestions, currentUserId, isAdmin = false }: 
               <MessageSquare className="h-3 w-3" />
               {s._count.comments}
             </span>
-            <span>{s.createdAt.toLocaleDateString('fr-FR')}</span>
+            <span>{s.formattedCreatedAt}</span>
           </div>
         </div>
       ))}

@@ -21,6 +21,7 @@ interface LobbyTabsProps {
   totalPagesSharedWithMe: number
   totalPagesSharedByMe: number
   currentPage: number
+  locale: string
   userFavoriteIds: {
     IDEA: Set<string>
     SAVIEZ_VOUS: Set<string>
@@ -47,7 +48,7 @@ const TYPE_FILTERS: TypeFilter[] = [
   { value: 'PROVERBE', label: 'Proverbes', icon: 'Quote' },
 ]
 
-export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks, sharedByMeBookmarks, currentUserId, isAdmin, totalPages, totalPagesSharedWithMe, totalPagesSharedByMe, currentPage, userFavoriteIds }: LobbyTabsProps) {
+export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks, sharedByMeBookmarks, currentUserId, isAdmin, totalPages, totalPagesSharedWithMe, totalPagesSharedByMe, currentPage, locale, userFavoriteIds }: LobbyTabsProps) {
   const t = useTranslations()
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -247,6 +248,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           currentUserId={currentUserId}
           isAdmin={isAdmin}
           userFavoriteIds={userFavoriteIds}
+          locale={locale}
           typeFilters={TYPE_FILTERS}
           activeType={activeType}
           searchQuery={searchQuery}
@@ -271,6 +273,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           currentUserId={currentUserId}
           isAdmin={isAdmin}
           userFavoriteIds={userFavoriteIds}
+          locale={locale}
           typeFilters={TYPE_FILTERS}
           activeType={activeType}
           searchQuery={searchQuery}
@@ -295,6 +298,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           currentUserId={currentUserId}
           isAdmin={isAdmin}
           userFavoriteIds={userFavoriteIds}
+          locale={locale}
           typeFilters={TYPE_FILTERS}
           activeType={activeType}
           searchQuery={searchQuery}

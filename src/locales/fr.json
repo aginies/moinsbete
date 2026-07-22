@@ -241,6 +241,7 @@
     "discover_ideas": "Découvrir des idées →",
     "search_favorites": "Rechercher dans les favoris...",
     "no_favorites_for": "Aucun favori pour \"{query}\"",
+    "shared_on": "Partagé le",
     "page_of": "Page {current} sur {total}",
     "favorite_count": "{count} favori",
     "favorite_count_plural": "{count} favoris",

@@ -376,6 +376,18 @@ export default function AproposPage() {
         </section>
 
         <section>
+          <h2 className="mb-3 text-xl font-semibold">Cookies</h2>
+          <p className="text-muted-foreground">
+            MoinsBête utilise un cookie JWT de session pour l&apos;authentification.
+            Voir la section cookies dans les{' '}
+            <Link href="/mentions-legales" className="text-primary hover:underline">
+              mentions légales
+            </Link>{' '}
+            pour plus de détails.
+          </p>
+        </section>
+
+        <section>
             <h2 className="mb-3 text-xl font-semibold">L&apos;auteur</h2>
     <p className="text-muted-foreground">
           MoinsBête a été créé par <strong>Antoine Giniès</strong>.
