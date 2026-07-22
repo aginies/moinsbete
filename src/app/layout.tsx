@@ -94,6 +94,8 @@ export default async function RootLayout({
             <footer className="py-6 pb-16 md:pb-0 text-center text-xs text-muted-foreground">
                 <Link href="/a-propos" className="hover:underline">À propos</Link>
                 {' · '}
+                <Link href="/mentions-legales" className="hover:underline">Mentions légales</Link>
+                {' · '}
                 <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
                 {' · '}
                 guibo.com ©
