@@ -447,7 +447,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
   { key: 'wikipedia', labelKey: 'feed.wikipedia_tab', icon: <Globe className="h-4 w-4" /> },
   { key: 'cnrs', labelKey: 'feed.cnrs_tab', icon: <Newspaper className="h-4 w-4" /> },
   { key: 'radioFrance', labelKey: 'feed.radio_tab', icon: <Radio className="h-4 w-4" /> },
-  { key: 'news', labelKey: 'feed.news_tab', icon: <Newspaper className="h-4 w-4" /> },
+  { key: 'bbcNews', labelKey: 'feed.news_tab', icon: <Newspaper className="h-4 w-4" /> },
   { key: 'wikimedia', labelKey: 'feed.wikimedia_tab', icon: <Image className="h-4 w-4" /> },
   { key: 'wikiloves', labelKey: 'feed.wiki_loves_tab', icon: <ImagePlus className="h-4 w-4" /> },
   { key: 'pixabay', labelKey: 'feed.pixabay_tab', icon: <Image className="h-4 w-4" /> },
