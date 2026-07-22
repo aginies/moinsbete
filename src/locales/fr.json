@@ -578,5 +578,10 @@
       "proverbe_tab": "Proverbe",
       "saviez_vous_tab": "Saviez-vous ?"
     }
+  },
+  "lobby": {
+    "favoris": "Favoris",
+    "avec_vous": "Avec vous",
+    "utilisateurs": "j'ai partagé avec utilisateurs"
   }
 }

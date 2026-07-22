@@ -232,9 +232,9 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
       <TabsList className="grid w-full grid-cols-4 h-auto pt-0 pb-1">
-        <TabsTrigger value="favoris" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> Favoris</TabsTrigger>
-        <TabsTrigger value="partage" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> Avec vous</TabsTrigger>
-        <TabsTrigger value="mies" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>j'ai <Share2 className="h-4 w-4" /> avec utisateurs</TabsTrigger>
+        <TabsTrigger value="favoris" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> {t('lobby.favoris')}</TabsTrigger>
+        <TabsTrigger value="partage" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> {t('lobby.avec_vous')}</TabsTrigger>
+        <TabsTrigger value="mies" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> {t('lobby.utilisateurs')}</TabsTrigger>
         <TabsTrigger value="discuter" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><MessageSquare className="h-4 w-4" /> {t('feed.discuss')}</TabsTrigger>
       </TabsList>
 
