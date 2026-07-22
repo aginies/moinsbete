@@ -36,7 +36,7 @@ moinsbete/
 ├── src/
 │   ├── lib/                   # db, auth, llm, utils, rate-limiter, srs
 │   ├── app/                   # Pages + API routes (incl. /review)
-│   ├── components/            # IdeaCard, Feed, Search, Topics, UI, review
+│   ├── components/            # IdeaCard, Feed, Search, Review, feed cards (BBC, Proverbe, etc.)
 │   └── scripts/               # seed-ideas, generate-ideas, ingest-wikipedia
 ├── docs/                      # Documentation détaillée
 ├── scripts/                   # scrape-saviez-vous, update
@@ -80,6 +80,7 @@ Voir [docs/CONFIGURATION.md](./CONFIGURATION.md) pour le détail.
 | `npx tsx src/scripts/seed-ideas.ts` | Seed manuel |
 | `npx tsx src/scripts/generate-ideas.ts` | Génération LLM |
 | `npx tsx scripts/scrape-saviez-vous.ts` | Scraper Wikipédia |
+| `npx tsx scripts/update-images.ts` | Mettre à jour les images |
 
 ## Déploiement
 
@@ -91,7 +92,7 @@ Voir [docs/DEVELOPMENT.md](./DEVELOPMENT.md) pour ajouter des topics, générer 
 
 ## Tests
 
-197 tests sur 22 fichiers (vitest).
+247 tests sur 25 fichiers (vitest).
 
 ```bash
 npm test              # Exécuter tous les tests
@@ -99,10 +100,11 @@ npm test -- --watch   # Mode watch
 ```
 
 Couverture :
-- `src/lib/` — utils, slugify, url validation, rate-limiter, csrf, auth, bookmark, feed-helpers, saviez-vous, view, srs
+- `src/lib/` — utils, slugify, url validation, rate-limiter, csrf, auth, bookmark, feed-helpers, saviez-vous, view, srs, llm, radio-bookmark, image-url-encoder, constants
 - `src/actions/` — auth-actions, bookmark-actions, topic-actions, view-actions, review-actions
 - `src/scripts/` — seed-ideas data validation
-- `src/app/` — robots.txt, feed helpers, pagination, review
+- `src/app/` — robots.txt, feed helpers, pagination, wikimedia-topics route
+- `src/hooks/` — use-card-visibility
 
 ## Sécurité
 
