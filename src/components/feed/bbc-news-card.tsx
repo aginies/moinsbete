@@ -324,6 +324,10 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
               <RefreshCw className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-spin" />
             </div>
           )}
+
+          <div className="mt-3 text-center text-xs text-blue-500 dark:text-blue-400/60">
+            Powered by <Link href="https://newsapi.org" target="_blank" rel="noopener noreferrer" className="hover:underline">newsapi.org</Link>
+          </div>
         </div>
       )}
     </>
