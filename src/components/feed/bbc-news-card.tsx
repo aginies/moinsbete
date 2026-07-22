@@ -9,6 +9,7 @@ import { ShareButton } from './share-button'
 import { toggleBbcFavoriteAction, isBbcFavoriteAction } from '@/actions/bbc-bookmark-actions'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
+import { useTranslations } from 'next-intl'
 
 interface BbcArticle {
   title: string
@@ -28,14 +29,14 @@ interface BbcNewsCardProps {
 }
 
 const CATEGORIES = [
-  { key: 'allNews', label: 'All', icon: Globe },
-  { key: 'world', label: 'World', icon: Globe },
-  { key: 'business', label: 'Business', icon: Briefcase },
-  { key: 'tech', label: 'Tech', icon: Cpu },
-  { key: 'entertainment', label: 'Entertainment', icon: Film },
-  { key: 'sports', label: 'Sports', icon: Trophy },
-  { key: 'science', label: 'Science', icon: Beaker },
-  { key: 'health', label: 'Health', icon: Heart },
+  { key: 'allNews', labelKey: 'feed.all', icon: Globe },
+  { key: 'world', labelKey: 'feed.world', icon: Globe },
+  { key: 'business', labelKey: 'feed.business', icon: Briefcase },
+  { key: 'tech', labelKey: 'feed.tech', icon: Cpu },
+  { key: 'entertainment', labelKey: 'feed.entertainment', icon: Film },
+  { key: 'sports', labelKey: 'feed.sports', icon: Trophy },
+  { key: 'science', labelKey: 'feed.science', icon: Beaker },
+  { key: 'health', labelKey: 'feed.health', icon: Heart },
 ] as const
 
 const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string; darkBorder: string; darkBg: string; darkText: string }> = {
@@ -66,6 +67,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string): Pr
 }
 
 export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: BbcNewsCardProps) {
+  const t = useTranslations()
   const [articles, setArticles] = useState<BbcArticle[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -218,7 +220,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
           </div>
 
           <div className="mb-3 flex flex-wrap gap-1">
-            {CATEGORIES.map(({ key, label, icon: Icon }) => {
+            {CATEGORIES.map(({ key, labelKey, icon: Icon }) => {
               const isSelected = selectedCategories.includes(key)
               return (
                 <button
@@ -231,7 +233,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
                   }`}
                 >
                   <Icon className="h-3 w-3" />
-                  {label}
+                  {t(labelKey)}
                 </button>
               )
             })}
