@@ -2,7 +2,7 @@
 
 ## Prérequis serveur
 
-- **Ubuntu/Debian** avec Apache, Node.js ≥ 20, npm ≥ 10
+- **openSUSE** avec Apache, Node.js ≥ 20, npm ≥ 10
 - **SQLite** (généralement préinstallé)
 - Port 3000 libre pour le serveur Next.js
 
@@ -11,7 +11,7 @@
 ```bash
 # Installer Node.js 20+ (via NodeSource)
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs apache2 sqlite3
+sudo zypper install -y nodejs apache2 sqlite3
 
 # Activer les modules Apache nécessaires
 sudo a2enmod proxy proxy_http proxy_wstunnel rewrite
@@ -73,7 +73,7 @@ sqlite3 dev.db "SELECT COUNT(*) FROM SaviezVousFact;"
 ```bash
 # 600 pour sécurité (contient emails + bcrypt hashes)
 sudo chmod 644 dev.db
-sudo chown www-data:www-data dev.db
+sudo chown wwwrun:www dev.db
 ```
 
 ## Étape 4 : Configuration (.env)
@@ -245,7 +245,7 @@ sudo systemctl reload apache2
 
 **Certificat SSL (Let's Encrypt) :**
 ```bash
-sudo apt-get install certbot python3-certbot-apache
+sudo zypper install -y certbot python3-certbot-apache
 sudo certbot --apache -d moinsbete.example.com
 ```
 
