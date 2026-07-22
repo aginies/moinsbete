@@ -223,11 +223,11 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-4 h-auto p-1">
-        <TabsTrigger value="favoris" className="whitespace-normal h-full min-h-[2.5rem] py-1.5 px-1 text-center text-[10px] leading-tight sm:text-xs md:text-sm">{t('feed.shared_favorites')}</TabsTrigger>
-        <TabsTrigger value="partage" className="whitespace-normal h-full min-h-[2.5rem] py-1.5 px-1 text-center text-[10px] leading-tight sm:text-xs md:text-sm">{t('feed.partage_avec_vous')}</TabsTrigger>
-        <TabsTrigger value="mies" className="whitespace-normal h-full min-h-[2.5rem] py-1.5 px-1 text-center text-[10px] leading-tight sm:text-xs md:text-sm">{t('feed.partage_utilisateurs')}</TabsTrigger>
-        <TabsTrigger value="discuter" className="whitespace-normal h-full min-h-[2.5rem] py-1.5 px-1 text-center text-[10px] leading-tight sm:text-xs md:text-sm">{t('feed.discuss')}</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-4 h-auto pt-0 pb-1">
+        <TabsTrigger value="favoris" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>{t('feed.shared_favorites')}</TabsTrigger>
+        <TabsTrigger value="partage" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>{t('feed.partage_avec_vous')}</TabsTrigger>
+        <TabsTrigger value="mies" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>{t('feed.partage_utilisateurs')}</TabsTrigger>
+        <TabsTrigger value="discuter" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>{t('feed.discuss')}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="discuter">
