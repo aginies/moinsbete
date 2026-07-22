@@ -471,7 +471,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   return (
     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-6">
-      <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-10 gap-x-1 gap-y-4 h-auto pt-0 pb-1">
+      <TabsList className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-10 gap-x-1 gap-y-4 h-auto pt-0 pb-1">
         {sortedTabs.map(({ id, label, Icon, count }) => (
           <TabsTrigger key={id} value={id} className="flex-shrink-0 flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer" style={{ height: 'auto' }}>
             <Icon className="h-4 w-4" />
