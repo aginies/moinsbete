@@ -28,6 +28,7 @@ import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby } from '@/actions/lobby-share-actions'
 import { toast } from 'sonner'
+import { SearchResults } from '@/components/lobby/search-results'
 
 interface FavorisPageClientProps {
   ideas: CompactIdea[]
@@ -454,6 +455,123 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     [tabConfig]
   )
 
+  const searchResults = useMemo(() => {
+    if (!searchQuery?.trim()) return []
+    const results: Array<{ id: string; title: string; description: string; source: string; sourceTab: string; navigateTo: () => void }> = []
+    
+    filteredIdeas.forEach(idea => {
+      results.push({
+        id: `idea-${idea.id}`,
+        title: idea.title,
+        description: idea.source?.title || '',
+        source: 'Idées',
+        sourceTab: 'idees',
+        navigateTo: () => setActiveTab('idees'),
+      })
+    })
+    
+    if (radioCount > 0) {
+      results.push({
+        id: 'radio-placeholder',
+        title: `${radioCount} documentaires Radio France`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'Radio France',
+        sourceTab: 'radio-france',
+        navigateTo: () => setActiveTab('radio-france'),
+      })
+    }
+    
+    if (cnrsCount > 0) {
+      results.push({
+        id: 'cnrs-placeholder',
+        title: `${cnrsCount} actualités CNRS`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'CNRS',
+        sourceTab: 'cnrs-news',
+        navigateTo: () => setActiveTab('cnrs-news'),
+      })
+    }
+    
+    if (imageDuJourCount > 0) {
+      results.push({
+        id: 'image-placeholder',
+        title: `${imageDuJourCount} images du jour`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'Images',
+        sourceTab: 'image-du-jour',
+        navigateTo: () => setActiveTab('image-du-jour'),
+      })
+    }
+    
+    if (saviezVousCount > 0) {
+      results.push({
+        id: 'saviez-placeholder',
+        title: `${saviezVousCount} faits "Saviez-vous ?"`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'Saviez-vous ?',
+        sourceTab: 'saviez-vous',
+        navigateTo: () => setActiveTab('saviez-vous'),
+      })
+    }
+    
+    if (wikimediaCount > 0) {
+      results.push({
+        id: 'wikimedia-placeholder',
+        title: `${wikimediaCount} images Wikimedia`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'Wikimedia',
+        sourceTab: 'image-wikimedia',
+        navigateTo: () => setActiveTab('image-wikimedia'),
+      })
+    }
+    
+    if (wikilovesCount > 0) {
+      results.push({
+        id: 'wikiloves-placeholder',
+        title: `${wikilovesCount} images Wiki Loves`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'Wiki Loves',
+        sourceTab: 'image-wikiloves',
+        navigateTo: () => setActiveTab('image-wikiloves'),
+      })
+    }
+    
+    if (pixabayCount > 0) {
+      results.push({
+        id: 'pixabay-placeholder',
+        title: `${pixabayCount} vidéos Pixabay`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'Pixabay',
+        sourceTab: 'image-pixabay',
+        navigateTo: () => setActiveTab('image-pixabay'),
+      })
+    }
+    
+    if (portailLexCount > 0) {
+      results.push({
+        id: 'lexical-placeholder',
+        title: `${portailLexCount} mots du Lexique`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'Lexique',
+        sourceTab: 'portail-lexical',
+        navigateTo: () => setActiveTab('portail-lexical'),
+      })
+    }
+    
+    if (proverbeCount > 0) {
+      results.push({
+        id: 'proverbe-placeholder',
+        title: `${proverbeCount} proverbes`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'Proverbes',
+        sourceTab: 'proverbe',
+        navigateTo: () => setActiveTab('proverbe'),
+      })
+    }
+    
+    return results
+  }, [searchQuery, filteredIdeas, radioCount, cnrsCount, imageDuJourCount, saviezVousCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount])
+
   useEffect(() => {
     if (!hasInitialSet.current && !initialTabSetRef.current && activeTab === 'idees' && derivedIdeasCount === 0) {
       const firstNonEmptyTab = sortedTabs.find(tab => tab.count > 0)
@@ -494,6 +612,11 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-6">
         <div className="w-full">
           <TabsList className="flex flex-wrap gap-x-1 gap-y-3 md:gap-y-2 lg:gap-y-2 xl:gap-y-1 h-auto pt-0 pb-20 bg-muted rounded-lg min-h-0">
+            {searchQuery && (
+              <TabsTrigger value="results" className="flex-shrink-0 w-[calc(50%-4px)] sm:w-[calc(50%-4px)] md:w-[calc(33.33%-4px)] lg:w-[calc(16.66%-4px)] xl:w-[calc(20%-4px)] h-auto flex items-start justify-center gap-1.5 px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer bg-muted data-active:bg-background" style={{ height: 'auto' }}>
+                <Search className="h-4 w-4" /> Résultats ({searchResults.length})
+              </TabsTrigger>
+            )}
             {sortedTabs.map(({ id, label, Icon, count }) => (
               <TabsTrigger key={id} value={id} className="flex-shrink-0 w-[calc(50%-4px)] sm:w-[calc(50%-4px)] md:w-[calc(33.33%-4px)] lg:w-[calc(16.66%-4px)] xl:w-[calc(20%-4px)] h-auto flex items-start justify-center gap-1.5 px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer bg-muted data-active:bg-background" style={{ height: 'auto' }}>
                 <Icon className="h-4 w-4" />
@@ -571,6 +694,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
             </div>
           )}
 
+      </TabsContent>
+
+      <TabsContent value="results">
+        <SearchResults searchQuery={searchQuery} results={searchResults} />
       </TabsContent>
 
       <TabsContent value="radio-france"><RadioFranceFavorites userId={userId} onRemoveComplete={handleRadioRemove} searchQuery={searchQuery} /></TabsContent>
