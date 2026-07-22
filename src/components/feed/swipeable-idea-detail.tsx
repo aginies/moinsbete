@@ -8,6 +8,7 @@ import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Sparkles, Lightbul
 import { isValidUrl, sanitizeUrl } from '@/lib/utils'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { useItemShare } from './use-item-share'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import type { Idea } from '@/types/idea'
 
 interface SwipeableIdeaDetailProps {
@@ -302,6 +303,7 @@ export function SwipeableIdeaDetail({
               >
                 <Share2 className={`h-5 w-5 transition-colors ${copied ? 'text-green-500' : 'text-muted-foreground'}`} />
               </button>
+              <ShareToLobbyButton resourceId={idea.id} resourceType="IDEA" />
             </div>
 
             {copied && (

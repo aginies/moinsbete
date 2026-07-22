@@ -7,6 +7,7 @@ import { ArrowLeft, BookOpen, ExternalLink, Bookmark, Share2, Clock, Sparkles, L
 import { toggleBookmarkAction } from '@/actions/bookmark-actions'
 import { isValidUrl } from '@/lib/utils'
 import { useItemShare } from '@/components/feed/use-item-share'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import type { Idea } from '@/types/idea'
 
 interface IdeaDetailClientProps {
@@ -131,6 +132,7 @@ export function IdeaDetailClient({
             >
               <Share2 className="h-5 w-5 text-muted-foreground" />
             </button>
+            <ShareToLobbyButton resourceId={idea.id} resourceType="IDEA" />
             <span className="ml-2 text-xs text-muted-foreground">
               <Clock className="inline h-3.5 w-3.5 mr-1" />
               {Math.ceil(idea.content.length / 500)} min de lecture
