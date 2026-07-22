@@ -122,3 +122,7 @@ export async function upsertWikipediaImages(images: Array<{ imageUrl: string; de
 export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
+
+export async function clearAllBbcArticles() {
+  return prisma.cachedBbcArticle.deleteMany({})
+}

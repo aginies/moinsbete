@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
+import { clearAllBbcNewsAction } from '@/actions/cleanup-actions'
 import { toggleUserEnabled } from '@/actions/user-actions'
 import { updateGlobalCardVisibility } from '@/actions/card-actions'
 import { useLocale, useTranslations } from 'next-intl'
@@ -66,6 +67,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [cleanupOpen, setCleanupOpen] = useState(false)
+  const [bbcClearOpen, setBbcClearOpen] = useState(false)
   const locale = useLocale()
   const { setLocale } = useSetLocale()
   const t = useTranslations()
@@ -324,6 +326,67 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                             router.refresh()
                           } else {
                             toast.info(adminT('nothing_to_clean'))
+                          }
+                        })
+                      }}
+                      disabled={isPending}
+                    >
+                      Supprimer
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="rounded-xl border border-border/60 bg-card p-6">
+              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                <Trash2 className="h-5 w-5 text-destructive" />
+                {t('feed.clear_all_bbc_news')}
+              </h3>
+              <div className="mb-4 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Newspaper className="h-4 w-4 text-muted-foreground" />
+                    {t('feed.bbc_news_articles')}
+                  </span>
+                  <span className="font-medium text-destructive">{stats.bbcNewsArticles}</span>
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setBbcClearOpen(true)}
+                  disabled={isPending || stats.bbcNewsArticles === 0}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t('feed.delete_all')}
+                </Button>
+              </div>
+
+              <Dialog open={bbcClearOpen} onOpenChange={setBbcClearOpen}>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Confirmer la suppression</DialogTitle>
+                    <DialogDescription>
+                      Supprimer tous les {stats.bbcNewsArticles} articles NEWS ?
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setBbcClearOpen(false)} disabled={isPending}>
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={async () => {
+                        setBbcClearOpen(false)
+                        startTransition(async () => {
+                          const result = await clearAllBbcNewsAction()
+                          if (result.success && result.deletedCount > 0) {
+                            toast.success(adminT('bbc_news_cleared', { count: result.deletedCount }))
+                            router.refresh()
+                          } else if (result.error) {
+                            toast.error(result.error)
                           }
                         })
                       }}
