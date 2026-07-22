@@ -24,7 +24,7 @@ export default function AproposPage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">Qu&apos;est-ce que MoinsBête ?</h2>
           <p className="text-muted-foreground">
-            MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia, d&apos;articles scientifiques, de livres et de podcasts en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder aux actualités du CNRS, découvrir des faits surprenants, explorer des images de Wikimedia Commons, écouter des documentaires Radio France et regarder des vidéos Pixabay.
+            MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia, d&apos;articles scientifiques, de livres et de podcasts en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder aux actualités mondiales, découvrir des faits surprenants, explorer des images de Wikimedia Commons, écouter des documentaires Radio France et regarder des vidéos Pixabay.
           </p>
         </section>
 
@@ -39,6 +39,7 @@ export default function AproposPage() {
               'Explorez des images quotidiennes de Wikimedia Commons',
               'Regardez des vidéos Pixabay',
               'Écoutez des documentaires Radio France',
+              'Suivez l\'actualité mondiale dans NEWS',
               'Visualisez vos sujets dans la carte mentale',
               'Suivez votre progression avec les streaks',
               'Partagez vos contenus favoris',
@@ -71,6 +72,7 @@ export default function AproposPage() {
           <p className="text-muted-foreground">
             Le contenu de MoinsBête provient de multiples sources :
             Wikipédia en français pour les idées et faits, Wiktionary pour les proverbes, le journal du CNRS pour les actualités scientifiques,
+            la NewsAPI pour les actualités internationales,
             Wikimedia Commons pour les images, Radio France pour les documentaires audio, et Pixabay pour les vidéos d&apos;ambiance.
             L&apos;IA analyse, résume et structure le contenu pour offrir des idées claires et digestes.
           </p>
@@ -141,7 +143,7 @@ export default function AproposPage() {
        <section>
           <h2 className="mb-3 text-xl font-semibold">Partagez tout le contenu</h2>
           <p className="text-muted-foreground">
-            Chaque idée, fait, image, article du CNRS, documentaire Radio France, vidéo Pixabay et page de MoinsBête peut être partagée
+            Chaque idée, fait, image, article du CNRS, article NEWS, documentaire Radio France, vidéo Pixabay et page de MoinsBête peut être partagée
             facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
             ou copier le lien directement.
           </p>
@@ -306,6 +308,20 @@ export default function AproposPage() {
         </section>
 
         <section>
+          <h2 className="mb-3 text-xl font-semibold">Actualités mondiales</h2>
+          <p className="text-muted-foreground">
+            La carte NEWS propose des actualités internationales provenant de la NewsAPI.
+            Les articles sont classés par catégories (monde, entreprise, technologie, sport, etc.)
+            et mis à jour automatiquement trois fois par jour.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Les articles sont mis en cache pendant 6 heures. En mode développement,
+            un fichier JSON statique sert de repli. Vous pouvez filtrer par catégorie
+            et sauvegarder vos articles préférés dans vos favoris.
+          </p>
+        </section>
+
+        <section>
            <h2 className="mb-3 text-xl font-semibold">Licence</h2>
            <p className="text-muted-foreground">
              Ce programme est un logiciel libre: vous pouvez le redistribuer et/ou le modifier conformément aux clauses de la Licence Publique Générale Affero GNU telle que publiée par la Free Software Foundation; soit la version 3 de la Licence, soit (à votre choix) toute version ultérieure.
@@ -408,8 +424,8 @@ export default function AproposPage() {
             L&apos;objectif est de remplacer le scroll infini des réseaux sociaux par
             un apprentissage actif et intentionnel. Chaque idée est conçue pour
             être digérée en quelques minutes, tout en restant mémorable et
-            actionnable. Le contenu est soigneusement sélectionné et enrichi depuis
-            Wikipédia, le CNRS, Wikimedia Commons, Radio France et d&apos;autres sources
+            actionnable.     Le contenu est soigneusement sélectionné et enrichi depuis
+            Wikipédia, le CNRS, la NewsAPI, Wikimedia Commons, Radio France et d&apos;autres sources
             de qualité en français.
           </p>
         </section>
