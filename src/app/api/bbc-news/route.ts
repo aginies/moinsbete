@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
-import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import { RATE_LIMIT_ERROR_MESSAGE, BBC_NEWS_DISPLAY_LIMIT } from '@/lib/constants'
 import bbcNewsData from '@/data/bbc-news.json'
 
 interface BbcArticle {
@@ -27,7 +27,7 @@ async function fetchFromCache(categories: string[]): Promise<BbcArticle[]> {
   const count = await prisma.cachedBbcArticle.count({ where: queryWhere })
   if (count === 0) return []
 
-  const limit = 20
+  const limit = 250
   const articles = await prisma.cachedBbcArticle.findMany({
     where: queryWhere,
     take: limit,
@@ -102,9 +102,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json([])
   }
 
-  // Return random batch of up to 20
+  // Return random batch of BBC_NEWS_DISPLAY_LIMIT
   const shuffled = [...articles].sort(() => Math.random() - 0.5)
-  const result = shuffled.slice(0, 20)
+  const result = shuffled.slice(0, BBC_NEWS_DISPLAY_LIMIT)
 
   return NextResponse.json(result)
 }
