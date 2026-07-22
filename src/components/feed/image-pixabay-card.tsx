@@ -256,7 +256,7 @@ export function ImagePixabayCard({
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center justify-between sm:justify-end sm:gap-3">
             {showToggle && (
               <button
                 type="button"
