@@ -207,7 +207,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     },
     {
       key: 'bbcNews',
-      isVisible: visibility.bbcNews && (globalVisibility?.bbcNews ?? true),
+      isVisible: visibility.bbcNews && (globalVisibility?.bbcNews ?? true) && hasUserId,
       isGloballyVisible: globalVisibility?.bbcNews ?? true,
       toggle: toggleBbcNews,
       renderCard: () => (

@@ -430,15 +430,22 @@ export default function AproposPage() {
           </p>
         </section>
 
-        <section>
-           <h2 className="mb-3 text-xl font-semibold">Infrastructure</h2>
-           <p className="text-muted-foreground">
-              Le service MoinsBete est hébergé sur un serveur loué personnellement par Antoine Giniès à des fins personnelles.
-              Ce service est offert en l&apos;état et peut être arrêté à tout moment sans annonce préalable.
-           </p>
-         </section>
+         <section>
+            <h2 className="mb-3 text-xl font-semibold">Infrastructure</h2>
+            <p className="text-muted-foreground">
+               Le service MoinsBete est hébergé sur un serveur loué personnellement par Antoine Giniès à des fins personnelles.
+               Ce service est offert en l&apos;état et peut être arrêté à tout moment sans annonce préalable.
+            </p>
+          </section>
 
-      </div>
+         <section>
+            <h2 className="mb-3 text-xl font-semibold">Projet de développement</h2>
+            <p className="text-muted-foreground">
+               Ceci est un projet de développement à usage personnel. Le contenu, les fonctionnalités et l&apos;interface peuvent changer sans préavis. L&apos;application n&apos;est pas encore prête pour une utilisation en production.
+            </p>
+          </section>
+
+       </div>
 
       <div className="mt-12 pt-6 border-t text-center text-sm text-muted-foreground">
         <Link href="/confidentialite" className="hover:underline">Politique de confidentialité</Link>
