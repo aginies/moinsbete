@@ -241,7 +241,7 @@ export function BaseImageCard<TTopic>({
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={
-          <>
+          <div className="flex items-center gap-2 sm:gap-3">
             {handleToggleVisibility && (
               <button
                 type="button"
@@ -249,7 +249,7 @@ export function BaseImageCard<TTopic>({
                 className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
                 title="Masquer la carte"
               >
-                <EyeOff className="h-4 w-4" />
+                <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}
               <button
@@ -258,7 +258,7 @@ export function BaseImageCard<TTopic>({
                 className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
                 title="Rafraîchir"
               >
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
              {image && (
                <button
@@ -268,13 +268,13 @@ export function BaseImageCard<TTopic>({
                  className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
                  title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                >
-                 <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+                 <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current' : ''}`} />
                </button>
              )}
              {image && config.resourceType && (
                <ShareToLobbyButton resourceId={image.docid} resourceType={config.resourceType} meta={{ titre: image.titre, auteur: image.auteur, imageUrl: image.imageUrl, link: image.link, droits: image.droits }} />
              )}
-          </>
+          </div>
         }
       />
 
@@ -322,7 +322,7 @@ export function BaseImageCard<TTopic>({
               className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
               title={settingsButtonTitle}
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           )}
           {onToggleCategories && (
@@ -332,7 +332,7 @@ export function BaseImageCard<TTopic>({
               className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
               title={showCategories ? 'Masquer les catégories' : 'Afficher les catégories'}
             >
-              <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
+              <Filter className={`h-4 w-4 sm:h-5 sm:w-5 ${showCategories ? 'fill-current' : ''}`} />
             </button>
           )}
         </div>

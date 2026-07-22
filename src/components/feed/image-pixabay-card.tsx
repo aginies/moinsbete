@@ -256,40 +256,24 @@ export function ImagePixabayCard({
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={
-          <>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setShowCategories(prev => !prev) }}
-              className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
-              title={showCategories ? 'Masquer les catégories' : 'Afficher les catégories'}
-            >
-              <Filter className={`h-4 w-4 ${showCategories ? 'fill-current' : ''}`} />
-            </button>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {showToggle && (
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
+                onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
                 className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
-                title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
+                title="Masquer la carte"
               >
-                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
-              {showToggle && (
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
-                  className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
-                  title="Masquer la carte"
-                >
-                  <EyeOff className="h-4 w-4" />
-                </button>
-              )}
+            )}
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); loadVideo() }}
               className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
               title="Rafraîchir"
             >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
             {video && userId && (
               <button
@@ -299,10 +283,10 @@ export function ImagePixabayCard({
                 className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors disabled:opacity-50"
                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               >
-                <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-800 dark:text-amber-300'}`} />
+                <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-800 dark:text-amber-300'}`} />
               </button>
             )}
-          </>
+          </div>
         }
       />
 
@@ -367,7 +351,7 @@ export function ImagePixabayCard({
                 togglePlay()
               }}
             >
-              <Play className="h-12 w-12 text-white/80" />
+              <Play className="h-12 w-12 sm:h-14 sm:w-14 text-white/80" />
             </div>
           )}
           {video.duration > 0 && (
@@ -375,6 +359,24 @@ export function ImagePixabayCard({
               {formatTime(currentTime)} / {formatTime(video.duration, '')}
             </div>
           )}
+          <div className="absolute bottom-2 right-2 flex gap-3">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setShowCategories(prev => !prev) }}
+              className="rounded-full bg-black/60 p-2 text-white hover:bg-black/80 transition-colors"
+              title={showCategories ? 'Masquer les catégories' : 'Afficher les catégories'}
+            >
+              <Filter className={`h-4 w-4 sm:h-5 sm:w-5 ${showCategories ? 'fill-current' : ''}`} />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
+              className="rounded-full bg-black/60 p-2 text-white hover:bg-black/80 transition-colors"
+              title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
+            >
+              {isFullscreen ? <Minimize className="h-4 w-4 sm:h-5 sm:w-5" /> : <Maximize className="h-4 w-4 sm:h-5 sm:w-5" />}
+            </button>
+          </div>
         </div>
       )}
 

@@ -131,7 +131,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 dark:bg-purple-600">
-              <Lightbulb className="h-4 w-4 text-white" />
+              <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
             <h3 className="text-sm font-bold uppercase tracking-wide text-purple-800 dark:text-purple-300">
               Docs Radio France
@@ -143,13 +143,13 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
                className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors"
               title="Masquer la carte"
             >
-              <EyeOff className="h-4 w-4" />
+              <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
             <button
               onClick={handleRefresh}
               title="Changer de documentaire"
             >
-              <RefreshCw className={`h-4 w-4 text-purple-600 dark:text-purple-400 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400 ${loading ? 'animate-spin' : ''}`} />
             </button>
             <button
               onClick={handleBookmark}
@@ -157,7 +157,7 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
               className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors disabled:opacity-50"
               title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
-              <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current text-purple-600 dark:text-purple-400' : 'text-purple-600 dark:text-purple-400'}`} />
+              <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-purple-600 dark:text-purple-400' : 'text-purple-600 dark:text-purple-400'}`} />
             </button>
             <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
           </div>

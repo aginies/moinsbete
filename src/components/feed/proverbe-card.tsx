@@ -150,7 +150,7 @@ export function ProverbeCard({
               onRefresh={handleRefresh}
               shareOptions={proverbe ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
               extraActions={proverbe ? (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <ShareToLobbyButton resourceId={proverbe.id} resourceType="PROVERBE" />
                   <button
                     type="button"
@@ -160,7 +160,7 @@ export function ProverbeCard({
                     title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                   >
                     <Bookmark
-                      className={`h-4 w-4 ${isFavorite ? 'fill-current text-emerald-600 dark:text-emerald-400' : 'text-emerald-600 dark:text-emerald-400'}`}
+                      className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-emerald-600 dark:text-emerald-400' : 'text-emerald-600 dark:text-emerald-400'}`}
                     />
                   </button>
                 </div>

@@ -182,7 +182,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
         iconBgColor="bg-blue-400"
         iconDarkColor="dark:bg-blue-600"
-        title="Le saviez-vous ?"
+        title="saviez-vous ?"
         titleColor="text-blue-800"
         titleDarkColor="dark:text-blue-300"
         linkHref={showLink ? (linkAs || '/le-saviez-vous') : undefined}
@@ -195,7 +195,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
         extraActions={showBookmark ? (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <ShareToLobbyButton resourceId={fact.id} resourceType="SAVIEZ_VOUS" />
             <button
             type="button"
@@ -205,7 +205,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
             title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
           >
             <Bookmark
-              className={`h-4 w-4 ${isFavorite ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
+              className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
             />
             </button>
           </div>
@@ -255,7 +255,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   return (
     <>
       {!show && hasMounted && showToggle ? (
-        <VisibilityButton color={buttonColor} label="Afficher Le saviez-vous ?" onClick={onToggle || handleToggle} />
+        <VisibilityButton color={buttonColor} label="Afficher saviez-vous ?" onClick={onToggle || handleToggle} />
       ) : swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
           {/* Prev hint overlay */}
@@ -281,7 +281,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
           {/* Background Card Stack (Using pre-fetched nextFact) */}
           {nextFact && bgOpacity > 0 && (
             <SwipeBackgroundCard
-              title="Le saviez-vous ?"
+        title="saviez-vous ?"
               icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
               iconBgColor="bg-blue-400"
               iconDarkColor="dark:bg-blue-600"

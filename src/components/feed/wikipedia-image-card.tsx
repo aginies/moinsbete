@@ -202,24 +202,24 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
           shareOptions={{ onClick: handleShare, copied, shareUrl }}
           enableAutoRefresh={enableAutoRefresh}
           storageKey={storageKey}
-           extraActions={
-           image && showBookmark && (
-             <div className="flex items-center gap-1">
-               <ShareToLobbyButton resourceId={image.fileUrl} resourceType="IMAGE_DU_JOUR" />
-               <button
-                 type="button"
-                 onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
-                 disabled={isPending}
-                 className="rounded-full p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all disabled:opacity-50"
-                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-               >
-                 <Bookmark
-                   className={`h-4 w-4 ${isFavorite ? 'fill-current text-teal-600 dark:text-teal-400' : 'text-teal-600 dark:text-teal-400'}`}
-                 />
-               </button>
-             </div>
-           )
-         }
+            extraActions={
+            image && showBookmark && (
+              <div className="flex items-center gap-2">
+                <ShareToLobbyButton resourceId={image.fileUrl} resourceType="IMAGE_DU_JOUR" />
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
+                  disabled={isPending}
+                  className="rounded-full p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all disabled:opacity-50"
+                  title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                >
+                  <Bookmark
+                    className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-teal-600 dark:text-teal-400' : 'text-teal-600 dark:text-teal-400'}`}
+                  />
+                </button>
+              </div>
+            )
+          }
       />
 
       {error && !loading && (
