@@ -4,11 +4,15 @@ set -euo pipefail
 SRC="/home/aginies/moinsbete"
 DEST="/srv/http/moinsbete"
 
+# Stop PM2 server first to cleanly flush SQLite WAL transactions and release database file locks
+echo "Stopping PM2 server..."
+pm2 stop moinsbete 2>/dev/null || true
+
 mkdir -p "$DEST"
 
 rsync -a --delete --checksum \
-  --exclude='dev.db' \
-  --exclude='dev.db.bck' \
+  --exclude='dev.db*' \
+  --exclude='data.db*' \
   --exclude='*.test.ts' \
   --exclude='*.test.tsx' \
   --exclude='vitest.config.ts' \
@@ -82,15 +86,14 @@ npx prisma generate
 
 # Always apply pending migrations
 echo "Applying pending migrations..."
-pm2 stop moinsbete 2>/dev/null || true
 npx prisma migrate deploy
 
 npm run build 2>&1 | tail -20
 if [ -f "ecosystem.config.js" ]; then
-  echo "Reloading/starting via PM2 ecosystem.config.js..."
-  pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
+  echo "Starting/reloading via PM2 ecosystem.config.js..."
+  pm2 start ecosystem.config.js || pm2 reload ecosystem.config.js
 else
-  pm2 restart moinsbete
+  pm2 start moinsbete || pm2 restart moinsbete
 fi
 
 echo "Deployed to $DEST"
