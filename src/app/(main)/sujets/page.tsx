@@ -21,9 +21,11 @@ export default async function SujetsPage() {
           imageWikimediaCardVisible: true,
           imageWikiLovesCardVisible: true,
           imagePixabayCardVisible: true,
+          imagePixabayShowCategories: true,
           portailLexicalCardVisible: true,
           proverbeCardVisible: true,
           cnrsNewsEnabled: true,
+          bbcNewsCardVisible: true,
         },
       }).then(u => ({
         topicIds: u?.following.map((t: { id: string }) => t.id) || [],
@@ -37,6 +39,7 @@ export default async function SujetsPage() {
           portailLexical: u.portailLexicalCardVisible ?? true,
           proverbe: u.proverbeCardVisible ?? true,
           cnrs: u.cnrsNewsEnabled ?? true,
+          bbcNews: u.bbcNewsCardVisible ?? true,
         } : undefined,
       }))
     : null

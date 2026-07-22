@@ -12,6 +12,7 @@ import { ImageWikiLovesCard } from '@/components/feed/image-wikiloves-card'
 import { ImagePixabayCard } from '@/components/feed/image-pixabay-card'
 import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
 import { ProverbeCard } from '@/components/feed/proverbe-card'
+import { BbcNewsCard } from '@/components/feed/bbc-news-card'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -35,6 +36,7 @@ interface CardVisibility {
   pixabay: boolean
   portailLexical: boolean
   proverbe: boolean
+  bbcNews: boolean
 }
 
 interface CardConfig {
@@ -103,11 +105,11 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const followedIdsSet = useMemo(() => new Set(followedIds), [followedIds])
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
-    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true,
+    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true, bbcNews: true,
   })
 
   const hasUserId = !!userId
-  const [cardOrder, setCardOrder] = useState<string[]>(() => hasUserId ? [] : ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe'])
+  const [cardOrder, setCardOrder] = useState<string[]>(() => hasUserId ? [] : ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'bbcNews', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe'])
   const [orderLoaded, setOrderLoaded] = useState(!hasUserId)
 
   useEffect(() => {
@@ -142,6 +144,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const togglePixabay = useCallback(() => toggleVisibility('imagePixabayCardVisible', 'pixabay'), [toggleVisibility])
   const togglePortailLexical = useCallback(() => toggleVisibility('portailLexicalCardVisible', 'portailLexical'), [toggleVisibility])
   const toggleProverbe = useCallback(() => toggleVisibility('proverbeCardVisible', 'proverbe'), [toggleVisibility])
+  const toggleBbcNews = useCallback(() => toggleVisibility('bbcNewsCardVisible', 'bbcNews'), [toggleVisibility])
 
   const handleToggle = (topicId: string) => {
     if (isAllSelected) {
@@ -203,6 +206,15 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       ),
     },
     {
+      key: 'bbcNews',
+      isVisible: visibility.bbcNews && (globalVisibility?.bbcNews ?? true),
+      isGloballyVisible: globalVisibility?.bbcNews ?? true,
+      toggle: toggleBbcNews,
+      renderCard: () => (
+        <BbcNewsCard onToggle={toggleBbcNews} userId={userId} isVisible={visibility.bbcNews} />
+      ),
+    },
+    {
       key: 'wikimedia',
       isVisible: visibility.wikimedia && (globalVisibility?.wikimedia ?? true),
       isGloballyVisible: globalVisibility?.wikimedia ?? true,
@@ -247,7 +259,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         <ProverbeCard onToggle={toggleProverbe} userId={userId} isVisible={visibility.proverbe} />
       ),
     },
-  ], [visibility, toggleSaviezVous, toggleWikipedia, toggleRadioFrance, toggleWikimedia, toggleWikiLoves, toggleCnrs, togglePixabay, togglePortailLexical, toggleProverbe, userId, saviezVousFact, globalVisibility])
+  ], [visibility, toggleSaviezVous, toggleWikipedia, toggleRadioFrance, toggleBbcNews, toggleWikimedia, toggleWikiLoves, toggleCnrs, togglePixabay, togglePortailLexical, toggleProverbe, userId, saviezVousFact, globalVisibility])
 
   const orderedConfigs = useMemo(() => {
     if (!orderLoaded || cardOrder.length === 0) return cardConfigs

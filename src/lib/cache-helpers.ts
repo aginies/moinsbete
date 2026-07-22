@@ -43,13 +43,14 @@ function ipToNumber(ip: string): number {
 
 export async function cleanupExpired() {
   const now = new Date()
-  const [cnrs, radio, wiki] = await Promise.all([
+  const [cnrs, radio, wiki, bbc] = await Promise.all([
     prisma.cachedCnrsArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedRadioEpisode.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedWikipediaImage.deleteMany({ where: { expiresAt: { lt: now } } }),
+    prisma.cachedBbcArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
   ])
   
-  return { cnrs: cnrs.count, radio: radio.count, wiki: wiki.count }
+  return { cnrs: cnrs.count, radio: radio.count, wiki: wiki.count, bbc: bbc.count }
 }
 
 export async function getValidCachedCnrsArticles() {

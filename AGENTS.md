@@ -26,3 +26,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - API routes: `src/app/api/` with route handlers
 - Actions: `src/actions/` for server actions
 - Types: `src/types/` for custom type declarations
+- Dates in client components: format on server with `toLocaleDateString(locale)`, pass pre-formatted string prop. Avoid `toLocaleDateString` in client with Date from server (timezone mismatch = hydration error)
+- Locale: get from `cookies()` in server component, pass as `locale` prop through component tree
+- i18n: use `useTranslations('namespace')` from `next-intl` for all user-facing strings. Add keys to `src/locales/fr.json` and `src/locales/en.json`
+- Prefer cross-links between pages over duplicating content
