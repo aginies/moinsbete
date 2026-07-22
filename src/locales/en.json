@@ -590,6 +590,12 @@
       "news_tab": "NEWS"
     }
   },
+  "search": {
+    "placeholder": "Search ideas, sources, topics, facts...",
+    "no_results": "No results for \"{query}\"",
+    "searching": "Searching...",
+    "time_estimate": "This can take up to 1 minute to display results."
+  },
   "lobby": {
     "favoris": "Favorites",
     "avec_vous": "Shared with you",
