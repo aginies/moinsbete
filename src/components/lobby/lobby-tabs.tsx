@@ -2,7 +2,7 @@
 
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Share2, Users } from 'lucide-react'
+import { Share2, Users, MessageSquare } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SuggestionList } from './suggestion-list'
 import { SharedBookmarks } from './shared-bookmarks'
@@ -234,7 +234,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         <TabsTrigger value="favoris" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> Favoris</TabsTrigger>
         <TabsTrigger value="partage" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> Avec vous</TabsTrigger>
         <TabsTrigger value="mies" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><Share2 className="h-4 w-4" /> Utilisateurs</TabsTrigger>
-        <TabsTrigger value="discuter" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}>{t('feed.discuss')}</TabsTrigger>
+        <TabsTrigger value="discuter" className="whitespace-normal h-auto py-1 px-3 text-center text-[10px] sm:text-xs md:text-sm flex items-start justify-center" style={{ height: 'auto' }}><MessageSquare className="h-4 w-4" /> {t('feed.discuss')}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="discuter">
