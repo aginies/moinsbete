@@ -51,9 +51,13 @@ rm -f "$DEST"/test_ll*
 
 # Backup DB avant deploy (dans le répertoire courant)
 if [ -f "$DEST/dev.db" ]; then
-  BACKUP_NAME="dev.db.bck.$(date +%Y%m%d_%H%M%S)"
-  cp "$DEST/dev.db" "$BACKUP_NAME"
-  echo "DB backup saved: $BACKUP_NAME"
+  BACKUP_SUF="$(date +%Y%m%d_%H%M%S)"
+  for f in "$DEST"/dev.db*; do
+    if [ -f "$f" ]; then
+      cp "$f" "$(basename "$f").bck.$BACKUP_SUF"
+    fi
+  done
+  echo "DB backups saved with suffix: .bck.$BACKUP_SUF"
 fi
 
 cd "$DEST"
