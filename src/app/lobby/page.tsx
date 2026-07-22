@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { LobbyHeader } from '@/components/lobby/lobby-header'
 import { LobbyTabs } from '@/components/lobby/lobby-tabs'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import type { JsonValue } from '@prisma/client/runtime/library'
 import type { Idea, SharedLobbyBookmark, SaviezVousFact, CachedWikipediaImage, CachedWikiLovesImage } from '@/generated/client'
 
@@ -38,6 +39,9 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     if (!session?.user) {
       redirect('/login')
     }
+
+    const cookieStore = await cookies()
+    const locale = (cookieStore.get('locale')?.value as 'fr' | 'en') || 'fr'
 
     const userFavoriteIds: UserFavoriteIds = {
       IDEA: new Set(),
@@ -300,9 +304,9 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       return bookmark
     }
 
-    const enrichedBookmarks = sharedBookmarks.map(enrichBookmark) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }>
+    const enrichedBookmarks = sharedBookmarks.map(enrichBookmark).map(b => ({ ...b, formattedCreatedAt: b.createdAt.toLocaleDateString(locale) })) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; formattedCreatedAt: string }>
 
-    const enrichedSharedWithMe = sharedWithMeBookmarks.map(enrichBookmark) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] } }>
+    const enrichedSharedWithMe = sharedWithMeBookmarks.map(enrichBookmark).map(b => ({ ...b, formattedCreatedAt: b.createdAt.toLocaleDateString(locale) })) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; formattedCreatedAt: string }>
 
     const sharedByMeMap = new Map<string, { bookmark: typeof sharedByMeBookmarks[0]; recipientIds: string[] }>()
     for (const bookmark of sharedByMeBookmarks) {
@@ -340,7 +344,14 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     // Ensure all sharedByMe bookmarks have sharedWithUsers field
     const finalSharedByMe = enrichedSharedByMe.map(bookmark => ({
       ...bookmark,
-      sharedWithUsers: bookmark.sharedWithUsers || []
+      sharedWithUsers: bookmark.sharedWithUsers || [],
+      formattedCreatedAt: bookmark.createdAt.toLocaleDateString(locale),
+    }))
+
+    const suggestionsWithFormattedDates = suggestions.map(s => ({
+      ...s,
+      formattedCreatedAt: s.createdAt.toLocaleDateString(locale),
+      formattedUpdatedAt: s.updatedAt.toLocaleDateString(locale),
     }))
 
     return (
@@ -348,7 +359,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         <LobbyHeader isLoggedIn={!!session?.user} />
 
         <LobbyTabs
-          suggestions={suggestions}
+          suggestions={suggestionsWithFormattedDates}
           sharedBookmarks={enrichedBookmarks}
           sharedWithMeBookmarks={enrichedSharedWithMe}
           sharedByMeBookmarks={finalSharedByMe}
@@ -359,6 +370,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           totalPagesSharedByMe={Math.max(1, Math.ceil(totalSharedByMe / PAGE_SIZE))}
           currentPage={page}
           userFavoriteIds={userFavoriteIds}
+          locale={locale}
         />
       </div>
     )

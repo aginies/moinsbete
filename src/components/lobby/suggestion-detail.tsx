@@ -17,8 +17,13 @@ function maskEmail(email: string): string {
   return `${masked}@${domain}`
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+interface CommentWithFormattedDate {
+  id: string
+  content: string
+  createdAt: Date
+  updatedAt: Date
+  formattedCreatedAt: string
+  user: { id: string; displayName: string | null; email: string }
 }
 
 interface PropositionWithComments {
@@ -27,14 +32,10 @@ interface PropositionWithComments {
   description: string
   createdAt: Date
   updatedAt: Date
+  formattedCreatedAt: string
+  formattedUpdatedAt: string
   user: { id: string; displayName: string | null; email: string }
-  comments: Array<{
-    id: string
-    content: string
-    createdAt: Date
-    updatedAt: Date
-    user: { id: string; displayName: string | null; email: string }
-  }>
+  comments: CommentWithFormattedDate[]
 }
 
 interface SuggestionDetailProps {
@@ -150,11 +151,11 @@ export function SuggestionDetail({ suggestion: sug, currentUserId, isAdmin }: Su
             <p className="whitespace-pre-wrap text-muted-foreground" dangerouslySetInnerHTML={{ __html: parseHTML(sug.description) }} />
             <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
               <span>Par {sug.user.displayName || maskEmail(sug.user.email)}</span>
-              <span>Créée le {formatDate(new Date(sug.createdAt))}</span>
+              <span>Créée le {sug.formattedCreatedAt}</span>
               {sug.updatedAt.getTime() !== sug.createdAt.getTime() && (
                 <span className="flex items-center gap-1">
                   <EyeOff className="h-3 w-3" />
-                  Modifiée le {formatDate(new Date(sug.updatedAt))}
+                  Modifiée le {sug.formattedUpdatedAt}
                 </span>
               )}
             </div>
@@ -174,7 +175,7 @@ export function SuggestionDetail({ suggestion: sug, currentUserId, isAdmin }: Su
               <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="font-medium">{comment.user.displayName || maskEmail(comment.user.email)}</span>
                 <span>·</span>
-                <span>{formatDate(new Date(comment.createdAt))}</span>
+                <span>{comment.formattedCreatedAt}</span>
               </div>
               <p className="whitespace-pre-wrap text-sm" dangerouslySetInnerHTML={{ __html: parseHTML(comment.content) }} />
             </div>

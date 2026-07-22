@@ -239,6 +239,7 @@
     "discover_ideas": "Discover ideas →",
     "search_favorites": "Search in favorites...",
     "no_favorites_for": "No favorites for \"{query}\"",
+    "shared_on": "Shared on",
     "page_of": "Page {current} of {total}",
     "favorite_count": "{count} favorite",
     "favorite_count_plural": "{count} favorites",
