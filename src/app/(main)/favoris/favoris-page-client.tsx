@@ -470,7 +470,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   }, [sortedTabs, activeTab, derivedIdeasCount])
 
   return (
-    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-6">
+    <>
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -491,18 +491,19 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         )}
       </div>
 
-      <div className="w-full">
-        <TabsList className="flex flex-wrap gap-x-1 gap-y-3 md:gap-y-2 lg:gap-y-2 xl:gap-y-1 h-auto pt-0 pb-20 bg-muted rounded-lg min-h-0">
-          {sortedTabs.map(({ id, label, Icon, count }) => (
-            <TabsTrigger key={id} value={id} className="flex-shrink-0 w-[calc(50%-4px)] sm:w-[calc(50%-4px)] md:w-[calc(33.33%-4px)] lg:w-[calc(16.66%-4px)] xl:w-[calc(20%-4px)] h-auto flex items-start justify-center gap-1.5 px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer bg-muted data-active:bg-background" style={{ height: 'auto' }}>
-              <Icon className="h-4 w-4" />
-              {label} ({count})
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-6">
+        <div className="w-full">
+          <TabsList className="flex flex-wrap gap-x-1 gap-y-3 md:gap-y-2 lg:gap-y-2 xl:gap-y-1 h-auto pt-0 pb-20 bg-muted rounded-lg min-h-0">
+            {sortedTabs.map(({ id, label, Icon, count }) => (
+              <TabsTrigger key={id} value={id} className="flex-shrink-0 w-[calc(50%-4px)] sm:w-[calc(50%-4px)] md:w-[calc(33.33%-4px)] lg:w-[calc(16.66%-4px)] xl:w-[calc(20%-4px)] h-auto flex items-start justify-center gap-1.5 px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer bg-muted data-active:bg-background" style={{ height: 'auto' }}>
+                <Icon className="h-4 w-4" />
+                {label} ({count})
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
-      <TabsContent value="idees" className="mt-4">
+        <TabsContent value="idees" className="mt-4">
           {searchQuery && filteredIdeas.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">Aucun favori pour &quot;{searchQuery}&quot;</p>
           )}
@@ -590,5 +591,6 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
       <TabsContent value="proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} sharedIds={sharedProverbeIds} onShareToggle={handleProverbeShareToLobby} isSharing={isSharing} /></TabsContent>
     </Tabs>
+    </>
   )
 }
