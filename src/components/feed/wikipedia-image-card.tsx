@@ -205,7 +205,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
             extraActions={
             image && showBookmark && (
               <div className="flex items-center gap-2">
-                <ShareToLobbyButton resourceId={image.fileUrl} resourceType="IMAGE_DU_JOUR" />
+                <ShareToLobbyButton resourceId={image.fileUrl} resourceType="IMAGE_DU_JOUR" meta={{ imageUrl: image.imageUrl, description: image.description, fileUrl: image.fileUrl, date: image.date }} />
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
