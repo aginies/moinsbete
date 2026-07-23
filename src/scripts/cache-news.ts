@@ -54,6 +54,7 @@ const CATEGORY_MAP: Record<string, string> = {
   internetSecurity: 'internet security',
   movies: 'movies',
   gadgets: 'gadgets',
+  soccer: 'soccer',
 }
 
 const CATEGORIES = Object.keys(CATEGORY_MAP) as Array<keyof typeof CATEGORY_MAP>
