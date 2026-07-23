@@ -263,18 +263,33 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
     })
 
     const url = `${FREE_NEWS_API_BASE}/news?${params.toString()}`
-    const reqCount = consume(1)
-    console.log(`  📡 Fetching ${category} (request #${reqCount}/${MAX_DAILY_REQUESTS}, ${remaining()} remaining)`)
+    let res
+    let retries = 0
+    const maxRetries = 1
 
-    const res = await fetch(url, {
-      headers: { 'x-api-key': FREE_NEWS_API_KEY },
-      signal: AbortSignal.timeout(30000),
-    })
+    do {
+      const timeout = retries === 0 ? 45000 : 30000
+      console.log(`  📡 Fetching ${category} (request #${consume(1)}/${MAX_DAILY_REQUESTS}, ${remaining()} remaining)`)
 
-    if (!res.ok) {
-      console.log(`  ${category}: HTTP ${res.status}`)
-      return []
-    }
+      res = await fetch(url, {
+        headers: { 'x-api-key': FREE_NEWS_API_KEY },
+        signal: AbortSignal.timeout(timeout),
+      })
+
+      if (!res.ok) {
+        const body = await res.text().catch(() => '')
+        console.log(`  ${category}: HTTP ${res.status} - ${body.slice(0, 100)}`)
+        if (retries < maxRetries) {
+          retries++
+          console.log(`  🔄 Retry ${retries}/${maxRetries} for ${category}...`)
+          await new Promise(resolve => setTimeout(resolve, 2000))
+          continue
+        }
+        return []
+      }
+
+      break
+    } while (true)
 
     const data: FreeNewsApiResponse = await res.json()
     if (!data.data || data.data.length === 0) {
@@ -290,7 +305,8 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
 
     return articles
   } catch (err) {
-    console.log(`  ${category}: erreur - ${err}`)
+    const errMsg = err instanceof Error ? err.message : String(err)
+    console.log(`  ${category}: erreur - ${errMsg}`)
   }
 
   return []
