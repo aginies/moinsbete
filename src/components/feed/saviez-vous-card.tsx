@@ -78,6 +78,10 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     }
     return { id, text, sourceUrl, imageFilename }
   })
+
+  useEffect(() => {
+    setFact({ id, text, sourceUrl, imageFilename })
+  }, [id, text, sourceUrl, imageFilename])
   const [nextFact, setNextFact] = useState<{ id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null>(null)
   const [loading, setLoading] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
