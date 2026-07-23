@@ -34,6 +34,8 @@ interface NewsCardProps {
   maxHeight?: string
 }
 
+const NEWS_FILTER_STORAGE_KEY = 'news_filter_visible'
+
 const CATEGORIES = [
   { key: 'world', labelKey: 'feed.world', icon: Globe },
   { key: 'business', labelKey: 'feed.business', icon: Briefcase },
@@ -103,7 +105,13 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
   const [hasMore, setHasMore] = useState(true)
   const [hasLoaded, setHasLoaded] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [showCategories, setShowCategories] = useState(true)
+  const [showCategories, setShowCategories] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(NEWS_FILTER_STORAGE_KEY)
+      return stored !== null ? stored === 'true' : true
+    }
+    return true
+  })
   const favoritesCheckedRef = useRef(false)
   const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'news_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
@@ -306,7 +314,12 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
                 </button>
               )}
               <button
-                onClick={(e) => { e.stopPropagation(); setShowCategories(prev => !prev) }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const next = !showCategories
+                  setShowCategories(next)
+                  localStorage.setItem(NEWS_FILTER_STORAGE_KEY, String(next))
+                }}
                 className={`h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 cursor-pointer transition-transform hover:scale-110 ${showCategories ? 'rotate-180' : ''}`}
                 title="Filtres"
               >
