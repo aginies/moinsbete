@@ -26,6 +26,7 @@ interface NewsCardProps {
   userId?: string
   showToggle?: boolean
   isVisible?: boolean
+  linkHref?: string
 }
 
 const CATEGORIES = [
@@ -70,7 +71,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string): Pr
   }
 }
 
-export function NewsCard({ onToggle, userId, showToggle = true, isVisible }: NewsCardProps) {
+export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkHref }: NewsCardProps) {
   const t = useTranslations()
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
@@ -201,9 +202,15 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible }: New
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
                 <Newspaper className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
-              <h3 className="text-sm font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">
-                NEWS
-              </h3>
+              {linkHref ? (
+                <Link href={linkHref} className="text-sm font-bold uppercase tracking-wide text-blue-800 hover:underline dark:text-blue-300 dark:hover:text-blue-100">
+                  NEWS
+                </Link>
+              ) : (
+                <h3 className="text-sm font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">
+                  NEWS
+                </h3>
+              )}
             </div>
             <div className="flex items-center gap-4">
               {showToggle && onToggle && (
