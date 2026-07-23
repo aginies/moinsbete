@@ -18,7 +18,7 @@ export default async function NewsPage() {
   const userId = session?.user?.id
 
   return (
-    <div className="mx-auto flex min-h-[90vh] w-full flex-col items-center justify-start px-4 py-8 md:max-w-4xl md:p-6">
+    <div className="mx-auto flex min-h-screen w-full flex-col items-center px-4 py-8 md:max-w-4xl md:p-6">
       <Link
         href="/"
         className="mb-6 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors md:inline-flex"

@@ -27,6 +27,8 @@ interface NewsCardProps {
   showToggle?: boolean
   isVisible?: boolean
   linkHref?: string
+  infiniteScroll?: boolean
+  onLoadMore?: (cursor: string) => Promise<void>
 }
 
 const CATEGORIES = [
@@ -71,7 +73,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string): Pr
   }
 }
 
-export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkHref }: NewsCardProps) {
+export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore }: NewsCardProps) {
   const t = useTranslations()
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
@@ -80,6 +82,9 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const checkedUrlsRef = useRef<Set<string>>(new Set())
   const listRef = useRef<HTMLDivElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [hasLoaded, setHasLoaded] = useState(false)
   const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'news_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
 
@@ -126,6 +131,27 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
       checkFavorites()
     }
   }, [userId, articles, favorites])
+
+  useEffect(() => {
+    if (!infiniteScroll || !onLoadMore || !hasMore || loading) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading) {
+          const lastArticle = articles[articles.length - 1]
+          if (lastArticle) {
+            onLoadMore(lastArticle.url)
+          }
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    const sentinel = sentinelRef.current
+    if (sentinel) observer.observe(sentinel)
+
+    return () => observer.disconnect()
+  }, [infiniteScroll, onLoadMore, hasMore, loading, articles])
 
   const handleCategoryChange = useCallback((category: string) => {
     setSelectedCategories(prev => {
@@ -259,8 +285,8 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
 
           <div
             ref={listRef}
-            className="flex-1 space-y-4 overflow-y-auto pr-2"
-            style={{ maxHeight: '700px' }}
+            className={`flex-1 space-y-4 pr-2 ${infiniteScroll ? 'overflow-y-auto' : ''}`}
+            style={infiniteScroll ? undefined : { maxHeight: '700px' }}
           >
             {articles.map((article, index) => {
               const categoryStyle = CATEGORY_COLORS[article.category] || CATEGORY_COLORS.allNews
@@ -342,9 +368,28 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
                 </div>
               )
             })}
+            {infiniteScroll && <div ref={sentinelRef} className="h-1" />}
           </div>
 
-          {loading && articles.length > 0 && (
+          {infiniteScroll && loading && (
+            <div className="flex justify-center py-4">
+              <RefreshCw className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-spin" />
+            </div>
+          )}
+
+          {infiniteScroll && !hasMore && hasLoaded && (
+            <p className="text-center text-xs text-blue-400 dark:text-blue-500 py-4">
+              {t('feed.no_more_articles')}
+            </p>
+          )}
+
+          {infiniteScroll && !hasMore && !hasLoaded && articles.length === 0 && !error && (
+            <p className="text-center text-xs text-blue-400 dark:text-blue-500 py-4">
+              {t('feed.no_more_articles')}
+            </p>
+          )}
+
+          {!infiniteScroll && loading && articles.length > 0 && (
             <div className="mt-3 flex justify-center">
               <RefreshCw className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-spin" />
             </div>
