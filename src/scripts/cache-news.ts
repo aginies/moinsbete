@@ -116,9 +116,8 @@ export async function scrapeAndCacheNews(): Promise<void> {
   const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString()
   
   for (const article of allArticles) {
-    const uuid = article.url.split('uuid=')[1] || article.url
     await prisma.cachedNewsArticle.upsert({
-      where: { url: uuid },
+      where: { url: article.url },
       update: { ...article, scrapedAt: now, expiresAt },
       create: { ...article, scrapedAt: now, expiresAt },
     })
