@@ -5,7 +5,7 @@
 | # | Priority | Issue | File | Status |
 |---|----------|-------|------|--------|
 | 2 | HIGH | No FTS5 — search degrades with data | `src/app/api/search/route.ts:115` | ⏳ Pending |
-| 4 | HIGH | CNRS live scraping blocks response (30s+) | `src/app/api/cnrs-news/route.ts:15` | ⏳ Pending |
+| 4 | HIGH | CNRS live scraping blocks response (30s+) | `src/app/api/cnrs-news/route.ts:15` | ✅ Done |
 | 5 | HIGH | `ioredis` + `redis` both installed | `package.json` | ✅ Done |
 | 6 | CRITICAL | SQL injection via `$queryRawUnsafe` | `src/lib/feed-helpers.ts:24,55` | ⏳ Pending |
 | 7 | MEDIUM | Missing indexes on `IdeaTopic.topicId`, `ViewedIdea.ideaId` | `prisma/schema.prisma` | ⏳ Pending |
