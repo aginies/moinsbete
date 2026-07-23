@@ -126,3 +126,13 @@ export function sleep(ms: number) {
 export async function clearAllNewsArticles() {
   return prisma.cachedNewsArticle.deleteMany({})
 }
+
+export async function clearFreenewsapiArticles() {
+  return prisma.cachedNewsArticle.deleteMany({
+    where: {
+      url: {
+        contains: 'freenewsapi.io',
+      },
+    },
+  })
+}

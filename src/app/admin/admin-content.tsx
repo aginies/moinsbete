@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
-import { clearAllNewsAction } from '@/actions/cleanup-actions'
+import { clearAllNewsAction, clearFreenewsapiAction } from '@/actions/cleanup-actions'
 import { toggleUserEnabled } from '@/actions/user-actions'
 import { updateGlobalCardVisibility } from '@/actions/card-actions'
 import { useLocale, useTranslations } from 'next-intl'
@@ -68,6 +68,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
   const [isPending, startTransition] = useTransition()
   const [cleanupOpen, setCleanupOpen] = useState(false)
   const [newsClearOpen, setNewsClearOpen] = useState(false)
+  const [freenewsapiClearOpen, setFreenewsapiClearOpen] = useState(false)
   const locale = useLocale()
   const { setLocale } = useSetLocale()
   const t = useTranslations()
@@ -384,6 +385,49 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                           const result = await clearAllNewsAction()
                           if (result.success && result.deletedCount > 0) {
                             toast.success(t('feed.news_cleared', { count: result.deletedCount }))
+                            router.refresh()
+                          } else if (result.error) {
+                            toast.error(result.error)
+                          }
+                        })
+                      }}
+                      disabled={isPending}
+                    >
+                      Supprimer
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                className="text-red-600 border-red-300 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-950/30"
+                onClick={() => setFreenewsapiClearOpen(true)}
+              >
+                Supprimer articles freenewsapi.io
+              </Button>
+              <Dialog open={freenewsapiClearOpen} onOpenChange={setFreenewsapiClearOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirmer la suppression</DialogTitle>
+                    <DialogDescription>
+                      Supprimer tous les articles NEWS qui contiennent freenewsapi.io dans l'URL ?
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setFreenewsapiClearOpen(false)} disabled={isPending}>
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={async () => {
+                        setFreenewsapiClearOpen(false)
+                        startTransition(async () => {
+                          const result = await clearFreenewsapiAction()
+                          if (result.success && result.deletedCount > 0) {
+                            toast.success(t('feed.freenewsapi_cleared', { count: result.deletedCount }))
                             router.refresh()
                           } else if (result.error) {
                             toast.error(result.error)

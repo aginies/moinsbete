@@ -191,6 +191,7 @@
     "clear_all_news": "Clear all NEWS",
     "delete_all": "Delete all",
     "news_cleared": "{count} NEWS articles cleared",
+    "freenewsapi_cleared": "{count} freenewsapi.io articles cleared",
     "user_disabled": "User disabled",
     "user_enabled": "User enabled",
     "admin": "Admin",

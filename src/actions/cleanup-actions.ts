@@ -37,3 +37,20 @@ export async function clearAllNewsAction() {
 
   return { success: true, deletedCount: result.count }
 }
+
+export async function clearFreenewsapiAction() {
+  const session = await getSession()
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return { error: 'Non autorisé', deletedCount: 0 }
+  }
+
+  const result = await prisma.cachedNewsArticle.deleteMany({
+    where: {
+      url: {
+        contains: 'freenewsapi.io',
+      },
+    },
+  })
+
+  return { success: true, deletedCount: result.count }
+}
