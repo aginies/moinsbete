@@ -237,7 +237,7 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
       {!show && hasMounted ? (
         <VisibilityButton color={buttonColor} label="Afficher NEWS" onClick={onToggle || handleToggle} />
       ) : (
-        <div className="flex flex-col rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow" style={{ maxHeight: infiniteScroll ? undefined : (maxHeight || '700px') }}>
+        <div className="flex flex-col overflow-hidden rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow" style={{ maxHeight: infiniteScroll ? undefined : (maxHeight || '700px') }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
