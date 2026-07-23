@@ -13,6 +13,8 @@ interface SearchCacheEntry {
   sources: JsonValue[]
   topics: JsonValue[]
   facts: JsonValue[]
+  proverbs: JsonValue[]
+  images: JsonValue[]
   expiresAt: number
 }
 
@@ -31,14 +33,57 @@ async function getCachedSearch(q: string) {
   return null
 }
 
-async function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue[], topics: JsonValue[], facts: JsonValue[]) {
+async function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue[], topics: JsonValue[], facts: JsonValue[], proverbs: JsonValue[], images: JsonValue[]) {
   await searchCache.set(q, {
     ideas,
     sources,
     topics,
     facts,
+    proverbs,
+    images,
     expiresAt: Date.now() + SEARCH_CACHE_TTL,
   })
+}
+
+async function searchProverbesInCache(q: string) {
+  try {
+    const cached = await prisma.cachedConfig.findUnique({
+      where: { key: 'proverbes_all' },
+    })
+    if (!cached) return []
+    const proverbs = JSON.parse(cached.value) as Array<{ text: string; signification: string; source: string }>
+    const normalized = normalizeAccents(q).toLowerCase()
+    return proverbs
+      .filter(p =>
+        normalizeAccents(p.text).toLowerCase().includes(normalized) ||
+        normalizeAccents(p.signification).toLowerCase().includes(normalized)
+      )
+      .slice(0, 20)
+      .map(p => ({ id: p.text.toLowerCase().replace(/\s+/g, '_'), text: p.text, signification: p.signification, source: p.source }))
+  } catch {
+    return []
+  }
+}
+
+async function searchImagesInCache(q: string) {
+  try {
+    const images = await prisma.cachedWikipediaImage.findMany({
+      where: {
+        description: { contains: q },
+      },
+      select: {
+        id: true,
+        imageUrl: true,
+        description: true,
+        fileUrl: true,
+        date: true,
+      },
+      take: 10,
+    })
+    return images
+  } catch {
+    return []
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -47,7 +92,7 @@ export async function GET(request: NextRequest) {
     let q = searchParams.get('q')?.trim() || ''
 
     if (!q || q.length < 2) {
-      return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [] })
+      return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [], proverbs: [], images: [] })
     }
 
     if (q.length > 100) {
@@ -62,11 +107,11 @@ export async function GET(request: NextRequest) {
     // Check cache
     const cached = await getCachedSearch(q)
     if (cached) {
-      return NextResponse.json({ ideas: cached.ideas, sources: cached.sources, topics: cached.topics, facts: cached.facts })
+      return NextResponse.json({ ideas: cached.ideas, sources: cached.sources, topics: cached.topics, facts: cached.facts, proverbs: cached.proverbs, images: cached.images })
     }
 
     const normalizedQ = normalizeAccents(q).toLowerCase()
-    const [ideas, sources, topics, facts] = await Promise.all([
+    const [ideas, sources, topics, facts, proverbs, images] = await Promise.all([
       prisma.idea.findMany({
         where: {
           isPublished: true,
@@ -129,10 +174,11 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           text: true,
-          createdAt: true,
         },
         take: 10,
       }),
+      searchProverbesInCache(q),
+      searchImagesInCache(q),
     ])
 
     const filteredIdeas = ideas.filter(idea =>
@@ -159,12 +205,11 @@ export async function GET(request: NextRequest) {
       topics: mapIdeaWithTopics(idea),
     }))
 
-    // Cache results
-    await setCachedSearch(normalizedQ, formattedIdeas as any, filteredSources as any, filteredTopics as any, filteredFacts as any)
+    await setCachedSearch(normalizedQ, formattedIdeas as any, filteredSources as any, filteredTopics as any, filteredFacts as any, proverbs as any, images as any)
 
-    return NextResponse.json({ ideas: formattedIdeas, sources: filteredSources, topics: filteredTopics, facts: filteredFacts })
+    return NextResponse.json({ ideas: formattedIdeas, sources: filteredSources, topics: filteredTopics, facts: filteredFacts, proverbs, images })
   } catch (error) {
     console.error('Search error:', error)
-    return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [] })
+    return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [], proverbs: [], images: [] })
   }
 }

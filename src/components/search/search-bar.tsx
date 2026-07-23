@@ -8,12 +8,15 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { useTranslations } from 'next-intl'
+import { sanitizeUrl } from '@/lib/utils'
 
 interface SearchResult {
   ideas: Array<{ id: string; title: string; slug: string; content: string; takeaway: string; topics: Array<{ id: string; name: string; slug: string; icon: string; color: string }>; source: { title: string; type: string; url: string | null; coverUrl: string | null } }>
   sources: Array<{ id: string; title: string; slug: string }>
   topics: Array<{ id: string; name: string; slug: string; icon: string }>
   facts: Array<{ id: string; text: string }>
+  proverbs: Array<{ id: string; text: string; signification: string; source: string }>
+  images: Array<{ id: string; imageUrl: string; description: string; fileUrl: string; date: string }>
 }
 
 import React from 'react'
@@ -29,6 +32,8 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
   const [results, setResults] = useState<SearchResult | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [searching, setSearching] = useState(false)
+  const [proverbsLoading, setProverbsLoading] = useState(false)
+  const [imagesLoading, setImagesLoading] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
 
   const closeResults = useCallback(() => {
@@ -62,6 +67,8 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
 
     const timer = setTimeout(async () => {
       setSearching(true)
+      setProverbsLoading(true)
+      setImagesLoading(true)
       try {
         const res = await fetch(`/fr/api/search?q=${encodeURIComponent(query)}`, {
           credentials: 'include',
@@ -80,13 +87,15 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
         setResults(null)
       } finally {
         setSearching(false)
+        setProverbsLoading(false)
+        setImagesLoading(false)
       }
     }, 300)
 
     return () => clearTimeout(timer)
   }, [query])
 
-  const hasResults = results && (results.ideas.length > 0 || results.sources.length > 0 || results.topics.length > 0 || results.facts.length > 0)
+  const hasResults = results && (results.ideas.length > 0 || results.sources.length > 0 || results.topics.length > 0 || results.facts.length > 0 || results.proverbs.length > 0 || results.images.length > 0)
 
   return (
     <div className="relative" ref={searchRef}>
@@ -136,7 +145,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             <div className="mb-3">
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Idées</h4>
               <div className="space-y-2">
-                {results.ideas.slice(0, 5).map((idea) => {
+                {results.ideas.slice(0, 4).map((idea) => {
                   const compactIdea = {
                     id: idea.id,
                     title: idea.title,
@@ -158,7 +167,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             <div className="mb-3">
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Faits</h4>
               <div className="space-y-1">
-                {results.facts.slice(0, 10).map((fact) => (
+                {results.facts.slice(0, 4).map((fact) => (
                   <button
                     key={fact.id}
                     type="button"
@@ -172,11 +181,84 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             </div>
           )}
 
+          {results && results.proverbs.length > 0 && (
+            <div className="mb-3">
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Proverbes</h4>
+              <div className="space-y-1">
+                {results.proverbs.slice(0, 4).map((proverb) => (
+                  <Link
+                    key={proverb.id}
+                    href={`/proverbes?q=${encodeURIComponent(proverb.text)}`}
+                    className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted text-left"
+                    onClick={closeResults}
+                  >
+                    <span className="line-clamp-2 font-medium text-foreground">{proverb.text}</span>
+                    {proverb.signification && (
+                      <p className="line-clamp-1 text-xs text-muted-foreground">{proverb.signification}</p>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {proverbsLoading && (
+            <div className="mb-3">
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Proverbes</h4>
+              <div className="flex items-center gap-2 py-1">
+                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">Recherche proverbes...</span>
+              </div>
+            </div>
+          )}
+
+          {results && results.images.length > 0 && (
+            <div className="mb-3">
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Images</h4>
+              <div className="grid grid-cols-2 gap-2">
+                {results.images.slice(0, 4).map((image) => (
+                  <Link
+                    key={image.id}
+                    href={sanitizeUrl(image.fileUrl)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block rounded-lg overflow-hidden border border-border/60 hover:border-border hover:shadow-sm transition-all"
+                    onClick={closeResults}
+                  >
+                    <div className="aspect-square bg-muted">
+                      <img
+                        src={image.imageUrl}
+                        alt={image.description}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-2">
+                      <p className="text-xs line-clamp-2 text-muted-foreground group-hover:text-foreground transition-colors">
+                        {image.description}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {imagesLoading && (
+            <div className="mb-3">
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Images</h4>
+              <div className="flex items-center gap-2 py-1">
+                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">Recherche images...</span>
+              </div>
+            </div>
+          )}
+
           {results.sources.length > 0 && (
             <div>
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Sources</h4>
               <div className="space-y-1">
-                {results.sources.slice(0, 3).map((source) => (
+                {results.sources.slice(0, 4).map((source) => (
                   <Link
                     key={source.id}
                     href={`/sources/${source.slug}`}

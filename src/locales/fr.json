@@ -605,7 +605,7 @@
     }
   },
   "search": {
-    "placeholder": "Rechercher des idées, sources, sujets, faits...",
+    "placeholder": "Rechercher idées, faits, proverbes, images...",
     "no_results": "Aucun résultat pour \"{query}\"",
     "searching": "Recherche en cours...",
     "time_estimate": "Cela peut prendre jusqu'à 1 minute pour afficher les résultats."

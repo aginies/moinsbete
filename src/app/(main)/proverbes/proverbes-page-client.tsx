@@ -99,8 +99,8 @@ async function fetchRandomProverbe(): Promise<Proverbe | null> {
   }
 }
 
-export function ProverbesPageClient({ userId }: { userId?: string }) {
-  const [searchTerm, setSearchTerm] = useState('')
+export function ProverbesPageClient({ userId, initialQuery }: { userId?: string; initialQuery?: string }) {
+  const [searchTerm, setSearchTerm] = useState(initialQuery || '')
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [currentProverbe, setCurrentProverbe] = useState<Proverbe | null>(null)
@@ -114,6 +114,18 @@ export function ProverbesPageClient({ userId }: { userId?: string }) {
   const [showAllList, setShowAllList] = useState(false)
 
   const t = useTranslations()
+
+  useEffect(() => {
+    if (initialQuery && initialQuery.length >= 2) {
+      setSearchTerm(initialQuery)
+      searchProverbes(initialQuery, selectedCategories).then(results => {
+        setSuggestions(results)
+        if (results.length > 0) {
+          setCurrentProverbe(results[0] as Proverbe)
+        }
+      })
+    }
+  }, [initialQuery])
 
   const loadProverbe = useCallback(async () => {
     setLoading(true)
