@@ -43,21 +43,9 @@ async function getRedisClient() {
     (redisClient as any).type = 'ioredis'
     return redisClient
   } catch {
-    try {
-      const { createClient } = await import('redis')
-      const client = createClient({ url: process.env.REDIS_URL })
-      client.on('error', (err) => {
-        console.error('redis client connection error, falling back:', err)
-      })
-      await client.connect()
-      redisClient = client as unknown as RedisClient
-      (redisClient as any).type = 'redis'
-      return redisClient
-    } catch {
-      console.warn('Redis rate limiter selected but ioredis/redis not installed and no Upstash REST credentials found. Falling back to in-memory rate limiter.')
-      redisClient = 'fallback'
-      return redisClient
-    }
+    console.warn('Redis rate limiter selected but ioredis not installed and no Upstash REST credentials found. Falling back to in-memory rate limiter.')
+    redisClient = 'fallback'
+    return redisClient
   }
 }
 
@@ -106,19 +94,6 @@ export async function checkRateLimit(key: string, max: number, windowMs: number)
           if (results && results[0] && results[0][1] !== undefined) {
             const count = results[0][1] as number
             const ttl = results[1][1] as number
-            if (count === 1 || ttl === -1) {
-              await (client as any).expire(fullKey, Math.ceil(windowMs / 1000))
-            }
-            return count <= max
-          }
-        } else if ((client as any).type === 'redis') {
-          const multi = (client as any).multi()
-          multi.incr(fullKey)
-          multi.ttl(fullKey)
-          const results = await multi.exec()
-          if (results && results[0] !== undefined) {
-            const count = results[0] as number
-            const ttl = results[1] as number
             if (count === 1 || ttl === -1) {
               await (client as any).expire(fullKey, Math.ceil(windowMs / 1000))
             }

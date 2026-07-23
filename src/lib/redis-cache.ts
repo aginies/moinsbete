@@ -1,7 +1,7 @@
 import { createTtlCache, type CacheEntry, type TtlCacheOptions } from './ttl-cache'
 
 type RedisClient = {
-  type: 'upstash' | 'ioredis' | 'redis'
+  type: 'upstash' | 'ioredis'
   url?: string
   token?: string
   get: (key: string) => Promise<string | null>
@@ -102,31 +102,9 @@ async function getRedisClient(): Promise<RedisClient | 'fallback' | null> {
     } as unknown as RedisClient
     return redisClient
   } catch {
-    try {
-      const { createClient } = await import('redis')
-      const client = createClient({ url: process.env.REDIS_URL })
-      client.on('error', (err) => {
-        console.error('redis client connection error, falling back to in-memory cache:', err)
-      })
-      await client.connect()
-      redisClient = {
-        type: 'redis',
-        url: process.env.REDIS_URL,
-        get: (key: string) => client.get(key),
-        set: (key: string, value: string, options?: { EX: number }) => client.set(key, value, options),
-        del: (key: string) => client.del(key),
-        keys: (pattern: string) => client.keys(pattern),
-        incr: (key: string) => client.incr(key),
-        ttl: (key: string) => client.ttl(key),
-        expire: (key: string, seconds: number) => client.expire(key, seconds),
-        multi: () => client.multi(),
-      } as unknown as RedisClient
-      return redisClient
-    } catch {
-      console.warn('Redis cache selected but no Redis client available. Falling back to in-memory cache.')
-      redisClient = 'fallback'
-      return redisClient
-    }
+    console.warn('Redis cache selected but ioredis not available. Falling back to in-memory cache.')
+    redisClient = 'fallback'
+    return redisClient
   }
 }
 
