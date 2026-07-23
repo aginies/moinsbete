@@ -187,7 +187,7 @@ async function fetchArticleDetail(uuid: string, publisher?: string): Promise<{ i
 async function fetchArticlesWithDetails(articles: Array<{ uuid: string; title: string; published_at: string; publisher: string }>, category: string): Promise<NewsArticle[]> {
   const batchSize = 10
   const results: NewsArticle[] = []
-  const queue = new RateLimitQueue(2, 500)
+  const queue = new RateLimitQueue(2, 600)
   const stats = { success: 0, failed: 0, rateLimited: 0, noUrl: 0 }
 
   console.log(`  Processing ${articles.length} articles...`)
