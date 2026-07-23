@@ -5,6 +5,7 @@ import { NewsCard, NewsArticle } from '@/components/feed/news-card'
 
 export function NewsPageClient({ userId }: { userId?: string }) {
   const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const handleLoadMore = useCallback(async (cursor: string, currentArticles: NewsArticle[], categories: string[]) => {
     if (loading) return { articles: [] as NewsArticle[], hasMore: false }
@@ -12,6 +13,7 @@ export function NewsPageClient({ userId }: { userId?: string }) {
     try {
       const params = new URLSearchParams()
       if (categories.length > 0) params.set('categories', categories.join(','))
+      if (searchQuery) params.set('q', searchQuery)
       params.set('cursor', cursor)
       params.set('limit', '500')
 
@@ -26,7 +28,7 @@ export function NewsPageClient({ userId }: { userId?: string }) {
       setLoading(false)
       return { articles: [], hasMore: false }
     }
-  }, [loading])
+  }, [loading, searchQuery])
 
   return (
     <div className="w-full">
