@@ -86,6 +86,7 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
   const sentinelRef = useRef<HTMLDivElement>(null)
   const [hasMore, setHasMore] = useState(true)
   const [hasLoaded, setHasLoaded] = useState(false)
+  const favoritesCheckedRef = useRef(false)
   const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'news_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
 
@@ -112,6 +113,7 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
   }, [hasMounted, show, articles.length, loading, error, loadArticles])
 
   useEffect(() => {
+    if (favoritesCheckedRef.current) return
     if (userId && articles.length > 0) {
       const checkFavorites = async () => {
         const checked = new Set<string>()
@@ -131,7 +133,12 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
       }
       checkFavorites()
     }
-  }, [userId, articles, favorites])
+    favoritesCheckedRef.current = true
+  }, [userId, articles.length])
+
+  useEffect(() => {
+    favoritesCheckedRef.current = false
+  }, [selectedCategories])
 
   useEffect(() => {
     if (!infiniteScroll || !onLoadMore || !hasMore || loading) return
