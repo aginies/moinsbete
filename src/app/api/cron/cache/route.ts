@@ -3,6 +3,7 @@ import { scrapeAndCacheCnrs } from '@/scripts/cache-cnrs'
 import { scrapeAndCacheRadioEpisodes } from '@/scripts/cache-radio-france'
 import { scrapeAndCacheWikipediaImages } from '@/scripts/cache-wikipedia-image'
 import { scrapeAndCacheNews } from '@/scripts/cache-news'
+import { scrapeAndCacheSaviezVousImages } from '@/scripts/cache-saviez-vous-images'
 import { cleanupExpired } from '@/lib/cache-helpers'
 
 const CRON_SECRET = process.env.CRON_SECRET || ''
@@ -72,9 +73,13 @@ export async function GET(request: NextRequest) {
     await scrapeAndCacheWikipediaImages()
     results.wiki = 'ok'
     
-    console.log('[cron] Step 5/5: Cleanup...')
+    console.log('[cron] Step 5/6: Cleanup...')
     const counts = await cleanupExpired()
     results.cleanup = `cnrs:${counts.cnrs},radio:${counts.radio},wiki:${counts.wiki},news:${counts.news}`
+
+    console.log('[cron] Step 6/6: Resolving Saviez-vous images...')
+    await scrapeAndCacheSaviezVousImages()
+    results.saviezvous = 'ok'
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
     console.log(`[cron] Cache update completed in ${duration}s`)

@@ -8,14 +8,6 @@ import { createTtlCache } from '@/lib/ttl-cache'
 
 const imageCache = createTtlCache<string>({ ttlMs: 24 * 60 * 60 * 1000 })
 
-function getCachedImageUrl(imageFilename: string): string | null {
-  return imageCache.get(imageFilename)
-}
-
-function setCachedImageUrl(imageFilename: string, url: string) {
-  imageCache.set(imageFilename, url)
-}
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -48,94 +40,62 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ facts: [] })
     }
 
-    // Check cache for already resolved URLs
+    // Check in-memory cache
     for (const fact of facts) {
-      if (fact.imageFilename?.startsWith('http')) {
-        continue
-      }
-      const cachedUrl = getCachedImageUrl(fact.imageFilename!)
-      if (cachedUrl) {
-        fact.imageFilename = cachedUrl
-      }
+      if (fact.imageFilename?.startsWith('http')) continue
+      const cached = imageCache.get(fact.imageFilename!)
+      if (cached) fact.imageFilename = cached
     }
 
-    // Resolve only facts without cached URLs
+    // Resolve only facts without cached URLs (response-time only, no DB write)
     const pending = facts
       .filter(f => !f.imageFilename?.startsWith('http'))
-      .map(f => ({ id: f.id, imageFilename: f.imageFilename }))
+      .map(f => f.imageFilename!)
 
     if (pending.length > 0) {
-      const titles = pending.map(f => `File:${f.imageFilename}`).join('|')
       try {
+        const titles = pending.map(f => `File:${f}`).join('|')
         const res = await fetch(
           `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url&format=json&origin=*`,
           { headers: { 'User-Agent': 'moinsbete/1.0' } }
         )
-        const data = await res.json()
-        const pages = data?.query?.pages || {}
-
-        for (const pageId of Object.keys(pages)) {
-          const page = pages[pageId]
-          const url = page?.imageinfo?.[0]?.url
-          if (url) {
-            const pendingFact = pending.find(f => f.imageFilename === page.title.replace(/^File:/, ''))
-            if (pendingFact) {
-              const original = facts.find(f => f.id === pendingFact.id)
-              if (original && original.imageFilename !== url) {
-                original.imageFilename = url
-                setCachedImageUrl(pendingFact.imageFilename!, url)
-                await prisma.saviezVousFact.update({
-                  where: { id: original.id },
-                  data: { imageFilename: url },
-                })
+        if (res.ok) {
+          const data = await res.json()
+          const pages = data?.query?.pages || {}
+          for (const pageId of Object.keys(pages)) {
+            const page = pages[pageId]
+            const url = page?.imageinfo?.[0]?.url
+            if (url) {
+              const filename = page.title.replace(/^File:/, '')
+              const fact = facts.find(f => f.imageFilename === filename)
+              if (fact) {
+                fact.imageFilename = url
+                imageCache.set(filename, url)
               }
             }
           }
         }
       } catch {
-        // If API fails, keep original filenames
+        // Continue to fallback
       }
 
-      // Fallback: construct direct Wikimedia URL for facts still not resolved
-      const unresolvedFilenames = facts
+      // REST API fallback
+      const unresolved = facts
         .filter(f => f.imageFilename && !f.imageFilename.startsWith('http'))
         .map(f => f.imageFilename!)
-
-      const restUrls = await resolveWikimediaImageUrlsViaREST(unresolvedFilenames)
-
-      for (const fact of facts) {
-        if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
-
-        // Use REST API resolved URL if available
-        if (restUrls.has(fact.imageFilename)) {
-          const url = restUrls.get(fact.imageFilename)!
-          fact.imageFilename = url
-          setCachedImageUrl(fact.imageFilename, url)
-          await prisma.saviezVousFact.update({
-            where: { id: fact.id },
-            data: { imageFilename: url },
-          })
-          continue
+      if (unresolved.length > 0) {
+        const restUrls = await resolveWikimediaImageUrlsViaREST(unresolved)
+        for (const fact of facts) {
+          if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
+          if (restUrls.has(fact.imageFilename)) {
+            fact.imageFilename = restUrls.get(fact.imageFilename)!
+            imageCache.set(fact.imageFilename, fact.imageFilename)
+          }
         }
-
-        // Use Special:FilePath redirect - works for all filenames including special chars
-        const specialUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fact.imageFilename)}?width=1200`
-        fact.imageFilename = specialUrl
-        setCachedImageUrl(fact.imageFilename, specialUrl)
-        await prisma.saviezVousFact.update({
-          where: { id: fact.id },
-          data: { imageFilename: specialUrl },
-        })
       }
     }
 
-    // Final fallback: use Special:FilePath for any still unresolved
-    for (const fact of facts) {
-      if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
-      fact.imageFilename = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fact.imageFilename)}?width=1200`
-    }
-
-    // Final fallback: use Special:FilePath redirect for any remaining unresolved images
+    // Final fallback: Special:FilePath URL construction
     for (const fact of facts) {
       if (!fact.imageFilename || fact.imageFilename.startsWith('http')) continue
       fact.imageFilename = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fact.imageFilename)}?width=1200`
