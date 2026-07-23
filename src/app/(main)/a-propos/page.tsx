@@ -315,7 +315,7 @@ export default function AproposPage() {
             et mis à jour automatiquement trois fois par jour.
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Les articles sont mis en cache pendant 6 heures. En mode développement,
+            Les articles sont mis en cache pendant 24 heures. En mode développement,
             un fichier JSON statique sert de repli. Vous pouvez filtrer par catégorie
             et sauvegarder vos articles préférés dans vos favoris.
           </p>
