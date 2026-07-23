@@ -118,6 +118,7 @@ model Idea {
   @@index([slug])
   @@index([isPublished])
   @@index([sourceId])
+  @@index([sourceId, isPublished])
   @@index([isPublished, orderIndex])
   @@index([orderIndex])
   @@index([title])
@@ -164,6 +165,7 @@ model Bookmark {
 
   @@unique([userId, ideaId])
   @@unique([userId, resourceId])
+  @@index([userId, type])
 }
 
 model GrowthPlan {
@@ -193,6 +195,7 @@ model TopicSuggestion {
 
   @@index([status])
   @@index([userId])
+  @@index([mergedIntoId])
 }
 
 model ViewedIdea {
@@ -365,6 +368,7 @@ model SharedLobbyBookmark {
   @@index([userId, createdAt])
   @@index([resourceType])
   @@index([sharedWithUserId, createdAt])
+  @@index([userId, resourceType])
 }
 
 enum UserRole {
