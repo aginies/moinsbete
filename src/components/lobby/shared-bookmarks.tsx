@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List } from 'lucide-react'
+import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List, Newspaper } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -86,6 +86,7 @@ interface SharedBookmark {
   wikiImage: CachedWikipediaImage | null
   wikiMediaImage: CachedWikiLovesImage | null
   wikiLovesImage: CachedWikiLovesImage | null
+  newsArticle: { id: string; title: string; description: string; imageUrl: string | null; source: string; category: string; url: string } | null
   proverbe?: {
     id: string
     text: string
@@ -111,6 +112,7 @@ interface SharedBookmarksProps {
     IMAGE_WIKIMEDIA: Set<string>
     IMAGE_WIKILOVES: Set<string>
     PROVERBE: Set<string>
+    NEWS: Set<string>
   }
   typeFilters?: { value: string; label: string; icon: string }[]
   activeType?: string
@@ -622,6 +624,154 @@ function WikiLovesBookmarkItem({
   )
 }
 
+function NewsBookmarkItem({
+  bookmark,
+  currentUserId,
+  isAdmin,
+  userFavoriteIds,
+  locale,
+  t,
+}: {
+  bookmark: SharedBookmark & { newsArticle: NonNullable<SharedBookmark['newsArticle']>; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }
+  currentUserId: string | null
+  isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
+}) {
+  const [hovered, setHovered] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.NEWS.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('NEWS', bookmark.resourceId, {
+        title: bookmark.newsArticle.title,
+        description: bookmark.newsArticle.description,
+        imageUrl: bookmark.newsArticle.imageUrl,
+        source: bookmark.newsArticle.source,
+        category: bookmark.newsArticle.category,
+      })
+      if (result.success) {
+        window.location.reload()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
+
+  return (
+    <div
+      className="group relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30">
+        <div className="mb-2 flex items-center gap-2">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
+            <Newspaper className="h-3 w-3 text-white" />
+          </div>
+          <h4 className="text-xs font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">NEWS</h4>
+          {bookmark.newsArticle.category && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-blue-200 bg-blue-100 text-blue-700 dark:border-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+              {bookmark.newsArticle.category}
+            </span>
+          )}
+        </div>
+        {bookmark.newsArticle.imageUrl && isValidUrl(bookmark.newsArticle.imageUrl) && (
+          <div className="mb-2 overflow-hidden rounded-lg border border-blue-200 dark:border-blue-800">
+            <img
+              src={sanitizeUrl(bookmark.newsArticle.imageUrl, '')}
+              alt={bookmark.newsArticle.title}
+              loading="lazy"
+              className="w-full h-32 object-cover hover:opacity-90"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none'
+              }}
+            />
+          </div>
+        )}
+        <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
+          {bookmark.newsArticle.title}
+        </p>
+        {bookmark.newsArticle.description && (
+          <p className="text-xs text-blue-700 dark:text-blue-300 mb-2 line-clamp-2">
+            {bookmark.newsArticle.description}
+          </p>
+        )}
+        <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 mb-2">
+          <span>{bookmark.newsArticle.source}</span>
+          <span>·</span>
+          <Link
+            href={sanitizeUrl(bookmark.newsArticle.url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            Lire l'article
+            <ExternalLink className="h-3 w-3 ml-1 inline" />
+          </Link>
+        </div>
+      </div>
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
+        <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
+          <User className="h-3 w-3" />
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
+        </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
+        {bookmark.sharedToCommunity && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {t('shared_to_community')}
+          </span>
+        )}
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
+        {(currentUserId === bookmark.user.id || isAdmin) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            onClick={() => {
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+            }}
+          >
+            <Trash2 className="h-3 w-3 text-muted-foreground" />
+          </Button>
+        )}
+      </div>
+      <div className="mt-1 text-xs text-muted-foreground">
+        {t('shared_on')} {bookmark.formattedCreatedAt}
+      </div>
+    </div>
+  )
+}
+
 function WikiMediaBookmarkItem({
   bookmark,
   currentUserId,
@@ -924,7 +1074,7 @@ export function SharedBookmarks({
   emptyMessage,
 }: SharedBookmarksProps) {
   const t = useTranslations('feed')
-  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.proverbe)
+  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.newsArticle || b.proverbe)
 
   const hasFilters = typeFilters.length > 0 || searchQuery
 
@@ -995,6 +1145,9 @@ export function SharedBookmarks({
             }
             if (bookmark.wikiLovesImage) {
               return <WikiLovesBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { wikiLovesImage: NonNullable<SharedBookmark['wikiLovesImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
+            }
+            if (bookmark.newsArticle) {
+              return <NewsBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { newsArticle: NonNullable<SharedBookmark['newsArticle']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             if (bookmark.proverbe) {
               return <ProverbeBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { proverbe: NonNullable<SharedBookmark['proverbe']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />

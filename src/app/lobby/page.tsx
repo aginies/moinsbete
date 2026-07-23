@@ -5,7 +5,7 @@ import { LobbyTabs } from '@/components/lobby/lobby-tabs'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import type { JsonValue } from '@prisma/client/runtime/library'
-import type { Idea, SharedLobbyBookmark, SaviezVousFact, CachedWikipediaImage, CachedWikiLovesImage } from '@/generated/client'
+import type { Idea, SharedLobbyBookmark, SaviezVousFact, CachedWikipediaImage, CachedWikiLovesImage, CachedNewsArticle } from '@/generated/client'
 
 interface SharedBookmarkRaw extends SharedLobbyBookmark {
   meta: JsonValue | null
@@ -15,6 +15,7 @@ interface SharedBookmarkRaw extends SharedLobbyBookmark {
   }) | null
   user: { id: string; displayName: string | null; email: string }
   sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }>
+  newsArticle?: { id: string; title: string; description: string; imageUrl: string | null; source: string; category: string; url: string } | null
 }
 
 interface UserFavoriteIds {
@@ -25,6 +26,7 @@ interface UserFavoriteIds {
   IMAGE_WIKILOVES: Set<string>
   PROVERBE: Set<string>
   PORTAIL_LEXICAL: Set<string>
+  NEWS: Set<string>
 }
 
 const PAGE_SIZE = 20
@@ -51,13 +53,14 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       IMAGE_WIKILOVES: new Set(),
       PROVERBE: new Set(),
       PORTAIL_LEXICAL: new Set(),
+      NEWS: new Set(),
     }
     if (session?.user?.id) {
       const bookmarks = await prisma.bookmark.findMany({
         where: { userId: session.user.id },
         select: { resourceId: true, type: true },
       })
-      const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL'] as const
+      const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS'] as const
       for (const bm of bookmarks) {
         if (bm.resourceId && knownTypes.includes(bm.type as typeof knownTypes[number])) {
           userFavoriteIds[bm.type as keyof UserFavoriteIds].add(bm.resourceId)
@@ -153,15 +156,19 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const wikiMediaIds = wikiMediaBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const wikiLovesIds = wikiLovesBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
 
-    const [saviezFacts, wikiImages, wikiMediaImages, wikiLovesImages] = await prisma.$transaction([
+    const proverbeBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'PROVERBE' && b.resourceId)
+    const newsBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'NEWS' && b.resourceId)
+    const newsIds = newsBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
+    const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = proverbeConfig ? JSON.parse(proverbeConfig.value) : []
+
+    const [saviezFacts, wikiImages, wikiMediaImages, wikiLovesImages, cachedNewsArticles] = await prisma.$transaction([
       prisma.saviezVousFact.findMany({ where: saviezIds.length > 0 ? { id: { in: saviezIds } } : {} }),
       prisma.cachedWikipediaImage.findMany({ where: imageIds.length > 0 ? { fileUrl: { in: imageIds } } : {} }),
       prisma.cachedWikiLovesImage.findMany({ where: wikiMediaIds.length > 0 ? { docid: { in: wikiMediaIds }, source: 'EARTH' } : {} }),
       prisma.cachedWikiLovesImage.findMany({ where: wikiLovesIds.length > 0 ? { docid: { in: wikiLovesIds } } : {} }),
+      prisma.cachedNewsArticle.findMany({ where: newsIds.length > 0 ? { url: { in: newsIds } } : {} }),
     ])
 
-    const proverbeBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'PROVERBE' && b.resourceId)
-    const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = proverbeConfig ? JSON.parse(proverbeConfig.value) : []
     const proverbeMap = new Map<string, typeof cachedProverbes[0]>()
     for (const p of cachedProverbes) {
       const slug = p.text.toLowerCase()
@@ -176,6 +183,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     wikiImages.forEach((i: CachedWikipediaImage) => imageMap.set(i.fileUrl, i))
     const wikiMediaMap = new Map(wikiMediaImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
     const wikiLovesMap = new Map(wikiLovesImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
+    const newsMap = new Map(cachedNewsArticles.map((a: { url: string; title: string; description: string | null; imageUrl: string | null; source: string; category: string }) => [a.url, a]))
 
     const enrichBookmark = async (bookmark: SharedLobbyBookmark & { idea: any; user: any }): Promise<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any }> => {
       if (bookmark.resourceType === 'SAVIEZ_VOUS' && bookmark.resourceId) {
@@ -200,6 +208,32 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           }
         }
         return { ...bookmark, saviezFact: null }
+      }
+      if (bookmark.resourceType === 'NEWS' && bookmark.resourceId) {
+        const article = newsMap.get(bookmark.resourceId)
+        if (article) return { ...bookmark, newsArticle: article as any }
+        if (bookmark.meta) {
+          let meta = bookmark.meta as JsonValue | null
+          if (typeof meta === 'string') {
+            try { meta = JSON.parse(meta) as JsonValue } catch { meta = {} }
+          }
+          if (typeof meta === 'object' && meta !== null && 'title' in meta) {
+            const m = meta as Record<string, unknown>
+            return {
+              ...bookmark,
+              newsArticle: {
+                id: bookmark.resourceId,
+                title: (m.title || '') as string,
+                description: (m.description || '') as string,
+                imageUrl: (m.imageUrl || null) as string | null,
+                source: (m.source || '') as string,
+                category: (m.category || '') as string,
+                url: bookmark.resourceId,
+              },
+            }
+          }
+        }
+        return { ...bookmark, newsArticle: null }
       }
       if (bookmark.resourceType === 'IMAGE_DU_JOUR' && bookmark.resourceId) {
         let image = imageMap.get(bookmark.resourceId)

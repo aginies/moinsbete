@@ -29,6 +29,7 @@ interface LobbyTabsProps {
     IMAGE_WIKIMEDIA: Set<string>
     IMAGE_WIKILOVES: Set<string>
     PROVERBE: Set<string>
+    NEWS: Set<string>
   }
 }
 
@@ -46,6 +47,7 @@ const TYPE_FILTERS: TypeFilter[] = [
   { value: 'IMAGE_WIKIMEDIA', label: 'Wikimedia', icon: 'Image' },
   { value: 'IMAGE_WIKILOVES', label: 'Wiki Loves', icon: 'Earth' },
   { value: 'PROVERBE', label: 'Proverbes', icon: 'Quote' },
+  { value: 'NEWS', label: 'NEWS', icon: 'Newspaper' },
 ]
 
 export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks, sharedByMeBookmarks, currentUserId, isAdmin, totalPages, totalPagesSharedWithMe, totalPagesSharedByMe, currentPage, locale, userFavoriteIds }: LobbyTabsProps) {
@@ -124,6 +126,11 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           const title = ((b as any).wikiLovesImage.title || '').toLowerCase()
           if (title.includes(q)) return true
         }
+        if ((b as any).newsArticle) {
+          const title = ((b as any).newsArticle.title || '').toLowerCase()
+          const description = ((b as any).newsArticle.description || '').toLowerCase()
+          if (title.includes(q) || description.includes(q)) return true
+        }
         if ((b as any).proverbe) {
           const text = ((b as any).proverbe.text || '').toLowerCase()
           const signification = ((b as any).proverbe.signification || '').toLowerCase()
@@ -133,7 +140,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).proverbe)
   }, [sharedBookmarks, activeType, searchQuery])
 
   const filteredSharedWithMe = useMemo(() => {
@@ -171,6 +178,11 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           const title = ((b as any).wikiLovesImage.title || '').toLowerCase()
           if (title.includes(q)) return true
         }
+        if ((b as any).newsArticle) {
+          const title = ((b as any).newsArticle.title || '').toLowerCase()
+          const description = ((b as any).newsArticle.description || '').toLowerCase()
+          if (title.includes(q) || description.includes(q)) return true
+        }
         if ((b as any).proverbe) {
           const text = ((b as any).proverbe.text || '').toLowerCase()
           const signification = ((b as any).proverbe.signification || '').toLowerCase()
@@ -180,7 +192,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).proverbe)
   }, [sharedWithMeBookmarks, activeType, searchQuery])
 
   const filteredSharedByMe = useMemo(() => {
@@ -217,6 +229,11 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           const title = ((b as any).wikiLovesImage.title || '').toLowerCase()
           if (title.includes(q)) return true
         }
+        if ((b as any).newsArticle) {
+          const title = ((b as any).newsArticle.title || '').toLowerCase()
+          const description = ((b as any).newsArticle.description || '').toLowerCase()
+          if (title.includes(q) || description.includes(q)) return true
+        }
         if ((b as any).proverbe) {
           const text = ((b as any).proverbe.text || '').toLowerCase()
           const signification = ((b as any).proverbe.signification || '').toLowerCase()
@@ -226,7 +243,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).proverbe)
   }, [sharedByMeBookmarks, activeType, searchQuery])
 
   return (
