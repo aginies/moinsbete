@@ -27,18 +27,15 @@ interface NewsArticle {
   publishedAt: string
 }
 
-const CATEGORY_MAP: Record<string, { topic?: string; query: string }> = {
-  allNews: { query: 'allNews' },
-  world: { topic: 'world', query: 'world' },
-  business: { topic: 'business', query: 'business' },
-  technology: { topic: 'technology', query: 'technology' },
-  entertainment: { topic: 'entertainment', query: 'entertainment' },
-  sports: { topic: 'sports', query: 'sports' },
-  science: { topic: 'science', query: 'science' },
-  health: { topic: 'health', query: 'health' },
-  'digital currencies': { topic: 'digital currencies', query: 'digital currencies' },
-  cinema: { query: 'cinema' },
-  auto: { query: 'auto' },
+const CATEGORY_MAP: Record<string, string> = {
+  world: 'world',
+  business: 'business',
+  technology: 'technology',
+  entertainment: 'entertainment',
+  sports: 'sports',
+  science: 'science',
+  health: 'health',
+  'digital currencies': 'digital currencies',
 }
 
 const CATEGORIES = Object.keys(CATEGORY_MAP) as Array<keyof typeof CATEGORY_MAP>
@@ -50,9 +47,6 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
   }
 
   const allArticles: NewsArticle[] = []
-  const config = CATEGORY_MAP[category as keyof typeof CATEGORY_MAP]
-  let offset = 0
-  let hasMore = true
 
   try {
     const params = new URLSearchParams({
@@ -60,16 +54,8 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
       country: 'fr',
       order_by: 'published_at',
       page_size: '100',
-      q: config.query,
+      topic: CATEGORY_MAP[category],
     })
-
-    if (config.topic) {
-      params.set('topic', config.topic)
-    }
-
-    if (offset > 0) {
-      params.set('offset', String(offset))
-    }
 
     const url = `${FREE_NEWS_API_BASE}/news?${params.toString()}`
     const res = await fetch(url, {
@@ -100,11 +86,6 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
     }
 
     console.log(`  ${category}: ${data.data.length} articles`)
-
-    if (data.meta.has_more && data.meta.next_cursor) {
-      offset += data.data.length
-      hasMore = true
-    }
   } catch {
     console.log(`  ${category}: erreur`)
   }

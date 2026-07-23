@@ -29,7 +29,6 @@ interface NewsCardProps {
 }
 
 const CATEGORIES = [
-  { key: 'allNews', labelKey: 'feed.all', icon: Globe },
   { key: 'world', labelKey: 'feed.world', icon: Globe },
   { key: 'business', labelKey: 'feed.business', icon: Briefcase },
   { key: 'technology', labelKey: 'feed.tech', icon: Cpu },
@@ -38,8 +37,6 @@ const CATEGORIES = [
   { key: 'science', labelKey: 'feed.science', icon: Beaker },
   { key: 'health', labelKey: 'feed.health', icon: Heart },
   { key: 'digital currencies', labelKey: 'feed.crypto', icon: Bitcoin },
-  { key: 'cinema', labelKey: 'feed.cinema', icon: Film },
-  { key: 'auto', labelKey: 'feed.auto', icon: Car },
 ] as const
 
 const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string; darkBorder: string; darkBg: string; darkText: string }> = {
