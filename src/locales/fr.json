@@ -192,6 +192,7 @@
     "clear_all_news": "Tout supprimer NEWS",
     "delete_all": "Supprimer tout",
     "news_cleared": "{count} articles NEWS supprimés",
+    "freenewsapi_cleared": "{count} articles freenewsapi.io supprimés",
     "user_disabled": "Utilisateur désactivé",
     "user_enabled": "Utilisateur activé",
     "admin": "Admin",
