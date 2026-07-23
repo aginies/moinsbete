@@ -15,13 +15,20 @@ interface BbcArticle {
   formattedPublishedAt: string
 }
 
-async function fetchFromCache(categories: string[], limit: number): Promise<BbcArticle[]> {
+async function fetchFromCache(categories: string[], limit: number, query?: string | null): Promise<BbcArticle[]> {
   const now = new Date()
-  const queryWhere: { expiresAt: { gte: Date }; category?: string | { in: string[] } } = {
+  const queryWhere: { expiresAt: { gte: Date }; category?: string | { in: string[] }; OR?: { title?: { contains: string }; description?: { contains: string }; source?: { contains: string } }[] } = {
     expiresAt: { gte: now },
   }
   if (categories.length > 0) {
     queryWhere.category = { in: categories }
+  }
+  if (query) {
+    queryWhere.OR = [
+      { title: { contains: query } },
+      { description: { contains: query } },
+      { source: { contains: query } },
+    ]
   }
 
    const count = await prisma.cachedNewsArticle.count({ where: queryWhere })
@@ -57,6 +64,7 @@ export async function GET(request: NextRequest) {
   const excludeUrl = searchParams.get('exclude') || null
   const cursor = searchParams.get('cursor') || null
   const limit = parseInt(searchParams.get('limit') || '10', 10)
+  const query = searchParams.get('q') || null
 
   const categories = categoriesParam ? categoriesParam.split(',').filter(Boolean) : []
 
@@ -64,12 +72,19 @@ export async function GET(request: NextRequest) {
   let hasMore = false
 
   if (cursor) {
-    const queryWhere: { expiresAt: { gte: Date }; category?: { in: string[] }; url: { lt: string } } = {
+    const queryWhere: { expiresAt: { gte: Date }; category?: { in: string[] }; url: { lt: string }; OR?: { title?: { contains: string }; description?: { contains: string }; source?: { contains: string } }[] } = {
       expiresAt: { gte: new Date() },
       url: { lt: cursor },
     }
     if (categories.length > 0) {
       queryWhere.category = { in: categories }
+    }
+    if (query) {
+      queryWhere.OR = [
+        { title: { contains: query } },
+        { description: { contains: query } },
+        { source: { contains: query } },
+      ]
     }
 
     const results = await prisma.cachedNewsArticle.findMany({
@@ -90,7 +105,7 @@ export async function GET(request: NextRequest) {
       formattedPublishedAt: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
     }))
   } else {
-    articles = await fetchFromCache(categories, limit)
+    articles = await fetchFromCache(categories, limit, query)
 
     if (articles.length === 0) {
       return NextResponse.json({ articles: [], hasMore: false })

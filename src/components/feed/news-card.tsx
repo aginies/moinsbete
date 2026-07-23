@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase, Cpu, Film, Trophy, Beaker, Heart, Bitcoin, Brain, Car, Shield, Circle } from 'lucide-react'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase, Cpu, Film, Trophy, Beaker, Heart, Bitcoin, Brain, Car, Shield, Circle, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
@@ -70,11 +71,12 @@ const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string
   auto: { border: 'border-slate-400', bg: 'bg-slate-100', text: 'text-slate-800', darkBorder: 'dark:border-slate-700', darkBg: 'dark:bg-slate-900/40', darkText: 'dark:text-slate-300' },
 }
 
-async function fetchArticles(categories: string | null, excludeUrl?: string): Promise<NewsArticle[] | null> {
+async function fetchArticles(categories: string | null, excludeUrl?: string, query?: string | null): Promise<NewsArticle[] | null> {
   try {
     const params = new URLSearchParams()
     if (categories) params.set('categories', categories)
     if (excludeUrl) params.set('exclude', excludeUrl)
+    if (query) params.set('q', query)
     const res = await fetch(`/api/news?${params}`, {
       signal: AbortSignal.timeout(10000),
       cache: 'no-store',
@@ -96,18 +98,30 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const checkedUrlsRef = useRef<Set<string>>(new Set())
-  const listRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const sentinelRef = useRef<HTMLDivElement>(null)
   const [hasMore, setHasMore] = useState(true)
   const [hasLoaded, setHasLoaded] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const favoritesCheckedRef = useRef(false)
   const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'news_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
 
-  const loadArticles = useCallback(async () => {
+  const scrollHeight = infiniteScroll ? (maxHeight || '800px') : undefined
+
+  const loadCountRef = useRef(0)
+
+  const virtualizer = useVirtualizer({
+    count: articles.length,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: () => 500,
+    overscan: 5,
+  })
+
+  const loadArticles = useCallback(async (query?: string | null) => {
     setLoading(true)
     setError(false)
-    const newArticles = await fetchArticles(selectedCategories.length > 0 ? selectedCategories.join(',') : null)
+    const newArticles = await fetchArticles(selectedCategories.length > 0 ? selectedCategories.join(',') : null, undefined, query)
     if (newArticles && newArticles.length > 0) {
       setArticles(newArticles)
       setError(false)
@@ -118,13 +132,33 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
   }, [selectedCategories])
 
   useEffect(() => {
-    if (hasMounted && show && !loading && !error) {
-      const timer = setTimeout(() => {
-        loadArticles()
-      }, 0)
-      return () => clearTimeout(timer)
+    if (!hasMounted || !show) return
+
+    loadCountRef.current++
+    const currentLoadCount = loadCountRef.current
+    const query = searchQuery
+
+    const timer = setTimeout(async () => {
+      if (currentLoadCount !== loadCountRef.current) return
+      setLoading(true)
+      setError(false)
+      const newArticles = await fetchArticles(selectedCategories.length > 0 ? selectedCategories.join(',') : null, undefined, query || undefined)
+      if (newArticles && newArticles.length > 0) {
+        setArticles(newArticles)
+        setError(false)
+      } else if (query) {
+        setArticles([])
+        setError(false)
+      } else {
+        setError(true)
+      }
+      setLoading(false)
+    }, 300)
+
+    return () => {
+      clearTimeout(timer)
     }
-  }, [hasMounted, show, loadArticles])
+  }, [hasMounted, show, selectedCategories, searchQuery])
 
   useEffect(() => {
     if (favoritesCheckedRef.current) return
@@ -184,7 +218,7 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
   const handleRefresh = useCallback(async () => {
     if (loading) return
     setLoading(true)
-    const newArticles = await fetchArticles(selectedCategories.length > 0 ? selectedCategories.join(',') : null)
+    const newArticles = await fetchArticles(selectedCategories.length > 0 ? selectedCategories.join(',') : null, undefined, searchQuery || undefined)
     if (newArticles && newArticles.length > 0) {
       setArticles(newArticles)
       setError(false)
@@ -192,7 +226,7 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
       setError(true)
     }
     setLoading(false)
-  }, [loading, selectedCategories])
+  }, [loading, selectedCategories, searchQuery])
 
   const handleBookmark = useCallback(async (article: NewsArticle, isFav: boolean) => {
     const action = isFav ? 'remove' : 'add'
@@ -241,7 +275,7 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
       {!show && hasMounted ? (
         <VisibilityButton color={buttonColor} label="Afficher NEWS" onClick={onToggle || handleToggle} />
       ) : (
-        <div className="flex flex-col overflow-hidden rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow" style={{ maxHeight: infiniteScroll ? undefined : (maxHeight || '700px') }}>
+        <div className={`flex flex-col overflow-hidden rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow ${infiniteScroll ? 'overflow-visible' : ''}`} style={{ maxHeight: infiniteScroll ? undefined : (maxHeight || '700px') }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
@@ -294,6 +328,26 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
             })}
           </div>
 
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Rechercher dans les actualités..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-10 h-10 rounded-lg border border-blue-200 bg-white/80 text-sm text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-100 dark:placeholder:text-blue-500 dark:focus:ring-blue-600"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-400 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
           {error && !loading && (
             <div className="mb-3 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-100/50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
               <p className="text-xs text-blue-700 dark:text-blue-300">
@@ -303,90 +357,111 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
           )}
 
           <div
-            ref={listRef}
-            className="flex-1 space-y-4 overflow-y-auto pr-2"
+            ref={scrollContainerRef}
+            className="pr-2"
+            style={{ height: scrollHeight, overflow: 'auto' }}
           >
-            {articles.map((article, index) => {
-              const categoryStyle = CATEGORY_COLORS[article.category] || CATEGORY_COLORS.allNews
-              const isFav = favorites.has(article.url)
+            <div style={{ height: `${virtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}>
+              {virtualizer.getVirtualItems().map((virtualItem) => {
+                const article = articles[virtualItem.index]
+                const categoryStyle = CATEGORY_COLORS[article.category] || CATEGORY_COLORS.allNews
+                const isFav = favorites.has(article.url)
 
-              return (
+                return (
+                  <div
+                    key={virtualItem.key}
+                    style={{
+                      position: 'absolute',
+                      top: `${virtualItem.start}px`,
+                      left: 0,
+                      width: '100%',
+                    }}
+                  >
+                    <div
+                      ref={virtualizer.measureElement}
+                      data-index={virtualItem.index}
+                      className="mb-4 rounded-lg border border-blue-200 bg-white/60 p-4 dark:border-blue-800 dark:bg-blue-950/20 hover:bg-white/80 dark:hover:bg-blue-950/40 transition-colors"
+                    >
+                      {article.imageUrl && (
+                        <div className="mb-3 overflow-hidden rounded-lg border border-blue-200 dark:border-blue-800">
+                          <img
+                            src={sanitizeUrl(article.imageUrl, '')}
+                            alt={article.title}
+                            loading="lazy"
+                            className="w-full h-64 object-cover transition-opacity hover:opacity-90"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none'
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      <div className="mb-2">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${categoryStyle.border} ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.darkBorder} ${categoryStyle.darkBg} ${categoryStyle.darkText}`}>
+                          {article.category}
+                        </span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-blue-200 bg-blue-50 text-blue-700 ml-2 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
+                          {article.source}
+                        </span>
+                      </div>
+
+                      <div className="mb-2 text-xs text-muted-foreground">
+                        {article.formattedPublishedAt}
+                      </div>
+
+                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                        {article.title}
+                      </h4>
+
+                      {article.description && (
+                        <p className="text-xs leading-relaxed text-blue-700 dark:text-blue-300 mb-3 line-clamp-2">
+                          {article.description}
+                        </p>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        {article.url.startsWith('http') ? (
+                          <Link
+                            href={sanitizeUrl(article.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {t('feed.read_article')}
+                            <ExternalLink className="h-3 w-3" />
+                          </Link>
+                        ) : (
+                          <span className="text-xs text-blue-400 dark:text-blue-500">
+                            {t('feed.no_direct_link')}
+                          </span>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <ShareToLobbyButton resourceId={article.url} resourceType="NEWS" meta={{ title: article.title, description: article.description, imageUrl: article.imageUrl, source: article.source, category: article.category }} />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleBookmark(article, isFav)
+                            }}
+                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
+                            title={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                          >
+                            <Bookmark className={`h-4 w-4 ${isFav ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+              {infiniteScroll && hasMore && (
                 <div
-                  key={`${article.url}-${index}`}
-                  className="rounded-lg border border-blue-200 bg-white/60 p-4 dark:border-blue-800 dark:bg-blue-950/20 hover:bg-white/80 dark:hover:bg-blue-950/40 transition-colors"
-                >
-                  {article.imageUrl && (
-                    <div className="mb-3 overflow-hidden rounded-lg border border-blue-200 dark:border-blue-800">
-                      <img
-                        src={sanitizeUrl(article.imageUrl, '')}
-                        alt={article.title}
-                        loading="lazy"
-                        className="w-full h-64 object-cover transition-opacity hover:opacity-90"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none'
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  <div className="mb-2">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${categoryStyle.border} ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.darkBorder} ${categoryStyle.darkBg} ${categoryStyle.darkText}`}>
-                      {article.category}
-                    </span>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-blue-200 bg-blue-50 text-blue-700 ml-2 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
-                      {article.source}
-                    </span>
-                  </div>
-
-                  <div className="mb-2 text-xs text-muted-foreground">
-                    {article.formattedPublishedAt}
-                  </div>
-
-                  <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                    {article.title}
-                  </h4>
-
-                  {article.description && (
-                    <p className="text-xs leading-relaxed text-blue-700 dark:text-blue-300 mb-3 line-clamp-2">
-                      {article.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    {article.url.startsWith('http') ? (
-                      <Link
-                        href={sanitizeUrl(article.url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {t('feed.read_article')}
-                        <ExternalLink className="h-3 w-3" />
-                      </Link>
-                    ) : (
-                      <span className="text-xs text-blue-400 dark:text-blue-500">
-                        {t('feed.no_direct_link')}
-                      </span>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <ShareToLobbyButton resourceId={article.url} resourceType="NEWS" meta={{ title: article.title, description: article.description, imageUrl: article.imageUrl, source: article.source, category: article.category }} />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleBookmark(article, isFav)
-                        }}
-                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
-                        title={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                      >
-                        <Bookmark className={`h-4 w-4 ${isFav ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-            {infiniteScroll && <div ref={sentinelRef} className="h-1" />}
+                  ref={sentinelRef}
+                  style={{ position: 'absolute', left: 0, top: Math.max(0, virtualizer.getTotalSize() - 100), width: '100%' }}
+                  className="h-1"
+                />
+              )}
+            </div>
           </div>
 
           {infiniteScroll && loading && (
