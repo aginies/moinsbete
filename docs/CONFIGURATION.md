@@ -111,7 +111,6 @@ Endpoints rate limités:
 | `/login` | 5/min | IP client |
 | `/register` | 3/min | IP client |
 | `/api/search` | 30/min | IP client |
-| `/api/topics/suggest` | 10/min | IP client |
 | `/api/saviez-vous` | 20/min | IP client |
 | `/api/radio-france` | 30/min | IP client |
 | `/api/wikipedia-image` | 10/min | IP client |
