@@ -57,6 +57,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string): Pr
     if (excludeUrl) params.set('exclude', excludeUrl)
     const res = await fetch(`/api/bbc-news?${params}`, {
       signal: AbortSignal.timeout(10000),
+      cache: 'no-store',
     })
     const data = await res.json()
     if (!Array.isArray(data) || data.length === 0) return null
