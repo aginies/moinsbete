@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase, Cpu, Film, Trophy, Beaker, Heart, Bitcoin, Brain, Car, Shield, Circle, Search, X } from 'lucide-react'
+import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase, Cpu, Film, Trophy, Beaker, Heart, Bitcoin, Brain, Car, Shield, Circle, Search, X, Filter } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
@@ -103,6 +103,7 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
   const [hasMore, setHasMore] = useState(true)
   const [hasLoaded, setHasLoaded] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showCategories, setShowCategories] = useState(true)
   const favoritesCheckedRef = useRef(false)
   const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'news_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
@@ -304,29 +305,38 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
                   <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               )}
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowCategories(prev => !prev) }}
+                className={`h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 cursor-pointer transition-transform hover:scale-110 ${showCategories ? 'rotate-180' : ''}`}
+                title="Filtres"
+              >
+                <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
+              </button>
               <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 cursor-pointer transition-transform hover:scale-110 ${loading ? 'animate-spin' : ''}`} onClick={(e) => { e.stopPropagation(); handleRefresh() }} />
             </div>
           </div>
 
-          <div className="mb-3 flex flex-wrap gap-1">
-            {CATEGORIES.map(({ key, labelKey, icon: Icon }) => {
-              const isSelected = selectedCategories.includes(key)
-              return (
-                <button
-                  key={key}
-                  onClick={() => handleCategoryChange(key)}
-                  className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-colors ${
-                    isSelected
-                      ? 'border-blue-500 bg-blue-500 text-white dark:border-blue-400 dark:bg-blue-600 dark:text-white'
-                      : 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900/40'
-                  }`}
-                >
-                  <Icon className="h-3 w-3" />
-                  {t(labelKey)}
-                </button>
-              )
-            })}
-          </div>
+          {showCategories && (
+            <div className="mb-3 flex flex-wrap gap-1">
+              {CATEGORIES.map(({ key, labelKey, icon: Icon }) => {
+                const isSelected = selectedCategories.includes(key)
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleCategoryChange(key)}
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-colors ${
+                      isSelected
+                        ? 'border-blue-500 bg-blue-500 text-white dark:border-blue-400 dark:bg-blue-600 dark:text-white'
+                        : 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900/40'
+                    }`}
+                  >
+                    <Icon className="h-3 w-3" />
+                    {t(labelKey)}
+                  </button>
+                )
+              })}
+            </div>
+          )}
 
           <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
