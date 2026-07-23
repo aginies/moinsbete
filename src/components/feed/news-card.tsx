@@ -105,13 +105,13 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
   }, [selectedCategories])
 
   useEffect(() => {
-    if (hasMounted && show && articles.length === 0 && !loading && !error) {
+    if (hasMounted && show && !loading && !error) {
       const timer = setTimeout(() => {
         loadArticles()
       }, 0)
       return () => clearTimeout(timer)
     }
-  }, [hasMounted, show, articles.length, loading, error, loadArticles])
+  }, [hasMounted, show, loadArticles])
 
   useEffect(() => {
     if (favoritesCheckedRef.current) return
@@ -300,8 +300,7 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
 
           <div
             ref={listRef}
-            className={`flex-1 space-y-4 pr-2 ${infiniteScroll ? 'overflow-y-auto' : ''}`}
-            style={infiniteScroll ? undefined : { maxHeight: '700px' }}
+            className="flex-1 space-y-4 overflow-y-auto pr-2"
           >
             {articles.map((article, index) => {
               const categoryStyle = CATEGORY_COLORS[article.category] || CATEGORY_COLORS.allNews
