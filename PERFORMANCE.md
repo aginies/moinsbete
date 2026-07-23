@@ -13,7 +13,7 @@
 | 9 | MEDIUM | `BaseImageCard` not memoized | `base-image-card.tsx` | ❌ Skip (low ROI) |
 | 10 | MEDIUM | Most images use raw `<img>`, skip Next.js optimization | Multiple card components | ⏳ Pending |
 | 11 | MEDIUM | TTL cache unbounded Map growth | `src/lib/ttl-cache.ts` | ✅ Done |
-| 12 | MEDIUM | Bookmark toggle = 2 queries (findFirst + create/delete) | `src/lib/favorite.ts` | ⏳ Pending |
+| 12 | MEDIUM | Bookmark toggle = 2 queries (findFirst + create/delete) | `src/lib/favorite.ts` | ❌ Skip (low ROI) |
 | 13 | LOW | `router.refresh()` overuse (10 locations) | admin, login, sujets | ⏳ Pending |
 | 14 | LOW | Inline date formatting in client component | `admin-content.tsx:510` | ⏳ Pending |
 
