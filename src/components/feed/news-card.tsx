@@ -8,6 +8,7 @@ import { useItemShare } from './use-item-share'
 import { ShareButton } from './share-button'
 import { toggleNewsFavoriteAction, isNewsFavoriteAction } from '@/actions/news-bookmark-actions'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { VisibilityButton } from './visibility-button'
 import { useTranslations } from 'next-intl'
 
@@ -320,16 +321,19 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
                       Lire l'article
                       <ExternalLink className="h-3 w-3" />
                     </Link>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleBookmark(article, isFav)
-                      }}
-                      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
-                      title={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                    >
-                      <Bookmark className={`h-4 w-4 ${isFav ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <ShareToLobbyButton resourceId={article.url} resourceType="NEWS" meta={{ title: article.title, description: article.description, imageUrl: article.imageUrl, source: article.source, category: article.category }} />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleBookmark(article, isFav)
+                        }}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
+                        title={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                      >
+                        <Bookmark className={`h-4 w-4 ${isFav ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
