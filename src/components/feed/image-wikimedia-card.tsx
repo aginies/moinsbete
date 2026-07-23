@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Camera, ExternalLink, X } from 'lucide-react'
 import Link from 'next/link'
 import { BaseImageCard } from './base-image-card'
@@ -86,7 +86,7 @@ async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> 
   }
 }
 
-export function ImageWikimediaCard({
+function ImageWikimediaCardInner({
   userId,
   swipeable = false,
   fullImage = false,
@@ -331,3 +331,4 @@ function WikiLovesTopicsModal({
     </div>
   )
 }
+export const ImageWikimediaCard = React.memo(ImageWikimediaCardInner)

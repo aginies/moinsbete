@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Lightbulb, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { useItemShare } from './use-item-share'
@@ -41,7 +41,7 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
   }
 }
 
-export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: RadioFranceCardProps) {
+function RadioFranceCardInner({ initialDoc, userId, onToggle, isVisible }: RadioFranceCardProps) {
   const [doc, setDoc] = useState<RadioFranceDoc | null>(() => {
     const saved = sessionStorage.getItem('radio_france_doc')
     if (saved) {
@@ -211,3 +211,4 @@ export function RadioFranceCard({ initialDoc, userId, onToggle, isVisible }: Rad
     </div>
   )
 }
+export const RadioFranceCard = React.memo(RadioFranceCardInner)

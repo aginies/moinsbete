@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
@@ -57,7 +57,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
   }
 }
 
-export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }: CnrsNewsCardProps) {
+function CnrsNewsCardInner({ onToggle, userId, showToggle = true, isVisible }: CnrsNewsCardProps) {
   const [article, setArticle] = useState<CnrsArticle | null>(() => {
     const saved = sessionStorage.getItem('cnrs_article')
     return saved ? JSON.parse(saved) : null
@@ -232,3 +232,4 @@ export function CnrsNewsCard({ onToggle, userId, showToggle = true, isVisible }:
     </>
   )
 }
+export const CnrsNewsCard = React.memo(CnrsNewsCardInner)

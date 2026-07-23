@@ -6,6 +6,7 @@ export interface BookmarkManagerActions<Doc extends { id: string }> {
   toggle(docId: string, action?: 'add' | 'remove', meta?: Record<string, unknown>): Promise<{ bookmarked: boolean; wasBookmarked: boolean; error?: string }>
   getFavorites(): Promise<{ favorites: Doc[] }>
   isBookmarked(docId: string): Promise<{ isBookmarked: boolean; error?: string }>
+  isBookmarkedBatch(docIds: string[]): Promise<{ bookmarkedIds: string[]; error?: string }>
 }
 
 export function createBookmarkManagerActions<Doc extends { id: string }>(
@@ -26,6 +27,12 @@ export function createBookmarkManagerActions<Doc extends { id: string }>(
       const session = await getServerSession(authOptions)
       if (!session?.user) return { isBookmarked: false }
       return { isBookmarked: await libManager.isBookmarked(session.user.id, docId) }
+    },
+    async isBookmarkedBatch(docIds) {
+      const session = await getServerSession(authOptions)
+      if (!session?.user) return { bookmarkedIds: [] }
+      const result = await libManager.isBookmarkedBatch(session.user.id, docIds)
+      return { bookmarkedIds: Array.from(result) }
     },
   }
 }

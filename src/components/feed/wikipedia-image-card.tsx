@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Camera, ExternalLink, AlertCircle, Bookmark } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl, sanitizeUrl, generateImageId } from '@/lib/utils'
@@ -51,7 +51,7 @@ async function fetchRandomImage(): Promise<{ data: ImageData | null; error: stri
   }
 }
 
-export const WikipediaImageCard = function WikipediaImageCardInner({
+export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
   fullImage,
   largeImage = false,
   mediumImage = false,
@@ -362,3 +362,4 @@ export const WikipediaImageCard = function WikipediaImageCardInner({
     </>
   )
 }
+)

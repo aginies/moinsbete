@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase, Cpu, Film, Trophy, Beaker, Heart, Bitcoin, Brain, Car, Shield, Circle } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
-import { toggleNewsFavoriteAction, isNewsFavoriteAction } from '@/actions/news-bookmark-actions'
+import { toggleNewsFavoriteAction, isNewsFavoriteAction, isNewsFavoriteBatchAction } from '@/actions/news-bookmark-actions'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { VisibilityButton } from './visibility-button'
@@ -19,6 +19,7 @@ export interface NewsArticle {
   source: string
   category: string
   publishedAt: string
+  formattedPublishedAt: string
 }
 
 interface NewsCardProps {
@@ -87,7 +88,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string): Pr
   }
 }
 
-export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
+function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
   const t = useTranslations()
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
@@ -129,19 +130,10 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
     if (favoritesCheckedRef.current) return
     if (userId && articles.length > 0) {
       const checkFavorites = async () => {
-        const checked = new Set<string>()
-        for (const article of articles) {
-          if (!favorites.has(article.url)) {
-            try {
-              const result = await isNewsFavoriteAction(article.url)
-              if (result.isBookmarked) {
-                checked.add(article.url)
-              }
-            } catch { /* ignore */ }
-          }
-        }
-        if (checked.size > 0) {
-          setFavorites(prev => new Set([...prev, ...checked]))
+        const urls = articles.map(a => a.url)
+        const result = await isNewsFavoriteBatchAction(urls)
+        if (result.bookmarkedIds.length > 0) {
+          setFavorites(prev => new Set([...prev, ...result.bookmarkedIds]))
         }
       }
       checkFavorites()
@@ -347,7 +339,7 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
                   </div>
 
                   <div className="mb-2 text-xs text-muted-foreground">
-                    {new Date(article.publishedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {article.formattedPublishedAt}
                   </div>
 
                   <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
@@ -429,3 +421,4 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
     </>
   )
 }
+export const NewsCard = React.memo(NewsCardInner)

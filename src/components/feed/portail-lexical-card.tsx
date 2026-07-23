@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Languages, Bookmark, ExternalLink, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
@@ -52,7 +52,7 @@ async function fetchWordOfTheDay(): Promise<PortailLexicalWord | null> {
   }
 }
 
-export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = true }: PortailLexicalCardProps) {
+function PortailLexicalCardInner({ userId, onToggle, isVisible, showToggle = true }: PortailLexicalCardProps) {
   const [word, setWord] = useState<PortailLexicalWord | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -277,3 +277,4 @@ export function PortailLexicalCard({ userId, onToggle, isVisible, showToggle = t
     </>
   )
 }
+export const PortailLexicalCard = React.memo(PortailLexicalCardInner)
