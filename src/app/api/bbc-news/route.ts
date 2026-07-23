@@ -3,7 +3,6 @@ import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE, BBC_NEWS_DISPLAY_LIMIT } from '@/lib/constants'
-import bbcNewsData from '@/data/bbc-news.json'
 
 interface BbcArticle {
   title: string
@@ -45,30 +44,6 @@ async function fetchFromCache(categories: string[]): Promise<BbcArticle[]> {
   }))
 }
 
-function fetchFromJson(categories: string[]): BbcArticle[] {
-  const data = bbcNewsData as Record<string, BbcArticle[]>
-  
-  if (categories.length === 0) {
-    return data.allNews || []
-  }
-  
-  const articles: BbcArticle[] = []
-  const seenUrls = new Set<string>()
-  
-  for (const cat of categories) {
-    if (data[cat]) {
-      for (const article of data[cat]) {
-        if (!seenUrls.has(article.url)) {
-          seenUrls.add(article.url)
-          articles.push(article)
-        }
-      }
-    }
-  }
-  
-  return articles
-}
-
 export async function GET(request: NextRequest) {
   const clientId = getClientIp(request)
   if (!(await checkRateLimit(`bbc-news:${clientId}`, 30, 60_000))) {
@@ -81,13 +56,7 @@ export async function GET(request: NextRequest) {
 
   const categories = categoriesParam ? categoriesParam.split(',').filter(Boolean) : []
 
-  // Try DB cache first
   let articles = await fetchFromCache(categories)
-  
-  // Fallback to JSON
-  if (articles.length === 0) {
-    articles = fetchFromJson(categories)
-  }
 
   if (articles.length === 0) {
     return NextResponse.json([])
