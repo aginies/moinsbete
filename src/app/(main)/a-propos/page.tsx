@@ -312,7 +312,7 @@ export default function AproposPage() {
           <p className="text-muted-foreground">
             La carte NEWS propose des actualités internationales provenant de FreeNewsAPI.
             Les articles sont classés par catégories (monde, entreprise, technologie, sport, etc.)
-            et mis à jour automatiquement trois fois par jour.
+            et mis à jour automatiquement cinq fois par jour.
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Les articles sont mis en cache pendant 24 heures. En mode développement,
