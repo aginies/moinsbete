@@ -52,7 +52,7 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
     const params = new URLSearchParams({
       language: 'fr',
       country: 'fr',
-      order_by: 'published_at',
+      order_by: 'recent',
       page_size: '100',
       topic: CATEGORY_MAP[category],
     })
@@ -60,7 +60,7 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
     const url = `${FREE_NEWS_API_BASE}/news?${params.toString()}`
     const res = await fetch(url, {
       headers: { 'x-api-key': FREE_NEWS_API_KEY },
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(30000),
     })
     
     if (!res.ok) {
@@ -101,6 +101,9 @@ export async function scrapeAndCacheNews(): Promise<void> {
     console.log(`\n  Category: ${category}`)
     const articles = await fetchFromApi(category)
     allArticles.push(...articles)
+    if (category !== CATEGORIES[CATEGORIES.length - 1]) {
+      await new Promise(resolve => setTimeout(resolve, 600))
+    }
   }
 
   if (allArticles.length === 0) {
