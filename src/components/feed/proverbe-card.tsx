@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Quote, Bookmark, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
@@ -49,7 +49,7 @@ async function fetchRandomProverbe(): Promise<Proverbe | null> {
   }
 }
 
-export function ProverbeCard({ 
+function ProverbeCardInner({ 
   userId, 
   onToggle, 
   isVisible, 
@@ -245,3 +245,4 @@ export function ProverbeCard({
     </>
   )
 }
+export const ProverbeCard = React.memo(ProverbeCardInner)

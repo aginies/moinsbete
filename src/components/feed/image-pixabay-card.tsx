@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play, Maximize, Minimize } from 'lucide-react'
 import Link from 'next/link'
 import { useItemShare } from './use-item-share'
@@ -68,7 +68,7 @@ function formatTime(seconds: number, empty = '0:00'): string {
   return `0:${secs.toString().padStart(2, '0')}`
 }
 
-export function ImagePixabayCard({
+function ImagePixabayCardInner({
   userId,
   swipeable = false,
   fullImage = false,
@@ -431,3 +431,4 @@ export function ImagePixabayCard({
     </>
   )
 }
+export const ImagePixabayCard = React.memo(ImagePixabayCardInner)

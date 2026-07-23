@@ -8,3 +8,4 @@ const actions = createBookmarkActions(newsManager)
 export const toggleNewsFavoriteAction = actions.toggle
 export const getNewsFavoritesAction = actions.getFavorites
 export const isNewsFavoriteAction = actions.isBookmarked
+export const isNewsFavoriteBatchAction = actions.isBookmarkedBatch

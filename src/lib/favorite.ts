@@ -48,6 +48,15 @@ export async function isBookmarked(userId: string, type: BookmarkType, resourceI
   return !!existing
 }
 
+export async function isBookmarkedBatch(userId: string, type: BookmarkType, resourceIds: string[]): Promise<Set<string>> {
+  if (resourceIds.length === 0) return new Set()
+  const bookmarks = await prisma.bookmark.findMany({
+    where: { userId, type, resourceId: { in: resourceIds } },
+    select: { resourceId: true },
+  })
+  return new Set(bookmarks.map(b => b.resourceId!).filter((v): v is string => v !== null))
+}
+
 export async function getBookmarks(userId: string, type: BookmarkType): Promise<BookmarkItem[]> {
   return prisma.bookmark.findMany({
     where: { userId, type },

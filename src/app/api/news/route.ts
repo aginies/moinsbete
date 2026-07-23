@@ -12,9 +12,10 @@ interface BbcArticle {
   source: string
   category: string
   publishedAt: string
+  formattedPublishedAt: string
 }
 
-async function fetchFromCache(categories: string[]): Promise<BbcArticle[]> {
+async function fetchFromCache(categories: string[], limit: number): Promise<BbcArticle[]> {
   const now = new Date()
   const queryWhere: { expiresAt: { gte: Date }; category?: string | { in: string[] } } = {
     expiresAt: { gte: now },
@@ -26,10 +27,10 @@ async function fetchFromCache(categories: string[]): Promise<BbcArticle[]> {
    const count = await prisma.cachedNewsArticle.count({ where: queryWhere })
   if (count === 0) return []
 
-  const limit = 250
+  const take = Math.min(limit + 20, count)
    const articles = await prisma.cachedNewsArticle.findMany({
     where: queryWhere,
-    take: limit,
+    take: take,
     orderBy: { scrapedAt: 'desc' },
   })
 
@@ -41,6 +42,7 @@ async function fetchFromCache(categories: string[]): Promise<BbcArticle[]> {
     source: a.source,
     category: a.category,
     publishedAt: a.publishedAt?.toISOString() || '',
+    formattedPublishedAt: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
   }))
 }
 
@@ -54,7 +56,7 @@ export async function GET(request: NextRequest) {
   const categoriesParam = searchParams.get('categories') || null
   const excludeUrl = searchParams.get('exclude') || null
   const cursor = searchParams.get('cursor') || null
-  const limit = parseInt(searchParams.get('limit') || '25', 10)
+  const limit = parseInt(searchParams.get('limit') || '10', 10)
 
   const categories = categoriesParam ? categoriesParam.split(',').filter(Boolean) : []
 
@@ -85,9 +87,10 @@ export async function GET(request: NextRequest) {
       source: a.source,
       category: a.category,
       publishedAt: a.publishedAt?.toISOString() || '',
+      formattedPublishedAt: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
     }))
   } else {
-    articles = await fetchFromCache(categories)
+    articles = await fetchFromCache(categories, limit)
 
     if (articles.length === 0) {
       return NextResponse.json({ articles: [], hasMore: false })
