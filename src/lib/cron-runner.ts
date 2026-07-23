@@ -1,6 +1,6 @@
 import cron, { ScheduledTask } from 'node-cron'
 
-const CRON_SCHEDULE = '0 6,12,18 * * *'
+const CRON_SCHEDULE = '0 6,12,15,16,21 * * *'
 const API_URL = process.env.NEXTAUTH_URL 
   ? `${process.env.NEXTAUTH_URL}/api/cron/cache`
   : `http://localhost:3000/api/cron/cache`
