@@ -26,7 +26,7 @@ interface BbcArticle {
   publishedAt: string
 }
 
-const CATEGORIES = ['allNews', 'world', 'business', 'tech', 'entertainment', 'sports', 'science', 'health'] as const
+const CATEGORIES = ['allNews', 'world', 'business', 'tech', 'entertainment', 'sports', 'science', 'health', 'crypto', 'ai', 'cinema', 'auto'] as const
 
 async function fetchFromApi(category: string): Promise<BbcArticle[]> {
   if (!NEWS_API_KEY) {
