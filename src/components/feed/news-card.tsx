@@ -317,12 +317,12 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
                         className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {t('read_article')}
+                        {t('feed.read_article')}
                         <ExternalLink className="h-3 w-3" />
                       </Link>
                     ) : (
                       <span className="text-xs text-blue-400 dark:text-blue-500">
-                        {t('no_direct_link')}
+                        {t('feed.no_direct_link')}
                       </span>
                     )}
                     <div className="flex items-center gap-2">
