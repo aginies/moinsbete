@@ -76,7 +76,10 @@ export async function GET(request: NextRequest) {
 
     const ideas = await prisma.idea.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
         source: { select: { title: true, type: true, url: true, coverUrl: true } },
         ideaTopics: {
           include: {
