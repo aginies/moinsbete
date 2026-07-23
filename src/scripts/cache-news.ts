@@ -322,9 +322,26 @@ export async function scrapeAndCacheNews(): Promise<void> {
 
   const allArticles: NewsArticle[] = []
 
-  for (let catIdx = 0; catIdx < CATEGORIES.length; catIdx++) {
-    const category = CATEGORIES[catIdx]
-    console.log(`\n═══ Category ${catIdx + 1}/${CATEGORIES.length}: ${category} ═══`)
+  const categoryArg = process.argv.find(arg => arg.startsWith('--category='))
+  const selectedCategory = categoryArg ? categoryArg.split('=')[1] : null
+  const categoriesToFetch = selectedCategory
+    ? CATEGORIES.filter(c => c === selectedCategory)
+    : CATEGORIES
+
+  if (selectedCategory && categoriesToFetch.length === 0) {
+    console.log(`  ⚠️ Category "${selectedCategory}" not found. Available: ${CATEGORIES.join(', ')}`)
+    return
+  }
+
+  console.log(`   Categories: ${selectedCategory || 'all (' + categoriesToFetch.length + ')'}`)
+  console.log('')
+
+  for (let catIdx = 0; catIdx < categoriesToFetch.length; catIdx++) {
+    const category = categoriesToFetch[catIdx]
+    const globalIdx = selectedCategory
+      ? 1
+      : CATEGORIES.indexOf(category) + 1
+    console.log(`\n═══ Category ${globalIdx}/${CATEGORIES.length}: ${category} ═══`)
 
     const articles = await fetchFromApi(category)
     allArticles.push(...articles)
