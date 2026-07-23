@@ -11,7 +11,7 @@ import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { VisibilityButton } from './visibility-button'
 import { useTranslations } from 'next-intl'
 
-interface NewsArticle {
+export interface NewsArticle {
   title: string
   description: string
   url: string
@@ -28,7 +28,7 @@ interface NewsCardProps {
   isVisible?: boolean
   linkHref?: string
   infiniteScroll?: boolean
-  onLoadMore?: (cursor: string) => Promise<void>
+  onLoadMore?: (cursor: string, currentArticles: NewsArticle[], currentCategories: string[]) => Promise<{ articles: NewsArticle[]; hasMore: boolean }>
 }
 
 const CATEGORIES = [
@@ -140,7 +140,13 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
         if (entries[0].isIntersecting && !loading) {
           const lastArticle = articles[articles.length - 1]
           if (lastArticle) {
-            onLoadMore(lastArticle.url)
+            onLoadMore(lastArticle.url, articles, selectedCategories).then(result => {
+              setArticles(prev => [...prev, ...result.articles])
+              setHasMore(result.hasMore)
+              setHasLoaded(true)
+            }).catch(() => {
+              setHasLoaded(true)
+            })
           }
         }
       },
@@ -151,7 +157,7 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
     if (sentinel) observer.observe(sentinel)
 
     return () => observer.disconnect()
-  }, [infiniteScroll, onLoadMore, hasMore, loading, articles])
+  }, [infiniteScroll, onLoadMore, hasMore, loading, articles, selectedCategories])
 
   const handleCategoryChange = useCallback((category: string) => {
     setSelectedCategories(prev => {
