@@ -155,7 +155,7 @@ npx tsx scripts/insert_saviez_vous.ts
 | `cache-radio-france.ts` | Épisodes Radio France | 24h | Quotidien |
 | `cache-wikipedia-image.ts` | Images Wikipédia | 30 jours | Mensuel |
 | `scrape-wikiloves.ts` | Images Wiki Loves | 30 jours | Mensuel |
-| `cache-news.ts` | Actualités NEWS (FreeNewsAPI) | 6h | 3x/jour (6h, 12h, 18h) |
+| `cache-news.ts` | Actualités NEWS (FreeNewsAPI) | 24h | 3x/jour (6h, 12h, 18h) |
 
 `npm run cache:all` lance cache-cnrs, cache-radio-france, cache-wikipedia-image + cleanup (pas scrape-wikiloves).
 
