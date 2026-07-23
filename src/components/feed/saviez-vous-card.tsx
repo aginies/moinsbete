@@ -71,7 +71,10 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     if (typeof sessionStorage === 'undefined') return { id, text, sourceUrl, imageFilename }
     const saved = sessionStorage.getItem('saviez_vous_fact')
     if (saved) {
-      try { return JSON.parse(saved) } catch { /* ignore */ }
+      try {
+        const parsed = JSON.parse(saved)
+        if (parsed.id === id) return parsed
+      } catch { /* ignore */ }
     }
     return { id, text, sourceUrl, imageFilename }
   })
