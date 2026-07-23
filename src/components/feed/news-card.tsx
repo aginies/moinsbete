@@ -5,7 +5,6 @@ import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase,
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
-import { ShareButton } from './share-button'
 import { toggleNewsFavoriteAction, isNewsFavoriteAction } from '@/actions/news-bookmark-actions'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
@@ -227,7 +226,6 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
                 </button>
               )}
               <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 cursor-pointer transition-transform hover:scale-110 ${loading ? 'animate-spin' : ''}`} onClick={(e) => { e.stopPropagation(); handleRefresh() }} />
-              <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
             </div>
           </div>
 
