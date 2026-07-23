@@ -71,7 +71,7 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, on
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
-        <ShareToLobbyButton resourceId={item.fileUrl} resourceType="IMAGE_DU_JOUR" />
+        <ShareToLobbyButton resourceId={item.fileUrl} resourceType="IMAGE_DU_JOUR" meta={{ imageUrl: item.imageUrl, description: item.description, fileUrl: item.fileUrl, date: item.date }} />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-teal-600 opacity-60 hover:opacity-100 hover:text-teal-800 hover:bg-teal-100 dark:text-teal-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"
