@@ -51,7 +51,7 @@ const CATEGORY_MAP: Record<string, string> = {
 
 const CATEGORIES = Object.keys(CATEGORY_MAP) as Array<keyof typeof CATEGORY_MAP>
 
-async function fetchArticleDetail(uuid: string): Promise<{ imageUrl: string; url: string }> {
+async function fetchArticleDetail(uuid: string, publisher?: string): Promise<{ imageUrl: string; url: string }> {
   try {
     const res = await fetch(`${FREE_NEWS_API_BASE}/details?uuid=${uuid}`, {
       headers: { 'x-api-key': FREE_NEWS_API_KEY },
@@ -61,19 +61,40 @@ async function fetchArticleDetail(uuid: string): Promise<{ imageUrl: string; url
     if (!res.ok) {
       return {
         imageUrl: '',
-        url: `https://www.freenewsapi.io/v1/details?uuid=${uuid}`,
+        url: publisher || '',
       }
     }
 
     const data: FreeNewsArticleDetail = await res.json()
     return {
       imageUrl: data.data?.thumbnail || '',
-      url: data.data?.original_url || `https://www.freenewsapi.io/v1/details?uuid=${uuid}`,
+      url: data.data?.original_url || (publisher || ''),
     }
   } catch {
-    return {
-      imageUrl: '',
-      url: `https://www.freenewsapi.io/v1/details?uuid=${uuid}`,
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      const res = await fetch(`${FREE_NEWS_API_BASE}/details?uuid=${uuid}`, {
+        headers: { 'x-api-key': FREE_NEWS_API_KEY },
+        signal: AbortSignal.timeout(10000),
+      })
+      
+      if (!res.ok) {
+        return {
+          imageUrl: '',
+          url: publisher || '',
+        }
+      }
+
+      const data: FreeNewsArticleDetail = await res.json()
+      return {
+        imageUrl: data.data?.thumbnail || '',
+        url: data.data?.original_url || (publisher || ''),
+      }
+    } catch {
+      return {
+        imageUrl: '',
+        url: publisher || '',
+      }
     }
   }
 }
@@ -85,7 +106,7 @@ async function fetchArticlesWithDetails(articles: Array<{ uuid: string; title: s
   for (let i = 0; i < articles.length; i += batchSize) {
     const batch = articles.slice(i, i + batchSize)
     const details = await Promise.all(
-      batch.map(article => fetchArticleDetail(article.uuid))
+      batch.map(article => fetchArticleDetail(article.uuid, article.publisher))
     )
 
     for (let j = 0; j < batch.length; j++) {
