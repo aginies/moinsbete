@@ -72,7 +72,7 @@ export default function AproposPage() {
           <p className="text-muted-foreground">
             Le contenu de MoinsBête provient de multiples sources :
             Wikipédia en français pour les idées et faits, Wiktionary pour les proverbes, le journal du CNRS pour les actualités scientifiques,
-            la NewsAPI pour les actualités internationales,
+            la FreeNewsAPI pour les actualités internationales,
             Wikimedia Commons pour les images, Radio France pour les documentaires audio, et Pixabay pour les vidéos d&apos;ambiance.
             L&apos;IA analyse, résume et structure le contenu pour offrir des idées claires et digestes.
           </p>
@@ -310,7 +310,7 @@ export default function AproposPage() {
         <section>
           <h2 className="mb-3 text-xl font-semibold">Actualités mondiales</h2>
           <p className="text-muted-foreground">
-            La carte NEWS propose des actualités internationales provenant de la NewsAPI.
+            La carte NEWS propose des actualités internationales provenant de FreeNewsAPI.
             Les articles sont classés par catégories (monde, entreprise, technologie, sport, etc.)
             et mis à jour automatiquement trois fois par jour.
           </p>
@@ -425,7 +425,7 @@ export default function AproposPage() {
             un apprentissage actif et intentionnel. Chaque idée est conçue pour
             être digérée en quelques minutes, tout en restant mémorable et
             actionnable.     Le contenu est soigneusement sélectionné et enrichi depuis
-            Wikipédia, le CNRS, la NewsAPI, Wikimedia Commons, Radio France et d&apos;autres sources
+            Wikipédia, le CNRS, FreeNewsAPI, Wikimedia Commons, Radio France et d&apos;autres sources
             de qualité en français.
           </p>
         </section>
