@@ -211,7 +211,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       isGloballyVisible: globalVisibility?.news ?? true,
       toggle: toggleNews,
       renderCard: () => (
-        <NewsCard onToggle={toggleNews} userId={userId} isVisible={visibility.news} />
+        <NewsCard onToggle={toggleNews} userId={userId} isVisible={visibility.news} linkHref="/news" />
       ),
     },
     {
