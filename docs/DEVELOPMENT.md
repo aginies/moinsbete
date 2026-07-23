@@ -43,7 +43,6 @@
 | `/api/user-card-order` | GET/POST | Get/set user card order (CSRF) | — |
 | `/api/wikimedia-topics` | GET/POST | User wikimedia topics (CSRF) | — |
 | `/api/image-wikiloves-topics` | POST | Toggle wiki loves topics (CSRF) | — |
-| `/api/topics/suggest` | POST | Suggestion de topic via LLM | 10/min IP |
 | `/api/auth/reset-password/generate` | POST | Générer token reset | 3/min IP |
 | `/api/auth/reset-password` | POST | Reset mot de passe | 5/min IP |
 | `/api/admin/suggestions/[id]/approve` | POST | Approuver suggestion (admin) | — |
