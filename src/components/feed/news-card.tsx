@@ -309,16 +309,22 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
                   )}
 
                   <div className="flex items-center justify-between">
-                    <Link
-                      href={sanitizeUrl(article.url)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Lire l'article
-                      <ExternalLink className="h-3 w-3" />
-                    </Link>
+                    {article.url.startsWith('http') ? (
+                      <Link
+                        href={sanitizeUrl(article.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {t('read_article')}
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    ) : (
+                      <span className="text-xs text-blue-400 dark:text-blue-500">
+                        {t('no_direct_link')}
+                      </span>
+                    )}
                     <div className="flex items-center gap-2">
                       <ShareToLobbyButton resourceId={article.url} resourceType="NEWS" meta={{ title: article.title, description: article.description, imageUrl: article.imageUrl, source: article.source, category: article.category }} />
                       <button
