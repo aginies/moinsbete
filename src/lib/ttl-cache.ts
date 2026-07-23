@@ -5,16 +5,20 @@ export interface CacheEntry<T> {
 
 export interface TtlCacheOptions {
   ttlMs: number
+  maxSize?: number
 }
 
 export function createTtlCache<T>(options?: TtlCacheOptions) {
   const cache = new Map<string, CacheEntry<T>>()
   const ttlMs = options?.ttlMs ?? 5 * 60 * 1000
+  const maxSize = options?.maxSize ?? 1000
 
   function get(key: string): T | null {
     const entry = cache.get(key)
     if (!entry) return null
     if (entry.expiresAt > Date.now()) {
+      cache.delete(key)
+      cache.set(key, entry)
       return entry.value
     }
     cache.delete(key)
@@ -22,6 +26,10 @@ export function createTtlCache<T>(options?: TtlCacheOptions) {
   }
 
   function set(key: string, value: T): void {
+    if (cache.size >= maxSize) {
+      const firstKey = cache.keys().next().value
+      if (firstKey !== undefined) cache.delete(firstKey)
+    }
     cache.set(key, {
       value,
       expiresAt: Date.now() + ttlMs,
