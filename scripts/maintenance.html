@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MoinsBête — Mise à jour</title>
+  <meta http-equiv="refresh" content="10">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Comets_Kick_up_Dust_in_Helix_Nebula_%28PIA09178%29.jpg/1280px-Comets_Kick_up_Dust_in_Helix_Nebula_%28PIA09178%29.jpg') center/cover no-repeat fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 96px 16px 32px;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 0;
+    }
+    .card {
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon { color: #f87171; }
+    h2 { color: #fff; font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+    p { color: rgba(255,255,255,0.8); font-size: 0.875rem; margin-bottom: 4px; }
+    .hint { color: #fbbf24; font-size: 0.875rem; font-weight: 500; margin-bottom: 24px; }
+    .loader {
+      display: inline-block;
+      width: 24px; height: 24px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .refresh-hint { color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+    <h2>MoinsBête est en mise à jour</h2>
+    <p>Nous mettons à jour l'application pour l'améliorer.</p>
+    <div class="loader"></div>
+    <p class="hint">Veuillez réessayer dans quelques instants.</p>
+    <p class="refresh-hint">La page se rafraîchit automatiquement…</p>
+  </div>
+</body>
+</html>
