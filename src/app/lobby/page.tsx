@@ -180,7 +180,26 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const enrichBookmark = async (bookmark: SharedLobbyBookmark & { idea: any; user: any }): Promise<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any }> => {
       if (bookmark.resourceType === 'SAVIEZ_VOUS' && bookmark.resourceId) {
         const fact = saviezMap.get(bookmark.resourceId)
-        return { ...bookmark, saviezFact: fact as SaviezVousFact | null }
+        if (fact) return { ...bookmark, saviezFact: fact as SaviezVousFact | null }
+        if (bookmark.meta) {
+          let meta = bookmark.meta as JsonValue | null
+          if (typeof meta === 'string') {
+            try { meta = JSON.parse(meta) as JsonValue } catch { meta = {} }
+          }
+          if (typeof meta === 'object' && meta !== null && 'text' in meta) {
+            const m = meta as Record<string, unknown>
+            return {
+              ...bookmark,
+              saviezFact: {
+                id: bookmark.resourceId,
+                text: (m.text || '') as string,
+                sourceUrl: (m.sourceUrl || m.url || null) as string | null,
+                imageFilename: (m.imageFilename || null) as string | null,
+              } as SaviezVousFact,
+            }
+          }
+        }
+        return { ...bookmark, saviezFact: null }
       }
       if (bookmark.resourceType === 'IMAGE_DU_JOUR' && bookmark.resourceId) {
         let image = imageMap.get(bookmark.resourceId)
@@ -328,7 +347,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       return bookmark
     }
 
-    const enrichedBookmarks = await Promise.all(sharedBookmarks.map(enrichBookmark)).then(bookmarks => bookmarks.map(b => ({ ...b, formattedCreatedAt: b.createdAt.toLocaleDateString(locale) }))) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any; formattedCreatedAt: string }>
+    const enrichedBookmarks = await Promise.all(sharedBookmarks.map(enrichBookmark)).then(bookmarks => bookmarks.map(b => ({ ...b, sharedToCommunity: b.sharedWithUserId === null, sharedWithUsers: [], formattedCreatedAt: b.createdAt.toLocaleDateString(locale) }))) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any; formattedCreatedAt: string; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }>
 
     const enrichedSharedWithMe = await Promise.all(sharedWithMeBookmarks.map(enrichBookmark)).then(bookmarks => bookmarks.map(b => ({ ...b, formattedCreatedAt: b.createdAt.toLocaleDateString(locale) }))) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any; formattedCreatedAt: string }>
 
