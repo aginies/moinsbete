@@ -13,7 +13,7 @@ export function NewsPageClient({ userId }: { userId?: string }) {
       const params = new URLSearchParams()
       if (categories.length > 0) params.set('categories', categories.join(','))
       params.set('cursor', cursor)
-      params.set('limit', '25')
+      params.set('limit', '500')
 
       const res = await fetch(`/api/news?${params}`, {
         signal: AbortSignal.timeout(10000),
