@@ -29,6 +29,7 @@ interface NewsCardProps {
   linkHref?: string
   infiniteScroll?: boolean
   onLoadMore?: (cursor: string, currentArticles: NewsArticle[], currentCategories: string[]) => Promise<{ articles: NewsArticle[]; hasMore: boolean }>
+  maxHeight?: string
 }
 
 const CATEGORIES = [
@@ -74,7 +75,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string): Pr
   }
 }
 
-export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore }: NewsCardProps) {
+export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
   const t = useTranslations()
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
@@ -236,7 +237,7 @@ export function NewsCard({ onToggle, userId, showToggle = true, isVisible, linkH
       {!show && hasMounted ? (
         <VisibilityButton color={buttonColor} label="Afficher NEWS" onClick={onToggle || handleToggle} />
       ) : (
-        <div className="flex h-full flex-col rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow">
+        <div className="flex flex-col rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow" style={{ maxHeight: infiniteScroll ? undefined : (maxHeight || '700px'), overflow: 'hidden' }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
