@@ -66,8 +66,9 @@ async function fetchArticles(categories: string | null, excludeUrl?: string): Pr
       cache: 'no-store',
     })
     const data = await res.json()
-    if (!Array.isArray(data) || data.length === 0) return null
-    return data
+    const articles = Array.isArray(data) ? data : (data.articles || [])
+    if (articles.length === 0) return null
+    return articles
   } catch {
     return null
   }
