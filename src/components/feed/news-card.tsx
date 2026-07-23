@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase, Cpu, Film, Trophy, Beaker, Heart, Bitcoin, Brain, Car, Shield, GolfClub } from 'lucide-react'
+import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase, Cpu, Film, Trophy, Beaker, Heart, Bitcoin, Brain, Car, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
@@ -41,7 +41,7 @@ const CATEGORIES = [
   { key: 'science', labelKey: 'feed.science', icon: Beaker },
   { key: 'health', labelKey: 'feed.health', icon: Heart },
   { key: 'digital currencies', labelKey: 'feed.crypto', icon: Bitcoin },
-  { key: 'golf', labelKey: 'feed.golf', icon: GolfClub },
+  { key: 'golf', labelKey: 'feed.golf', icon: Trophy },
   { key: 'vehicles', labelKey: 'feed.vehicles', icon: Car },
   { key: 'internet security', labelKey: 'feed.internet_security', icon: Shield },
   { key: 'movies', labelKey: 'feed.movies', icon: Film },
