@@ -17,6 +17,17 @@ interface FreeNewsApiResponse {
   }
 }
 
+interface FreeNewsArticleDetail {
+  data: {
+    uuid: string
+    title: string
+    thumbnail?: string
+    original_url: string
+    publisher: string
+    published_at: string
+  }
+}
+
 interface NewsArticle {
   title: string
   description: string
@@ -40,13 +51,70 @@ const CATEGORY_MAP: Record<string, string> = {
 
 const CATEGORIES = Object.keys(CATEGORY_MAP) as Array<keyof typeof CATEGORY_MAP>
 
+async function fetchArticleDetail(uuid: string): Promise<{ imageUrl: string; url: string }> {
+  try {
+    const res = await fetch(`${FREE_NEWS_API_BASE}/details?uuid=${uuid}`, {
+      headers: { 'x-api-key': FREE_NEWS_API_KEY },
+      signal: AbortSignal.timeout(10000),
+    })
+    
+    if (!res.ok) {
+      return {
+        imageUrl: '',
+        url: `https://www.freenewsapi.io/v1/details?uuid=${uuid}`,
+      }
+    }
+
+    const data: FreeNewsArticleDetail = await res.json()
+    return {
+      imageUrl: data.data?.thumbnail || '',
+      url: data.data?.original_url || `https://www.freenewsapi.io/v1/details?uuid=${uuid}`,
+    }
+  } catch {
+    return {
+      imageUrl: '',
+      url: `https://www.freenewsapi.io/v1/details?uuid=${uuid}`,
+    }
+  }
+}
+
+async function fetchArticlesWithDetails(articles: Array<{ uuid: string; title: string; published_at: string; publisher: string }>, category: string): Promise<NewsArticle[]> {
+  const batchSize = 10
+  const results: NewsArticle[] = []
+
+  for (let i = 0; i < articles.length; i += batchSize) {
+    const batch = articles.slice(i, i + batchSize)
+    const details = await Promise.all(
+      batch.map(article => fetchArticleDetail(article.uuid))
+    )
+
+    for (let j = 0; j < batch.length; j++) {
+      const article = batch[j]
+      const detail = details[j]
+      results.push({
+        title: article.title,
+        description: '',
+        url: detail.url,
+        imageUrl: detail.imageUrl,
+        source: article.publisher,
+        category,
+        publishedAt: article.published_at,
+      })
+    }
+
+    if (i + batchSize < articles.length) {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
+  }
+
+  return results
+}
+
 async function fetchFromApi(category: string): Promise<NewsArticle[]> {
   if (!FREE_NEWS_API_KEY) {
     console.log(`  ⚠️ FREE_NEWS_API_KEY not set, skipping ${category}`)
     return []
   }
-
-  const allArticles: NewsArticle[] = []
 
   try {
     const params = new URLSearchParams({
@@ -73,24 +141,15 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
       return []
     }
 
-    for (const article of data.data) {
-      allArticles.push({
-        title: article.title,
-        description: '',
-        url: `https://www.freenewsapi.io/v1/details?uuid=${article.uuid}`,
-        imageUrl: '',
-        source: article.publisher,
-        category,
-        publishedAt: article.published_at,
-      })
-    }
+    const articles = await fetchArticlesWithDetails(data.data, category)
 
-    console.log(`  ${category}: ${data.data.length} articles`)
+    console.log(`  ${category}: ${articles.length} articles`)
+    return articles
   } catch {
     console.log(`  ${category}: erreur`)
   }
 
-  return allArticles
+  return []
 }
 
 export async function scrapeAndCacheNews(): Promise<void> {
