@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase, Cpu, Film, Trophy, Beaker, Heart } from 'lucide-react'
+import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase, Cpu, Film, Trophy, Beaker, Heart, Bitcoin, Brain, Car } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
@@ -37,6 +37,10 @@ const CATEGORIES = [
   { key: 'sports', labelKey: 'feed.sports', icon: Trophy },
   { key: 'science', labelKey: 'feed.science', icon: Beaker },
   { key: 'health', labelKey: 'feed.health', icon: Heart },
+  { key: 'crypto', labelKey: 'feed.crypto', icon: Bitcoin },
+  { key: 'ai', labelKey: 'feed.ai', icon: Brain },
+  { key: 'cinema', labelKey: 'feed.cinema', icon: Film },
+  { key: 'auto', labelKey: 'feed.auto', icon: Car },
 ] as const
 
 const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string; darkBorder: string; darkBg: string; darkText: string }> = {
@@ -48,6 +52,10 @@ const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string
   sports: { border: 'border-orange-400', bg: 'bg-orange-100', text: 'text-orange-800', darkBorder: 'dark:border-orange-700', darkBg: 'dark:bg-orange-900/40', darkText: 'dark:text-orange-300' },
   science: { border: 'border-cyan-400', bg: 'bg-cyan-100', text: 'text-cyan-800', darkBorder: 'dark:border-cyan-700', darkBg: 'dark:bg-cyan-900/40', darkText: 'dark:text-cyan-300' },
   health: { border: 'border-red-400', bg: 'bg-red-100', text: 'text-red-800', darkBorder: 'dark:border-red-700', darkBg: 'dark:bg-red-900/40', darkText: 'dark:text-red-300' },
+  crypto: { border: 'border-amber-400', bg: 'bg-amber-100', text: 'text-amber-800', darkBorder: 'dark:border-amber-700', darkBg: 'dark:bg-amber-900/40', darkText: 'dark:text-amber-300' },
+  ai: { border: 'border-purple-400', bg: 'bg-purple-100', text: 'text-purple-800', darkBorder: 'dark:border-purple-700', darkBg: 'dark:bg-purple-900/40', darkText: 'dark:text-purple-300' },
+  cinema: { border: 'border-yellow-400', bg: 'bg-yellow-100', text: 'text-yellow-800', darkBorder: 'dark:border-yellow-700', darkBg: 'dark:bg-yellow-900/40', darkText: 'dark:text-yellow-300' },
+  auto: { border: 'border-slate-400', bg: 'bg-slate-100', text: 'text-slate-800', darkBorder: 'dark:border-slate-700', darkBg: 'dark:bg-slate-900/40', darkText: 'dark:text-slate-300' },
 }
 
 async function fetchArticles(categories: string | null, excludeUrl?: string): Promise<BbcArticle[] | null> {
