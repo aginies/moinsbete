@@ -231,7 +231,7 @@ function SaviezVousBookmarkItem({
   locale,
   t,
 }: {
-  bookmark: SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']> }
+  bookmark: SharedBookmark & { saviezFact: NonNullable<SharedBookmark['saviezFact']>; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }
   currentUserId: string | null
   isAdmin: boolean
   userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
@@ -292,6 +292,12 @@ function SaviezVousBookmarkItem({
           <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
             <User className="h-3 w-3" />
             {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
+        {bookmark.sharedToCommunity && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {t('shared_to_community')}
           </span>
         )}
         {showBookmarkBtn && (
@@ -568,6 +574,12 @@ function WikiLovesBookmarkItem({
           <User className="h-3 w-3" />
           {bookmark.user.displayName || maskEmail(bookmark.user.email)}
         </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
         {showBookmarkBtn && (
           <Button
             variant="ghost"

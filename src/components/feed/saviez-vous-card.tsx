@@ -203,7 +203,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         storageKey={storageKey}
         extraActions={showBookmark ? (
           <div className="flex items-center gap-2 sm:gap-3">
-            <ShareToLobbyButton resourceId={fact.id} resourceType="SAVIEZ_VOUS" />
+            <ShareToLobbyButton resourceId={fact.id} resourceType="SAVIEZ_VOUS" meta={{ text: fact.text, sourceUrl: fact.sourceUrl, imageFilename: fact.imageFilename }} />
             <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
