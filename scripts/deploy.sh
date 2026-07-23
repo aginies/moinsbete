@@ -8,6 +8,11 @@ DEST="/srv/http/moinsbete"
 echo "Stopping PM2 server..."
 pm2 stop moinsbete 2>/dev/null || true
 
+# Start maintenance page so user sees something during deploy
+echo "Starting maintenance page..."
+node "$SRC/scripts/maintenance-server.js" &
+sleep 1
+
 mkdir -p "$DEST"
 
 rsync -a --delete --checksum \
@@ -115,5 +120,13 @@ if [ -f "ecosystem.config.js" ]; then
 else
   pm2 start moinsbete || pm2 restart moinsbete
 fi
+
+# Stop maintenance page
+echo "Stopping maintenance page..."
+if [ -f "$SRC/scripts/.maintenance.pid" ]; then
+  kill "$(cat "$SRC/scripts/.maintenance.pid")" 2>/dev/null || true
+  rm -f "$SRC/scripts/.maintenance.pid"
+fi
+sleep 2
 
 echo "Deployed to $DEST"
