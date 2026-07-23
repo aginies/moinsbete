@@ -38,19 +38,10 @@ export default async function AdminPage() {
     userCount,
     viewedIdeaCount,
     activeStreakCount,
-    cnrsCount,
-    cnrsExpiredCount,
-    radioCount,
-    radioExpiredCount,
-    wikiImageCount,
-    wikiImageExpiredCount,
-    wikiLovesCount,
-    wikiLovesExpiredCount,
+    cacheStats,
     saviezVousCount,
     srsDueCount,
     proverbeRow,
-    newsCount,
-    newsExpiredCount,
     users,
   ] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
@@ -60,14 +51,30 @@ export default async function AdminPage() {
     prisma.user.count(),
     prisma.viewedIdea.count(),
     prisma.growthPlan.count({ where: { streakDays: { gt: 0 } } }),
-    prisma.cachedCnrsArticle.count(),
-    prisma.cachedCnrsArticle.count({ where: { expiresAt: { lt: now } } }),
-    prisma.cachedRadioEpisode.count(),
-    prisma.cachedRadioEpisode.count({ where: { expiresAt: { lt: now } } }),
-    prisma.cachedWikipediaImage.count(),
-    prisma.cachedWikipediaImage.count({ where: { expiresAt: { lt: now } } }),
-    prisma.cachedWikiLovesImage.count(),
-    prisma.cachedWikiLovesImage.count({ where: { expiresAt: { lt: now } } }),
+    prisma.$queryRaw<Array<{
+      cnrsTotal: bigint
+      cnrsExpired: bigint
+      radioTotal: bigint
+      radioExpired: bigint
+      wikiImageTotal: bigint
+      wikiImageExpired: bigint
+      wikiLovesTotal: bigint
+      wikiLovesExpired: bigint
+      newsTotal: bigint
+      newsExpired: bigint
+    }>>`
+      SELECT
+        (SELECT COUNT(*) FROM CachedCnrsArticle) as cnrsTotal,
+        (SELECT COUNT(*) FROM CachedCnrsArticle WHERE expiresAt < datetime('now')) as cnrsExpired,
+        (SELECT COUNT(*) FROM CachedRadioEpisode) as radioTotal,
+        (SELECT COUNT(*) FROM CachedRadioEpisode WHERE expiresAt < datetime('now')) as radioExpired,
+        (SELECT COUNT(*) FROM CachedWikipediaImage) as wikiImageTotal,
+        (SELECT COUNT(*) FROM CachedWikipediaImage WHERE expiresAt < datetime('now')) as wikiImageExpired,
+        (SELECT COUNT(*) FROM CachedWikiLovesImage) as wikiLovesTotal,
+        (SELECT COUNT(*) FROM CachedWikiLovesImage WHERE expiresAt < datetime('now')) as wikiLovesExpired,
+        (SELECT COUNT(*) FROM CachedNewsArticle) as newsTotal,
+        (SELECT COUNT(*) FROM CachedNewsArticle WHERE expiresAt < datetime('now')) as newsExpired
+    `,
     prisma.saviezVousFact.count(),
     prisma.bookmark.count({
       where: {
@@ -79,8 +86,6 @@ export default async function AdminPage() {
       },
     }),
     prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } }),
-    prisma.cachedNewsArticle.count(),
-    prisma.cachedNewsArticle.count({ where: { expiresAt: { lt: now } } }),
     prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
       select: {
@@ -95,6 +100,18 @@ export default async function AdminPage() {
       },
     }),
   ])
+
+  const stats = cacheStats[0]
+  const cnrsCount = Number(stats.cnrsTotal)
+  const cnrsExpiredCount = Number(stats.cnrsExpired)
+  const radioCount = Number(stats.radioTotal)
+  const radioExpiredCount = Number(stats.radioExpired)
+  const wikiImageCount = Number(stats.wikiImageTotal)
+  const wikiImageExpiredCount = Number(stats.wikiImageExpired)
+  const wikiLovesCount = Number(stats.wikiLovesTotal)
+  const wikiLovesExpiredCount = Number(stats.wikiLovesExpired)
+  const newsCount = Number(stats.newsTotal)
+  const newsExpiredCount = Number(stats.newsExpired)
 
   const adminUsers = users as AdminUser[]
 
@@ -118,7 +135,7 @@ export default async function AdminPage() {
         wikiLovesExpired: wikiLovesExpiredCount,
         saviezVousFacts: saviezVousCount,
         srsDue: srsDueCount,
-        proverbesCached: proverbeRow ? JSON.parse(proverbeRow.value).length : 0,
+        proverbesCached: proverbeRow ? (() => { try { return JSON.parse(proverbeRow.value).length } catch { return 0 } })() : 0,
         newsArticles: newsCount,
         newsExpired: newsExpiredCount,
       }}

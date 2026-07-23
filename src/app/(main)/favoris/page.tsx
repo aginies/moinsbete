@@ -36,7 +36,31 @@ export default async function FavorisPage({
   const currentPage = Math.max(1, parseInt((await searchParams).page || '1', 10))
   const skip = (currentPage - 1) * PAGE_SIZE
 
-  const [bookmarks, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, newsFavoritesCount] = await Promise.all([
+  const counts = await prisma.$queryRaw<{ type: string, count: bigint }[]>`
+    SELECT type, COUNT(*) as count
+    FROM Bookmark
+    WHERE userId = ${session.user.id}
+    GROUP BY type
+  `
+
+  const countMap = new Map<string, number>()
+  for (const row of counts) {
+    countMap.set(row.type, Number(row.count))
+  }
+
+  const total = countMap.get('IDEA') ?? 0
+  const radioFavoritesCount = countMap.get('RADIO_FRANCE') ?? 0
+  const cnrsFavoritesCount = countMap.get('CNRS_NEWS') ?? 0
+  const imageDuJourFavoritesCount = countMap.get('IMAGE_DU_JOUR') ?? 0
+  const saviezVousFavoritesCount = countMap.get('SAVIEZ_VOUS') ?? 0
+  const wikimediaFavoritesCount = countMap.get('IMAGE_WIKIMEDIA') ?? 0
+  const wikilovesFavoritesCount = countMap.get('IMAGE_WIKILOVES') ?? 0
+  const pixabayFavoritesCount = countMap.get('IMAGE_PIXABAY') ?? 0
+  const portailLexicalCount = countMap.get('PORTAIL_LEXICAL') ?? 0
+  const proverbeFavoritesCount = countMap.get('PROVERBE') ?? 0
+  const newsFavoritesCount = countMap.get('NEWS') ?? 0
+
+  const [bookmarks] = await Promise.all([
     prisma.bookmark.findMany({
       where: { userId: session.user.id, type: 'IDEA' },
       include: {
@@ -54,39 +78,6 @@ export default async function FavorisPage({
       orderBy: { createdAt: 'desc' },
       skip,
       take: PAGE_SIZE,
-    }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'IDEA' },
-    }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'RADIO_FRANCE' },
-    }),
-    prisma.bookmark.count({
-       where: { userId: session.user.id, type: 'CNRS_NEWS' },
-     }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'IMAGE_DU_JOUR' },
-    }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'SAVIEZ_VOUS' },
-    }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'IMAGE_WIKIMEDIA' },
-    }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'IMAGE_WIKILOVES' },
-    }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'IMAGE_PIXABAY' },
-    }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'PORTAIL_LEXICAL' },
-    }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'PROVERBE' },
-    }),
-    prisma.bookmark.count({
-      where: { userId: session.user.id, type: 'NEWS' },
     }),
   ])
 
