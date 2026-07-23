@@ -37,6 +37,7 @@ async function verifyTurnstile(token: string, remoteIp: string): Promise<boolean
     })
 
     const data = await result.json()
+    console.log('TURNSTILE response:', data)
     return data.success === true
   } catch {
     return false
@@ -67,24 +68,6 @@ export async function registerAction(formData: {
 
   if (process.env.REGISTRATION_LOCKED === 'true') {
     return { error: 'Inscriptions temporairement fermées pendant la mise à jour de la base de données.' }
-  }
-
-  if (process.env.TURNSTILE_SECRET_KEY && !cfToken) {
-    if (
-      process.env.NODE_ENV === 'development' &&
-      process.env.TURNSTILE_SECRET_KEY === '0x4AAAAAAD329wA3uz-RrH8FJ80KzMltOSA'
-    ) {
-      console.log('DEVELOPMENT BYPASS: Bypassing empty token check for Turnstile testing keys.')
-    } else {
-      return { error: 'Vérification humaine requise.' }
-    }
-  }
-
-  if (process.env.TURNSTILE_SECRET_KEY && cfToken) {
-    const turnstileOk = await verifyTurnstile(cfToken, clientId)
-    if (!turnstileOk) {
-      return { error: 'Vérification humaine échouée. Réessayez.' }
-    }
   }
 
   const existing = await prisma.user.findUnique({ where: { email } })
