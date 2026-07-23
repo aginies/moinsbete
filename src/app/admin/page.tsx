@@ -49,8 +49,8 @@ export default async function AdminPage() {
     saviezVousCount,
     srsDueCount,
     proverbeRow,
-    bbcNewsCount,
-    bbcNewsExpiredCount,
+    newsCount,
+    newsExpiredCount,
     users,
   ] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
@@ -79,8 +79,8 @@ export default async function AdminPage() {
       },
     }),
     prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } }),
-    prisma.cachedBbcArticle.count(),
-    prisma.cachedBbcArticle.count({ where: { expiresAt: { lt: now } } }),
+    prisma.cachedNewsArticle.count(),
+    prisma.cachedNewsArticle.count({ where: { expiresAt: { lt: now } } }),
     prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
       select: {
@@ -119,8 +119,8 @@ export default async function AdminPage() {
         saviezVousFacts: saviezVousCount,
         srsDue: srsDueCount,
         proverbesCached: proverbeRow ? JSON.parse(proverbeRow.value).length : 0,
-        bbcNewsArticles: bbcNewsCount,
-        bbcNewsExpired: bbcNewsExpiredCount,
+        newsArticles: newsCount,
+        newsExpired: newsExpiredCount,
       }}
       users={adminUsers}
     />

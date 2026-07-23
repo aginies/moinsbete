@@ -27,13 +27,13 @@ export async function cleanupExpiredCache() {
   }
 }
 
-export async function clearAllBbcNewsAction() {
+export async function clearAllNewsAction() {
   const session = await getSession()
   if (!session?.user || session.user.role !== 'ADMIN') {
     return { error: 'Non autorisé', deletedCount: 0 }
   }
 
-  const result = await prisma.cachedBbcArticle.deleteMany({})
+  const result = await prisma.cachedNewsArticle.deleteMany({})
 
   return { success: true, deletedCount: result.count }
 }

@@ -6,12 +6,12 @@ import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { ShareButton } from './share-button'
-import { toggleBbcFavoriteAction, isBbcFavoriteAction } from '@/actions/bbc-bookmark-actions'
+import { toggleNewsFavoriteAction, isNewsFavoriteAction } from '@/actions/news-bookmark-actions'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { VisibilityButton } from './visibility-button'
 import { useTranslations } from 'next-intl'
 
-interface BbcArticle {
+interface NewsArticle {
   title: string
   description: string
   url: string
@@ -21,7 +21,7 @@ interface BbcArticle {
   publishedAt: string
 }
 
-interface BbcNewsCardProps {
+interface NewsCardProps {
   onToggle?: () => void
   userId?: string
   showToggle?: boolean
@@ -32,13 +32,12 @@ const CATEGORIES = [
   { key: 'allNews', labelKey: 'feed.all', icon: Globe },
   { key: 'world', labelKey: 'feed.world', icon: Globe },
   { key: 'business', labelKey: 'feed.business', icon: Briefcase },
-  { key: 'tech', labelKey: 'feed.tech', icon: Cpu },
+  { key: 'technology', labelKey: 'feed.tech', icon: Cpu },
   { key: 'entertainment', labelKey: 'feed.entertainment', icon: Film },
   { key: 'sports', labelKey: 'feed.sports', icon: Trophy },
   { key: 'science', labelKey: 'feed.science', icon: Beaker },
   { key: 'health', labelKey: 'feed.health', icon: Heart },
-  { key: 'crypto', labelKey: 'feed.crypto', icon: Bitcoin },
-  { key: 'ai', labelKey: 'feed.ai', icon: Brain },
+  { key: 'digital currencies', labelKey: 'feed.crypto', icon: Bitcoin },
   { key: 'cinema', labelKey: 'feed.cinema', icon: Film },
   { key: 'auto', labelKey: 'feed.auto', icon: Car },
 ] as const
@@ -47,23 +46,22 @@ const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string
   allNews: { border: 'border-blue-400', bg: 'bg-blue-100', text: 'text-blue-800', darkBorder: 'dark:border-blue-700', darkBg: 'dark:bg-blue-900/40', darkText: 'dark:text-blue-300' },
   world: { border: 'border-blue-400', bg: 'bg-blue-100', text: 'text-blue-800', darkBorder: 'dark:border-blue-700', darkBg: 'dark:bg-blue-900/40', darkText: 'dark:text-blue-300' },
   business: { border: 'border-emerald-400', bg: 'bg-emerald-100', text: 'text-emerald-800', darkBorder: 'dark:border-emerald-700', darkBg: 'dark:bg-emerald-900/40', darkText: 'dark:text-emerald-300' },
-  tech: { border: 'border-violet-400', bg: 'bg-violet-100', text: 'text-violet-800', darkBorder: 'dark:border-violet-700', darkBg: 'dark:bg-violet-900/40', darkText: 'dark:text-violet-300' },
+  technology: { border: 'border-violet-400', bg: 'bg-violet-100', text: 'text-violet-800', darkBorder: 'dark:border-violet-700', darkBg: 'dark:bg-violet-900/40', darkText: 'dark:text-violet-300' },
   entertainment: { border: 'border-pink-400', bg: 'bg-pink-100', text: 'text-pink-800', darkBorder: 'dark:border-pink-700', darkBg: 'dark:bg-pink-900/40', darkText: 'dark:text-pink-300' },
   sports: { border: 'border-orange-400', bg: 'bg-orange-100', text: 'text-orange-800', darkBorder: 'dark:border-orange-700', darkBg: 'dark:bg-orange-900/40', darkText: 'dark:text-orange-300' },
   science: { border: 'border-cyan-400', bg: 'bg-cyan-100', text: 'text-cyan-800', darkBorder: 'dark:border-cyan-700', darkBg: 'dark:bg-cyan-900/40', darkText: 'dark:text-cyan-300' },
   health: { border: 'border-red-400', bg: 'bg-red-100', text: 'text-red-800', darkBorder: 'dark:border-red-700', darkBg: 'dark:bg-red-900/40', darkText: 'dark:text-red-300' },
-  crypto: { border: 'border-amber-400', bg: 'bg-amber-100', text: 'text-amber-800', darkBorder: 'dark:border-amber-700', darkBg: 'dark:bg-amber-900/40', darkText: 'dark:text-amber-300' },
-  ai: { border: 'border-purple-400', bg: 'bg-purple-100', text: 'text-purple-800', darkBorder: 'dark:border-purple-700', darkBg: 'dark:bg-purple-900/40', darkText: 'dark:text-purple-300' },
+  'digital currencies': { border: 'border-amber-400', bg: 'bg-amber-100', text: 'text-amber-800', darkBorder: 'dark:border-amber-700', darkBg: 'dark:bg-amber-900/40', darkText: 'dark:text-amber-300' },
   cinema: { border: 'border-yellow-400', bg: 'bg-yellow-100', text: 'text-yellow-800', darkBorder: 'dark:border-yellow-700', darkBg: 'dark:bg-yellow-900/40', darkText: 'dark:text-yellow-300' },
   auto: { border: 'border-slate-400', bg: 'bg-slate-100', text: 'text-slate-800', darkBorder: 'dark:border-slate-700', darkBg: 'dark:bg-slate-900/40', darkText: 'dark:text-slate-300' },
 }
 
-async function fetchArticles(categories: string | null, excludeUrl?: string): Promise<BbcArticle[] | null> {
+async function fetchArticles(categories: string | null, excludeUrl?: string): Promise<NewsArticle[] | null> {
   try {
     const params = new URLSearchParams()
     if (categories) params.set('categories', categories)
     if (excludeUrl) params.set('exclude', excludeUrl)
-    const res = await fetch(`/api/bbc-news?${params}`, {
+    const res = await fetch(`/api/news?${params}`, {
       signal: AbortSignal.timeout(10000),
       cache: 'no-store',
     })
@@ -75,16 +73,16 @@ async function fetchArticles(categories: string | null, excludeUrl?: string): Pr
   }
 }
 
-export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: BbcNewsCardProps) {
+export function NewsCard({ onToggle, userId, showToggle = true, isVisible }: NewsCardProps) {
   const t = useTranslations()
-  const [articles, setArticles] = useState<BbcArticle[]>([])
+  const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const checkedUrlsRef = useRef<Set<string>>(new Set())
   const listRef = useRef<HTMLDivElement>(null)
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'bbc_news_card_visible', userId, initialShow: isVisible })
+  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'news_card_visible', userId, initialShow: isVisible })
   const show = isVisible !== undefined ? isVisible : showFromHook
 
   const loadArticles = useCallback(async () => {
@@ -116,7 +114,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
         for (const article of articles) {
           if (!favorites.has(article.url)) {
             try {
-              const result = await isBbcFavoriteAction(article.url)
+              const result = await isNewsFavoriteAction(article.url)
               if (result.isBookmarked) {
                 checked.add(article.url)
               }
@@ -153,7 +151,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
     setLoading(false)
   }, [loading, selectedCategories])
 
-  const handleBookmark = useCallback(async (article: BbcArticle, isFav: boolean) => {
+  const handleBookmark = useCallback(async (article: NewsArticle, isFav: boolean) => {
     const action = isFav ? 'remove' : 'add'
     setFavorites(prev => {
       const next = new Set(prev)
@@ -164,7 +162,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
       }
       return next
     })
-    await toggleBbcFavoriteAction(article.url, action, {
+    await toggleNewsFavoriteAction(article.url, action, {
       title: article.title,
       description: article.description,
       url: article.url,
@@ -341,7 +339,7 @@ export function BbcNewsCard({ onToggle, userId, showToggle = true, isVisible }: 
           )}
 
           <div className="mt-3 text-center text-xs text-blue-500 dark:text-blue-400/60">
-            Powered by <Link href="https://newsapi.org" target="_blank" rel="noopener noreferrer" className="hover:underline">newsapi.org</Link>
+            Powered by <Link href="https://freenewsapi.io" target="_blank" rel="noopener noreferrer" className="hover:underline">freenewsapi.io</Link>
           </div>
         </div>
       )}

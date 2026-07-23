@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { ExternalLink, X } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
-import { getBbcFavoritesAction } from '@/actions/bbc-bookmark-actions'
+import { getNewsFavoritesAction } from '@/actions/news-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { useCallback } from 'react'
@@ -20,25 +20,25 @@ export interface BbcFavorite {
   favoritedAt: string
 }
 
-const FAVORITES_KEY = 'bbc_favorites'
+const FAVORITES_KEY = 'news_favorites'
 
-interface BbcNewsFavoritesProps {
+interface NewsFavoritesProps {
   userId?: string
   onRemoveComplete?: () => void
   searchQuery?: string
 }
 
-export function BbcNewsFavorites({ userId, onRemoveComplete, searchQuery }: BbcNewsFavoritesProps) {
+export function NewsFavorites({ userId, onRemoveComplete, searchQuery }: NewsFavoritesProps) {
   const { handleRemove, getFavorites } = useFavoritesList<BbcFavorite>({
     userId,
     storageKey: FAVORITES_KEY,
     resourceIdGetter: (item) => item.id,
-    bookmarkType: 'BBC_NEWS',
+    bookmarkType: 'NEWS',
   })
 
   const fetchFn = useCallback(async () => {
     if (userId) {
-      const result = await getBbcFavoritesAction()
+      const result = await getNewsFavoritesAction()
       return result.favorites as BbcFavorite[]
     }
     return getFavorites()

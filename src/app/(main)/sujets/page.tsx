@@ -25,7 +25,7 @@ export default async function SujetsPage() {
           portailLexicalCardVisible: true,
           proverbeCardVisible: true,
           cnrsNewsEnabled: true,
-          bbcNewsCardVisible: true,
+          newsCardVisible: true,
         },
       }).then(u => ({
         topicIds: u?.following.map((t: { id: string }) => t.id) || [],
@@ -39,7 +39,7 @@ export default async function SujetsPage() {
           portailLexical: u.portailLexicalCardVisible ?? true,
           proverbe: u.proverbeCardVisible ?? true,
           cnrs: u.cnrsNewsEnabled ?? true,
-          bbcNews: u.bbcNewsCardVisible ?? true,
+          news: u.newsCardVisible ?? true,
         } : undefined,
       }))
     : null

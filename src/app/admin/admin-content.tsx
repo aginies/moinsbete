@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
-import { clearAllBbcNewsAction } from '@/actions/cleanup-actions'
+import { clearAllNewsAction } from '@/actions/cleanup-actions'
 import { toggleUserEnabled } from '@/actions/user-actions'
 import { updateGlobalCardVisibility } from '@/actions/card-actions'
 import { useLocale, useTranslations } from 'next-intl'
@@ -43,8 +43,8 @@ export interface AdminStats {
   saviezVousFacts: number
   srsDue: number
   proverbesCached: number
-  bbcNewsArticles: number
-  bbcNewsExpired: number
+  newsArticles: number
+  newsExpired: number
 }
 
 export interface AdminUser {
@@ -67,7 +67,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [cleanupOpen, setCleanupOpen] = useState(false)
-  const [bbcClearOpen, setBbcClearOpen] = useState(false)
+  const [newsClearOpen, setNewsClearOpen] = useState(false)
   const locale = useLocale()
   const { setLocale } = useSetLocale()
   const t = useTranslations()
@@ -178,9 +178,9 @@ export function AdminContent({ stats, users }: AdminContentProps) {
             />
             <StatCard
               icon={<Newspaper className="h-5 w-5" />}
-              label={t('feed.bbc_news_articles')}
-              value={stats.bbcNewsArticles}
-              sublabel={stats.bbcNewsExpired > 0 ? `${stats.bbcNewsExpired} ${t('feed.expired')}` : undefined}
+              label={t('feed.news_articles')}
+              value={stats.newsArticles}
+              sublabel={stats.newsExpired > 0 ? `${stats.newsExpired} ${t('feed.expired')}` : undefined}
             />
             <StatCard
               icon={<Image className="h-5 w-5" />}
@@ -278,16 +278,16 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                     <span className="font-medium text-destructive">{stats.wikiLovesExpired}</span>
                   </div>
                 )}
-                {stats.bbcNewsExpired > 0 && (
+                {stats.newsExpired > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
                       <Newspaper className="h-4 w-4 text-muted-foreground" />
-                      {t('feed.bbc_news_expired')}
+                      {t('feed.news_expired')}
                     </span>
-                    <span className="font-medium text-destructive">{stats.bbcNewsExpired}</span>
+                    <span className="font-medium text-destructive">{stats.newsExpired}</span>
                   </div>
                 )}
-                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.bbcNewsExpired === 0 && (
+                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && (
                   <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
@@ -308,7 +308,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <DialogHeader>
                     <DialogTitle>Confirmer le nettoyage</DialogTitle>
                     <DialogDescription>
-                      Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.bbcNewsExpired} éléments expirés ?
+                      Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired} éléments expirés ?
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -341,49 +341,49 @@ export function AdminContent({ stats, users }: AdminContentProps) {
             <div className="rounded-xl border border-border/60 bg-card p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
                 <Trash2 className="h-5 w-5 text-destructive" />
-                {t('feed.clear_all_bbc_news')}
+                {t('feed.clear_all_news')}
               </h3>
               <div className="mb-4 space-y-2 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <Newspaper className="h-4 w-4 text-muted-foreground" />
-                    {t('feed.bbc_news_articles')}
+                    {t('feed.news_articles')}
                   </span>
-                  <span className="font-medium text-destructive">{stats.bbcNewsArticles}</span>
+                  <span className="font-medium text-destructive">{stats.newsArticles}</span>
                 </div>
               </div>
               <div className="flex justify-center">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBbcClearOpen(true)}
-                  disabled={isPending || stats.bbcNewsArticles === 0}
+                  onClick={() => setNewsClearOpen(true)}
+                  disabled={isPending || stats.newsArticles === 0}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   {t('feed.delete_all')}
                 </Button>
               </div>
 
-              <Dialog open={bbcClearOpen} onOpenChange={setBbcClearOpen}>
+              <Dialog open={newsClearOpen} onOpenChange={setNewsClearOpen}>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle>Confirmer la suppression</DialogTitle>
                     <DialogDescription>
-                      Supprimer tous les {stats.bbcNewsArticles} articles NEWS ?
+                      Supprimer tous les {stats.newsArticles} articles NEWS ?
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setBbcClearOpen(false)} disabled={isPending}>
+                    <Button variant="outline" onClick={() => setNewsClearOpen(false)} disabled={isPending}>
                       Annuler
                     </Button>
                     <Button
                       variant="destructive"
                       onClick={async () => {
-                        setBbcClearOpen(false)
+                        setNewsClearOpen(false)
                         startTransition(async () => {
-                          const result = await clearAllBbcNewsAction()
+                          const result = await clearAllNewsAction()
                           if (result.success && result.deletedCount > 0) {
-                            toast.success(t('feed.bbc_news_cleared', { count: result.deletedCount }))
+                            toast.success(t('feed.news_cleared', { count: result.deletedCount }))
                             router.refresh()
                           } else if (result.error) {
                             toast.error(result.error)
@@ -510,7 +510,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
   { key: 'wikipedia', labelKey: 'feed.wikipedia_tab', icon: <Globe className="h-4 w-4" /> },
   { key: 'cnrs', labelKey: 'feed.cnrs_tab', icon: <Newspaper className="h-4 w-4" /> },
   { key: 'radioFrance', labelKey: 'feed.radio_tab', icon: <Radio className="h-4 w-4" /> },
-  { key: 'bbcNews', labelKey: 'feed.news_tab', icon: <Newspaper className="h-4 w-4" /> },
+  { key: 'news', labelKey: 'feed.news_tab', icon: <Newspaper className="h-4 w-4" /> },
   { key: 'wikimedia', labelKey: 'feed.wikimedia_tab', icon: <Image className="h-4 w-4" /> },
   { key: 'wikiloves', labelKey: 'feed.wiki_loves_tab', icon: <ImagePlus className="h-4 w-4" /> },
   { key: 'pixabay', labelKey: 'feed.pixabay_tab', icon: <Image className="h-4 w-4" /> },

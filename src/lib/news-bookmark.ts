@@ -1,7 +1,7 @@
 import type { BookmarkType } from '@/generated/client'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
 
-export interface BbcFavoriteMeta {
+export interface NewsFavoriteMeta {
   title?: string
   description?: string
   url?: string
@@ -11,7 +11,7 @@ export interface BbcFavoriteMeta {
   publishedAt?: string
 }
 
-export interface BbcFavorite {
+export interface NewsFavorite {
   id: string
   title: string
   description: string
@@ -23,10 +23,10 @@ export interface BbcFavorite {
   favoritedAt: string
 }
 
-export const BBC_TYPE: BookmarkType = 'BBC_NEWS'
+export const NEWS_TYPE: BookmarkType = 'NEWS'
 
-export const bbcManager = createBookmarkManager(BBC_TYPE, (meta, resourceId) => {
-  const m = meta as BbcFavoriteMeta | null
+export const newsManager = createBookmarkManager(NEWS_TYPE, (meta, resourceId) => {
+  const m = meta as NewsFavoriteMeta | null
   if (!m) return null
   return {
     id: resourceId,
@@ -41,5 +41,5 @@ export const bbcManager = createBookmarkManager(BBC_TYPE, (meta, resourceId) => 
   }
 })
 
-export const getBbcFavorites = bbcManager.getFavorites.bind(bbcManager)
-export const getBbcFavoritesCount = bbcManager.getFavoritesCount.bind(bbcManager)
+export const getNewsFavorites = newsManager.getFavorites.bind(newsManager)
+export const getNewsFavoritesCount = newsManager.getFavoritesCount.bind(newsManager)

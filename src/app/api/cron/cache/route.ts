@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { scrapeAndCacheCnrs } from '@/scripts/cache-cnrs'
 import { scrapeAndCacheRadioEpisodes } from '@/scripts/cache-radio-france'
 import { scrapeAndCacheWikipediaImages } from '@/scripts/cache-wikipedia-image'
-import { scrapeAndCacheBbcNews } from '@/scripts/cache-bbc-news'
+import { scrapeAndCacheNews } from '@/scripts/cache-news'
 import { cleanupExpired } from '@/lib/cache-helpers'
 
 const CRON_SECRET = process.env.CRON_SECRET || ''
@@ -64,9 +64,9 @@ export async function GET(request: NextRequest) {
     await scrapeAndCacheRadioEpisodes()
     results.radio = 'ok'
     
-    console.log('[cron] Step 3/5: Scraping BBC News...')
-    await scrapeAndCacheBbcNews()
-    results.bbc = 'ok'
+    console.log('[cron] Step 3/5: Scraping News...')
+    await scrapeAndCacheNews()
+    results.news = 'ok'
     
     console.log('[cron] Step 4/5: Scraping Wikipedia Image...')
     await scrapeAndCacheWikipediaImages()
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     
     console.log('[cron] Step 5/5: Cleanup...')
     const counts = await cleanupExpired()
-    results.cleanup = `cnrs:${counts.cnrs},radio:${counts.radio},wiki:${counts.wiki},bbc:${counts.bbc}`
+    results.cleanup = `cnrs:${counts.cnrs},radio:${counts.radio},wiki:${counts.wiki},news:${counts.news}`
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
     console.log(`[cron] Cache update completed in ${duration}s`)

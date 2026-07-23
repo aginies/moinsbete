@@ -3,14 +3,14 @@
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 
-export type CardKey = 'saviezVous' | 'wikipedia' | 'cnrs' | 'radioFrance' | 'bbcNews' | 'wikimedia' | 'wikiloves' | 'pixabay' | 'portailLexical' | 'proverbe'
+export type CardKey = 'saviezVous' | 'wikipedia' | 'cnrs' | 'radioFrance' | 'news' | 'wikimedia' | 'wikiloves' | 'pixabay' | 'portailLexical' | 'proverbe'
 
 const DEFAULT_VISIBILITY: Record<CardKey, boolean> = {
   saviezVous: true,
   wikipedia: true,
   cnrs: true,
   radioFrance: true,
-  bbcNews: true,
+  news: true,
   wikimedia: true,
   wikiloves: true,
   pixabay: true,
