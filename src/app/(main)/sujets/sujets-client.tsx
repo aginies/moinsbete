@@ -274,11 +274,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const visibleCards = orderedConfigs.filter(c => c.isVisible)
   const hiddenCards = orderedConfigs.filter(c => !c.isVisible && c.isGloballyVisible && (c.key !== 'news' || hasUserId))
 
-  if (typeof window !== 'undefined') {
-    console.log('SujetsClient debug:', { userId, orderLoaded, cardOrder, visibility, globalVisibility, visibleCount: visibleCards.length, hiddenCount: hiddenCards.length })
-    orderedConfigs.forEach(c => console.log(`  ${c.key}: isVisible=${c.isVisible}, isGloballyVisible=${c.isGloballyVisible}, visibility=${visibility[c.key as keyof CardVisibility]}`))
-  }
-
   if (!orderLoaded) {
     return null
   }
