@@ -3,6 +3,8 @@ import { cleanupExpired } from '../lib/cache-helpers'
 
 const FREE_NEWS_API_KEY = process.env.FREE_NEWS_API_KEY || ''
 const FREE_NEWS_API_BASE = 'https://api.freenewsapi.io/v1'
+const MAX_DAILY_REQUESTS = 5000
+const DAILY_REQUEST_WINDOW = 24 * 60 * 60 * 1000
 
 interface FreeNewsApiResponse {
   data: Array<{
@@ -51,67 +53,159 @@ const CATEGORY_MAP: Record<string, string> = {
 
 const CATEGORIES = Object.keys(CATEGORY_MAP) as Array<keyof typeof CATEGORY_MAP>
 
-async function fetchArticleDetail(uuid: string, publisher?: string): Promise<{ imageUrl: string; url: string }> {
-  try {
-    const res = await fetch(`${FREE_NEWS_API_BASE}/details?uuid=${uuid}`, {
-      headers: { 'x-api-key': FREE_NEWS_API_KEY },
-      signal: AbortSignal.timeout(10000),
-    })
-    
-    if (!res.ok) {
-      return {
-        imageUrl: '',
-        url: publisher || '',
-      }
-    }
+// --- Rate limiter queue ---
+class RateLimitQueue {
+  private maxConcurrency: number
+  private intervalMs: number
+  private running = 0
+  private queue: Array<() => void> = []
 
-    const data: FreeNewsArticleDetail = await res.json()
-    return {
-      imageUrl: data.data?.thumbnail || '',
-      url: data.data?.original_url || (publisher || ''),
-    }
-  } catch {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      const res = await fetch(`${FREE_NEWS_API_BASE}/details?uuid=${uuid}`, {
-        headers: { 'x-api-key': FREE_NEWS_API_KEY },
-        signal: AbortSignal.timeout(10000),
+  constructor(maxConcurrency: number, intervalMs: number) {
+    this.maxConcurrency = maxConcurrency
+    this.intervalMs = intervalMs
+  }
+
+  async add<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.running >= this.maxConcurrency) {
+      await new Promise<void>(resolve => {
+        this.queue.push(() => resolve())
       })
-      
-      if (!res.ok) {
-        return {
-          imageUrl: '',
-          url: publisher || '',
-        }
-      }
-
-      const data: FreeNewsArticleDetail = await res.json()
-      return {
-        imageUrl: data.data?.thumbnail || '',
-        url: data.data?.original_url || (publisher || ''),
-      }
-    } catch {
-      return {
-        imageUrl: '',
-        url: publisher || '',
+    }
+    this.running++
+    try {
+      return await fn()
+    } finally {
+      this.running--
+      const next = this.queue.shift()
+      if (next) {
+        setTimeout(next, this.intervalMs)
       }
     }
   }
 }
 
+// --- Daily request tracker ---
+interface RequestTracker {
+  count: number
+  windowStart: number
+}
+
+let dailyRequests: RequestTracker = { count: 0, windowStart: Date.now() }
+
+function resetIfNeeded(): void {
+  if (Date.now() - dailyRequests.windowStart > DAILY_REQUEST_WINDOW) {
+    dailyRequests = { count: 0, windowStart: Date.now() }
+  }
+}
+
+function consume(count: number): number {
+  resetIfNeeded()
+  dailyRequests.count += count
+  return dailyRequests.count
+}
+
+function remaining(): number {
+  resetIfNeeded()
+  return MAX_DAILY_REQUESTS - dailyRequests.count
+}
+
+// --- Fetch with retry for 429 ---
+async function fetchArticleDetail(uuid: string, publisher?: string): Promise<{ imageUrl: string; url: string; success: boolean; attempts: number }> {
+  let lastStatus = 0
+  const maxRetries = 3
+  let attempts = 0
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    attempts = attempt + 1
+    const reqCount = consume(1)
+    const reqRemaining = remaining()
+
+    if (reqRemaining <= 0) {
+      console.log(`    ⚠️ Daily quota exhausted (${reqCount}/${MAX_DAILY_REQUESTS})`)
+      return { imageUrl: '', url: publisher || '', success: false, attempts }
+    }
+
+    if (reqRemaining < 500 && reqRemaining > 0) {
+      console.log(`    ⚠️ Quota low: ${reqRemaining} remaining`)
+    }
+
+    try {
+      const res = await fetch(`${FREE_NEWS_API_BASE}/details?uuid=${uuid}`, {
+        headers: { 'x-api-key': FREE_NEWS_API_KEY },
+        signal: AbortSignal.timeout(10000),
+      })
+
+      lastStatus = res.status
+
+      if (res.status === 429) {
+        const retryAfter = parseInt(res.headers.get('retry-after') || '2', 10)
+        const waitTime = Math.min(retryAfter * 1000, 10000)
+        console.log(`    ⏳ 429 rate limited (attempt ${attempts}/${maxRetries + 1}), waiting ${waitTime}ms...`)
+        await new Promise(resolve => setTimeout(resolve, waitTime))
+        continue
+      }
+
+      if (!res.ok) {
+        const body = await res.text().catch(() => '')
+        console.log(`    ❌ HTTP ${res.status} (attempt ${attempts}/${maxRetries + 1}): ${body.slice(0, 100)}`)
+        if (attempt < maxRetries) {
+          const waitTime = Math.pow(2, attempt) * 1500
+          console.log(`    🔄 Retrying in ${waitTime}ms...`)
+          await new Promise(resolve => setTimeout(resolve, waitTime))
+          continue
+        }
+        return { imageUrl: '', url: publisher || '', success: false, attempts }
+      }
+
+      const data: FreeNewsArticleDetail = await res.json()
+      const url = data.data?.original_url || (publisher || '')
+      const imageUrl = data.data?.thumbnail || ''
+
+      if (!url.startsWith('http')) {
+        console.log(`    ⚠️ No original_url in response (publisher: ${publisher})`)
+        return { imageUrl, url, success: false, attempts }
+      }
+
+      return { imageUrl, url, success: true, attempts }
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      console.log(`    ❌ Fetch error (attempt ${attempts}/${maxRetries + 1}): ${errMsg}`)
+      if (attempt < maxRetries) {
+        const waitTime = Math.pow(2, attempt) * 1500
+        console.log(`    🔄 Retrying in ${waitTime}ms...`)
+        await new Promise(resolve => setTimeout(resolve, waitTime))
+        continue
+      }
+      return { imageUrl: '', url: publisher || '', success: false, attempts }
+    }
+  }
+
+  return { imageUrl: '', url: publisher || '', success: false, attempts }
+}
+
+// --- Fetch articles with details using rate-limited queue ---
 async function fetchArticlesWithDetails(articles: Array<{ uuid: string; title: string; published_at: string; publisher: string }>, category: string): Promise<NewsArticle[]> {
   const batchSize = 10
   const results: NewsArticle[] = []
+  const queue = new RateLimitQueue(2, 500)
+  const stats = { success: 0, failed: 0, rateLimited: 0, noUrl: 0 }
+
+  console.log(`  Processing ${articles.length} articles...`)
 
   for (let i = 0; i < articles.length; i += batchSize) {
     const batch = articles.slice(i, i + batchSize)
-    const details = await Promise.all(
-      batch.map(article => fetchArticleDetail(article.uuid, article.publisher))
-    )
+    const batchNum = Math.floor(i / batchSize) + 1
+    const totalBatches = Math.ceil(articles.length / batchSize)
+    console.log(`  [${batchNum}/${totalBatches}] Fetching details for ${batch.length} articles...`)
 
-    for (let j = 0; j < batch.length; j++) {
-      const article = batch[j]
-      const detail = details[j]
+    const detailPromises = batch.map(async (article, j) => {
+      const globalIdx = i + j + 1
+      console.log(`    [${globalIdx}/${articles.length}] ${article.title.slice(0, 50)}...`)
+
+      const detail = await queue.add(async () => {
+        return fetchArticleDetail(article.uuid, article.publisher)
+      })
+
       results.push({
         title: article.title,
         description: '',
@@ -121,12 +215,24 @@ async function fetchArticlesWithDetails(articles: Array<{ uuid: string; title: s
         category,
         publishedAt: article.published_at,
       })
-    }
+
+      if (detail.success) {
+        stats.success++
+      } else if (detail.url === (article.publisher || '')) {
+        stats.failed++
+      }
+    })
+
+    await Promise.all(detailPromises)
 
     if (i + batchSize < articles.length) {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log(`  Pause 2s before next batch...`)
+      await new Promise(resolve => setTimeout(resolve, 2000))
     }
   }
+
+  console.log(`  📊 Stats: ${stats.success} success, ${stats.failed} failed (publisher fallback)`)
+  console.log(`  📊 Total API calls: ${consume(0) - (dailyRequests.count - consume(articles.length))} (tracked internally)`)
 
   return results
 }
@@ -134,6 +240,16 @@ async function fetchArticlesWithDetails(articles: Array<{ uuid: string; title: s
 async function fetchFromApi(category: string): Promise<NewsArticle[]> {
   if (!FREE_NEWS_API_KEY) {
     console.log(`  ⚠️ FREE_NEWS_API_KEY not set, skipping ${category}`)
+    return []
+  }
+
+  const reqRemaining = remaining()
+  if (reqRemaining <= 0) {
+    console.log(`  🛑 Daily quota exhausted (${MAX_DAILY_REQUESTS}/${MAX_DAILY_REQUESTS}), skipping ${category}`)
+    return []
+  }
+  if (reqRemaining < 100) {
+    console.log(`  ⚠️ Low quota (${reqRemaining} remaining), skipping ${category}`)
     return []
   }
 
@@ -147,11 +263,14 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
     })
 
     const url = `${FREE_NEWS_API_BASE}/news?${params.toString()}`
+    const reqCount = consume(1)
+    console.log(`  📡 Fetching ${category} (request #${reqCount}/${MAX_DAILY_REQUESTS}, ${remaining()} remaining)`)
+
     const res = await fetch(url, {
       headers: { 'x-api-key': FREE_NEWS_API_KEY },
       signal: AbortSignal.timeout(30000),
     })
-    
+
     if (!res.ok) {
       console.log(`  ${category}: HTTP ${res.status}`)
       return []
@@ -159,42 +278,70 @@ async function fetchFromApi(category: string): Promise<NewsArticle[]> {
 
     const data: FreeNewsApiResponse = await res.json()
     if (!data.data || data.data.length === 0) {
+      console.log(`  ${category}: 0 articles returned`)
       return []
     }
 
+    console.log(`  ${category}: ${data.data.length} articles from API, fetching details...`)
     const articles = await fetchArticlesWithDetails(data.data, category)
 
-    console.log(`  ${category}: ${articles.length} articles`)
+    const validUrlCount = articles.filter(a => a.url.startsWith('http')).length
+    console.log(`  ${category}: ${validUrlCount}/${articles.length} articles have valid URLs`)
+
     return articles
-  } catch {
-    console.log(`  ${category}: erreur`)
+  } catch (err) {
+    console.log(`  ${category}: erreur - ${err}`)
   }
 
   return []
 }
 
 export async function scrapeAndCacheNews(): Promise<void> {
+  resetIfNeeded()
+  const startTime = Date.now()
   console.log('📰 Scraping News...')
+  console.log(`   Quota: ${remaining()}/${MAX_DAILY_REQUESTS} remaining`)
+  console.log(`   Started at: ${new Date().toISOString()}`)
+  console.log('')
+
   const allArticles: NewsArticle[] = []
 
-  for (const category of CATEGORIES) {
-    console.log(`\n  Category: ${category}`)
+  for (let catIdx = 0; catIdx < CATEGORIES.length; catIdx++) {
+    const category = CATEGORIES[catIdx]
+    console.log(`\n═══ Category ${catIdx + 1}/${CATEGORIES.length}: ${category} ═══`)
+
     const articles = await fetchFromApi(category)
     allArticles.push(...articles)
-    if (category !== CATEGORIES[CATEGORIES.length - 1]) {
-      await new Promise(resolve => setTimeout(resolve, 1500))
+
+    if (catIdx < CATEGORIES.length - 1) {
+      console.log(`  Pause 3s before next category...`)
+      await new Promise(resolve => setTimeout(resolve, 3000))
     }
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(0)
+    console.log(`  ⏱️ Elapsed: ${elapsed}s`)
   }
 
   if (allArticles.length === 0) {
-    console.log('⚠️ Aucun article trouvé')
+    console.log('\n⚠️ Aucun article trouvé')
     return
   }
+
+  const validUrls = allArticles.filter(a => a.url.startsWith('http')).length
+  const totalCalls = dailyRequests.count
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(0)
+
+  console.log(`\n═══ Summary ═══`)
+  console.log(`  Total articles: ${allArticles.length}`)
+  console.log(`  Valid URLs: ${validUrls}/${allArticles.length} (${Math.round(validUrls / allArticles.length * 100)}%)`)
+  console.log(`  API calls made: ${totalCalls}/${MAX_DAILY_REQUESTS}`)
+  console.log(`  Time elapsed: ${elapsed}s`)
+  console.log(`  Remaining quota: ${remaining()}`)
 
   console.log(`\n💾 Upsert ${allArticles.length} articles en DB...`)
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString()
-  
+
   for (const article of allArticles) {
     await prisma.cachedNewsArticle.upsert({
       where: { url: article.url },
@@ -202,7 +349,7 @@ export async function scrapeAndCacheNews(): Promise<void> {
       create: { ...article, scrapedAt: now, expiresAt },
     })
   }
-  
+
   console.log(`  ✅ ${allArticles.length} articles upserted`)
   await cleanupExpired()
 }
@@ -210,7 +357,7 @@ export async function scrapeAndCacheNews(): Promise<void> {
 if (process.argv[1]?.includes('cache-news')) {
   scrapeAndCacheNews()
     .then(() => {
-      console.log('Done!')
+      console.log('\nDone!')
       process.exit(0)
     })
     .catch(e => {
