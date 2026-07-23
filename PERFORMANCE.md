@@ -10,7 +10,7 @@
 | 6 | CRITICAL | SQL injection via `$queryRawUnsafe` | `src/lib/feed-helpers.ts:24,55` | ⏳ Pending |
 | 7 | MEDIUM | Missing indexes on `IdeaTopic.topicId`, `ViewedIdea.ideaId` | `prisma/schema.prisma` | ⏳ Pending |
 | 8 | MEDIUM | FavorisPageClient: 5 sequential fetches, 10 count states | `favoris-page-client.tsx` | ⏳ Pending |
-| 9 | MEDIUM | `BaseImageCard` not memoized | `base-image-card.tsx` | ⏳ Pending |
+| 9 | MEDIUM | `BaseImageCard` not memoized | `base-image-card.tsx` | ❌ Skip (low ROI) |
 | 10 | MEDIUM | Most images use raw `<img>`, skip Next.js optimization | Multiple card components | ⏳ Pending |
 | 11 | MEDIUM | TTL cache unbounded Map growth | `src/lib/ttl-cache.ts` | ✅ Done |
 | 12 | MEDIUM | Bookmark toggle = 2 queries (findFirst + create/delete) | `src/lib/favorite.ts` | ⏳ Pending |
