@@ -161,7 +161,7 @@ export async function scrapeAndCacheNews(): Promise<void> {
     const articles = await fetchFromApi(category)
     allArticles.push(...articles)
     if (category !== CATEGORIES[CATEGORIES.length - 1]) {
-      await new Promise(resolve => setTimeout(resolve, 600))
+      await new Promise(resolve => setTimeout(resolve, 1500))
     }
   }
 
