@@ -32,7 +32,7 @@ model User {
   imagePixabayShowCategories   Boolean               @default(true)
   portailLexicalCardVisible    Boolean               @default(true)
   proverbeCardVisible          Boolean               @default(true)
-  bbcNewsCardVisible           Boolean               @default(true)
+  newsCardVisible           Boolean               @default(true)
   cardOrder                    Json?
   bookmarks                    Bookmark[]
   growthPlan                   GrowthPlan?
@@ -307,7 +307,7 @@ model CachedWikiLovesImage {
   @@index([source, year])
 }
 
-model CachedBbcArticle {
+model CachedNewsArticle {
   id          String   @id @default(cuid())
   title       String
   description String?
@@ -397,5 +397,5 @@ enum BookmarkType {
   IMAGE_PIXABAY
   PORTAIL_LEXICAL
   PROVERBE
-  BBC_NEWS
+  NEWS
 }

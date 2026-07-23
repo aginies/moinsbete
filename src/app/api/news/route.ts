@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
-import { RATE_LIMIT_ERROR_MESSAGE, BBC_NEWS_DISPLAY_LIMIT } from '@/lib/constants'
+import { RATE_LIMIT_ERROR_MESSAGE, NEWS_DISPLAY_LIMIT } from '@/lib/constants'
 
 interface BbcArticle {
   title: string
@@ -23,11 +23,11 @@ async function fetchFromCache(categories: string[]): Promise<BbcArticle[]> {
     queryWhere.category = { in: categories }
   }
 
-  const count = await prisma.cachedBbcArticle.count({ where: queryWhere })
+   const count = await prisma.cachedNewsArticle.count({ where: queryWhere })
   if (count === 0) return []
 
   const limit = 250
-  const articles = await prisma.cachedBbcArticle.findMany({
+   const articles = await prisma.cachedNewsArticle.findMany({
     where: queryWhere,
     take: limit,
     orderBy: { scrapedAt: 'desc' },
@@ -46,7 +46,7 @@ async function fetchFromCache(categories: string[]): Promise<BbcArticle[]> {
 
 export async function GET(request: NextRequest) {
   const clientId = getClientIp(request)
-  if (!(await checkRateLimit(`bbc-news:${clientId}`, 30, 60_000))) {
+  if (!(await checkRateLimit(`news:${clientId}`, 30, 60_000))) {
     return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
   }
 
@@ -71,9 +71,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json([])
   }
 
-  // Return random batch of BBC_NEWS_DISPLAY_LIMIT
+  // Return random batch of NEWS_DISPLAY_LIMIT
   const shuffled = [...articles].sort(() => Math.random() - 0.5)
-  const result = shuffled.slice(0, BBC_NEWS_DISPLAY_LIMIT)
+  const result = shuffled.slice(0, NEWS_DISPLAY_LIMIT)
 
   return NextResponse.json(result)
 }

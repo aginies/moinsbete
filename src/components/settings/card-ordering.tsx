@@ -26,7 +26,7 @@ const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
   { key: 'wikipedia', label: 'Wikipedia', icon: '📖' },
   { key: 'cnrs', label: 'CNRS', icon: '🔬' },
   { key: 'radioFrance', label: 'Radio France', icon: '📻' },
-  { key: 'bbcNews', label: 'NEWS', icon: '📰' },
+  { key: 'news', label: 'NEWS', icon: '📰' },
   { key: 'wikimedia', label: 'Wikimedia', icon: '🖼️' },
   { key: 'wikiloves', label: 'Wiki Loves', icon: '🏛️' },
   { key: 'pixabay', label: 'Pixabay', icon: '🎨' },
@@ -34,7 +34,7 @@ const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
   { key: 'proverbe', label: 'Proverbe', icon: '🗣️' },
 ]
 
-const DEFAULT_ORDER = ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'bbcNews', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe']
+const DEFAULT_ORDER = ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe']
 
 function SortableCardItem({
   card,

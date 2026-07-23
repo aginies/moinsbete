@@ -36,7 +36,7 @@ moinsbete/
 ├── src/
 │   ├── lib/                   # db, auth, llm, utils, rate-limiter, srs
 │   ├── app/                   # Pages + API routes (incl. /review)
-│   ├── components/            # IdeaCard, Feed, Search, Review, feed cards (BBC, Proverbe, etc.)
+│   ├── components/            # IdeaCard, Feed, Search, Review, feed cards (News, Proverbe, etc.)
 │   └── scripts/               # seed-ideas, generate-ideas, ingest-wikipedia
 ├── docs/                      # Documentation détaillée
 ├── scripts/                   # scrape-saviez-vous, update

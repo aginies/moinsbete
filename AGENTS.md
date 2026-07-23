@@ -121,7 +121,7 @@ Every new card source must include these files/patterns:
 - `feed.{source}_expired`: Admin expired label
 
 ## 9. Environment
-- `.env`: Add `NEWS_API_KEY` (or relevant API key)
+- `.env`: Add `FREE_NEWS_API_KEY` (or relevant API key)
 - `.env.example`: Add placeholder
 
 ## Checklist
