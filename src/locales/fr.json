@@ -428,7 +428,9 @@
     "tous_sujets_title": "Tous les sujets",
     "rechercher_sujet": "Rechercher un sujet...",
     "tout_sélectionner": "Tout sélectionner",
-    "tout_désélectionner": "Tout désélectionner"
+    "tout_désélectionner": "Tout désélectionner",
+    "email_notifications": "Notifications par email",
+    "email_notifications_desc": "Recevoir un email quand quelqu'un me partage un contenu"
   },
   "about": {
     "title": "MoinsBête",

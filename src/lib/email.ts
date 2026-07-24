@@ -32,3 +32,50 @@ export async function sendResetEmail(to: string, token: string) {
     return { success: false, error }
   }
 }
+
+export async function sendShareNotificationEmail(to: string, toName: string, sharerName: string, title: string, resourceType?: string) {
+  console.log('[EMAIL] sendShareNotificationEmail:', { to, toName, sharerName, title, resourceType })
+
+  const lobbyUrl = 'https://moinsbete.guibo.com/fr/lobby?tab=partage'
+  const accountUrl = 'https://moinsbete.guibo.com/fr/mon-compte'
+
+  const typeLabels: Record<string, string> = {
+    NEWS: 'un article',
+    SAVIEZ_VOUS: 'un fait saviez-vous',
+    IMAGE_DU_JOUR: 'une image du jour',
+    IMAGE_WIKIMEDIA: 'une image Wikimedia',
+    IMAGE_WIKILOVES: 'une image Wiki Loves',
+    PROVERBE: 'un proverbe',
+    IDEA: 'une idée',
+  }
+  const contentType = typeLabels[resourceType || ''] || 'un contenu'
+
+  try {
+    await resend.emails.send({
+      from: EMAIL_FROM,
+      to,
+      subject: `${sharerName} vous a partagé ${contentType} sur MoinsBête`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
+          <p>Bonjour ${toName},</p>
+          <p><strong>${sharerName}</strong> vous a partagé ${contentType} :</p>
+          <div style="margin: 20px 0; padding: 15px; background-color: #f5f5f5; border-radius: 6px;">
+            <p style="margin: 0; color: #333;">"${title}"</p>
+          </div>
+          <div style="margin: 30px 0;">
+            <a href="${lobbyUrl}" style="display: inline-block; padding: 12px 24px; background-color: #0070f3; color: white; text-decoration: none; border-radius: 6px;">
+              Voir le lobby
+            </a>
+          </div>
+          <p style="color: #999; font-size: 12px; margin-top: 30px;">
+            Vous ne souhaitez plus recevoir ces notifications ? Désactivez-les dans <a href="${accountUrl}" style="color: #0070f3;">Mon compte</a>.
+          </p>
+        </div>
+      `,
+    })
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to send share notification email:', error)
+    return { success: false, error }
+  }
+}

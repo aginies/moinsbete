@@ -1,6 +1,12 @@
 import { getSession } from '@/lib/auth'
+import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import MonCompteClient from './client'
+import type { Session } from 'next-auth'
+
+interface ExtendedSession extends Session {
+  emailNotificationsEnabled?: boolean
+}
 
 export default async function MonComptePage() {
   const session = await getSession()
@@ -21,5 +27,12 @@ export default async function MonComptePage() {
     )
   }
 
-  return <MonCompteClient session={session} />
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { emailNotificationsEnabled: true },
+  })
+
+  const extendedSession = { ...session, emailNotificationsEnabled: user?.emailNotificationsEnabled ?? true } as ExtendedSession
+
+  return <MonCompteClient session={extendedSession} />
 }

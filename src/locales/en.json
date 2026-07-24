@@ -377,6 +377,8 @@
     "definition_tlfi": "Définition (TLFi)",
     "definitions_tlfi": "Définitions (TLFi)",
     "deselect_all": "Tout désélectionner",
+    "email_notifications": "Email notifications",
+    "email_notifications_desc": "Receive an email when someone shares content with me",
     "etymology": "Étimologie",
     "followed_topics": "Sujits suivis",
     "hidden_toggle": "Masqué — cliquer pour afficher",

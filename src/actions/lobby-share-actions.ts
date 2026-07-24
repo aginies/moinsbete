@@ -3,9 +3,42 @@
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { toggleBookmark, isBookmarked } from '@/lib/favorite'
+import { sendShareNotificationEmail } from '@/lib/email'
 import type { BookmarkType } from '@/generated/client'
 import type { JsonValue } from '@prisma/client/runtime/library'
 import { Prisma } from '@/generated/client'
+
+function extractTitle(resourceType: string, resourceId: string | null, meta: JsonValue | null, ideaTitle?: string): string | null {
+  if (resourceType === 'IDEA') return ideaTitle || null
+  if (!meta || typeof meta !== 'object') return null
+  const m = meta as Record<string, unknown>
+  switch (resourceType) {
+    case 'NEWS': return typeof m.title === 'string' && m.title ? m.title : null
+    case 'SAVIEZ_VOUS': return typeof m.text === 'string' && m.text ? m.text.substring(0, 200) : null
+    case 'IMAGE_DU_JOUR': return typeof m.description === 'string' && m.description ? m.description : null
+    case 'IMAGE_WIKIMEDIA': return typeof m.titre === 'string' && m.titre ? m.titre : (typeof m.title === 'string' && m.title ? m.title : null)
+    case 'IMAGE_WIKILOVES': return typeof m.titre === 'string' && m.titre ? m.titre : null
+    case 'PROVERBE': return typeof m.text === 'string' && m.text ? m.text : null
+    default: return null
+  }
+}
+
+async function sendShareEmails(sharerUser: { id: string; displayName: string | null; email: string }, recipientIds: string[], resourceType: string, resourceId: string | null, meta: JsonValue | null, ideaTitle?: string) {
+  if (recipientIds.length === 0) return
+
+  const recipients = await prisma.user.findMany({
+    where: { id: { in: recipientIds }, emailNotificationsEnabled: true },
+    select: { id: true, displayName: true, email: true },
+  })
+
+  const title = extractTitle(resourceType, resourceId, meta, ideaTitle) || 'un contenu'
+  const sharerName = sharerUser.displayName || sharerUser.email
+
+  for (const r of recipients) {
+    const toName = r.displayName || r.email.split('@')[0]
+    void sendShareNotificationEmail(r.email, toName, sharerName, title, resourceType)
+  }
+}
 
 export async function shareToLobby(ideaId: string, sharedWithUserIds?: string[]) {
   const session = await getSession()
@@ -41,6 +74,9 @@ export async function shareToLobby(ideaId: string, sharedWithUserIds?: string[])
     await prisma.sharedLobbyBookmark.createMany({
       data: newSharedUserIds.map(userId => ({ ...data, sharedWithUserId: userId })),
     })
+    const sharer = await prisma.user.findUnique({ where: { id: session.user.id }, select: { id: true, displayName: true, email: true } })
+    const idea = await prisma.idea.findUnique({ where: { id: ideaId }, select: { title: true } })
+    void sendShareEmails(sharer!, newSharedUserIds, 'IDEA', ideaId, null, idea?.title)
   }
 
   return { success: true, shared: true, sharedToUsers: newSharedUserIds }
@@ -121,14 +157,21 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
     meta: toPrismaMeta(validatedMeta),
   }
 
-  if (sharedWithUserIds && sharedWithUserIds.length > 0) {
+  const sharedUserIds = sharedWithUserIds && sharedWithUserIds.length > 0 ? sharedWithUserIds : []
+
+  if (sharedUserIds.length > 0) {
     await prisma.sharedLobbyBookmark.createMany({
-      data: sharedWithUserIds.map(userId => ({ ...createData, sharedWithUserId: userId })),
+      data: sharedUserIds.map(userId => ({ ...createData, sharedWithUserId: userId })),
     })
   } else {
     await prisma.sharedLobbyBookmark.create({
       data: { ...createData, sharedWithUserId: null },
     })
+  }
+
+  if (sharedUserIds.length > 0) {
+    const sharer = await prisma.user.findUnique({ where: { id: session.user.id }, select: { id: true, displayName: true, email: true } })
+    void sendShareEmails(sharer!, sharedUserIds, resourceType, resourceId, validatedMeta)
   }
 
   return { success: true, shared: true }

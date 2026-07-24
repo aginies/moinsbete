@@ -1,18 +1,26 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Mail, User as UserIcon, Lock, LogOut } from 'lucide-react'
+import { Mail, User as UserIcon, Lock, LogOut, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { changePasswordAction, logoutAction } from '@/actions/auth-actions'
+import { Switch } from '@/components/ui/switch'
+import { changePasswordAction, logoutAction, toggleEmailNotificationsAction } from '@/actions/auth-actions'
 import type { Session } from 'next-auth'
+import { useTranslations } from 'next-intl'
 import { CardOrdering } from '@/components/settings/card-ordering'
 
-export default function MonCompteClient({ session }: { session: Session }) {
+interface SessionWithNotifs extends Session {
+  emailNotificationsEnabled?: boolean
+}
+
+export default function MonCompteClient({ session }: { session: SessionWithNotifs }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [emailNotifications, setEmailNotifications] = useState(session.emailNotificationsEnabled ?? true)
+  const t = useTranslations('feed')
 
   async function handlePasswordChange(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -82,6 +90,30 @@ export default function MonCompteClient({ session }: { session: Session }) {
         </div>
 
         {session.user?.id && <CardOrdering userId={session.user.id} />}
+
+        <div className="rounded-xl border bg-card p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Bell className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-semibold">{t('email_notifications')}</h2>
+                <p className="text-sm text-muted-foreground">{t('email_notifications_desc')}</p>
+              </div>
+            </div>
+            <Switch
+              checked={emailNotifications}
+              onCheckedChange={async (checked) => {
+                setEmailNotifications(checked)
+                const result = await toggleEmailNotificationsAction(checked)
+                if (result.error) {
+                  setEmailNotifications(!checked)
+                }
+              }}
+            />
+          </div>
+        </div>
 
         <div className="rounded-xl border bg-card p-6">
           <h2 className="mb-4 flex items-center gap-2 font-semibold">
