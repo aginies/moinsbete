@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ExternalLink, X } from 'lucide-react'
+import { ExternalLink, Trash2 } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getWikiLovesFavoritesAction } from '@/actions/image-wikiloves-bookmark-actions'
 import { type WikiLovesImageFavoriteDoc } from '@/lib/image-wikiloves-bookmark'
@@ -76,10 +76,10 @@ function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
         <ShareToLobbyButton resourceId={item.docid} resourceType="IMAGE_WIKILOVES" />
         <button
           onClick={onRemove}
-          className="rounded-full p-1.5 text-indigo-600 opacity-60 hover:opacity-100 hover:text-indigo-800 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:text-indigo-200 dark:hover:bg-indigo-900/40 transition-all"
+          className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
           title="Retirer des favoris"
         >
-          <X className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" />
         </button>
       </div>
     </div>

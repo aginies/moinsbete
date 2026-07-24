@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ExternalLink, X } from 'lucide-react'
+import { ExternalLink, Trash2 } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
 import { getNewsFavoritesAction } from '@/actions/news-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
@@ -92,10 +92,10 @@ export function NewsFavorites({ userId, onRemoveComplete, searchQuery }: NewsFav
           </div>
           <button
             onClick={onRemove}
-            className="rounded-full p-1.5 text-blue-600 opacity-60 hover:opacity-100 hover:text-blue-800 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/40 transition-all"
+            className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
             title="Retirer des favoris"
           >
-            <X className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" />
           </button>
         </div>
       )}

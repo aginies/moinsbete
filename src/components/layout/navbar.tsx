@@ -8,6 +8,7 @@ import { SearchButton } from './search-button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { HelpContent } from '@/components/help-content'
 import { LobbyHelpContent } from '@/components/lobby-help-content'
+import { FavoritesHelpContent } from '@/components/favorites-help-content'
 import { usePathname } from 'next/navigation'
 
 interface NavbarInnerProps {
@@ -25,6 +26,7 @@ interface NavbarInnerProps {
 export function NavbarInner({ session }: NavbarInnerProps) {
   const pathname = usePathname()
   const isLobby = pathname?.includes('/lobby')
+  const isFavoris = pathname?.includes('/favoris')
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -95,16 +97,16 @@ export function NavbarInner({ session }: NavbarInnerProps) {
             <Dialog>
               <DialogTrigger
                 render={
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <CircleHelp className="h-5 w-5 text-muted-foreground" />
+                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                    <CircleHelp className="h-6 w-6 text-muted-foreground" />
                   </Button>
                 }
               />
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>{isLobby ? 'Aide — Lobby' : 'Aide'}</DialogTitle>
+                  <DialogTitle>{isFavoris ? 'Aide — Favoris' : isLobby ? 'Aide — Lobby' : 'Aide'}</DialogTitle>
                 </DialogHeader>
-                {isLobby ? <LobbyHelpContent /> : <HelpContent />}
+                {isFavoris ? <FavoritesHelpContent /> : isLobby ? <LobbyHelpContent /> : <HelpContent />}
               </DialogContent>
             </Dialog>
             <ThemeToggle />

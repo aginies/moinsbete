@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
-import { ExternalLink, X, Play } from 'lucide-react'
+import { ExternalLink, Trash2, Play } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getPixabayFavoritesAction } from '@/actions/image-pixabay-bookmark-actions'
 import { type PixabayVideoFavoriteDoc } from '@/lib/image-pixabay-bookmark'
@@ -67,10 +67,10 @@ function PixabayFavoriteItem({ item, onRemove }: PixabayFavoriteItemProps) {
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
         <button
           onClick={onRemove}
-          className="rounded-full p-1.5 text-amber-600 opacity-60 hover:opacity-100 hover:text-amber-800 hover:bg-amber-100 dark:text-amber-400 dark:hover:text-amber-200 dark:hover:bg-amber-900/40 transition-all"
+          className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
           title="Retirer des favoris"
         >
-          <X className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" />
         </button>
       </div>
     </div>
