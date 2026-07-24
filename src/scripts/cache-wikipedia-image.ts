@@ -145,13 +145,14 @@ export async function scrapeAndCacheWikipediaImages(count: number = 1): Promise<
       const now2 = new Date()
       const expiresAt = new Date(now2.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
       
-      for (const image of entries) {
-        await prisma.cachedWikipediaImage.upsert({
-          where: { imageUrl_date: { imageUrl: image.imageUrl, date: image.date } },
-          update: { ...image, scrapedAt: now2, expiresAt },
-          create: { ...image, scrapedAt: now2, expiresAt },
-        })
-      }
+ const upserts = entries.map(image => ({
+    where: { imageUrl_date: { imageUrl: image.imageUrl, date: image.date } },
+    update: { ...image, scrapedAt: now2, expiresAt },
+    create: { ...image, scrapedAt: now2, expiresAt },
+  }))
+  await prisma.$transaction(upserts.map(u => 
+    prisma.cachedWikipediaImage.upsert(u)
+  ))
       
       totalImages += entries.length
       
