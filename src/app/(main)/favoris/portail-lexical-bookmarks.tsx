@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import Link from 'next/link'
-import { X, ArrowUpRight } from 'lucide-react'
+import { Trash2, ArrowUpRight } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
 import { getPortailLexicalFavoritesAction } from '@/actions/portail-lexical-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
@@ -75,7 +75,7 @@ function PortailLexicalFavoriteItem({ item, onRemove }: { item: PortailLexicalFa
           className="rounded-full p-1.5 text-amber-600 opacity-60 hover:opacity-100 hover:text-amber-800 hover:bg-amber-100 dark:text-amber-400 dark:hover:text-amber-200 dark:hover:bg-amber-900/40 transition-all"
           title="Retirer des favoris"
         >
-          <X className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" />
         </button>
       </div>
     </div>

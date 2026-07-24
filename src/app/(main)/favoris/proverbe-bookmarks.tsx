@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import Link from 'next/link'
-import { X, ArrowUpRight } from 'lucide-react'
+import { Trash2, ArrowUpRight } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
 import { getProverbeFavoritesAction } from '@/actions/proverbe-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
@@ -79,10 +79,10 @@ function ProverbeFavoriteItem({ item, onRemove, onShareToggle, isShared, isShari
         <ShareToLobbyButton resourceId={item.id} resourceType="PROVERBE" />
         <button
           onClick={onRemove}
-          className="rounded-full p-1.5 text-emerald-600 opacity-60 hover:opacity-100 hover:text-emerald-800 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:text-emerald-200 dark:hover:bg-emerald-900/40 transition-all"
+          className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
           title="Retirer des favoris"
         >
-          <X className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" />
         </button>
       </div>
     </div>

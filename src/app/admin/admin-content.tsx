@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -106,12 +105,9 @@ export function AdminContent({ stats, users }: AdminContentProps) {
             >
               <option value="fr" className="dark:bg-zinc-900">FR</option>
               <option value="en" className="dark:bg-zinc-900">EN</option>
-            </select>
-          </div>
-          <Link href="/" className="text-sm text-primary hover:underline">
-            {adminT('back_to_site')}
-          </Link>
+          </select>
         </div>
+      </div>
       </div>
 
       <Tabs defaultValue="stats" className="space-y-6">

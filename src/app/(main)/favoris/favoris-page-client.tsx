@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote, Trash2 } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import Link from 'next/link'
@@ -650,7 +650,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
                    handleBookmark(idea.id)
                  }}
                >
-                 <X className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
+                  <Trash2 className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
                </button>
              </div>
                 </div>

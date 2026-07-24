@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db'
 
 import { getSession } from '@/lib/auth'
 import Link from 'next/link'
-import { ArrowLeft, Bookmark } from 'lucide-react'
+import { Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FavorisPageClient } from './favoris-page-client'
 import { mapIdeaWithSourceAndTopics } from '@/lib/feed-helpers'
@@ -87,17 +87,8 @@ export default async function FavorisPage({
 
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-4xl md:p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <Link
-            href="/"
-            className="mb-2 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:inline-flex"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Accueil
-          </Link>
-          <h1 className="text-2xl font-heading font-bold">Favoris</h1>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-heading font-bold">Favoris</h1>
       </div>
 
       <FavorisPageClient

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ExternalLink, X } from 'lucide-react'
+import { ExternalLink, Trash2 } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
 import { getRadioFavoritesAction } from '@/actions/radio-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
@@ -91,10 +91,10 @@ export function RadioFranceFavorites({ userId, onRemoveComplete, searchQuery }: 
           </div>
           <button
             onClick={onRemove}
-            className="rounded-full p-1.5 text-purple-600 opacity-60 hover:opacity-100 hover:text-purple-800 hover:bg-purple-100 dark:text-purple-400 dark:hover:text-purple-200 dark:hover:bg-purple-900/40 transition-all"
+            className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
             title="Retirer des favoris"
           >
-            <X className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" />
           </button>
         </div>
       )}
