@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { HelpContent } from '@/components/help-content'
 import { LobbyHelpContent } from '@/components/lobby-help-content'
 import { FavoritesHelpContent } from '@/components/favorites-help-content'
+import { CarteMentaleHelpContent } from '@/components/carte-mentale-help-content'
+import { HistoriqueHelpContent } from '@/components/historique-help-content'
 import { usePathname } from 'next/navigation'
 
 interface NavbarInnerProps {
@@ -27,6 +29,8 @@ export function NavbarInner({ session }: NavbarInnerProps) {
   const pathname = usePathname()
   const isLobby = pathname?.includes('/lobby')
   const isFavoris = pathname?.includes('/favoris')
+  const isCarte = pathname?.includes('/carte-mentale')
+  const isHistorique = pathname?.includes('/mon-historique')
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -104,9 +108,11 @@ export function NavbarInner({ session }: NavbarInnerProps) {
               />
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>{isFavoris ? 'Aide — Favoris' : isLobby ? 'Aide — Lobby' : 'Aide'}</DialogTitle>
+                  <DialogTitle>
+                  {isHistorique ? 'Aide — Historique' : isCarte ? 'Aide — Carte Mentale' : isFavoris ? 'Aide — Favoris' : isLobby ? 'Aide — Lobby' : 'Aide'}
+                </DialogTitle>
                 </DialogHeader>
-                {isFavoris ? <FavoritesHelpContent /> : isLobby ? <LobbyHelpContent /> : <HelpContent />}
+                {isHistorique ? <HistoriqueHelpContent /> : isCarte ? <CarteMentaleHelpContent /> : isFavoris ? <FavoritesHelpContent /> : isLobby ? <LobbyHelpContent /> : <HelpContent />}
               </DialogContent>
             </Dialog>
             <ThemeToggle />
