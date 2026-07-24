@@ -180,7 +180,7 @@ function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boo
           )}
 
           <Script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad"
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
             strategy="afterInteractive"
             onLoad={() => {
               scriptLoadedRef.current = true
