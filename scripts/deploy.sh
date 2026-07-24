@@ -71,9 +71,9 @@ rm -f "$DEST"/scripts/*.ts "$DEST"/scripts/update
 rm -f "$DEST"/install.sh "$DEST"/build.sh
 rm -f "$DEST"/test_ll*
 
-# Backup DB before deploy (in DEST directory)
+# Backup DB before deploy (in SRC directory)
 if [ -f "$DEST/dev.db" ]; then
-  BACKUP_DIR="$DEST/backups/$(date +%Y%m%d_%H%M%S)"
+  BACKUP_DIR="$SRC/backups/$(date +%Y%m%d_%H%M%S)"
   mkdir -p "$BACKUP_DIR"
   for f in "$DEST"/dev.db*; do
     if [ -f "$f" ]; then
