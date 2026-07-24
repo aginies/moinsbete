@@ -1,17 +1,26 @@
+'use client'
+
 import Link from 'next/link'
-import { BookOpen, User, Clock, Bookmark, MessageSquare, Shield } from 'lucide-react'
+import { BookOpen, User, Clock, Bookmark, MessageSquare, Shield, CircleHelp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
-import { getSession } from '@/lib/auth'
 import { SearchButton } from './search-button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { HelpContent } from '@/components/help-content'
 
-export async function Navbar() {
-  const session = await getSession()
-
-  return <NavbarInner session={session} />
+interface NavbarInnerProps {
+  session: {
+    user?: {
+      id: string
+      name?: string | null
+      email: string
+      role: string
+    }
+    expires?: string
+  } | null
 }
 
-function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSession>> }) {
+export function NavbarInner({ session }: NavbarInnerProps) {
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -79,6 +88,21 @@ function NavbarInner({ session }: { session: Awaited<ReturnType<typeof getSessio
                 </Link>
               </>
             )}
+            <Dialog>
+              <DialogTrigger
+                render={
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <CircleHelp className="h-5 w-5 text-muted-foreground" />
+                  </Button>
+                }
+              />
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Aide</DialogTitle>
+                </DialogHeader>
+                <HelpContent />
+              </DialogContent>
+            </Dialog>
             <ThemeToggle />
           </div>
         </div>

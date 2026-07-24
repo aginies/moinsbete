@@ -35,6 +35,7 @@ model User {
   cardOrder                    Json?
   newsCardVisible              Boolean?              @default(true)
   emailNotificationsEnabled    Boolean               @default(true)
+  hasSeenSplash                Boolean               @default(false)
   bookmarks                    Bookmark[]
   growthPlan                   GrowthPlan?
   resetTokens                  PasswordResetToken[]
