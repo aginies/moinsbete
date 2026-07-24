@@ -76,6 +76,18 @@ export function HelpContent() {
           </p>
         </div>
       </div>
+
+      <div className="flex items-start gap-3">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
+          <Share2 className="h-4 w-4 text-blue-500" />
+        </div>
+        <div>
+          <p className="font-medium">Le Lobby</p>
+          <p className="text-muted-foreground">
+            Espace communautaire avec 4 onglets : Favoris (favoris partagés par la communauté), Avec vous (contenus partagés avec vous), j'ai partagé (contenus que vous avez partagés à des utilisateurs spécifiques), et Discuter (forum pour suggérer des idées d&apos;amélioration).
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
