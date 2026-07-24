@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { Clock, Search, Trash2, BookOpen, Eye } from 'lucide-react'
+import { Clock, Search, Trash2, BookOpen } from 'lucide-react'
 
 export function HistoriqueHelpContent() {
   const t = useTranslations('help')
@@ -51,18 +51,6 @@ export function HistoriqueHelpContent() {
           <p className="font-medium">{t('historique_supprimer_title')}</p>
           <p className="text-muted-foreground">
             {t('historique_supprimer_desc')}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex items-start gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-500/10">
-          <Eye className="h-4 w-4 text-purple-500" />
-        </div>
-        <div>
-          <p className="font-medium">{t('historique_suivi_title')}</p>
-          <p className="text-muted-foreground">
-            {t('historique_suivi_desc')}
           </p>
         </div>
       </div>
