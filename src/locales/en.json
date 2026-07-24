@@ -659,6 +659,26 @@
     "share_favorites_title": "Share from favorites",
     "share_favorites_desc": "From this page, you can share your favorites with the community (Favorites tab in Lobby) or with specific users.",
     "delete_title": "Delete",
-    "delete_desc": "Click the trash on a favorite to remove it. It stays in your personal favorites but no longer appears here."
+    "delete_desc": "Click the trash on a favorite to remove it. It stays in your personal favorites but no longer appears here.",
+    "carte_title": "Mind Map",
+    "carte_desc": "Visualize your favorite ideas as an interactive graph. Explore connections between topics.",
+    "carte_zoom_title": "Zoom In / Out",
+    "carte_zoom_desc": "Use the mouse wheel or + and - buttons to zoom in the mind map.",
+    "carte_deplace_title": "Pan the map",
+    "carte_deplace_desc": "Click and drag to move the view. Use navigation buttons to orient yourself.",
+    "carte_explorer_title": "Explore ideas",
+    "carte_explorer_desc": "Click on a node to see idea details. Connections are highlighted.",
+    "carte_connexions_title": "Thematic connections",
+    "carte_connexions_desc": "Lines between nodes show relationships between topics. The more ideas you save, the richer the map.",
+    "historique_title": "Your History",
+    "historique_desc": "Track the ideas you have viewed. Revisit them later or discover what you missed.",
+    "historique_recherche_title": "Search history",
+    "historique_recherche_desc": "Use the search bar to filter your viewing history by keyword. Find specific ideas quickly.",
+    "historique_revoir_title": "Review past ideas",
+    "historique_revoir_desc": "Click on any idea in your history to read it again. Continue your learning journey.",
+    "historique_supprimer_title": "Clear history",
+    "historique_supprimer_desc": "Remove individual items or clear your entire history. Your favorites remain untouched.",
+    "historique_suivi_title": "Track your learning",
+    "historique_suivi_desc": "Your history helps you see what you have explored. Use it to identify gaps in your knowledge."
   }
 }
