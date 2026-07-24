@@ -7,6 +7,7 @@ import { useItemShare } from './use-item-share'
 import { ShareButton } from './share-button'
 import { sanitizeUrl } from '@/lib/utils'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { VisibilityButton } from './visibility-button'
 import { toggleRadioFavoriteAction, isRadioFavoriteAction } from '@/actions/radio-bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
@@ -90,6 +91,8 @@ function RadioFranceCardInner({ initialDoc, userId, onToggle, isVisible }: Radio
     }
     setLoading(false)
   }, [loading, doc])
+
+  useAutoRefresh('radioFrance', handleRefresh)
 
   const { isPending, handleBookmark } = useSimpleBookmarkToggle({
     resourceId: doc?.id,

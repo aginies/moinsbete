@@ -9,6 +9,7 @@ import { ShareButton } from './share-button'
 import { toggleCnrsFavoriteAction, isCnrsFavoriteAction } from '@/actions/cnrs-bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { VisibilityButton } from './visibility-button'
 
 interface CnrsNewsCardProps {
@@ -82,6 +83,8 @@ function CnrsNewsCardInner({ onToggle, userId, showToggle = true, isVisible }: C
     }
     setLoading(false)
   }, [])
+
+  useAutoRefresh('cnrs', loadArticle)
 
   const isCardVisible = hasMounted && show
 
