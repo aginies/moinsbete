@@ -1,8 +1,10 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Share2, Bookmark, MessageSquare, Users, ListPlus } from 'lucide-react'
 
 export function LobbyHelpContent() {
+  const t = useTranslations('help')
   return (
     <div className="space-y-4 text-sm">
       <div className="flex items-start gap-3">
@@ -10,9 +12,9 @@ export function LobbyHelpContent() {
           <ListPlus className="h-4 w-4 text-green-500" />
         </div>
         <div>
-          <p className="font-medium">4 onglets</p>
+          <p className="font-medium">{t('tabs_title')}</p>
           <p className="text-muted-foreground">
-            Le Lobby a quatre espaces : Favoris, Avec vous, J&apos;ai partagé, et Discuter.
+            {t('tabs_desc')}
           </p>
         </div>
       </div>
@@ -22,9 +24,9 @@ export function LobbyHelpContent() {
           <Bookmark className="h-4 w-4 text-blue-500" />
         </div>
         <div>
-          <p className="font-medium">Favoris</p>
+          <p className="font-medium">{t('favoris_title')}</p>
           <p className="text-muted-foreground">
-            Contenu que la communauté a partagé publiquement. Chaque utilisateur peut rendre ses favoris visibles à tous.
+            {t('favoris_desc')}
           </p>
         </div>
       </div>
@@ -34,9 +36,9 @@ export function LobbyHelpContent() {
           <Users className="h-4 w-4 text-purple-500" />
         </div>
         <div>
-          <p className="font-medium">Avec vous</p>
+          <p className="font-medium">{t('avec_vous_title')}</p>
           <p className="text-muted-foreground">
-            Contenu qu&apos;un autre utilisateur a partagé spécifiquement avec vous. Découvrez ce que vos camarades recommandent.
+            {t('avec_vous_desc')}
           </p>
         </div>
       </div>
@@ -46,9 +48,9 @@ export function LobbyHelpContent() {
           <Share2 className="h-4 w-4 text-amber-500" />
         </div>
         <div>
-          <p className="font-medium">J&apos;ai partagé</p>
+          <p className="font-medium">{t('jai_partage_title')}</p>
           <p className="text-muted-foreground">
-            Tous les contenus que vous avez partagés à des utilisateurs spécifiques. Gérez vos partages depuis ici.
+            {t('jai_partage_desc')}
           </p>
         </div>
       </div>
@@ -58,9 +60,9 @@ export function LobbyHelpContent() {
           <MessageSquare className="h-4 w-4 text-emerald-500" />
         </div>
         <div>
-          <p className="font-medium">Discuter</p>
+          <p className="font-medium">{t('discuter_title')}</p>
           <p className="text-muted-foreground">
-            Forum communautaire. Suggérez de nouvelles idées, proposez des améliorations ou discutez avec la communauté.
+            {t('discuter_desc')}
           </p>
         </div>
       </div>

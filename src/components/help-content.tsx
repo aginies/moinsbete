@@ -1,8 +1,10 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { MousePointerClick, Share2, Bookmark, RefreshCw, EyeOff, Filter } from 'lucide-react'
 
 export function HelpContent() {
+  const t = useTranslations('help')
   return (
     <div className="space-y-4 text-sm">
       <div className="flex items-start gap-3">
@@ -10,9 +12,9 @@ export function HelpContent() {
           <MousePointerClick className="h-4 w-4 text-green-500" />
         </div>
         <div>
-          <p className="font-medium">Page dédiée</p>
+          <p className="font-medium">{t('page_title')}</p>
           <p className="text-muted-foreground">
-            Cliquez sur le titre d'une carte pour voir tous les détails.
+            {t('page_desc')}
           </p>
         </div>
       </div>
@@ -22,9 +24,9 @@ export function HelpContent() {
           <Share2 className="h-4 w-4 text-purple-500" />
         </div>
         <div>
-          <p className="font-medium">Partager</p>
+          <p className="font-medium">{t('share_title')}</p>
           <p className="text-muted-foreground">
-            Copiez le lien ou partagez avec d'autres utilisateurs via le Lobby.
+            {t('share_desc')}
           </p>
         </div>
       </div>
@@ -34,9 +36,9 @@ export function HelpContent() {
           <Bookmark className="h-4 w-4 text-amber-500" />
         </div>
         <div>
-          <p className="font-medium">Sauvegarder</p>
+          <p className="font-medium">{t('save_title')}</p>
           <p className="text-muted-foreground">
-            Ajoutez une carte à vos favoris pour la retrouver plus tard.
+            {t('save_desc')}
           </p>
         </div>
       </div>
@@ -46,9 +48,9 @@ export function HelpContent() {
           <Filter className="h-4 w-4 text-cyan-500" />
         </div>
         <div>
-          <p className="font-medium">Filtrer</p>
+          <p className="font-medium">{t('filter_title')}</p>
           <p className="text-muted-foreground">
-            Affiche ou masque les filtres de catégorie disponibles pour cette carte.
+            {t('filter_desc')}
           </p>
         </div>
       </div>
@@ -58,9 +60,9 @@ export function HelpContent() {
           <RefreshCw className="h-4 w-4 text-emerald-500" />
         </div>
         <div>
-          <p className="font-medium">Rafraîchir</p>
+          <p className="font-medium">{t('refresh_title')}</p>
           <p className="text-muted-foreground">
-            Actualisez le contenu d'une carte pour voir les nouveautés.
+            {t('refresh_desc')}
           </p>
         </div>
       </div>
@@ -70,9 +72,9 @@ export function HelpContent() {
           <EyeOff className="h-4 w-4 text-rose-500" />
         </div>
         <div>
-          <p className="font-medium">Masquer</p>
+          <p className="font-medium">{t('hide_title')}</p>
           <p className="text-muted-foreground">
-            Cachez une carte que vous ne souhaitez plus voir.
+            {t('hide_desc')}
           </p>
         </div>
       </div>
