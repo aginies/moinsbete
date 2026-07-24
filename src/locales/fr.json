@@ -469,7 +469,7 @@
     "share_all": "Partagez tout le contenu",
     "share_desc": "Chaque idée, fait, image, article du CNRS, documentaire Radio France, vidéo Pixabay et page de MoinsBête peut être partagée facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux ou copier le lien directement.",
     "lobby": "Le Lobby",
-    "lobby_desc": "Le Lobby est un espace communautaire avec deux onglets : les favoris partagés par la communauté et un forum de discussion.",
+    "lobby_desc": "Espace communautaire avec 4 onglets : Favoris (favoris partagés par la communauté), Avec vous (contenus partagés avec vous), j'ai partagé (contenus que vous avez partagés à des utilisateurs spécifiques), et Discuter (forum de suggestions).",
     "shared_favorites": "Favoris partagés",
     "shared_favorites_desc": "Chaque utilisateur peut partager ses favoris avec la communauté. Pour qu'un contenu apparaisse dans les favoris partagés, il doit d'abord être ajouté aux favoris de l'utilisateur. Les favoris incluent les idées, faits surprenants, images du jour, images Wikimedia et Wiki Loves.",
     "discuss": "Discuter",
