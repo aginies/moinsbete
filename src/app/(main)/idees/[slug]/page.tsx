@@ -77,7 +77,7 @@ async function getPrevNext(slug: string, currentOrderIndex: number, topic?: stri
     },
   }
 
-  let [prev, next] = await Promise.all([
+  const [prev, next, minIdea, maxIdea] = await Promise.all([
     prisma.idea.findFirst({
       where: { ...where, orderIndex: { lt: currentOrderIndex } },
       orderBy: { orderIndex: 'desc' },
@@ -88,28 +88,24 @@ async function getPrevNext(slug: string, currentOrderIndex: number, topic?: stri
       orderBy: { orderIndex: 'asc' },
       include,
     }),
-  ])
-
-  // Infinite looping support: wrap around if at the beginning or end of the queue
-  if (!prev) {
-    prev = await prisma.idea.findFirst({
-      where,
-      orderBy: { orderIndex: 'desc' },
-      include,
-    })
-  }
-
-  if (!next) {
-    next = await prisma.idea.findFirst({
+    prisma.idea.findFirst({
       where,
       orderBy: { orderIndex: 'asc' },
       include,
-    })
-  }
+    }),
+    prisma.idea.findFirst({
+      where,
+      orderBy: { orderIndex: 'desc' },
+      include,
+    }),
+  ])
+
+  const finalPrev = prev || maxIdea
+  const finalNext = next || minIdea
 
   return {
-    prev: mapIdeaToClient(prev),
-    next: mapIdeaToClient(next),
+    prev: mapIdeaToClient(finalPrev),
+    next: mapIdeaToClient(finalNext),
   }
 }
 

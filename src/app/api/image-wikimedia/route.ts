@@ -33,7 +33,7 @@ const DEFAULT_TOPIC_SEARCHES: Record<string, string[]> = {
 async function getTopicSearches(): Promise<Record<string, string[]>> {
   const searches: Record<string, string[]> = { ...DEFAULT_TOPIC_SEARCHES }
   
-  const dbTopics = await prisma.userWikimediaTopic.findMany({})
+  const dbTopics = await prisma.userWikimediaTopic.findMany({ take: 1000 })
   
   for (const dbTopic of dbTopics) {
     let searchTerms: string[] = []
