@@ -113,19 +113,23 @@ async function getPrevNext(slug: string, currentOrderIndex: number, topic?: stri
   }
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
-  const idea = await prisma.idea.findUnique({
+async function fetchIdeaBySlug(slug: string) {
+  return prisma.idea.findUnique({
     where: { slug },
     include: {
       source: true,
       ideaTopics: {
         include: {
-          topic: { select: { name: true, icon: true } },
+          topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
         },
       },
     },
   })
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const idea = await fetchIdeaBySlug(slug)
 
   if (!idea) {
     return { title: 'Idée introuvable | MoinsBête' }
@@ -174,17 +178,7 @@ export default async function IdeaDetailPage({
   const { topic, collection } = await searchParams
   const session = await getSession()
 
-  const idea = await prisma.idea.findUnique({
-    where: { slug },
-    include: {
-      source: true,
-      ideaTopics: {
-        include: {
-          topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
-        },
-      },
-    },
-  })
+  const idea = await fetchIdeaBySlug(slug)
 
   if (!idea) {
     return (

@@ -9,6 +9,7 @@ import { maskEmail } from '@/lib/utils'
 export async function GET() {
   const suggestions = await prisma.userSuggestion.findMany({
     orderBy: { createdAt: 'desc' },
+    take: 100,
     include: {
       _count: { select: { comments: true } },
       user: { select: { id: true, displayName: true, email: true } },
