@@ -132,6 +132,7 @@ model IdeaTopic {
   idea    Idea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
 
   @@unique([ideaId, topicId])
+  @@index([topicId])
 }
 
 model Collection {

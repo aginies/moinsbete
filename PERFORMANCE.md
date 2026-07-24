@@ -1,81 +1,76 @@
-# Performance Optimizations
+# DB Performance Issues
 
-## Status
+## HIGH PRIORITY
 
-| # | Priority | Issue | File | Status |
-|---|----------|-------|------|--------|
-| 2 | HIGH | No FTS5 — search degrades with data | `src/app/api/search/route.ts:115` | ⏳ Pending |
-| 4 | HIGH | CNRS live scraping blocks response (30s+) | `src/app/api/cnrs-news/route.ts:15` | ✅ Done |
-| 5 | HIGH | `ioredis` + `redis` both installed | `package.json` | ✅ Done |
-| 6 | CRITICAL | SQL injection via `$queryRawUnsafe` | `src/lib/feed-helpers.ts:24,55` | ⏳ Pending |
-| 7 | MEDIUM | Missing indexes on `IdeaTopic.topicId`, `ViewedIdea.ideaId` | `prisma/schema.prisma` | ⏳ Pending |
-| 8 | MEDIUM | FavorisPageClient: 5 sequential fetches, 10 count states | `favoris-page-client.tsx` | ⏳ Pending |
-| 9 | MEDIUM | `BaseImageCard` not memoized | `base-image-card.tsx` | ❌ Skip (low ROI) |
-| 10 | MEDIUM | Most images use raw `<img>`, skip Next.js optimization | Multiple card components | ⏳ Pending |
-| 11 | MEDIUM | TTL cache unbounded Map growth | `src/lib/ttl-cache.ts` | ✅ Done |
-| 12 | MEDIUM | Bookmark toggle = 2 queries (findFirst + create/delete) | `src/lib/favorite.ts` | ❌ Skip (low ROI) |
-| 13 | LOW | `router.refresh()` overuse (10+ locations) | admin, login, sujets | ❌ Skip (UX acceptable) |
-| 14 | LOW | Inline date formatting in client component | `admin-content.tsx:510` | ⏳ Pending |
+### 1. N+1 Query in Lobby Page
 
-## Details
+**File:** `src/app/lobby/page.tsx`
 
-### 2. No FTS5 — search degrades with data
-**File:** `src/app/api/search/route.ts:115`
-**Problem:** `contains` = SQLite `LIKE '%q%'` full table scan. Post-filter accent normalization in JS.
-**Options:**
-- Full FTS5 virtual table (proper ranking, requires raw SQL, Prisma middleware for sync)
-- Normalized `searchText` column + prefix `LIKE '...%'` (simpler, index-friendly, 80% benefit)
+**Status:** FIXED. Batch fetch all missing ideas before enrichment loop. `enrichBookmark` now sync, uses `ideaMap` lookup instead of per-item query. 0-1 extra queries instead of 0-20.
 
-### 4. CNRS live scraping blocks response
-**File:** `src/app/api/cnrs-news/route.ts:15`
-**Problem:** Cold cache → scrape up to 10 pages, blocks 30s+
-**Fix:** Return placeholder / stale data. Run scraper in background job.
+### 2. Unbounded Queries (no limit/take)
 
-### 5. `ioredis` + `redis` both installed
-**File:** `package.json`
-**Problem:** Both packages in bundle (~300KB combined)
-**Fix:** Pick one, remove other.
+| File | Line | Query | Impact |
+|------|------|-------|--------|
+| `src/app/api/lobby/route.ts` | 10 | `userSuggestion.findMany({})` | Returns ALL suggestions, no pagination |
+| `src/app/api/image-wikimedia/route.ts` | 36 | `userWikimediaTopic.findMany({})` | Returns all on every image request |
+| `src/app/admin/page.tsx` | 95 | `user.findMany({})` | Returns all users |
+| `src/app/lobby/page.tsx` | 59 | `bookmark.findMany({ userId })` | All bookmarks, no type filter |
 
-### 6. SQL injection via `$queryRawUnsafe`
-**File:** `src/lib/feed-helpers.ts:24,55`
-**Problem:** Topic IDs interpolated directly into raw SQL
-**Fix:** Use `$queryRaw` with `$` parameterized syntax.
+**Status:** `src/app/api/lobby/route.ts` and `src/app/lobby/page.tsx` fixed with `take: 100`. Remaining unbounded queries pending.
 
-### 7. Missing indexes
-**File:** `prisma/schema.prisma`
-**Missing:**
-- `@@index([topicId])` on `IdeaTopic`
-- `@@index([ideaId])` on `IdeaTopic`
-- `@@index([ideaId])` on `ViewedIdea`
+### 3. Missing Indexes
 
-### 8. FavorisPageClient
-**File:** `src/app/(main)/favoris/favoris-page-client.tsx`
-**Problem:** 5 sequential `useEffect` fetches. 10 count state variables. `searchResults` useMemo rebuilds all tabs on query change.
-**Fix:** Single batched fetch. Consolidate count states. Memoize per-tab filtering.
+| Model | Missing Index | Used By |
+|-------|---------------|---------|
+| `IdeaTopic` | `@@index([topicId])` | Feed/topic filtering, idea detail pages |
+| `SharedLobbyBookmark` | `@@index([resourceType, resourceId])` | Lobby resource lookups |
+| `ViewedIdea` | `@@index([ideaId])` | History search by title (joins Idea) |
 
-### 9. BaseImageCard not memoized
-**File:** `src/components/feed/base-image-card.tsx`
-**Fix:** Wrap in `React.memo`
+**Status:** `IdeaTopic` index applied (`prisma db push`). Remaining indexes pending.
 
-### 10. Images bypass Next.js optimization
-**Problem:** Most cards use raw `<img>`. Only 3 `remotePatterns` in `next.config.ts`.
-**Fix:** Add patterns for pixabay, wikimedia, radiofrance, cnrs. Convert to `<Image>`.
+**Fix:** Add indexes to `prisma/schema.prisma`, run migration.
 
-### 11. TTL cache unbounded growth
-**File:** `src/lib/ttl-cache.ts`
-**Problem:** `Map` grows without limit. Many unique search keys = memory leak.
-**Fix:** Add max-size LRU eviction.
+## MEDIUM PRIORITY
 
-### 12. Bookmark toggle = 2 queries
-**File:** `src/lib/favorite.ts:19-42`
-**Problem:** `findFirst` then `delete` or `create`
-**Fix:** Use `upsert` with unique constraint on `[userId, resourceId]`
+### 4. Redundant Query in Idea Detail Page
 
-### 13. `router.refresh()` overuse
-**Problem:** 10 locations. Each triggers full server re-render.
-**Fix:** `revalidatePath()` or optimistic updates.
+**File:** `src/app/(main)/idees/[slug]/page.tsx`
 
-### 14. Inline date formatting in client
-**File:** `src/app/admin/admin-content.tsx:510`
-**Problem:** `new Date().toLocaleDateString()` in client component → timezone mismatch risk.
-**Fix:** Format on server, pass string prop.
+**Status:** FIXED. Extracted `fetchIdeaBySlug` shared function. Both `generateMetadata` and page component use same query. Next.js may cache second call, now explicit.
+
+### 5. Heavy Includes in Lobby Page
+
+**File:** `src/app/lobby/page.tsx:79-136`
+
+3-level deep includes: `sharedLobbyBookmark -> idea -> ideaTopics -> topic + source + user`. Repeated 3 times (sharedBookmarks, sharedWithMe, sharedByMe). Result set explodes with many topics per idea.
+
+**Fix:** Use `select` instead of `include` where possible. Limit fields.
+
+### 6. Unsafe Raw Queries
+
+**File:** `src/lib/feed-helpers.ts:24-64`
+
+String interpolation instead of parameterized queries in `$queryRawUnsafe`. Low risk now (IDs from DB), but unsafe pattern. Recursive CTEs could be precomputed with materialized path column.
+
+**Fix:** Use parameterized queries. Consider materialized path for topic hierarchy.
+
+## LOW PRIORITY
+
+### 7. Multiple Queries for Prev/Next Navigation
+
+**File:** `src/app/(main)/idees/[slug]/page.tsx:80-108`
+
+4 separate queries for prev/next navigation. Could batch with single UNION query.
+
+**Fix:** Single query using UNION or raw SQL.
+
+## Recommended Fix Order
+
+1. Add `take` limits to unbounded queries
+2. Batch lobby N+1 query
+3. Add missing indexes + migration
+4. Fix $queryRawUnsafe parameterization
+5. Deduplicate idea detail page query
+6. Optimize heavy includes
+7. Batch prev/next queries

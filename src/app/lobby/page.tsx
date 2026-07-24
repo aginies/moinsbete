@@ -71,6 +71,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const [suggestions, sharedBookmarks, proverbeConfig, sharedWithMeBookmarks, sharedByMeBookmarks] = await prisma.$transaction([
       prisma.userSuggestion.findMany({
         orderBy: { createdAt: 'desc' },
+        take: 100,
         include: {
           _count: { select: { comments: true } },
           user: { select: { id: true, displayName: true, email: true } },
@@ -185,7 +186,28 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const wikiLovesMap = new Map(wikiLovesImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
     const newsMap = new Map(cachedNewsArticles.map((a: { url: string; title: string; description: string | null; imageUrl: string | null; source: string; category: string }) => [a.url, a]))
 
-    const enrichBookmark = async (bookmark: SharedLobbyBookmark & { idea: any; user: any }): Promise<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any }> => {
+    const allBookmarks = [...sharedBookmarks, ...sharedWithMeBookmarks, ...sharedByMeBookmarks]
+    const missingIdeaIds = [...new Set(
+      allBookmarks
+        .filter(b => b.resourceType === 'IDEA' && b.resourceId && !b.idea)
+        .map(b => b.resourceId!)
+    )]
+    const missingIdeas = missingIdeaIds.length > 0
+      ? await prisma.idea.findMany({
+          where: { id: { in: missingIdeaIds } },
+          include: {
+            ideaTopics: {
+              include: {
+                topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+              },
+            },
+            source: { select: { title: true, type: true, url: true } },
+          },
+        })
+      : []
+    const ideaMap = new Map(missingIdeas.map(i => [i.id, i]))
+
+    const enrichBookmark = (bookmark: SharedLobbyBookmark & { idea: any; user: any }): SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any } => {
       if (bookmark.resourceType === 'SAVIEZ_VOUS' && bookmark.resourceId) {
         const fact = saviezMap.get(bookmark.resourceId)
         if (fact) return { ...bookmark, saviezFact: fact as SaviezVousFact | null }
@@ -355,22 +377,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         }
       }
       if (bookmark.resourceType === 'IDEA' && bookmark.resourceId) {
-        let idea = null
-        if (bookmark.idea) {
-          idea = bookmark.idea
-        } else {
-          idea = await prisma.idea.findUnique({
-            where: { id: bookmark.resourceId },
-            include: {
-              ideaTopics: {
-                include: {
-                  topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
-                },
-              },
-              source: { select: { title: true, type: true, url: true } },
-            },
-          })
-        }
+        let idea = bookmark.idea || ideaMap.get(bookmark.resourceId) || null
         if (idea) {
           return {
             ...bookmark,
@@ -381,9 +388,9 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       return bookmark
     }
 
-    const enrichedBookmarks = await Promise.all(sharedBookmarks.map(enrichBookmark)).then(bookmarks => bookmarks.map(b => ({ ...b, sharedToCommunity: b.sharedWithUserId === null, sharedWithUsers: [], formattedCreatedAt: b.createdAt.toLocaleDateString(locale) }))) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any; formattedCreatedAt: string; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }>
+    const enrichedBookmarks = sharedBookmarks.map(enrichBookmark).map(b => ({ ...b, sharedToCommunity: b.sharedWithUserId === null, sharedWithUsers: [], formattedCreatedAt: b.createdAt.toLocaleDateString(locale) })) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any; formattedCreatedAt: string; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }>
 
-    const enrichedSharedWithMe = await Promise.all(sharedWithMeBookmarks.map(enrichBookmark)).then(bookmarks => bookmarks.map(b => ({ ...b, formattedCreatedAt: b.createdAt.toLocaleDateString(locale) }))) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any; formattedCreatedAt: string }>
+    const enrichedSharedWithMe = sharedWithMeBookmarks.map(enrichBookmark).map(b => ({ ...b, formattedCreatedAt: b.createdAt.toLocaleDateString(locale) })) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any; formattedCreatedAt: string }>
 
     const sharedByMeMap = new Map<string, { bookmark: typeof sharedByMeBookmarks[0]; recipientIds: string[] }>()
     for (const bookmark of sharedByMeBookmarks) {
@@ -410,13 +417,13 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     
     const recipientMap = new Map(recipientUsers.map(u => [u.id, u]))
     
-    const enrichedSharedByMe = await Promise.all(Array.from(sharedByMeMap.entries()).map(async ([key, { bookmark, recipientIds }]) => {
-      const enriched = await enrichBookmark(bookmark) as SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any }
+    const enrichedSharedByMe = Array.from(sharedByMeMap.entries()).map(([key, { bookmark, recipientIds }]) => {
+      const enriched = enrichBookmark(bookmark) as SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any }
       return { 
         ...enriched, 
         sharedWithUsers: recipientIds.map(id => recipientMap.get(id)).filter(Boolean) as Array<{ id: string; displayName: string | null; email: string }>
       }
-    }))
+    })
     
     // Ensure all sharedByMe bookmarks have sharedWithUsers field
     const finalSharedByMe = enrichedSharedByMe.map(bookmark => ({
