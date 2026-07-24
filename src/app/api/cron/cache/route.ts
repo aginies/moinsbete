@@ -4,7 +4,7 @@ import { scrapeAndCacheRadioEpisodes } from '@/scripts/cache-radio-france'
 import { scrapeAndCacheWikipediaImages } from '@/scripts/cache-wikipedia-image'
 import { scrapeAndCacheNews } from '@/scripts/cache-news'
 import { scrapeAndCacheSaviezVousImages } from '@/scripts/cache-saviez-vous-images'
-import { cleanupExpired } from '@/lib/cache-helpers'
+import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 
 const CRON_SECRET = process.env.CRON_SECRET || ''
 const ALLOWED_IPS = ['62.210.207.184', '127.0.0.1', '::1']
@@ -76,6 +76,8 @@ export async function GET(request: NextRequest) {
     console.log('[cron] Step 5/6: Cleanup...')
     const counts = await cleanupExpired()
     results.cleanup = `cnrs:${counts.cnrs},radio:${counts.radio},wiki:${counts.wiki},news:${counts.news}`
+    const newsMaxAge = await cleanupNewsByMaxAge(5)
+    results.newsMaxAge = newsMaxAge > 0 ? `maxage:${newsMaxAge}` : ''
 
     console.log('[cron] Step 6/6: Resolving Saviez-vous images...')
     await scrapeAndCacheSaviezVousImages()

@@ -207,6 +207,9 @@ describe('registerAction', () => {
     } as unknown as Response
     vi.mocked(global.fetch).mockResolvedValueOnce(mockResponse)
 
+    const { prisma } = await import('@/lib/db')
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
+
     const { registerAction } = await import('@/actions/auth-actions')
     const result = await registerAction({
       email: 'new@example.com',
@@ -221,6 +224,9 @@ describe('registerAction', () => {
   it('returns error when cfToken missing but secret configured', async () => {
     delete process.env.REGISTRATION_LOCKED
     process.env.TURNSTILE_SECRET_KEY = 'test-secret'
+
+    const { prisma } = await import('@/lib/db')
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
 
     const { registerAction } = await import('@/actions/auth-actions')
     const result = await registerAction({
