@@ -17,6 +17,7 @@ import { SwipeBackgroundCard } from './swipe-background-card'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface SaviezVousCardProps {
   id: string
@@ -68,6 +69,8 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   isVisible,
   linkAs,
 }: SaviezVousCardProps) {
+  const router = useRouter()
+  const pathname = usePathname()
   const [fact, setFact] = useState(() => {
     if (typeof sessionStorage === 'undefined') return { id, text, sourceUrl, imageFilename }
     const saved = sessionStorage.getItem('saviez_vous_fact')
@@ -112,6 +115,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
       sessionStorage.setItem('saviez_vous_fact', JSON.stringify(nextFact))
       setNextFact(null)
       setImageKey(prev => prev + 1)
+      router.push(`${pathname}?factId=${nextFact.id}`, { scroll: false })
     } else {
       // Fallback on-demand fetch
       setLoading(true)
@@ -122,10 +126,11 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         setFact(factData)
         sessionStorage.setItem('saviez_vous_fact', JSON.stringify(factData))
         setImageKey(prev => prev + 1)
+        router.push(`${pathname}?factId=${newFact.id}`, { scroll: false })
       }
       setLoading(false)
     }
-  }, [loading, nextFact])
+  }, [loading, nextFact, router, pathname])
 
   useAutoRefresh('saviezVous', handleClick)
 
