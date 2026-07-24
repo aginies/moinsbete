@@ -567,8 +567,7 @@ function UserRow({ user }: { user: AdminUser }) {
               disabled={isPending}
               className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
             >
-              <Trash2 className="mr-1 h-3 w-3" />
-              {feedT('delete')}
+              <Trash2 className="h-3 w-3" />
             </Button>
           </div>
         </td>
