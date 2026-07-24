@@ -19,7 +19,7 @@ import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { clearAllNewsAction, clearFreenewsapiAction } from '@/actions/cleanup-actions'
-import { toggleUserEnabled } from '@/actions/user-actions'
+import { toggleUserEnabled, deleteUser } from '@/actions/user-actions'
 import { updateGlobalCardVisibility } from '@/actions/card-actions'
 import { useLocale, useTranslations } from 'next-intl'
 import { useSetLocale } from '@/hooks/use-set-locale'
@@ -469,6 +469,7 @@ function StatCard({ icon, label, value, sublabel }: { icon: React.ReactNode; lab
 function UserRow({ user }: { user: AdminUser }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [deleteOpen, setDeleteOpen] = useState(false)
   const adminT = useTranslations('admin')
   const feedT = useTranslations('feed')
 
@@ -484,68 +485,117 @@ function UserRow({ user }: { user: AdminUser }) {
     })
   }
 
+  const handleDelete = async () => {
+    startTransition(async () => {
+      const result = await deleteUser(user.id)
+      if (result.success) {
+        toast.success(adminT('user_deleted'))
+        router.refresh()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    })
+  }
+
   return (
-    <tr className="border-b border-border/40 hover:bg-muted/50">
-      <td className="px-4 py-3">{user.displayName || user.email}</td>
-      <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
-      <td className="px-4 py-3">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-          user.role === 'ADMIN'
-            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
-            : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-        }`}>
-          {user.role === 'ADMIN' ? adminT('admin') : adminT('user')}
-        </span>
-      </td>
-      <td className="px-4 py-3">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-          user.enabled
-            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-        }`}>
-          {user.enabled ? adminT('active') : adminT('disabled')}
-        </span>
-      </td>
-      <td className="px-4 py-3 text-sm text-muted-foreground">
-        {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        }) : '—'}
-      </td>
-      <td className="px-4 py-3 text-sm text-muted-foreground">
-        {user.lastVisited ? new Date(user.lastVisited).toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        }) : '—'}
-      </td>
-      <td className="px-4 py-3">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleToggle}
-          disabled={isPending}
-          className={user.enabled ? 'text-destructive hover:text-destructive' : 'text-green-600 hover:text-green-600'}
-        >
-          {user.enabled ? (
-            <>
-              <UserX className="mr-1 h-3 w-3" />
-              {feedT('disable')}
-            </>
-          ) : (
-            <>
-              <UserCheck className="mr-1 h-3 w-3" />
-              {feedT('enable')}
-            </>
-          )}
-        </Button>
-      </td>
-    </tr>
+    <>
+      <tr className="border-b border-border/40 hover:bg-muted/50">
+        <td className="px-4 py-3">{user.displayName || user.email}</td>
+        <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
+        <td className="px-4 py-3">
+          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            user.role === 'ADMIN'
+              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+              : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+          }`}>
+            {user.role === 'ADMIN' ? adminT('admin') : adminT('user')}
+          </span>
+        </td>
+        <td className="px-4 py-3">
+          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            user.enabled
+              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+              : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+          }`}>
+            {user.enabled ? adminT('active') : adminT('disabled')}
+          </span>
+        </td>
+        <td className="px-4 py-3 text-sm text-muted-foreground">
+          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }) : '—'}
+        </td>
+        <td className="px-4 py-3 text-sm text-muted-foreground">
+          {user.lastVisited ? new Date(user.lastVisited).toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }) : '—'}
+        </td>
+        <td className="px-4 py-3">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleToggle}
+              disabled={isPending}
+              className={user.enabled ? 'text-destructive hover:text-destructive' : 'text-green-600 hover:text-green-600'}
+            >
+              {user.enabled ? (
+                <>
+                  <UserX className="mr-1 h-3 w-3" />
+                  {feedT('disable')}
+                </>
+              ) : (
+                <>
+                  <UserCheck className="mr-1 h-3 w-3" />
+                  {feedT('enable')}
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDeleteOpen(true)}
+              disabled={isPending}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+            >
+              <Trash2 className="mr-1 h-3 w-3" />
+              {feedT('delete')}
+            </Button>
+          </div>
+        </td>
+      </tr>
+
+    <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{adminT('confirm_delete_user_title')}</DialogTitle>
+          <DialogDescription>
+            {adminT('confirm_delete_user_desc', { email: user.email })}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={isPending}>
+            {feedT('cancel')}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isPending}
+          >
+            {feedT('delete')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }
 
