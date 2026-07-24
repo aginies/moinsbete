@@ -144,7 +144,7 @@ if [ -f "ecosystem.config.js" ]; then
 else
   pm2 start moinsbete --update-env || pm2 restart moinsbete
 fi
-pm2 wait moinsbete online 10s || true
+sleep 3
 echo "PM2 status:"
 pm2 status moinsbete
 
