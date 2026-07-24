@@ -16,6 +16,7 @@ import { NewsCard } from '@/components/feed/news-card'
 import { VisibilityButton } from '@/components/feed/visibility-button'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { CARD_DEFAULT_ORDER } from '@/lib/constants'
 
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
@@ -97,27 +98,15 @@ async function updateCardVisibility(field: string, value: boolean, csrfToken: st
 
 async function fetchCardOrder(userId: string): Promise<string[]> {
   try {
-    const cached = localStorage.getItem('card_order')
-    if (cached) {
-      const { data, expiresAt } = JSON.parse(cached)
-      if (data && Date.now() < expiresAt) {
-        return data
-      }
-      localStorage.removeItem('card_order')
-    }
     const res = await fetch('/api/user-card-order', { credentials: 'include' })
     if (res.ok) {
       const data = await res.json()
       if (Array.isArray(data.order)) {
-        localStorage.setItem('card_order', JSON.stringify({
-          data: data.order,
-          expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-        }))
         return data.order
       }
     }
   } catch {}
-  return ['pixabay', 'saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'wikimedia', 'wikiloves', 'portailLexical', 'proverbe']
+  return CARD_DEFAULT_ORDER
 }
 
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, globalVisibility, csrfToken: initialCsrfToken }: SujetsClientProps) {

@@ -20,6 +20,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, MoveUp, MoveDown, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { CARD_DEFAULT_ORDER } from '@/lib/constants'
 
 const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
   { key: 'saviezVous', label: 'Saviez-vous ?', icon: '💡' },
@@ -34,7 +35,7 @@ const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
   { key: 'proverbe', label: 'Proverbe', icon: '🗣️' },
 ]
 
-const DEFAULT_ORDER = ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe']
+const DEFAULT_ORDER = CARD_DEFAULT_ORDER
 
 function SortableCardItem({
   card,
