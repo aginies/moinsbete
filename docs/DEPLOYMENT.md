@@ -356,3 +356,51 @@ npx tsx scripts/cleanup-cached.ts
 4. Vérifier les logs PM2 : `pm2 logs moinsbete`
 5. Vérifier les logs Apache : `sudo tail -f /var/log/apache2/error.log`
 6. Tester PWA sur mobile : ajouter à l'écran d'accueil
+
+## Scalabilité (100k+ utilisateurs)
+
+**Capacité actuelle**: ~5k-10k DAU avec SQLite.
+
+**Bottleneck principal**: SQLite = single-writer. Writes (bookmarks, logins, streaks) bloquent au-delà de ~5k DAU.
+
+### Requis pour 100k DAU
+
+#### 1. Base de données (critique)
+
+- **Swap SQLite → PostgreSQL**. Same Prisma code.
+- Change `prisma/schema.prisma`: `provider = "postgresql"`
+- Managed: Supabase, Neon, RDS, Railway
+- Run: `npx prisma migrate dev` then deploy migration
+
+#### 2. Redis (required)
+
+- Set `RATE_LIMITER_DRIVER=redis` in `.env`
+- Set `REDIS_URL` (Upstash, Redis Cloud, self-hosted)
+- Enables: distributed rate limiting, shared cache across instances
+
+#### 3. Multi-instance
+
+- PM2 cluster already configured (`instances: 'max'`)
+- Behind load balancer (Apache/Nginx already configured)
+- Stateless app = scale horizontally
+
+#### 4. Cron jobs
+
+- Cron scripts run in-app. Multiple instances = duplicate runs.
+- Fix: external scheduler (GitHub Actions, cron on single instance, or queue with BullMQ)
+
+#### 5. CDN
+
+- Static assets (`/_next/static`, images) → CDN (Vercel, Cloudflare, Netlify)
+- External images (Wikimedia, Pixabay) already on their CDNs
+
+### Checklist migration
+
+- [ ] PostgreSQL instance (managed)
+- [ ] Change Prisma provider + migrate schema
+- [ ] Update `DATABASE_URL` in `.env`
+- [ ] Redis instance + `RATE_LIMITER_DRIVER=redis`
+- [ ] External cron scheduler
+- [ ] CDN for static assets
+- [ ] Test with load testing (k6, autocannon)
+- [ ] Monitor: connection pool, slow queries, Redis hit rate

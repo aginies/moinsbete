@@ -17,8 +17,21 @@ if (!globalForPrisma.prisma) {
   prisma.$executeRawUnsafe('PRAGMA busy_timeout=5000;').catch(() => {})
 }
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+globalForPrisma.prisma = prisma
 
-process.on('beforeExit', async () => {
-  await prisma.$disconnect()
-})
+if (typeof window === 'undefined') {
+  const shutdown = async (signal: string) => {
+    try {
+      await prisma.$disconnect()
+    } catch {
+      // ignore disconnect errors on shutdown
+    }
+    process.exit(0)
+  }
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'))
+  process.on('SIGINT', () => shutdown('SIGINT'))
+  process.on('beforeExit', async () => {
+    await prisma.$disconnect()
+  })
+}
