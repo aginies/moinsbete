@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import type { IdeaTopic, IdeaSource } from '@/types/idea'
 import { createRedisTtlCache } from '@/lib/redis-cache'
