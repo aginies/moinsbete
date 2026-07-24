@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+DEPLOY_SCRIPT_VERSION="1.3.0"
 SRC="/home/aginies/moinsbete"
 DEST="/srv/http/moinsbete"
 
 VERSION=$(jq -r '.version' "$SRC/version.json" 2>/dev/null || echo "unknown")
-echo "Deploying moinsbete v$VERSION..."
+echo "Deploying moinsbete v$VERSION (deploy script v$DEPLOY_SCRIPT_VERSION)..."
 
 # Stop PM2 server first to cleanly flush SQLite WAL transactions and release database file locks
 echo "Stopping PM2 server..."
