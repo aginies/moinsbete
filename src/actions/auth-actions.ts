@@ -201,7 +201,19 @@ export async function logoutAction() {
     secure: true,
     expires: pastDate,
   })
-  
+
+  return { success: true }
+}
+
+export async function toggleEmailNotificationsAction(enabled: boolean) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user) return { error: 'Non authentifié' }
+
+  await prisma.user.update({
+    where: { id: session.user.id as string },
+    data: { emailNotificationsEnabled: enabled },
+  })
+
   return { success: true }
 }
 

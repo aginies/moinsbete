@@ -34,6 +34,7 @@ model User {
   proverbeCardVisible          Boolean               @default(true)
   cardOrder                    Json?
   newsCardVisible              Boolean?              @default(true)
+  emailNotificationsEnabled    Boolean               @default(true)
   bookmarks                    Bookmark[]
   growthPlan                   GrowthPlan?
   resetTokens                  PasswordResetToken[]
