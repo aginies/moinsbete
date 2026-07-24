@@ -677,8 +677,6 @@
     "historique_revoir_title": "Review past ideas",
     "historique_revoir_desc": "Click on any idea in your history to read it again. Continue your learning journey.",
     "historique_supprimer_title": "Clear history",
-    "historique_supprimer_desc": "Remove individual items or clear your entire history. Your favorites remain untouched.",
-    "historique_suivi_title": "Track your learning",
-    "historique_suivi_desc": "Your history helps you see what you have explored. Use it to identify gaps in your knowledge."
+    "historique_supprimer_desc": "Remove individual items or clear your entire history. Your favorites remain untouched."
   }
 }
