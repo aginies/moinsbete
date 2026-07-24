@@ -94,6 +94,7 @@ export default async function AdminPage() {
     prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } }),
     prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 500,
       select: {
         id: true,
         email: true,

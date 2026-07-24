@@ -17,7 +17,11 @@
 | `src/app/admin/page.tsx` | 95 | `user.findMany({})` | Returns all users |
 | `src/app/lobby/page.tsx` | 59 | `bookmark.findMany({ userId })` | All bookmarks, no type filter |
 
-**Status:** `src/app/api/lobby/route.ts` and `src/app/lobby/page.tsx` fixed with `take: 100`. Remaining unbounded queries pending.
+**Status:** FIXED. All 4 unbounded queries now have limits:
+- `src/app/api/lobby/route.ts` + `src/app/lobby/page.tsx`: `take: 100` on suggestions
+- `src/app/api/image-wikimedia/route.ts`: `take: 1000` on userWikimediaTopic
+- `src/app/admin/page.tsx`: `take: 500` on users
+- `src/app/lobby/page.tsx`: type filter on bookmarks (only relevant types fetched)
 
 ### 3. Missing Indexes
 
@@ -55,11 +59,9 @@
 
 ### 7. Multiple Queries for Prev/Next Navigation
 
-**File:** `src/app/(main)/idees/[slug]/page.tsx:80-108`
+**File:** `src/app/(main)/idees/[slug]/page.tsx`
 
-4 separate queries for prev/next navigation. Could batch with single UNION query.
-
-**Fix:** Single query using UNION or raw SQL.
+**Status:** FIXED. Fetch all 4 boundary ideas upfront in single `Promise.all`. Replaced conditional fallback queries with `finalPrev = prev || maxIdea`, `finalNext = next || minIdea`. 4 queries predictable, no waterfall.
 
 ## Recommended Fix Order
 

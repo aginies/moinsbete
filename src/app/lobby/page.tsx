@@ -57,7 +57,10 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     }
     if (session?.user?.id) {
       const bookmarks = await prisma.bookmark.findMany({
-        where: { userId: session.user.id },
+        where: {
+          userId: session.user.id,
+          type: { in: ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS'] },
+        },
         select: { resourceId: true, type: true },
       })
       const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS'] as const
@@ -66,6 +69,22 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           userFavoriteIds[bm.type as keyof UserFavoriteIds].add(bm.resourceId)
         }
       }
+    }
+
+    const sharedBookmarkInclude = {
+      include: {
+        idea: {
+          include: {
+            ideaTopics: {
+              include: {
+                topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+              },
+            },
+            source: { select: { title: true, type: true, url: true } },
+          },
+        },
+        user: { select: { id: true, displayName: true, email: true } },
+      } as const,
     }
 
     const [suggestions, sharedBookmarks, proverbeConfig, sharedWithMeBookmarks, sharedByMeBookmarks] = await prisma.$transaction([
@@ -78,19 +97,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         },
       }),
       prisma.sharedLobbyBookmark.findMany({
-        include: {
-          idea: {
-            include: {
-              ideaTopics: {
-                include: {
-                  topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
-                },
-              },
-              source: { select: { title: true, type: true, url: true } },
-            },
-          },
-          user: { select: { id: true, displayName: true, email: true } },
-        },
+        ...sharedBookmarkInclude,
         where: { sharedWithUserId: null },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -98,38 +105,14 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       }),
       prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } }),
       prisma.sharedLobbyBookmark.findMany({
-        include: {
-          idea: {
-            include: {
-              ideaTopics: {
-                include: {
-                  topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
-                },
-              },
-              source: { select: { title: true, type: true, url: true } },
-            },
-          },
-          user: { select: { id: true, displayName: true, email: true } },
-        },
+        ...sharedBookmarkInclude,
         where: { sharedWithUserId: session.user.id },
         orderBy: { createdAt: 'desc' },
         skip,
         take: PAGE_SIZE,
       }),
       prisma.sharedLobbyBookmark.findMany({
-        include: {
-          idea: {
-            include: {
-              ideaTopics: {
-                include: {
-                  topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
-                },
-              },
-              source: { select: { title: true, type: true, url: true } },
-            },
-          },
-          user: { select: { id: true, displayName: true, email: true } },
-        },
+        ...sharedBookmarkInclude,
         where: { userId: session.user.id, sharedWithUserId: { not: null } },
         orderBy: { createdAt: 'desc' },
         skip,
