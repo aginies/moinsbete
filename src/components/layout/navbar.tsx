@@ -7,6 +7,8 @@ import { ThemeToggle } from './theme-toggle'
 import { SearchButton } from './search-button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { HelpContent } from '@/components/help-content'
+import { LobbyHelpContent } from '@/components/lobby-help-content'
+import { usePathname } from 'next/navigation'
 
 interface NavbarInnerProps {
   session: {
@@ -21,6 +23,8 @@ interface NavbarInnerProps {
 }
 
 export function NavbarInner({ session }: NavbarInnerProps) {
+  const pathname = usePathname()
+  const isLobby = pathname?.startsWith('/lobby')
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -98,9 +102,9 @@ export function NavbarInner({ session }: NavbarInnerProps) {
               />
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Aide</DialogTitle>
+                  <DialogTitle>{isLobby ? 'Aide — Lobby' : 'Aide'}</DialogTitle>
                 </DialogHeader>
-                <HelpContent />
+                {isLobby ? <LobbyHelpContent /> : <HelpContent />}
               </DialogContent>
             </Dialog>
             <ThemeToggle />
