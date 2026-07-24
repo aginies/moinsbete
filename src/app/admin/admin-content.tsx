@@ -214,7 +214,6 @@ export function AdminContent({ stats, users }: AdminContentProps) {
               <thead className="border-b border-border/60 bg-muted/50">
                 <tr>
                   <th className="px-4 py-3 text-left font-medium">{t('feed.name')}</th>
-                  <th className="px-4 py-3 text-left font-medium">{t('feed.email')}</th>
                   <th className="px-4 py-3 text-left font-medium">{t('feed.role')}</th>
                   <th className="px-4 py-3 text-left font-medium">{t('feed.status')}</th>
                   <th className="px-4 py-3 text-left font-medium">{t('feed.last_login')}</th>
@@ -500,8 +499,10 @@ function UserRow({ user }: { user: AdminUser }) {
   return (
     <>
       <tr className="border-b border-border/40 hover:bg-muted/50">
-        <td className="px-4 py-3">{user.displayName || user.email}</td>
-        <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
+        <td className="px-4 py-3">
+          <div>{user.displayName || user.email}</div>
+          <div className="text-sm text-muted-foreground">{user.email}</div>
+        </td>
         <td className="px-4 py-3">
           <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
             user.role === 'ADMIN'
