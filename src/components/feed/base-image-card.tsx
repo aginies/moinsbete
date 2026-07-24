@@ -5,6 +5,7 @@ import { Bookmark, Filter, EyeOff, RefreshCw, Settings } from 'lucide-react'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
@@ -156,6 +157,8 @@ export function BaseImageCard<TTopic>({
     }
     setLoading(false)
   }, [fetchFn, topics, imageStorageKey])
+
+  useAutoRefresh(storageKey || 'base', loadImage)
 
   useEffect(() => {
     if (hasMounted && show && !image && !loading && !error) {

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { VisibilityButton } from './visibility-button'
 import { ImageLoading } from './image-loading'
@@ -126,6 +127,8 @@ function ImagePixabayCardInner({
     }
     setLoading(false)
   }, [activeCategory])
+
+  useAutoRefresh('pixabay', loadVideo)
 
   useEffect(() => {
     if (hasMounted && show && !video && !loading && !error) {

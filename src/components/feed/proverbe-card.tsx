@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { VisibilityButton } from './visibility-button'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
@@ -85,6 +86,8 @@ function ProverbeCardInner({
       setInternalLoading(false)
     }
   }, [externalOnRefresh])
+
+  useAutoRefresh('proverbe', loadProverbe)
 
   const { isPending, handleBookmark, isFavorite } = useSimpleBookmarkToggle({
     resourceId: proverbe?.id,

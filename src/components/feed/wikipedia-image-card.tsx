@@ -7,6 +7,7 @@ import { isValidUrl, sanitizeUrl, generateImageId } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
+import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
@@ -120,6 +121,8 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
       setLoading(false)
     }
   }, [loading, nextImage])
+
+  useAutoRefresh('imageDuJour', loadImage)
 
   const {
     bind,
