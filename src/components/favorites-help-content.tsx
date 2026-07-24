@@ -1,8 +1,10 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { MousePointerClick, Share2, Bookmark, Star, Trash2 } from 'lucide-react'
 
 export function FavoritesHelpContent() {
+  const t = useTranslations('help')
   return (
     <div className="space-y-4 text-sm">
       <div className="flex items-start gap-3">
@@ -10,9 +12,9 @@ export function FavoritesHelpContent() {
           <Star className="h-4 w-4 text-amber-500" />
         </div>
         <div>
-          <p className="font-medium">Ajouter aux favoris</p>
+          <p className="font-medium">{t('add_title')}</p>
           <p className="text-muted-foreground">
-            Cliquez sur l&apos;étoile d&apos;une carte pour sauvegarder un contenu. Il apparaîtra ici.
+            {t('add_desc')}
           </p>
         </div>
       </div>
@@ -22,9 +24,9 @@ export function FavoritesHelpContent() {
           <Bookmark className="h-4 w-4 text-blue-500" />
         </div>
         <div>
-          <p className="font-medium">Catégories</p>
+          <p className="font-medium">{t('categories_title')}</p>
           <p className="text-muted-foreground">
-            Vos favoris sont organisés par type : Idées, Le saviez-vous ?, Images, Proverbes, Portail Lexical, NEWS et plus.
+            {t('categories_desc')}
           </p>
         </div>
       </div>
@@ -34,9 +36,9 @@ export function FavoritesHelpContent() {
           <Share2 className="h-4 w-4 text-purple-500" />
         </div>
         <div>
-          <p className="font-medium">Partager depuis les favoris</p>
+          <p className="font-medium">{t('share_favorites_title')}</p>
           <p className="text-muted-foreground">
-            Depuis cette page, vous pouvez partager vos favoris avec la communauté (onglet Favoris du Lobby) ou avec des utilisateurs spécifiques.
+            {t('share_favorites_desc')}
           </p>
         </div>
       </div>
@@ -46,9 +48,9 @@ export function FavoritesHelpContent() {
           <Trash2 className="h-4 w-4 text-red-500" />
         </div>
         <div>
-          <p className="font-medium">Supprimer</p>
+          <p className="font-medium">{t('delete_title')}</p>
           <p className="text-muted-foreground">
-            Cliquez sur la poubelle d&apos;un favori pour le retirer. Il reste dans vos favoris personnels mais n&apos;apparaît plus ici.
+            {t('delete_desc')}
           </p>
         </div>
       </div>
