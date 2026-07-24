@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockFindUnique = vi.fn()
 const mockFindMany = vi.fn()
+const mockQueryRaw = vi.fn()
 const mockQueryRawUnsafe = vi.fn()
 
 vi.mock('@/lib/db', () => ({
@@ -13,6 +14,7 @@ vi.mock('@/lib/db', () => ({
     collection: {
       findUnique: vi.fn(),
     },
+    $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
     $queryRawUnsafe: (...args: unknown[]) => mockQueryRawUnsafe(...args),
   },
 }))
@@ -21,6 +23,7 @@ describe('getAllDescendantTopicIds', () => {
   beforeEach(async () => {
     mockFindUnique.mockReset()
     mockFindMany.mockReset()
+    mockQueryRaw.mockReset()
     mockQueryRawUnsafe.mockReset()
     const { topicCache } = await import('@/lib/feed-helpers')
     await topicCache.clear()
@@ -30,7 +33,7 @@ describe('getAllDescendantTopicIds', () => {
     mockFindUnique.mockResolvedValueOnce({
       id: 'topic-1',
     })
-    mockQueryRawUnsafe.mockResolvedValueOnce([{ id: 'topic-1' }])
+    mockQueryRaw.mockResolvedValueOnce([{ id: 'topic-1' }])
 
     const { getAllDescendantTopicIds } = await import('@/lib/feed-helpers')
     const result = await getAllDescendantTopicIds('test-slug')
@@ -41,7 +44,7 @@ describe('getAllDescendantTopicIds', () => {
     mockFindUnique.mockResolvedValueOnce({
       id: 'topic-1',
     })
-    mockQueryRawUnsafe.mockResolvedValueOnce([
+    mockQueryRaw.mockResolvedValueOnce([
       { id: 'topic-1' },
       { id: 'topic-2' },
       { id: 'topic-3' },
@@ -56,7 +59,7 @@ describe('getAllDescendantTopicIds', () => {
     mockFindUnique.mockResolvedValueOnce({
       id: 'root',
     })
-    mockQueryRawUnsafe.mockResolvedValueOnce([
+    mockQueryRaw.mockResolvedValueOnce([
       { id: 'root' },
       { id: 'child-1' },
       { id: 'grandchild-1' },
