@@ -24,7 +24,7 @@ interface NavbarInnerProps {
 
 export function NavbarInner({ session }: NavbarInnerProps) {
   const pathname = usePathname()
-  const isLobby = pathname?.startsWith('/lobby')
+  const isLobby = pathname?.includes('/lobby')
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

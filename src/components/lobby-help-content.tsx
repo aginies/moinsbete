@@ -1,14 +1,10 @@
 'use client'
 
-import Link from 'next/link'
 import { Share2, Bookmark, MessageSquare, Users, ListPlus } from 'lucide-react'
 
 export function LobbyHelpContent() {
   return (
     <div className="space-y-4 text-sm">
-      <Link href="/lobby/a-propos" className="block text-xs text-primary hover:underline mb-2">
-        Guide complet du Lobby →
-      </Link>
       <div className="flex items-start gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10">
           <ListPlus className="h-4 w-4 text-green-500" />
