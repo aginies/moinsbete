@@ -88,6 +88,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   }, [id, text, sourceUrl, imageFilename])
   const [nextFact, setNextFact] = useState<{ id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [imageKey, setImageKey] = useState(0)
@@ -109,12 +110,14 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   const handleClick = useCallback(async () => {
     if (loading) return
     setIsImageLoaded(false)
+    setIsRefreshing(true)
     if (nextFact) {
       // Instant transition!
       setFact(nextFact)
       sessionStorage.setItem('saviez_vous_fact', JSON.stringify(nextFact))
       setNextFact(null)
       setImageKey(prev => prev + 1)
+      setIsRefreshing(false)
       router.push(`${pathname}?factId=${nextFact.id}`, { scroll: false })
     } else {
       // Fallback on-demand fetch
@@ -126,6 +129,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         setFact(factData)
         sessionStorage.setItem('saviez_vous_fact', JSON.stringify(factData))
         setImageKey(prev => prev + 1)
+        setIsRefreshing(false)
         router.push(`${pathname}?factId=${newFact.id}`, { scroll: false })
       }
       setLoading(false)
@@ -153,7 +157,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   })
 
   const resolvedImageFilename = fact.imageFilename || imageFilename
-  const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError
+  const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError && !isRefreshing
 
   const cachedImageUrl = useMemo(() => {
     if (!resolvedImageFilename || !isValidUrlUtil(resolvedImageFilename)) return resolvedImageFilename
