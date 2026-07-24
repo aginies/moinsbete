@@ -381,13 +381,14 @@ export async function scrapeAndCacheNews(): Promise<void> {
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString()
 
-  for (const article of allArticles) {
-    await prisma.cachedNewsArticle.upsert({
-      where: { url: article.url },
-      update: { ...article, scrapedAt: now, expiresAt },
-      create: { ...article, scrapedAt: now, expiresAt },
-    })
-  }
+  const upserts = allArticles.map(article => ({
+    where: { url: article.url },
+    update: { ...article, scrapedAt: now, expiresAt },
+    create: { ...article, scrapedAt: now, expiresAt },
+  }))
+  await prisma.$transaction(upserts.map(u => 
+    prisma.cachedNewsArticle.upsert(u)
+  ))
 
   console.log(`  ✅ ${allArticles.length} articles upserted`)
   await cleanupExpired()

@@ -57,19 +57,19 @@ export async function GET(request: NextRequest) {
   const results: Record<string, string> = {}
   
   try {
-    console.log('[cron] Step 1/5: Scraping CNRS...')
+    console.log('[cron] Step 1/6: Scraping CNRS...')
     await scrapeAndCacheCnrs()
     results.cnrs = 'ok'
     
-    console.log('[cron] Step 2/5: Scraping Radio France...')
+    console.log('[cron] Step 2/6: Scraping Radio France...')
     await scrapeAndCacheRadioEpisodes()
     results.radio = 'ok'
     
-    console.log('[cron] Step 3/5: Scraping News...')
+    console.log('[cron] Step 3/6: Scraping News...')
     await scrapeAndCacheNews()
     results.news = 'ok'
     
-    console.log('[cron] Step 4/5: Scraping Wikipedia Image...')
+    console.log('[cron] Step 4/6: Scraping Wikipedia Image...')
     await scrapeAndCacheWikipediaImages()
     results.wiki = 'ok'
     
