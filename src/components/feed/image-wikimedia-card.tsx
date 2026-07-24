@@ -220,6 +220,7 @@ function ImageWikimediaCardInner({
         }}
         renderImage={(img) => (
           <img
+            decoding="async"
             src={img.imageUrl}
             alt={img.titre}
             loading="lazy"

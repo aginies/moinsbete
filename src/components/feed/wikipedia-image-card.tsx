@@ -254,6 +254,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
           }}
         >
           <img
+            decoding="async"
             src={image?.imageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
             alt={image?.description || 'Image'}
             loading="lazy"
@@ -332,6 +333,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
               {nextImage.imageUrl && (
                 <div className="mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 h-48">
                   <img
+                    decoding="async"
                     src={nextImage.imageUrl}
                     alt="Next Preview"
                     className="w-full h-full object-cover pointer-events-none opacity-90"
