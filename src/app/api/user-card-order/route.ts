@@ -2,12 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limiter'
-import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import { RATE_LIMIT_ERROR_MESSAGE, CARD_DEFAULT_ORDER } from '@/lib/constants'
 
-const DEFAULT_ORDER = [
-  'saviezVous', 'wikipedia', 'cnrs', 'radioFrance',
-  'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe'
-]
+const DEFAULT_ORDER = CARD_DEFAULT_ORDER
 
 export async function GET() {
   const session = await getSession()

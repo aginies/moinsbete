@@ -23,3 +23,8 @@ export const NEWS_DISPLAY_LIMIT = 10
 export const RATE_LIMIT_ERROR_MESSAGE = 'Trop de demandes. Réessayez dans 60 secondes.'
 
 export const MAX_URL_LENGTH = 2048
+
+export const CARD_DEFAULT_ORDER = [
+  'saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news',
+  'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe'
+]
