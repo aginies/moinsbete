@@ -10,8 +10,20 @@ pm2 stop moinsbete 2>/dev/null || true
 
 # Start maintenance page so user sees something during deploy
 echo "Starting maintenance page..."
-node "$SRC/scripts/maintenance-server.js" &
-sleep 1
+if [ -f "$SRC/scripts/.maintenance.pid" ]; then
+  MAINT_PID=$(cat "$SRC/scripts/.maintenance.pid")
+  if kill -0 "$MAINT_PID" 2>/dev/null; then
+    echo "Maintenance page already running (PID $MAINT_PID), skipping..."
+  else
+    echo "Stale PID file found, removing..."
+    rm -f "$SRC/scripts/.maintenance.pid"
+    node "$SRC/scripts/maintenance-server.js" &
+    sleep 1
+  fi
+else
+  node "$SRC/scripts/maintenance-server.js" &
+  sleep 1
+fi
 
 mkdir -p "$DEST"
 
