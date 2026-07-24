@@ -4,6 +4,9 @@ set -euo pipefail
 SRC="/home/aginies/moinsbete"
 DEST="/srv/http/moinsbete"
 
+VERSION=$(jq -r '.version' "$SRC/version.json" 2>/dev/null || echo "unknown")
+echo "Deploying moinsbete v$VERSION..."
+
 # Stop PM2 server first to cleanly flush SQLite WAL transactions and release database file locks
 echo "Stopping PM2 server..."
 pm2 stop moinsbete 2>/dev/null || true
