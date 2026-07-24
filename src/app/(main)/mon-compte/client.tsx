@@ -89,8 +89,6 @@ export default function MonCompteClient({ session }: { session: SessionWithNotif
           </div>
         </div>
 
-        {session.user?.id && <CardOrdering userId={session.user.id} />}
-
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -114,6 +112,8 @@ export default function MonCompteClient({ session }: { session: SessionWithNotif
             />
           </div>
         </div>
+
+        {session.user?.id && <CardOrdering userId={session.user.id} />}
 
         <div className="rounded-xl border bg-card p-6">
           <h2 className="mb-4 flex items-center gap-2 font-semibold">
