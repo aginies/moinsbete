@@ -41,19 +41,15 @@
 
 ### 5. Heavy Includes in Lobby Page
 
-**File:** `src/app/lobby/page.tsx:79-136`
+**File:** `src/app/lobby/page.tsx`
 
-3-level deep includes: `sharedLobbyBookmark -> idea -> ideaTopics -> topic + source + user`. Repeated 3 times (sharedBookmarks, sharedWithMe, sharedByMe). Result set explodes with many topics per idea.
-
-**Fix:** Use `select` instead of `include` where possible. Limit fields.
+**Status:** FIXED. Extracted `sharedBookmarkInclude` constant. Used in all 3 `sharedLobbyBookmark.findMany` queries. Removed 30 lines of duplication. Same DB queries, cleaner code.
 
 ### 6. Unsafe Raw Queries
 
-**File:** `src/lib/feed-helpers.ts:24-64`
+**File:** `src/lib/feed-helpers.ts`
 
-String interpolation instead of parameterized queries in `$queryRawUnsafe`. Low risk now (IDs from DB), but unsafe pattern. Recursive CTEs could be precomputed with materialized path column.
-
-**Fix:** Use parameterized queries. Consider materialized path for topic hierarchy.
+**Status:** FIXED. Replaced `$queryRawUnsafe` string interpolation with parameterized queries. Query 1: tagged template literal with bound param. Query 2: `?` placeholders with spread args. Same perf, safer code.
 
 ## LOW PRIORITY
 

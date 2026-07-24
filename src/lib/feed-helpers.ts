@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import type { IdeaTopic, IdeaSource } from '@/types/idea'
 import { createRedisTtlCache } from '@/lib/redis-cache'
@@ -21,15 +22,15 @@ export async function getAllDescendantTopicIds(topicSlug: string): Promise<strin
 
   if (!topicRecord) return []
 
-  const rows = await prisma.$queryRawUnsafe<string[]>(
-    `WITH RECURSIVE descendants AS (
+  const rows = await prisma.$queryRaw<string[]>`
+    WITH RECURSIVE descendants AS (
       SELECT id FROM Topic WHERE id = ${topicRecord.id}
       UNION ALL
       SELECT t.id FROM Topic t
       INNER JOIN descendants d ON t."parentId" = d.id
     )
-    SELECT id FROM descendants`
-  )
+    SELECT id FROM descendants
+  `
 
   const allIds = rows.map((row: any) => row.id)
 
@@ -51,15 +52,17 @@ export async function getAllDescendantCollectionTopicIds(collectionSlug: string)
 
   if (!collectionRecord || collectionRecord.topics.length === 0) return []
 
-  const topicIds = collectionRecord.topics.map((t: { id: string }) => t.id).join("','")
+  const topicIds = collectionRecord.topics.map((t: { id: string }) => t.id)
+  const placeholders = topicIds.map(() => '?').join(',')
   const rows = await prisma.$queryRawUnsafe<string[]>(
     `WITH RECURSIVE descendants AS (
-      SELECT id FROM Topic WHERE id IN ('${topicIds}')
+      SELECT id FROM Topic WHERE id IN (${placeholders})
       UNION ALL
       SELECT t.id FROM Topic t
       INNER JOIN descendants d ON t."parentId" = d.id
     )
-    SELECT id FROM descendants`
+    SELECT id FROM descendants`,
+    ...topicIds
   )
 
   const allIds = rows.map((row: any) => row.id)
