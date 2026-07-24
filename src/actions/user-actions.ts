@@ -3,6 +3,22 @@
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 
+export async function markSplashSeen() {
+  try {
+    const session = await getSession()
+    if (!session?.user) return { error: 'Non authentifié' }
+
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { hasSeenSplash: true },
+    })
+    return { success: true }
+  } catch (e) {
+    console.error('markSplashSeen error:', e)
+    return { error: 'Erreur lors de la mise à jour' }
+  }
+}
+
 export async function toggleUserEnabled(userId: string, enabled: boolean) {
   try {
     const session = await getSession()

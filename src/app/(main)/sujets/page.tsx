@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth'
 import { SujetsClient } from './sujets-client'
 import { getRandomFact } from '@/lib/saviez-vous'
 import { getGlobalCardVisibility } from '@/actions/card-actions'
+import { Splash } from '@/components/splash'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,7 @@ export default async function SujetsPage() {
           proverbeCardVisible: true,
           cnrsNewsEnabled: true,
           newsCardVisible: true,
+          hasSeenSplash: true,
         },
       }).then(u => ({
         topicIds: u?.following.map((t: { id: string }) => t.id) || [],
@@ -41,6 +43,7 @@ export default async function SujetsPage() {
           cnrs: u.cnrsNewsEnabled ?? true,
           news: u.newsCardVisible ?? true,
         } : undefined,
+        hasSeenSplash: u?.hasSeenSplash ?? false,
       }))
     : null
 
@@ -59,6 +62,7 @@ export default async function SujetsPage() {
     : allTopicIds
 
   const initialVisibility = followedTopicIds?.visibility
+  const hasSeenSplash = followedTopicIds?.hasSeenSplash ?? true
 
   const saviezVousFact = await getRandomFact()
 
@@ -66,6 +70,7 @@ export default async function SujetsPage() {
 
   return (
     <>
+      {!hasSeenSplash && userId && <Splash userId={userId} />}
       {process.env.REGISTRATION_LOCKED !== 'false' && (
         <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6 md:pb-6">
           <div className="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-center">

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { Navbar } from '@/components/layout/navbar'
+import { NavbarInner } from '@/components/layout/navbar'
 import { BottomNav } from '@/components/layout/bottom-nav'
 import { Toaster } from '@/components/ui/sonner'
 import Link from 'next/link'
@@ -89,7 +89,7 @@ export default async function RootLayout({
                 CRÉATION DE COMPTE IMPOSSIBLE
               </div>
             )}
-            <Navbar />
+            <NavbarInner session={session} />
             <main className="flex-1">{children}</main>
             <footer className="py-6 pb-16 md:pb-0 text-center text-xs text-muted-foreground">
                 <Link href="/a-propos" className="hover:underline">À propos</Link>
