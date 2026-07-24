@@ -49,11 +49,11 @@ rsync -a --delete --checksum \
   --exclude='node_modules/' \
   --exclude='.env' \
   --exclude='docs/' \
+  --exclude='scripts/*.ts' \
+  --exclude='scripts/update' \
   --include='src/scripts/generate-ideas.ts' \
   --include='src/scripts/ingest-wikipedia.ts' \
   --include='src/scripts/*.ts' \
-  --exclude='scripts/*.ts' \
-  --exclude='scripts/update' \
   "$SRC/" "$DEST/"
 
 # Remove docs if present
@@ -67,15 +67,16 @@ rm -f "$DEST"/scripts/*.ts "$DEST"/scripts/update
 rm -f "$DEST"/install.sh "$DEST"/build.sh
 rm -f "$DEST"/test_ll*
 
-# Backup DB avant deploy (dans le répertoire courant)
+# Backup DB before deploy (in DEST directory)
 if [ -f "$DEST/dev.db" ]; then
-  BACKUP_SUF="$(date +%Y%m%d_%H%M%S)"
+  BACKUP_DIR="$DEST/backups/$(date +%Y%m%d_%H%M%S)"
+  mkdir -p "$BACKUP_DIR"
   for f in "$DEST"/dev.db*; do
     if [ -f "$f" ]; then
-      cp "$f" "$(basename "$f").bck.$BACKUP_SUF"
+      cp "$f" "$BACKUP_DIR/"
     fi
   done
-  echo "DB backups saved with suffix: .bck.$BACKUP_SUF"
+  echo "DB backups saved to: $BACKUP_DIR"
 fi
 
 cd "$DEST"
@@ -97,10 +98,13 @@ echo "All critical dependencies installed"
 # Clear Next.js cache to avoid stale types
 rm -rf .next
 
-# Mark legacy migrations as applied
-npx prisma migrate resolve --applied 20260716163000_add_image_wikimedia_show_categories 2>/dev/null || true
-npx prisma migrate resolve --applied 20260720000001_add_card_order 2>/dev/null || true
-npx prisma migrate resolve --applied 20260721190000_add_shared_with_user_to_shared_lobby_bookmark 2>/dev/null || true
+# Mark legacy migrations as applied (ignore if already applied or not present)
+for migration in \
+  20260716163000_add_image_wikimedia_show_categories \
+  20260720000001_add_card_order \
+  20260721190000_add_shared_with_user_to_shared_lobby_bookmark; do
+  npx prisma migrate resolve --applied "$migration" 2>/dev/null || true
+done
 
 # Idempotent: rename bbcNewsCardVisible → newsCardVisible (if column exists)
 if [ -f "$DEST/dev.db" ] && command -v sqlite3 &>/dev/null; then
@@ -125,13 +129,20 @@ npx prisma generate
 echo "Applying pending migrations..."
 npx prisma migrate deploy
 
-npm run build 2>&1 | tail -20
+echo "Building..."
+if ! npm run build 2>&1 | tee /tmp/moinsbete-build.log | tail -20; then
+  echo "BUILD FAILED. See /tmp/moinsbete-build.log"
+  exit 1
+fi
 if [ -f "ecosystem.config.js" ]; then
   echo "Starting/reloading via PM2 ecosystem.config.js..."
-  pm2 start ecosystem.config.js || pm2 reload ecosystem.config.js
+  pm2 start ecosystem.config.js --update-env || pm2 reload ecosystem.config.js
 else
-  pm2 start moinsbete || pm2 restart moinsbete
+  pm2 start moinsbete --update-env || pm2 restart moinsbete
 fi
+pm2 wait moinsbete online 10s || true
+echo "PM2 status:"
+pm2 status moinsbete
 
 # Stop maintenance page
 echo "Stopping maintenance page..."
