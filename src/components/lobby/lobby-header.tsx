@@ -15,6 +15,9 @@ export function LobbyHeader({ isLoggedIn }: LobbyHeaderProps) {
     <div className="mb-6 flex items-center justify-between">
       <div>
         <h1 className="text-2xl font-bold">Lobby</h1>
+        <Link href="/lobby/a-propos" className="text-xs text-muted-foreground hover:underline">
+          Guide du Lobby
+        </Link>
       </div>
       {isLoggedIn && activeTab === 'discuter' && (
         <Link href="/lobby/new">
