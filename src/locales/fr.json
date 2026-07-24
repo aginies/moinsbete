@@ -615,7 +615,18 @@
       "proverbe_tab": "Proverbe",
       "saviez_vous_tab": "Saviez-vous ?",
       "news_tab": "NEWS"
-    }
+    },
+    "cache_title": "Cache",
+    "cache_desc": "Actualiser le cache des sources de contenu",
+    "refresh_all": "Tout actualiser",
+    "cache_cnrs": "CNRS",
+    "cache_radio": "Radio France",
+    "cache_news": "News",
+    "cache_wiki": "Image Wikipédia",
+    "cache_wikiloves": "Wiki Loves",
+    "cache_saviezvous": "Saviez-vous",
+    "last_updated": "Mis à jour",
+    "never_updated": "Jamais mis à jour"
   },
   "search": {
     "placeholder": "Rechercher idées, faits, proverbes, images...",

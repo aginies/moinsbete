@@ -19,6 +19,8 @@ import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { clearAllNewsAction, clearFreenewsapiAction } from '@/actions/cleanup-actions'
+import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshAll } from '@/actions/cache-refresh-actions'
+import type { RefreshResult } from '@/actions/cache-refresh-actions'
 import { toggleUserEnabled, deleteUser } from '@/actions/user-actions'
 import { updateGlobalCardVisibility } from '@/actions/card-actions'
 import { useLocale, useTranslations } from 'next-intl'
@@ -34,17 +36,23 @@ export interface AdminStats {
   activeStreaks: number
   cnrsArticles: number
   cnrsExpired: number
+  cnrsScrapedAt: string | null
   radioEpisodes: number
   radioExpired: number
+  radioScrapedAt: string | null
   wikiImages: number
   wikiImageExpired: number
+  wikiScrapedAt: string | null
   wikiLovesImages: number
   wikiLovesExpired: number
+  wikiLovesScrapedAt: string | null
   saviezVousFacts: number
+  saviezVousScrapedAt: string | null
   srsDue: number
   proverbesCached: number
   newsArticles: number
   newsExpired: number
+  newsScrapedAt: string | null
 }
 
 export interface AdminUser {
@@ -107,11 +115,12 @@ export function AdminContent({ stats, users }: AdminContentProps) {
       </div>
 
       <Tabs defaultValue="stats" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="stats">{t('feed.stats')}</TabsTrigger>
           <TabsTrigger value="users">{t('feed.users')}</TabsTrigger>
           <TabsTrigger value="cartes">{adminT('cartes_title')}</TabsTrigger>
           <TabsTrigger value="cleanup">{t('feed.cleanup')}</TabsTrigger>
+          <TabsTrigger value="cache">{adminT('cache_title')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="stats">
@@ -443,6 +452,9 @@ export function AdminContent({ stats, users }: AdminContentProps) {
             </div>
           </div>
         </TabsContent>
+        <TabsContent value="cache">
+          <CacheTab stats={stats} />
+        </TabsContent>
       </Tabs>
     </div>
   )
@@ -696,5 +708,154 @@ function CardToggle({ cardKey }: { cardKey: string }) {
         </>
       )}
     </Button>
+  )
+}
+
+interface CacheSource {
+  key: string
+  labelKey: string
+  icon: React.ReactNode
+  count: number
+  scrapedAt: string | null
+  refreshFn: () => Promise<import('@/actions/cache-refresh-actions').RefreshResult>
+}
+
+function CacheTab({ stats }: { stats: AdminStats }) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [allPending, setAllPending] = useState(false)
+  const [result, setResult] = useState<RefreshResult | null>(null)
+  const adminT = useTranslations('admin')
+  const feedT = useTranslations('feed')
+
+  const sources: CacheSource[] = [
+    {
+      key: 'cnrs',
+      labelKey: adminT('cache_cnrs'),
+      icon: <Newspaper className="h-4 w-4" />,
+      count: stats.cnrsArticles,
+      scrapedAt: stats.cnrsScrapedAt,
+      refreshFn: refreshCnrs,
+    },
+    {
+      key: 'radio',
+      labelKey: adminT('cache_radio'),
+      icon: <Radio className="h-4 w-4" />,
+      count: stats.radioEpisodes,
+      scrapedAt: stats.radioScrapedAt,
+      refreshFn: refreshRadio,
+    },
+    {
+      key: 'news',
+      labelKey: adminT('cache_news'),
+      icon: <Newspaper className="h-4 w-4" />,
+      count: stats.newsArticles,
+      scrapedAt: stats.newsScrapedAt,
+      refreshFn: refreshNews,
+    },
+    {
+      key: 'wiki',
+      labelKey: adminT('cache_wiki'),
+      icon: <Image className="h-4 w-4" />,
+      count: stats.wikiImages,
+      scrapedAt: stats.wikiScrapedAt,
+      refreshFn: refreshWikiImage,
+    },
+    {
+      key: 'wikiloves',
+      labelKey: adminT('cache_wikiloves'),
+      icon: <ImagePlus className="h-4 w-4" />,
+      count: stats.wikiLovesImages,
+      scrapedAt: stats.wikiLovesScrapedAt,
+      refreshFn: refreshWikiLoves,
+    },
+    {
+      key: 'saviezvous',
+      labelKey: adminT('cache_saviezvous'),
+      icon: <BookOpen className="h-4 w-4" />,
+      count: stats.saviezVousFacts,
+      scrapedAt: stats.saviezVousScrapedAt,
+      refreshFn: refreshSaviezVous,
+    },
+  ]
+
+  const handleRefresh = async (source: CacheSource) => {
+    startTransition(async () => {
+      const res = await source.refreshFn()
+      if (res.success) {
+        toast.success(res.message)
+        router.refresh()
+      } else {
+        toast.error(res.message)
+      }
+    })
+  }
+
+  const handleRefreshAll = async () => {
+    setAllPending(true)
+    setResult(null)
+    const res = await refreshAll()
+    setAllPending(false)
+    setResult(res)
+    if (res.success) {
+      toast.success(res.message)
+      router.refresh()
+    } else {
+      toast.error(res.message)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {adminT('cache_desc')}
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefreshAll}
+          disabled={allPending}
+        >
+          <RefreshCw className={`h-4 w-4 ${allPending ? 'animate-spin' : ''}`} />
+          {adminT('refresh_all')}
+        </Button>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {sources.map(source => (
+          <Card key={source.key}>
+            <CardContent className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
+                  {source.icon}
+                </div>
+                <div>
+                  <div className="text-sm font-medium">{source.labelKey}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {source.count} {source.scrapedAt ? `· ${adminT('last_updated')} ${source.scrapedAt}` : adminT('never_updated')}
+                  </div>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleRefresh(source)}
+                disabled={isPending}
+                className="text-green-600 hover:text-green-700"
+              >
+                <RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {result && (
+        <div className={`rounded-lg border p-4 text-sm ${result.success ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950/30 dark:text-green-300' : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300'}`}>
+          {result.message}
+        </div>
+      )}
+    </div>
   )
 }

@@ -43,6 +43,12 @@ export default async function AdminPage() {
     srsDueCount,
     proverbeRow,
     users,
+    latestCnrs,
+    latestRadio,
+    latestNews,
+    latestWiki,
+    latestWikiLoves,
+    latestSaviezVous,
   ] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
     prisma.topic.count(),
@@ -65,15 +71,15 @@ export default async function AdminPage() {
     }>>`
       SELECT
         (SELECT COUNT(*) FROM CachedCnrsArticle) as cnrsTotal,
-        (SELECT COUNT(*) FROM CachedCnrsArticle WHERE expiresAt < datetime('now')) as cnrsExpired,
+        (SELECT COUNT(*) FROM CachedCnrsArticle WHERE datetime(expiresAt) < datetime('now')) as cnrsExpired,
         (SELECT COUNT(*) FROM CachedRadioEpisode) as radioTotal,
-        (SELECT COUNT(*) FROM CachedRadioEpisode WHERE expiresAt < datetime('now')) as radioExpired,
+        (SELECT COUNT(*) FROM CachedRadioEpisode WHERE datetime(expiresAt) < datetime('now')) as radioExpired,
         (SELECT COUNT(*) FROM CachedWikipediaImage) as wikiImageTotal,
-        (SELECT COUNT(*) FROM CachedWikipediaImage WHERE expiresAt < datetime('now')) as wikiImageExpired,
+        (SELECT COUNT(*) FROM CachedWikipediaImage WHERE datetime(expiresAt) < datetime('now')) as wikiImageExpired,
         (SELECT COUNT(*) FROM CachedWikiLovesImage) as wikiLovesTotal,
-        (SELECT COUNT(*) FROM CachedWikiLovesImage WHERE expiresAt < datetime('now')) as wikiLovesExpired,
+        (SELECT COUNT(*) FROM CachedWikiLovesImage WHERE datetime(expiresAt) < datetime('now')) as wikiLovesExpired,
         (SELECT COUNT(*) FROM CachedNewsArticle) as newsTotal,
-        (SELECT COUNT(*) FROM CachedNewsArticle WHERE expiresAt < datetime('now')) as newsExpired
+        (SELECT COUNT(*) FROM CachedNewsArticle WHERE datetime(expiresAt) < datetime('now')) as newsExpired
     `,
     prisma.saviezVousFact.count(),
     prisma.bookmark.count({
@@ -99,6 +105,12 @@ export default async function AdminPage() {
         lastVisited: true,
       },
     }),
+    prisma.cachedCnrsArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
+    prisma.cachedRadioEpisode.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
+    prisma.cachedNewsArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
+    prisma.cachedWikipediaImage.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
+    prisma.cachedWikiLovesImage.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
+    prisma.saviezVousFact.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
   ])
 
   const stats = cacheStats[0]
@@ -112,6 +124,17 @@ export default async function AdminPage() {
   const wikiLovesExpiredCount = Number(stats.wikiLovesExpired)
   const newsCount = Number(stats.newsTotal)
   const newsExpiredCount = Number(stats.newsExpired)
+
+  const formatScrapedAt = (date: Date | null) => {
+    if (!date) return null
+    return new Date(date).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
 
   const adminUsers = users as AdminUser[]
 
@@ -127,17 +150,23 @@ export default async function AdminPage() {
         activeStreaks: activeStreakCount,
         cnrsArticles: cnrsCount,
         cnrsExpired: cnrsExpiredCount,
+        cnrsScrapedAt: formatScrapedAt(latestCnrs?.scrapedAt ?? null),
         radioEpisodes: radioCount,
         radioExpired: radioExpiredCount,
+        radioScrapedAt: formatScrapedAt(latestRadio?.scrapedAt ?? null),
         wikiImages: wikiImageCount,
         wikiImageExpired: wikiImageExpiredCount,
+        wikiScrapedAt: formatScrapedAt(latestWiki?.scrapedAt ?? null),
         wikiLovesImages: wikiLovesCount,
         wikiLovesExpired: wikiLovesExpiredCount,
+        wikiLovesScrapedAt: formatScrapedAt(latestWikiLoves?.scrapedAt ?? null),
         saviezVousFacts: saviezVousCount,
+        saviezVousScrapedAt: formatScrapedAt(latestSaviezVous?.createdAt ?? null),
         srsDue: srsDueCount,
         proverbesCached: proverbeRow ? (() => { try { return JSON.parse(proverbeRow.value).length } catch { return 0 } })() : 0,
         newsArticles: newsCount,
         newsExpired: newsExpiredCount,
+        newsScrapedAt: formatScrapedAt(latestNews?.scrapedAt ?? null),
       }}
       users={adminUsers}
     />
