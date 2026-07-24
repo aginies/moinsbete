@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
-import { shareToLobby, unshareFromLobby, isSharedToLobby, shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
+import { shareToLobby, unshareFromLobby, isSharedToLobby, shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby, getShareDetails } from '@/actions/lobby-share-actions'
 import { isCsrfValid } from '@/lib/csrf'
 
 export async function POST(req: NextRequest) {
@@ -38,8 +38,13 @@ export async function GET(req: Request) {
   const ideaId = searchParams.get('ideaId')
   const resourceId = searchParams.get('resourceId')
   const resourceType = searchParams.get('resourceType')
+  const details = searchParams.get('details')
 
   if (resourceType && resourceId) {
+    if (details === 'true') {
+      const result = await getShareDetails(resourceType, resourceId)
+      return NextResponse.json(result)
+    }
     const shared = await isSharedResourceToLobby(resourceType, resourceId)
     return NextResponse.json({ shared })
   }

@@ -219,6 +219,37 @@ export async function isSharedResourceToLobby(resourceType: string, resourceId: 
   return !!shared
 }
 
+export async function getShareDetails(resourceType: string, resourceId: string) {
+  const session = await getSession()
+  if (!session?.user) return { shared: false, shareToCommunity: false, sharedWithUserIds: [] as string[] }
+
+  if (!VALID_RESOURCE_TYPES.has(resourceType)) {
+    return { shared: false, shareToCommunity: false, sharedWithUserIds: [] }
+  }
+
+  const shares = await prisma.sharedLobbyBookmark.findMany({
+    where: {
+      userId: session.user.id,
+      resourceId,
+      resourceType,
+    },
+    select: { sharedWithUserId: true },
+  })
+
+  if (shares.length === 0) {
+    return { shared: false, shareToCommunity: false, sharedWithUserIds: [] }
+  }
+
+  const shareToCommunity = shares.some(s => s.sharedWithUserId === null)
+  const sharedWithUserIds = shares.filter(s => s.sharedWithUserId !== null).map(s => s.sharedWithUserId!)
+
+  return {
+    shared: true,
+    shareToCommunity,
+    sharedWithUserIds,
+  }
+}
+
 export async function addToFavoritesFromLobby(resourceType: string, resourceId: string, meta?: JsonValue) {
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }

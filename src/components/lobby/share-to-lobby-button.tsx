@@ -96,6 +96,23 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
   }, [open, users.length])
 
   useEffect(() => {
+    if (!open) return
+
+    const fetchShareDetails = async () => {
+      try {
+        const res = await fetch('/api/lobby/share?resourceType=' + encodeURIComponent(resourceType) + '&resourceId=' + encodeURIComponent(resourceId) + '&details=true')
+        const data = await res.json()
+        setIsShared(data.shared || false)
+        setShareToCommunity(data.shareToCommunity || false)
+        setCheckingUserIds(new Set(data.sharedWithUserIds || []))
+      } catch {
+        // ignore
+      }
+    }
+    fetchShareDetails()
+  }, [open, resourceType, resourceId])
+
+  useEffect(() => {
     setRecentUserIds(getRecentShares())
   }, [open])
 
@@ -142,6 +159,7 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
         setCheckingUserIds(new Set())
         setUsers([])
         setSearchQuery('')
+        setOpen(false)
         toast.success('Retiré du lobby')
       } else {
         await shareResourceToLobby(resourceType, resourceId, meta as any)
@@ -229,66 +247,39 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <div onClick={() => setOpen(true)} style={{ cursor: 'pointer' }}>
-        <button
-          type="button"
-          className={cn(
-            'rounded-full px-2 py-1.5 flex items-center gap-1 opacity-60 hover:opacity-100 hover:bg-muted transition-all',
-            isAnyoneShared ? 'text-green-500' : 'text-muted-foreground',
-            className || ''
-          )}
-          disabled={loading}
-          title={isAnyoneShared ? 'Gérer le partage' : 'Partager au lobby'}
-        >
-          {icon || <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />}
-          <span className="text-xs">Lobby</span>
-        </button>
-      </div>
+      <DialogTrigger
+        render={
+          <button
+            type="button"
+            className={cn(
+              'rounded-full px-2 py-1.5 flex items-center gap-1 opacity-60 hover:opacity-100 hover:bg-muted transition-all',
+              isAnyoneShared ? 'text-green-500' : 'text-muted-foreground',
+              className || ''
+            )}
+            disabled={loading}
+            title={isAnyoneShared ? 'Gérer le partage' : 'Partager au lobby'}
+          >
+            {icon || <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />}
+            <span className="text-xs">Lobby</span>
+          </button>
+        }
+      />
       <DialogContent className="sm:max-w-md">
         <DialogTitle className="sr-only">Partager au lobby</DialogTitle>
         <div className="space-y-3">
           <h3 className="font-semibold text-sm">Partager au lobby</h3>
 
-          {isAnyoneShared && (
+          {isAnyoneShared ? (
             <div className="space-y-2">
-              {shareToCommunity && (
-                <div className="flex items-center justify-between rounded-lg border p-2 bg-muted/50">
-                  <div className="flex items-center gap-2">
-                    <UserIcon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Tous les utilisateurs</span>
-                  </div>
-                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={handleUnshareCommunity}>
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              )}
-
-              {selectedUsers.map(user => (
-                <div key={user.id} className="flex items-center justify-between rounded-lg border p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center">
-                      <span className="text-xs font-medium">{(user.displayName || user.email)[0].toUpperCase()}</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{user.displayName || user.email}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => handleUnshareFromUser(user.id)}>
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-
-              {checkingUserIds.size > 0 && (
-                <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => setOpen(true)}>
-                  + Ajouter un utilisateur
-                </Button>
-              )}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Share2 className="h-4 w-4 text-green-500" />
+                <span>Partagé au lobby</span>
+              </div>
+              <Button size="sm" variant="outline" className="w-full" onClick={handleToggle} disabled={loading}>
+                {loading ? '...' : 'Départager'}
+              </Button>
             </div>
-          )}
-
-          {!isAnyoneShared && (
+          ) : (
             <div className="space-y-2">
               <div className="relative">
                 <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -323,8 +314,8 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
                     type="button"
                     className={cn(
                       'w-full flex items-center gap-2 rounded-md p-2 text-sm hover:bg-muted transition-colors text-left cursor-pointer border-l-2',
-                      selectedUsers.find(u => u.id === user.id) 
-                        ? 'border-l-green-500 bg-muted' 
+                      selectedUsers.find(u => u.id === user.id)
+                        ? 'border-l-green-500 bg-muted'
                         : 'border-l-transparent'
                     )}
                     onClick={() => toggleUser(user)}
@@ -332,9 +323,9 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
                     <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                       <span className="text-xs font-medium">{(user.displayName || user.email)[0].toUpperCase()}</span>
                     </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{user.displayName || user.email}</p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{user.displayName || user.email}</p>
+                    </div>
                     {recentUserIds.includes(user.id) && (
                       <Badge variant="outline" className="h-4 text-[10px] px-1">Récent</Badge>
                     )}
