@@ -145,29 +145,14 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
 
     loadCountRef.current++
     const currentLoadCount = loadCountRef.current
-    const query = searchQuery
 
-    const timer = setTimeout(async () => {
+    const timer = setTimeout(() => {
       if (currentLoadCount !== loadCountRef.current) return
-      setLoading(true)
-      setError(false)
-      const newArticles = await fetchArticles(selectedCategories.length > 0 ? selectedCategories.join(',') : null, undefined, query || undefined)
-      if (newArticles && newArticles.length > 0) {
-        setArticles(newArticles)
-        setError(false)
-      } else if (query) {
-        setArticles([])
-        setError(false)
-      } else {
-        setError(true)
-      }
-      setLoading(false)
+      loadArticles(searchQuery || null)
     }, 300)
 
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [hasMounted, show, selectedCategories, searchQuery])
+    return () => clearTimeout(timer)
+  }, [hasMounted, show, selectedCategories, searchQuery, loadArticles])
 
   useEffect(() => {
     if (favoritesCheckedRef.current) return
@@ -182,7 +167,7 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
       checkFavorites()
     }
     favoritesCheckedRef.current = true
-  }, [userId, articles.length])
+  }, [userId, articles])
 
   useEffect(() => {
     favoritesCheckedRef.current = false

@@ -13,6 +13,7 @@ import { ImagePixabayCard } from '@/components/feed/image-pixabay-card'
 import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
 import { ProverbeCard } from '@/components/feed/proverbe-card'
 import { NewsCard } from '@/components/feed/news-card'
+import { VisibilityButton } from '@/components/feed/visibility-button'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -44,7 +45,45 @@ interface CardConfig {
   isVisible: boolean
   isGloballyVisible: boolean
   toggle: () => void
-  renderCard: () => React.ReactElement | null
+}
+
+const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null, userId: string | undefined, hasUserId: boolean) => React.ReactElement | null> = {
+  saviezVous: (config, fact) => {
+    if (!fact) return null
+    return (
+      <SaviezVousCard id={fact.id} text={fact.text} sourceUrl={fact.sourceUrl} imageFilename={fact.imageFilename} onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} linkAs={`/le-saviez-vous?factId=${fact.id}`} />
+    )
+  },
+  wikipedia: (config) => (
+    <WikipediaImageCard onToggle={config.toggle} mediumImage userId={undefined} isVisible={config.isVisible} />
+  ),
+  cnrs: (config) => (
+    <CnrsNewsCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} />
+  ),
+  radioFrance: (config) => (
+    <RadioFranceCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} />
+  ),
+  news: (config, _, __, hasUserId) => {
+    if (!hasUserId) return null
+    return (
+      <NewsCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} linkHref="/news" maxHeight="700px" />
+    )
+  },
+  wikimedia: (config) => (
+    <ImageWikimediaCard onToggle={config.toggle} userId={undefined} largeImage isVisible={config.isVisible} />
+  ),
+  wikiloves: (config) => (
+    <ImageWikiLovesCard onToggle={config.toggle} userId={undefined} largeImage isVisible={config.isVisible} />
+  ),
+  pixabay: (config) => (
+    <ImagePixabayCard onToggle={config.toggle} userId={undefined} largeImage isVisible={config.isVisible} />
+  ),
+  portailLexical: (config) => (
+    <PortailLexicalCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} />
+  ),
+  proverbe: (config) => (
+    <ProverbeCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} />
+  ),
 }
 
 async function updateCardVisibility(field: string, value: boolean, csrfToken: string) {
@@ -171,95 +210,62 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       isVisible: visibility.saviezVous && (globalVisibility?.saviezVous ?? true),
       isGloballyVisible: globalVisibility?.saviezVous ?? true,
       toggle: toggleSaviezVous,
-      renderCard: () => {
-        if (!saviezVousFact) return null
-        return (
-          <SaviezVousCard id={saviezVousFact.id} text={saviezVousFact.text} sourceUrl={saviezVousFact.sourceUrl} imageFilename={saviezVousFact.imageFilename} onToggle={toggleSaviezVous} userId={userId} isVisible={visibility.saviezVous} linkAs={`/le-saviez-vous?factId=${saviezVousFact.id}`} />
-        )
-      },
     },
     {
       key: 'wikipedia',
       isVisible: visibility.wikipedia && (globalVisibility?.wikipedia ?? true),
       isGloballyVisible: globalVisibility?.wikipedia ?? true,
       toggle: toggleWikipedia,
-      renderCard: () => (
-        <WikipediaImageCard onToggle={toggleWikipedia} mediumImage userId={userId} isVisible={visibility.wikipedia} />
-      ),
     },
     {
       key: 'cnrs',
       isVisible: visibility.cnrs && (globalVisibility?.cnrs ?? true),
       isGloballyVisible: globalVisibility?.cnrs ?? true,
       toggle: toggleCnrs,
-      renderCard: () => (
-        <CnrsNewsCard onToggle={toggleCnrs} userId={userId} isVisible={visibility.cnrs} />
-      ),
     },
     {
       key: 'radioFrance',
       isVisible: visibility.radioFrance && (globalVisibility?.radioFrance ?? true),
       isGloballyVisible: globalVisibility?.radioFrance ?? true,
       toggle: toggleRadioFrance,
-      renderCard: () => (
-        <RadioFranceCard onToggle={toggleRadioFrance} userId={userId} isVisible={visibility.radioFrance} />
-      ),
     },
     {
       key: 'news',
       isVisible: visibility.news && (globalVisibility?.news ?? true) && hasUserId,
       isGloballyVisible: globalVisibility?.news ?? true,
       toggle: toggleNews,
-      renderCard: () => (
-        <NewsCard onToggle={toggleNews} userId={userId} isVisible={visibility.news} linkHref="/news" maxHeight="700px" />
-      ),
     },
     {
       key: 'wikimedia',
       isVisible: visibility.wikimedia && (globalVisibility?.wikimedia ?? true),
       isGloballyVisible: globalVisibility?.wikimedia ?? true,
       toggle: toggleWikimedia,
-      renderCard: () => (
-        <ImageWikimediaCard onToggle={toggleWikimedia} userId={userId} largeImage isVisible={visibility.wikimedia} />
-      ),
     },
     {
       key: 'wikiloves',
       isVisible: visibility.wikiloves && (globalVisibility?.wikiloves ?? true),
       isGloballyVisible: globalVisibility?.wikiloves ?? true,
       toggle: toggleWikiLoves,
-      renderCard: () => (
-        <ImageWikiLovesCard onToggle={toggleWikiLoves} userId={userId} largeImage isVisible={visibility.wikiloves} />
-      ),
     },
     {
       key: 'pixabay',
       isVisible: visibility.pixabay && (globalVisibility?.pixabay ?? true),
       isGloballyVisible: globalVisibility?.pixabay ?? true,
       toggle: togglePixabay,
-      renderCard: () => (
-        <ImagePixabayCard onToggle={togglePixabay} userId={userId} largeImage isVisible={visibility.pixabay} />
-      ),
     },
     {
       key: 'portailLexical',
       isVisible: visibility.portailLexical && (globalVisibility?.portailLexical ?? true),
       isGloballyVisible: globalVisibility?.portailLexical ?? true,
       toggle: togglePortailLexical,
-      renderCard: () => (
-        <PortailLexicalCard onToggle={togglePortailLexical} userId={userId} isVisible={visibility.portailLexical} />
-      ),
     },
     {
       key: 'proverbe',
       isVisible: visibility.proverbe && (globalVisibility?.proverbe ?? true),
       isGloballyVisible: globalVisibility?.proverbe ?? true,
       toggle: toggleProverbe,
-      renderCard: () => (
-        <ProverbeCard onToggle={toggleProverbe} userId={userId} isVisible={visibility.proverbe} />
-      ),
     },
-  ], [visibility, toggleSaviezVous, toggleWikipedia, toggleRadioFrance, toggleNews, toggleWikimedia, toggleWikiLoves, toggleCnrs, togglePixabay, togglePortailLexical, toggleProverbe, userId, saviezVousFact, globalVisibility])
+  ], [visibility, toggleSaviezVous, toggleWikipedia, toggleRadioFrance, toggleNews, toggleWikimedia, toggleWikiLoves, toggleCnrs, togglePixabay, togglePortailLexical, toggleProverbe, globalVisibility, hasUserId])
 
   const orderedConfigs = useMemo(() => {
     if (!orderLoaded || cardOrder.length === 0) return cardConfigs
@@ -280,16 +286,20 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
-      {visibleCards.map(card => (
-        <div key={card.key} className="mb-6">
-          {card.renderCard()}
-        </div>
-      ))}
+      {visibleCards.map(card => {
+        const renderer = CARD_RENDERERS[card.key]
+        if (!renderer) return null
+        return (
+          <div key={card.key} className="mb-6">
+            {renderer(card, saviezVousFact, userId, hasUserId)}
+          </div>
+        )
+      })}
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
         {hiddenCards.map(card => (
           <div key={card.key} className="h-full">
-            {card.renderCard()}
+            {card.toggle && <VisibilityButton color="teal" label={`Afficher ${card.key}`} onClick={card.toggle} />}
           </div>
         ))}
       </div>
