@@ -48,6 +48,19 @@ interface CardConfig {
   toggle: () => void
 }
 
+const HIDDEN_CARD_COLORS: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald' | 'indigo'> = {
+  saviezVous: 'blue',
+  wikipedia: 'teal',
+  cnrs: 'green',
+  radioFrance: 'purple',
+  news: 'blue',
+  wikimedia: 'rose',
+  wikiloves: 'indigo',
+  pixabay: 'amber',
+  portailLexical: 'amber',
+  proverbe: 'emerald',
+}
+
 const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null, userId: string | undefined, hasUserId: boolean) => React.ReactElement | null> = {
   saviezVous: (config, fact) => {
     if (!fact) return null
@@ -285,10 +298,10 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         )
       })}
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
         {hiddenCards.map(card => (
           <div key={card.key} className="h-full">
-            {card.toggle && <VisibilityButton color="teal" label={`Afficher ${card.key}`} onClick={card.toggle} />}
+            {card.toggle && <VisibilityButton color={HIDDEN_CARD_COLORS[card.key] || 'teal'} label={`Afficher ${card.key}`} onClick={card.toggle} />}
           </div>
         ))}
       </div>
