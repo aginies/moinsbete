@@ -12,7 +12,17 @@ import { Label } from '@/components/ui/label'
 declare global {
   interface Window {
     turnstile?: {
-      render: (container: string | HTMLElement, config?: { sitekey?: string; theme?: string; callback?: (token: string) => void }) => string
+      render: (
+        container: string | HTMLElement,
+        config?: {
+          sitekey?: string
+          theme?: string
+          size?: string
+          callback?: (token: string) => void
+          'error-callback'?: () => void
+          'timeout-callback'?: () => void
+        }
+      ) => string
       reset?: (widgetId: string) => void
       getResponse?: (widgetId: string) => string
     }
@@ -37,9 +47,20 @@ function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boo
   const [success, setSuccess] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
   const hasRenderedRef = useRef(false)
+  const scriptLoadedRef = useRef(false)
 
   useEffect(() => {
-    if (!siteKey) return
+    if (!siteKey || hasRenderedRef.current || !window.turnstile) return
+    hasRenderedRef.current = true
+
+    window.turnstile.render('#turnstile-container', {
+      sitekey: siteKey,
+      theme: 'auto',
+      size: 'invisible',
+      callback: (token: string) => setTurnstileToken(token),
+      'error-callback': () => console.error('Turnstile error'),
+      'timeout-callback': () => console.error('Turnstile timeout'),
+    })
   }, [siteKey])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -49,9 +70,6 @@ function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boo
 
     const formData = new FormData(e.currentTarget)
     let token = turnstileToken || (formData.get('cf-turnstile-response') as string) || ''
-    if (!token && typeof window !== 'undefined') {
-      token = (window as unknown as Record<string, unknown>).__turnstileToken as string || ''
-    }
 
     const result = await registerAction({
       email: formData.get('email') as string,
@@ -158,15 +176,26 @@ function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boo
             <div
               id="turnstile-container"
               className="my-4 flex justify-center"
-              data-sitekey={siteKey}
-              data-size="invisible"
-              data-callback="(token) => window.__turnstileToken = token"
             />
           )}
 
           <Script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad"
             strategy="afterInteractive"
+            onLoad={() => {
+              scriptLoadedRef.current = true
+              if (siteKey && !hasRenderedRef.current && window.turnstile) {
+                hasRenderedRef.current = true
+                window.turnstile.render('#turnstile-container', {
+                  sitekey: siteKey,
+                  theme: 'auto',
+                  size: 'invisible',
+                  callback: (token: string) => setTurnstileToken(token),
+                  'error-callback': () => console.error('Turnstile error'),
+                  'timeout-callback': () => console.error('Turnstile timeout'),
+                })
+              }
+            }}
           />
 
           <Button type="submit" className="w-full" disabled={loading || registrationLocked}>
