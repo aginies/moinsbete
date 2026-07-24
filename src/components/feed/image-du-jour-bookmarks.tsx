@@ -43,6 +43,7 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, on
             onClick={() => onShowFullImage(item.imageUrl)}
           >
             <img
+              decoding="async"
               src={sanitizeUrl(item.imageUrl, '')}
               alt={item.description}
               loading="lazy"
