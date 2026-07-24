@@ -38,34 +38,9 @@ function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boo
   const [turnstileToken, setTurnstileToken] = useState('')
   const hasRenderedRef = useRef(false)
 
-  const renderTurnstile = useCallback(() => {
-    if (!siteKey || hasRenderedRef.current || typeof window === 'undefined' || !window.turnstile) return
-    const container = document.getElementById('turnstile-container')
-    if (!container) return
-    try {
-      container.innerHTML = ''
-      hasRenderedRef.current = true
-      window.turnstile.render(container, {
-        sitekey: siteKey,
-        theme: 'light',
-        callback: (token: string) => {
-          setTurnstileToken(token)
-        },
-      })
-    } catch (e) {
-      hasRenderedRef.current = false
-      console.error('Turnstile render error:', e)
-    }
-  }, [siteKey])
-
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.turnstile && siteKey) {
-      const timer = setTimeout(() => {
-        renderTurnstile()
-      }, 0)
-      return () => clearTimeout(timer)
-    }
-  }, [renderTurnstile, siteKey])
+    if (!siteKey) return
+  }, [siteKey])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -73,7 +48,10 @@ function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boo
     setError('')
 
     const formData = new FormData(e.currentTarget)
-    const token = turnstileToken || (formData.get('cf-turnstile-response') as string) || ''
+    let token = turnstileToken || (formData.get('cf-turnstile-response') as string) || ''
+    if (!token && typeof window !== 'undefined') {
+      token = (window as unknown as Record<string, unknown>).__turnstileToken as string || ''
+    }
 
     const result = await registerAction({
       email: formData.get('email') as string,
@@ -177,13 +155,18 @@ function RegisterForm({ registrationLocked, siteKey }: { registrationLocked: boo
           </div>
 
           {siteKey && (
-            <div id="turnstile-container" className="my-4 flex justify-center" />
+            <div
+              id="turnstile-container"
+              className="my-4 flex justify-center"
+              data-sitekey={siteKey}
+              data-size="invisible"
+              data-callback="(token) => window.__turnstileToken = token"
+            />
           )}
 
           <Script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
             strategy="afterInteractive"
-            onLoad={renderTurnstile}
           />
 
           <Button type="submit" className="w-full" disabled={loading || registrationLocked}>

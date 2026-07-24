@@ -121,7 +121,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
       </div>
 
       {isOpen && hasResults && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-border/60 bg-card p-4 shadow-lg">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[60vh] overflow-y-auto rounded-xl border border-border/60 bg-card p-4 shadow-lg">
           {results.topics.length > 0 && (
             <div className="mb-3">
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Sujets</h4>
@@ -145,7 +145,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             <div className="mb-3">
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Idées</h4>
               <div className="space-y-2">
-                {results.ideas.slice(0, 4).map((idea) => {
+                {results.ideas.slice(0, 10).map((idea) => {
                   const compactIdea = {
                     id: idea.id,
                     title: idea.title,
@@ -167,7 +167,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             <div className="mb-3">
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Faits</h4>
               <div className="space-y-1">
-                {results.facts.slice(0, 4).map((fact) => (
+                {results.facts.slice(0, 10).map((fact) => (
                   <button
                     key={fact.id}
                     type="button"
@@ -185,7 +185,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             <div className="mb-3">
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Proverbes</h4>
               <div className="space-y-1">
-                {results.proverbs.slice(0, 4).map((proverb) => (
+                {results.proverbs.slice(0, 10).map((proverb) => (
                   <Link
                     key={proverb.id}
                     href={`/proverbes?q=${encodeURIComponent(proverb.text)}`}
@@ -216,7 +216,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             <div className="mb-3">
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Images</h4>
               <div className="grid grid-cols-2 gap-2">
-                {results.images.slice(0, 4).map((image) => (
+                {results.images.slice(0, 10).map((image) => (
                   <Link
                     key={image.id}
                     href={sanitizeUrl(image.fileUrl)}
@@ -258,7 +258,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             <div>
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Sources</h4>
               <div className="space-y-1">
-                {results.sources.slice(0, 4).map((source) => (
+                {results.sources.slice(0, 10).map((source) => (
                   <Link
                     key={source.id}
                     href={`/sources/${source.slug}`}

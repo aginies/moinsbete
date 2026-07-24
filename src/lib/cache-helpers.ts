@@ -137,3 +137,11 @@ export async function clearFreenewsapiArticles() {
     },
   })
 }
+
+export async function cleanupNewsByMaxAge(days: number) {
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+  const result = await prisma.cachedNewsArticle.deleteMany({
+    where: { scrapedAt: { lt: cutoff } },
+  })
+  return result.count
+}

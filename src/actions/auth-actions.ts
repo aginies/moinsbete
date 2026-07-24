@@ -75,6 +75,25 @@ export async function registerAction(formData: {
     return { error: 'Cet email est déjà utilisé' }
   }
 
+  const isTestingKey = process.env.TURNSTILE_SECRET_KEY === '0x4AAAAAAD329wA3uz-RrH8FJ80KzMltOSA'
+  const isDevEmptyToken = process.env.NODE_ENV === 'development' && isTestingKey && !cfToken
+
+  if (process.env.TURNSTILE_SECRET_KEY && !cfToken && !isDevEmptyToken) {
+    return { error: 'Vérification humaine requise.' }
+  }
+
+  if (process.env.TURNSTILE_SECRET_KEY && cfToken) {
+    const remoteIp = await getClientIpFromHeaders()
+    const turnstileSuccess = await verifyTurnstile(cfToken, remoteIp)
+    if (!turnstileSuccess) {
+      return { error: 'Vérification humaine échouée. Réessayez.' }
+    }
+  }
+
+  if (isDevEmptyToken) {
+    console.log('DEVELOPMENT BYPASS: Empty token allowed for Cloudflare Turnstile testing keys.')
+  }
+
   const passwordHash = await bcrypt.hash(password, 12)
 
   await prisma.user.create({

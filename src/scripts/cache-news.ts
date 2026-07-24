@@ -1,5 +1,5 @@
 import { prisma } from '../lib/db'
-import { cleanupExpired } from '../lib/cache-helpers'
+import { cleanupExpired, cleanupNewsByMaxAge } from '../lib/cache-helpers'
 
 const FREE_NEWS_API_KEY = process.env.FREE_NEWS_API_KEY || ''
 const FREE_NEWS_API_BASE = 'https://api.freenewsapi.io/v1'
@@ -379,7 +379,7 @@ export async function scrapeAndCacheNews(): Promise<void> {
 
   console.log(`\n💾 Upsert ${allArticles.length} articles en DB...`)
   const now = new Date()
-  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString()
+  const expiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString()
 
   const upserts = allArticles.map(article => ({
     where: { url: article.url },
@@ -392,6 +392,10 @@ export async function scrapeAndCacheNews(): Promise<void> {
 
   console.log(`  ✅ ${allArticles.length} articles upserted`)
   await cleanupExpired()
+  const cleaned = await cleanupNewsByMaxAge(5)
+  if (cleaned > 0) {
+    console.log(`  🗑️ ${cleaned} articles > 5 jours supprimés`)
+  }
 }
 
 if (process.argv[1]?.includes('cache-news')) {
