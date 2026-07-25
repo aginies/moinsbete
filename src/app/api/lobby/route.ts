@@ -7,6 +7,9 @@ import { isCsrfValid } from '@/lib/csrf'
 import { maskEmail } from '@/lib/utils'
 
 export async function GET() {
+  const session = await getSession()
+  if (!session?.user) return NextResponse.json({ suggestions: [] }, { status: 401 })
+
   const suggestions = await prisma.userSuggestion.findMany({
     orderBy: { createdAt: 'desc' },
     take: 100,
