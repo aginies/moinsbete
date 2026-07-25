@@ -4,10 +4,12 @@ import { prisma } from '@/lib/db'
 export async function GET() {
   try {
     const now = new Date()
-    const article = await prisma.cachedCnrsArticle.findFirst({
+    const articles = await prisma.cachedCnrsArticle.findMany({
       where: { expiresAt: { gte: now } },
-      orderBy: { scrapedAt: 'desc' },
     })
+    const article = articles.length > 0
+      ? articles[Math.floor(Math.random() * articles.length)]
+      : null
 
     if (article) {
       return NextResponse.json({
