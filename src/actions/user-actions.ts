@@ -23,6 +23,7 @@ export async function toggleUserEnabled(userId: string, enabled: boolean) {
   try {
     const session = await getSession()
     if (!session?.user) return { error: 'Non authentifié' }
+    if (session.user.role !== 'ADMIN') return { error: 'Non autorisé' }
 
     await prisma.user.update({
       where: { id: userId },
@@ -39,6 +40,7 @@ export async function deleteUser(userId: string) {
   try {
     const session = await getSession()
     if (!session?.user) return { error: 'Non authentifié' }
+    if (session.user.role !== 'ADMIN') return { error: 'Non autorisé' }
 
     await prisma.user.delete({
       where: { id: userId },

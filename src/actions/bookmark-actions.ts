@@ -90,12 +90,12 @@ export async function toggleTopic(topicId: string) {
   })
 
   if (!user) {
-    console.error('[toggleTopic] User not found:', session.user.id)
+    console.error('[toggleTopic] User not found')
     return { error: 'Utilisateur non trouvé' }
   }
 
   const isFollowing = user.following.some(t => t.id === topicId)
-  console.log('[toggleTopic] User:', session.user.id, 'Topic:', topicId, 'isFollowing:', isFollowing)
+  console.log('[toggleTopic] isFollowing:', isFollowing)
 
   if (isFollowing) {
     await prisma.user.update({
@@ -106,7 +106,7 @@ export async function toggleTopic(topicId: string) {
         },
       },
     })
-    console.log('[toggleTopic] Disconnected topic', topicId)
+    console.log('[toggleTopic] Disconnected topic')
     return { success: true, followed: false }
   } else {
     await prisma.user.update({
@@ -117,7 +117,7 @@ export async function toggleTopic(topicId: string) {
         },
       },
     })
-    console.log('[toggleTopic] Connected topic', topicId)
+    console.log('[toggleTopic] Connected topic')
     return { success: true, followed: true }
   }
 }
