@@ -55,12 +55,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 })
     }
 
-    const csrfToken = request.headers.get('x-csrf-token')
-    if (!csrfToken) {
-      console.warn(`[API/user-card-visibility] POST: CSRF token missing for user ${session.user.id}`)
-      return NextResponse.json({ error: 'CSRF token missing' }, { status: 403 })
-    }
-
     const userId = session.user.id
     if (!(await checkRateLimit(`visibility:${userId}`, 30, 60_000))) {
       console.warn(`[API/user-card-visibility] POST: Rate limit exceeded for user ${userId}`)
@@ -83,6 +77,7 @@ export async function POST(request: NextRequest) {
       'portailLexicalCardVisible',
       'proverbeCardVisible',
       'cnrsNewsEnabled',
+      'newsCardVisible',
     ]
 
     if (!validFields.includes(field)) {
