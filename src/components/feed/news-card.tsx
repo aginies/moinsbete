@@ -91,7 +91,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string, que
 }
 
 function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
-  const t = useTranslations()
+  const t = useTranslations('feed')
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -282,14 +282,15 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
             </div>
             <div className="flex items-center gap-4">
               {showToggle && onToggle && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onToggle()
-                  }}
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
-                  title="Masquer la carte"
-                >
+             <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggle()
+                }}
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
+                title={t('hide_card')}
+                aria-label={t('hide_card')}
+              >
                   <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               )}
@@ -301,7 +302,8 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                   localStorage.setItem(NEWS_FILTER_STORAGE_KEY, String(next))
                 }}
                 className={`h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 cursor-pointer transition-transform hover:scale-110 ${showCategories ? 'rotate-180' : ''}`}
-                title="Filtres"
+                title={t('filter_news')}
+                aria-label={t('filter_news')}
               >
                 <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
@@ -345,6 +347,7 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                 type="button"
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-400 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400"
+                aria-label={t('clear_search')}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -431,12 +434,12 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                             className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            {t('feed.read_article')}
+                            {t('read_article')}
                             <ExternalLink className="h-3 w-3" />
                           </Link>
                         ) : (
                           <span className="text-xs text-blue-400 dark:text-blue-500">
-                            {t('feed.no_direct_link')}
+                            {t('no_direct_link')}
                           </span>
                         )}
                         <div className="flex items-center gap-2">
@@ -447,7 +450,8 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                               handleBookmark(article, isFav)
                             }}
                             className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
-                            title={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                            title={isFav ? t('remove_favorite') : t('add_favorite')}
+                            aria-label={isFav ? t('remove_favorite') : t('add_favorite')}
                           >
                             <Bookmark className={`h-4 w-4 ${isFav ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`} />
                           </button>
@@ -475,13 +479,13 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
 
           {infiniteScroll && !hasMore && hasLoaded && (
             <p className="text-center text-xs text-blue-400 dark:text-blue-500 py-4">
-              {t('feed.no_more_articles')}
+              {t('no_more_articles')}
             </p>
           )}
 
           {infiniteScroll && !hasMore && !hasLoaded && articles.length === 0 && !error && (
             <p className="text-center text-xs text-blue-400 dark:text-blue-500 py-4">
-              {t('feed.no_more_articles')}
+              {t('no_more_articles')}
             </p>
           )}
 

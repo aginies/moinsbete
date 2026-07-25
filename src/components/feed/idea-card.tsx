@@ -6,6 +6,7 @@ import React from 'react'
 import { useState, useCallback } from 'react'
 import { Bookmark, ExternalLink, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 interface IdeaCardProps {
   idea: {
@@ -34,6 +35,7 @@ interface IdeaCardProps {
 
 const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: IdeaCardProps) => {
   const router = useRouter()
+  const t = useTranslations('feed')
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
 
   const handleCardClick = useCallback(() => {
@@ -71,6 +73,7 @@ const IdeaCardInner = ({ idea, isBookmarked: initialBookmarked, onBookmark }: Id
           type="button"
           className="absolute right-3 top-3 z-10 rounded-full bg-card/90 p-1.5 backdrop-blur-sm transition-colors hover:bg-muted hover:text-foreground"
           onClick={handleBookmark}
+          aria-label={bookmarked ? t('remove_favorite') : t('add_favorite')}
         >
           <Bookmark className={`h-5 w-5 transition-colors ${bookmarked ? 'fill-current text-primary' : 'text-muted-foreground'}`} />
         </button>

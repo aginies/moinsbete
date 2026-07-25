@@ -17,6 +17,7 @@ import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useRouter, usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 interface SaviezVousCardProps {
   id: string
@@ -68,6 +69,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
 }: SaviezVousCardProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const t = useTranslations('feed')
   const [fact, setFact] = useState(() => {
     if (typeof sessionStorage === 'undefined') return { id, text, sourceUrl, imageFilename }
     const saved = sessionStorage.getItem('saviez_vous_fact')
@@ -210,7 +212,8 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
             onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
             disabled={isPending || !fact}
             className="rounded-full p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all disabled:opacity-50"
-            title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+            title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+            aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
           >
             <Bookmark
               className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}

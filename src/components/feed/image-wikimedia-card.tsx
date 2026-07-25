@@ -7,6 +7,7 @@ import { BaseImageCard } from './base-image-card'
 import { sanitizeUrl } from '@/lib/utils'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { useRef } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface WikimediaImage {
   docid: string
@@ -284,6 +285,7 @@ function WikiLovesTopicsModal({
   topics: Topic[]
   onToggleActive: (topicId: string) => void | Promise<void>
 }) {
+  const t = useTranslations('feed')
   const [localTopics, setLocalTopics] = useState<Topic[]>(topics)
   const prevTopicsRef = useRef(topics)
 
@@ -307,6 +309,7 @@ function WikiLovesTopicsModal({
         <button
           className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => onOpenChange(false)}
+          aria-label={t('close')}
         >
           <X className="h-5 w-5" />
         </button>

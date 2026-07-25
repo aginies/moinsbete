@@ -11,6 +11,7 @@ import { ImageLoading } from './image-loading'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useTranslations } from 'next-intl'
 
 interface PixabayVideo {
   id: number
@@ -89,6 +90,7 @@ function ImagePixabayCardInner({
   storageKey?: string
   isVisible?: boolean
 }) {
+  const t = useTranslations('feed')
   const [video, setVideo] = useState<PixabayVideo | null>(() => {
     const saved = sessionStorage.getItem('pixabay_video')
     return saved ? JSON.parse(saved) : null
@@ -251,7 +253,8 @@ function ImagePixabayCardInner({
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onToggle?.() }}
                 className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors mr-2 sm:mr-4"
-                title="Masquer la carte"
+                title={t('hide_card')}
+                aria-label={t('hide_card')}
               >
                 <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
@@ -260,7 +263,8 @@ function ImagePixabayCardInner({
               type="button"
               onClick={(e) => { e.stopPropagation(); loadVideo() }}
               className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
-              title="Rafraîchir"
+              title={t('refresh_content')}
+              aria-label={t('refresh_content')}
             >
               <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
@@ -270,7 +274,8 @@ function ImagePixabayCardInner({
                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
                 disabled={isPending}
                 className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors disabled:opacity-50 ml-2 sm:ml-4"
-                title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
               >
                 <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-800 dark:text-amber-300'}`} />
               </button>
@@ -353,7 +358,8 @@ function ImagePixabayCardInner({
               type="button"
               onClick={(e) => { e.stopPropagation(); setShowCategories(prev => !prev) }}
               className="rounded-full bg-black/60 p-2 text-white hover:bg-black/80 transition-colors"
-              title={showCategories ? 'Masquer les catégories' : 'Afficher les catégories'}
+              title={showCategories ? t('hide_categories') : t('show_categories')}
+              aria-label={showCategories ? t('hide_categories') : t('show_categories')}
             >
               <Filter className={`h-4 w-4 sm:h-5 sm:w-5 ${showCategories ? 'fill-current' : ''}`} />
             </button>
@@ -361,7 +367,8 @@ function ImagePixabayCardInner({
               type="button"
               onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
               className="rounded-full bg-black/60 p-2 text-white hover:bg-black/80 transition-colors"
-              title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
+              title={isFullscreen ? t('exit_fullscreen') : t('fullscreen')}
+              aria-label={isFullscreen ? t('exit_fullscreen') : t('fullscreen')}
             >
               {isFullscreen ? <Minimize className="h-4 w-4 sm:h-5 sm:w-5" /> : <Maximize className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>

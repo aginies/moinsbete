@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Share2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface ShareButtonProps {
   onClick: () => Promise<void>
@@ -11,6 +12,7 @@ interface ShareButtonProps {
 
 export function ShareButton({ onClick, copied, shareUrl }: ShareButtonProps) {
   const [showTooltip, setShowTooltip] = useState(false)
+  const t = useTranslations('feed')
 
   return (
     <div className="relative inline-block">
@@ -24,6 +26,7 @@ export function ShareButton({ onClick, copied, shareUrl }: ShareButtonProps) {
         }}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
+        aria-label={t('share')}
       >
         <Share2 className="h-4 w-4" />
       </button>

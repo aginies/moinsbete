@@ -5,8 +5,34 @@ import { getRandomFact } from '@/lib/saviez-vous'
 import { getGlobalCardVisibility } from '@/actions/card-actions'
 import { Splash } from '@/components/splash'
 import { getTranslations } from 'next-intl/server'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moinsbete.guibo.com'
+  return {
+    title: 'Tous les sujets | MoinsBête',
+    description: 'Explorez des sujets variés : psychologie, philosophie, productivité, sciences cognitives, économie, histoire, créativité, santé et bien-être, et bien plus encore.',
+    openGraph: {
+      title: 'Tous les sujets - MoinsBête',
+      description: 'Explorez des sujets variés et découvrez des idées pour élargir vos connaissances.',
+      type: 'website',
+      url: `${baseUrl}/sujets`,
+      siteName: 'MoinsBête',
+      locale: 'fr_FR',
+    },
+    twitter: {
+      card: 'summary',
+      title: 'Tous les sujets - MoinsBête',
+      description: 'Explorez des sujets variés et découvrez des idées pour élargir vos connaissances.',
+    },
+    metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical: `${baseUrl}/sujets`,
+    },
+  }
+}
 
 export default async function SujetsPage() {
   const session = await getSession()

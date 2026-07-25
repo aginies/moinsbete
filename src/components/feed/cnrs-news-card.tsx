@@ -10,6 +10,7 @@ import { toggleCnrsFavoriteAction, isCnrsFavoriteAction } from '@/actions/cnrs-b
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { CardVisibilityGuard } from './card-visibility-guard'
+import { useTranslations } from 'next-intl'
 
 interface CnrsNewsCardProps {
   onToggle?: () => void
@@ -57,6 +58,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
 }
 
 function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsCardProps) {
+  const t = useTranslations('feed')
   const [article, setArticle] = useState<CnrsArticle | null>(() => {
     const saved = sessionStorage.getItem('cnrs_article')
     return saved ? JSON.parse(saved) : null
@@ -151,7 +153,8 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
                   onToggle()
                 }}
                 className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 transition-colors"
-                title="Masquer la carte"
+                title={t('hide_card')}
+                aria-label={t('hide_card')}
               >
                 <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
@@ -165,7 +168,8 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
                 }}
                 disabled={isPending}
                 className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 transition-colors disabled:opacity-50"
-                title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
               >
                 <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-green-600 dark:text-green-400' : 'text-green-600 dark:text-green-400'}`} />
               </button>

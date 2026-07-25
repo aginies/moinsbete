@@ -1,6 +1,7 @@
 'use client'
 
 import { X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface ImageLightboxProps {
   src: string
@@ -9,6 +10,7 @@ interface ImageLightboxProps {
 }
 
 export function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
+  const t = useTranslations('feed')
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
@@ -18,6 +20,7 @@ export function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
         <button
           onClick={onClose}
           className="absolute -top-3 -right-3 z-10 rounded-full bg-white/20 p-1.5 text-white backdrop-blur-sm hover:bg-white/30 transition-colors"
+          aria-label={t('close')}
         >
           <X className="h-5 w-5" />
         </button>

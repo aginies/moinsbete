@@ -12,6 +12,7 @@ import { ImageHint } from './image-hint'
 import { ShareButton } from './share-button'
 import { useItemShare } from './use-item-share'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
+import { useTranslations } from 'next-intl'
 
 import { ImageDuJourFavoriteDoc } from '@/lib/image-du-jour-bookmark'
 
@@ -27,6 +28,7 @@ interface ImageDuJourBookmarksProps {
 }
 
 function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareToggle, isSharing }: { item: ImageDuJourFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void; isShared: boolean; onShareToggle: () => void; isSharing: boolean }) {
+  const t = useTranslations('feed')
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: item.fileUrl,
     title: `Image du jour - ${item.description}`,
@@ -76,7 +78,8 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, on
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
-          title="Retirer des favoris"
+          title={t('remove_favorite')}
+          aria-label={t('remove_favorite')}
         >
           <Trash2 className="h-4 w-4" />
         </button>

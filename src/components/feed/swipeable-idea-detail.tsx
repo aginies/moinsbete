@@ -10,6 +10,7 @@ import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { useItemShare } from './use-item-share'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import type { Idea } from '@/types/idea'
+import { useTranslations } from 'next-intl'
 
 interface SwipeableIdeaDetailProps {
   idea: Idea
@@ -149,6 +150,7 @@ export function SwipeableIdeaDetail({
   isRefreshing,
 }: SwipeableIdeaDetailProps) {
   const router = useRouter()
+  const t = useTranslations('feed')
   const [bookmarked, setBookmarked] = useState(initialBookmarked || false)
 
   const getShareUrl = useCallback((slug: string) => `${typeof window !== 'undefined' ? window.location.origin : ''}/idees/${slug}`, [])
@@ -276,16 +278,17 @@ export function SwipeableIdeaDetail({
           <div className="relative rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
             <div className="absolute right-3 top-3 z-10 flex gap-2">
               {onRefresh && (
-                <button
-                  type="button"
-                  className="rounded-full bg-card/90 p-2 backdrop-blur-sm transition-all shadow-sm hover:bg-muted hover:text-foreground disabled:opacity-50"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    onRefresh()
-                  }}
-                  disabled={isRefreshing}
-                >
+             <button
+                type="button"
+                className="rounded-full bg-card/90 p-2 backdrop-blur-sm transition-all shadow-sm hover:bg-muted hover:text-foreground disabled:opacity-50"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onRefresh()
+                }}
+                disabled={isRefreshing}
+                aria-label={t('refresh_content')}
+              >
                   <RefreshCw className={`h-5 w-5 text-muted-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
                 </button>
               )}
@@ -293,6 +296,7 @@ export function SwipeableIdeaDetail({
                 type="button"
                 className="rounded-full bg-card/90 p-2 backdrop-blur-sm transition-all shadow-sm hover:bg-muted hover:text-foreground"
                 onClick={handleBookmark}
+                aria-label={bookmarked ? t('remove_favorite') : t('add_favorite')}
               >
                 <Bookmark className={`h-5 w-5 transition-colors ${bookmarked ? 'fill-current text-primary' : 'text-muted-foreground'}`} />
               </button>
@@ -300,6 +304,7 @@ export function SwipeableIdeaDetail({
                 type="button"
                 className="rounded-full bg-card/90 p-2 backdrop-blur-sm transition-all shadow-sm hover:bg-muted hover:text-foreground"
                 onClick={handleShare}
+                aria-label={t('share')}
               >
                 <Share2 className={`h-5 w-5 transition-colors ${copied ? 'text-green-500' : 'text-muted-foreground'}`} />
               </button>
@@ -322,7 +327,7 @@ export function SwipeableIdeaDetail({
                     <button
                       onClick={navigateToPrev}
                       className="group inline-flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-xs transition-all hover:bg-muted/50"
-                      aria-label="Voir l'idée précédente"
+                      aria-label={t('see_previous_idea')}
                     >
                       <span className="text-[10px] text-muted-foreground/60 group-hover:text-primary/70">← Précédent</span>
                     </button>
@@ -338,7 +343,7 @@ export function SwipeableIdeaDetail({
                     <button
                       onClick={navigateToNext}
                       className="group inline-flex w-full flex-col items-end gap-0.5 rounded-lg px-3 py-2 text-xs transition-all hover:bg-muted/50"
-                      aria-label="Voir l'idée suivante"
+                      aria-label={t('see_next_idea')}
                     >
                       <span className="text-[10px] text-muted-foreground/60 group-hover:text-primary/70">Suivant →</span>
                     </button>

@@ -10,6 +10,7 @@ import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleRadioFavoriteAction, isRadioFavoriteAction } from '@/actions/radio-bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useTranslations } from 'next-intl'
 
 interface RadioFranceDoc {
   id: string
@@ -41,6 +42,7 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
 }
 
 function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCardProps) {
+  const t = useTranslations('feed')
   const [doc, setDoc] = useState<RadioFranceDoc | null>(() => {
     const saved = sessionStorage.getItem('radio_france_doc')
     if (saved) {
@@ -136,13 +138,15 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
                <button
                 onClick={onToggle || (() => {})}
                 className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors"
-               title="Masquer la carte"
+               title={t('hide_card')}
+               aria-label={t('hide_card')}
              >
                <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
              </button>
              <button
                onClick={handleRefresh}
-               title="Changer de documentaire"
+               title={t('change_documentary')}
+               aria-label={t('change_documentary')}
              >
                <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400 ${loading ? 'animate-spin' : ''}`} />
              </button>
@@ -150,7 +154,8 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
                onClick={handleBookmark}
                disabled={isPending}
                className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors disabled:opacity-50"
-               title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+               title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+               aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
              >
                <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-purple-600 dark:text-purple-400' : 'text-purple-600 dark:text-purple-400'}`} />
              </button>

@@ -423,7 +423,15 @@
     "db_maintenance_title": "AMÉLIORATION EN COURS DE LA DB DES SUJETS",
     "db_maintenance_desc": "AUCUNE SAUVEGARDE NE SERA EFFECTUÉE PENDANT CETTE MAJ",
     "email_notifications": "Notifications par email",
-    "email_notifications_desc": "Recevoir un email quand quelqu'un me partage un contenu"
+    "email_notifications_desc": "Recevoir un email quand quelqu'un me partage un contenu",
+    "share": "Partager",
+    "close": "Fermer",
+    "settings": "Paramètres",
+    "filter": "Filtrer les catégories",
+    "filter_news": "Filtres",
+    "clear_search": "Effacer la recherche",
+    "change_documentary": "Changer de documentaire",
+    "refresh_content": "Rafraîchir"
   },
   "about": {
     "title": "MoinsBête",

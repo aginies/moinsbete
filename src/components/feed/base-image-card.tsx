@@ -14,6 +14,7 @@ import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-act
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import type { BookmarkType } from '@/generated/client'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
+import { useTranslations } from 'next-intl'
 
 interface BaseImage {
   docid: string
@@ -120,6 +121,7 @@ export function BaseImageCard<TTopic>({
     onSettingsClick,
   } = config
 
+  const t = useTranslations('feed')
   const imageStorageKey = storageKey ? `base_image_${storageKey}` : 'base_image'
 
   const [image, setImage] = useState<BaseImage | null>(() => {
@@ -245,7 +247,8 @@ export function BaseImageCard<TTopic>({
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleToggleVisibility() }}
                 className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
-                title="Masquer la carte"
+                title={t('hide_card')}
+                aria-label={t('hide_card')}
               >
                 <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
@@ -254,18 +257,20 @@ export function BaseImageCard<TTopic>({
                 type="button"
                 onClick={(e) => { e.stopPropagation(); loadImage() }}
                 className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
-                title="Rafraîchir"
+                title={t('refresh_content')}
+                aria-label={t('refresh_content')}
               >
                 <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
              {image && (
                <button
-                 type="button"
-                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                 disabled={isPending}
-                 className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
-                 title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-               >
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                  disabled={isPending}
+                  className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
+                  title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                  aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                >
                  <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current' : ''}`} />
                </button>
              )}
@@ -319,6 +324,7 @@ export function BaseImageCard<TTopic>({
               onClick={(e) => { e.stopPropagation(); onSettingsClick() }}
               className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
               title={settingsButtonTitle}
+              aria-label={settingsButtonTitle}
             >
               <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
@@ -328,7 +334,8 @@ export function BaseImageCard<TTopic>({
               type="button"
               onClick={(e) => { e.stopPropagation(); onToggleCategories() }}
               className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
-              title={showCategories ? 'Masquer les catégories' : 'Afficher les catégories'}
+              title={showCategories ? t('hide_categories') : t('show_categories')}
+              aria-label={showCategories ? t('hide_categories') : t('show_categories')}
             >
               <Filter className={`h-4 w-4 sm:h-5 sm:w-5 ${showCategories ? 'fill-current' : ''}`} />
             </button>

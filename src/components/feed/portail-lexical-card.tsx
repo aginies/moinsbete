@@ -10,6 +10,7 @@ import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { CardHeader } from './card-header'
+import { useTranslations } from 'next-intl'
 
 interface PortailLexicalWord {
   form: string
@@ -51,6 +52,7 @@ async function fetchWordOfTheDay(): Promise<PortailLexicalWord | null> {
 }
 
 function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: PortailLexicalCardProps) {
+  const t = useTranslations('feed')
   const [word, setWord] = useState<PortailLexicalWord | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -143,13 +145,14 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
               loading={loading}
               shareOptions={word ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
                extraActions={word ? (
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                    disabled={isPending || loading}
-                    className="rounded-full p-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all disabled:opacity-50"
-                    title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                  >
+               <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                  disabled={isPending || loading}
+                  className="rounded-full p-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all disabled:opacity-50"
+                  title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                  aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                >
                      <Bookmark
                        className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
                      />

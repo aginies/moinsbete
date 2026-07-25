@@ -12,6 +12,7 @@ import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { useItemShare } from './use-item-share'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
+import { useTranslations } from 'next-intl'
 
 export interface SaviezVousFavoriteDoc {
   id: string
@@ -33,6 +34,7 @@ interface SaviezVousBookmarksProps {
 }
 
 function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareToggle, isSharing }: { item: SaviezVousFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void; isShared: boolean; onShareToggle: () => void; isSharing: boolean }) {
+  const t = useTranslations('feed')
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'
   const shareUrl = `${baseUrl}/saviez-vous/${item.id}`
   const { handleShare, copied, shareUrl: itemShareUrl } = useItemShare({
@@ -90,7 +92,8 @@ function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage, isShared, onS
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
-          title="Retirer des favoris"
+          title={t('remove_favorite')}
+          aria-label={t('remove_favorite')}
         >
           <Trash2 className="h-4 w-4" />
         </button>

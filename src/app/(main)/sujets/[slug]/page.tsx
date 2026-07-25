@@ -6,6 +6,42 @@ import { ArrowLeft } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 
 import { sanitizeUrl } from '@/lib/utils'
+import type { Metadata } from 'next'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const topic = await prisma.topic.findUnique({ where: { slug } })
+
+  if (!topic) {
+    return { title: 'Sujet introuvable | MoinsBête' }
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moinsbete.guibo.com'
+  const pageUrl = `${baseUrl}/sujets/${slug}`
+  const description = topic.description || `Explorez des idées sur ${topic.name} et élargissez vos connaissances.`
+
+  return {
+    title: `${topic.name} | MoinsBête`,
+    description,
+    openGraph: {
+      title: `${topic.name} - MoinsBête`,
+      description,
+      type: 'website',
+      url: pageUrl,
+      siteName: 'MoinsBête',
+      locale: 'fr_FR',
+    },
+    twitter: {
+      card: 'summary',
+      title: `${topic.name} - MoinsBête`,
+      description,
+    },
+    metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical: pageUrl,
+    },
+  }
+}
 
 export default async function SujetDetailPage({
   params,

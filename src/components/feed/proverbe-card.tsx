@@ -11,6 +11,7 @@ import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardHeader } from './card-header'
+import { useTranslations } from 'next-intl'
 
 export interface Proverbe {
   id: string
@@ -58,6 +59,7 @@ function ProverbeCardInner({
   title,
   linkHref
 }: ProverbeCardProps) {
+  const t = useTranslations('feed')
   const [internalProverbe, setInternalProverbe] = useState<Proverbe | null>(null)
   const [internalLoading, setInternalLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -155,7 +157,8 @@ function ProverbeCardInner({
                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
                   disabled={isPending || loading}
                   className="rounded-full p-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all disabled:opacity-50"
-                  title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                  title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                  aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
                 >
                   <Bookmark
                     className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-emerald-600 dark:text-emerald-400' : 'text-emerald-600 dark:text-emerald-400'}`}

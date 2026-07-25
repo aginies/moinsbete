@@ -17,6 +17,7 @@ import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { encodeImageToUrl } from '@/lib/image-url-encoder'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
+import { useTranslations } from 'next-intl'
 
 interface ImageData {
   imageUrl: string
@@ -63,6 +64,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
   storageKey = 'image_du_jour',
   isVisible,
 }: WikipediaImageCardProps) {
+  const t = useTranslations('feed')
   const [image, setImage] = useState<ImageData | null>(() => {
     const saved = sessionStorage.getItem('wikipedia_image')
     return saved ? JSON.parse(saved) : null
@@ -203,7 +205,8 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
                   onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
                   disabled={isPending}
                   className="rounded-full p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all disabled:opacity-50"
-                  title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                  title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                  aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
                 >
                   <Bookmark
                     className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-teal-600 dark:text-teal-400' : 'text-teal-600 dark:text-teal-400'}`}

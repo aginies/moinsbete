@@ -7,6 +7,7 @@ import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getCnrsFavoritesAction } from '@/actions/cnrs-bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 import { useFavoritesList } from '@/components/feed/use-favorites-list'
+import { useTranslations } from 'next-intl'
 
 export interface CnrsFavoriteDoc {
   id: string
@@ -27,6 +28,7 @@ interface CnrsBookmarksProps {
 }
 
 export function CnrsBookmarks({ userId, onRemoveComplete, searchQuery }: CnrsBookmarksProps) {
+  const t = useTranslations('feed')
   const { handleRemove, getFavorites } = useFavoritesList<CnrsFavoriteDoc>({
     userId,
     storageKey: CNRS_FAVORITES_KEY,
@@ -91,11 +93,12 @@ export function CnrsBookmarks({ userId, onRemoveComplete, searchQuery }: CnrsBoo
               </Link>
             )}
           </div>
-          <button
-            onClick={onRemove}
-            className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
-            title="Retirer des favoris"
-          >
+       <button
+          onClick={onRemove}
+          className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
+          title={t('remove_favorite')}
+          aria-label={t('remove_favorite')}
+        >
             <Trash2 className="h-4 w-4" />
           </button>
         </div>

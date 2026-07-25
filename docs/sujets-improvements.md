@@ -2,8 +2,29 @@
 
 ## Critical
 
-### 1. Dual visibility state conflict
-`sujets-client.tsx` manages visibility state, passes `userId={undefined}` to cards to short-circuit their `useCardVisibility` hook, then syncs via separate `updateCardVisibility` fetch. Each card also runs its own hook. Two systems, race conditions, confusion. Pick one: parent manages all visibility, or cards manage their own.
+### 1. Dual visibility state conflict ✅ FIXED
+
+`sujets-client.tsx` managed visibility state, passed `userId={undefined}` to cards, and synced via `updateCardVisibility` fetch. Each card also ran its own `useCardVisibility` hook — dead code in controlled mode.
+
+Fix: Create `CardVisibilityGuard` component for SSR-safe show/hide. Remove `useCardVisibility` from 10 card components. Cards are fully controlled: `isVisible` prop drives visibility, `onToggle` fires parent callback. Parent remains single source of truth with DB persistence. Standalone pages render card always visible, no toggle. Hook kept only for image card categories toggle.
+
+Files modified:
+- `src/components/feed/card-visibility-guard.tsx` — NEW, SSR guard + VisibilityButton fallback
+- `src/components/feed/cnrs-news-card.tsx` — hook removed, guard wraps
+- `src/components/feed/saviez-vous-card.tsx` — hook removed, guard wraps
+- `src/components/feed/wikipedia-image-card.tsx` — hook removed, guard wraps
+- `src/components/feed/radio-france-card.tsx` — hook removed, guard wraps
+- `src/components/feed/news-card.tsx` — hook removed, guard wraps
+- `src/components/feed/proverbe-card.tsx` — hook removed, guard wraps
+- `src/components/feed/portail-lexical-card.tsx` — hook removed, guard wraps
+- `src/components/feed/base-image-card.tsx` — hook removed, guard wraps
+- `src/components/feed/image-pixabay-card.tsx` — hook removed, guard wraps
+- `src/components/feed/image-wikimedia-card.tsx` — hook kept (categories only)
+- `src/components/feed/image-wikiloves-card.tsx` — hook kept (categories only)
+- `src/app/(main)/sujets/sujets-client.tsx` — `userId={undefined}` removed from 10 card renders
+- `src/app/(main)/news/news-page-client.tsx` — `userId` prop removed
+- `src/app/(main)/proverbes/proverbes-page-client.tsx` — `userId` prop removed
+- `src/app/(main)/image-pixabay/pixabay-page-client.tsx` — `userId` prop removed
 
 ### 2. Hardcoded strings ✅ FIXED
 "AMÉLIORATION EN COURS", "Afficher", "Carte aléatoire", "Choisissez vos sujets", toast message in `topic-card.tsx:30-34`. i18n keys existed in locales but weren't used. Now using `useTranslations('feed')` / `getTranslations('feed')`.
@@ -38,8 +59,9 @@ Files modified:
 File modified:
 - `src/components/settings/card-ordering.tsx`
 
-### 6. Blank loading state
-`sujets-client.tsx:285-287`: returns `null` while loading card order. White flash. Add skeleton.
+### 6. Blank loading state ✅ FIXED
+
+`sujets-client.tsx:282-303`: returns skeleton placeholders while loading card order. No white flash.
 
 ### 7. Random card CTA ambiguous
 Link text switches between "Carte aléatoire" and "Choisissez vos sujets" based on state. Condition is complex (`userId && followedIds.length > 0 || isAllSelected`). Guest user sees "Choisissez vos sujets" linking to `/sujets` (self). Should show different copy or hide.

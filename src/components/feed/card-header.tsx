@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { EyeOff, RefreshCw, Play, Pause } from 'lucide-react'
 import { ShareButton } from './share-button'
+import { useTranslations } from 'next-intl'
 
 interface CardHeaderProps {
   icon: React.ReactNode
@@ -50,6 +51,7 @@ export function CardHeader({
   enableAutoRefresh = false,
   storageKey = 'card_auto',
 }: CardHeaderProps) {
+  const t = useTranslations('feed')
   const [isActive, setIsActive] = React.useState(() => {
     if (!enableAutoRefresh) return false
     const stored = localStorage.getItem(`${storageKey}_auto_active`)
@@ -137,7 +139,8 @@ export function CardHeader({
                 })
               }}
               className={`${titleColor} hover:bg-current/10 transition-colors flex items-center`}
-              title={isActive ? 'Pause' : 'Lecture'}
+              title={isActive ? t('pause') : t('play')}
+              aria-label={isActive ? t('pause') : t('play')}
             >
               {isActive ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 fill-current" />}
             </button>
@@ -175,7 +178,8 @@ export function CardHeader({
               onToggle()
             }}
             className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors mr-2 sm:mr-4`}
-            title="Masquer la carte"
+            title={t('hide_card')}
+            aria-label={t('hide_card')}
           >
             <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
@@ -188,7 +192,8 @@ export function CardHeader({
               setTimeLeft(intervalValue)
             }}
             className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors cursor-pointer`}
-            title="Rafraîchir"
+            title={t('refresh_content')}
+            aria-label={t('refresh_content')}
           >
             <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
