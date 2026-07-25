@@ -5,8 +5,20 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 
-import { sanitizeUrl } from '@/lib/utils'
 import type { Metadata } from 'next'
+import { getAllDescendantTopicIds, mapIdeaWithTopics } from '@/lib/feed-helpers'
+
+interface FeedWhereClause {
+  isPublished: boolean
+  viewedIdeas?: { none: { userId: string } }
+  ideaTopics?: {
+    some: {
+      topicId: {
+        in: string[]
+      }
+    }
+  }
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -73,25 +85,43 @@ export default async function SujetDetailPage({
     )
   }
 
-  const ideasRes = await fetch(
-    `${sanitizeUrl(process.env.NEXTAUTH_URL, 'http://localhost:3000')}/api/feed?topic=${slug}&page=1&limit=10${userId ? `&userId=${userId}` : ''}`,
-  )
+  const topicIds = await getAllDescendantTopicIds(slug)
 
-  if (!ideasRes.ok) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">{t('loading_error_generic')}</h1>
-          <Link href="/sujets" className="mt-4 text-primary hover:underline">
-            {t('retour_sujets')}
-          </Link>
-        </div>
-      </div>
-    )
+  const where: FeedWhereClause = { isPublished: true }
+  if (topicIds.length > 0) {
+    where.ideaTopics = {
+      some: {
+        topicId: { in: topicIds },
+      },
+    }
+  }
+  if (userId) {
+    where.viewedIdeas = { none: { userId } }
   }
 
-  const data = await ideasRes.json()
-  const { ideas, hasMore } = data
+  const ideasRaw = await prisma.idea.findMany({
+    where,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      source: { select: { title: true, type: true, url: true, coverUrl: true } },
+      ideaTopics: {
+        include: {
+          topic: { select: { id: true, name: true, slug: true, icon: true, color: true } },
+        },
+      },
+    },
+    orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
+    skip: 0,
+    take: 11,
+  })
+
+  const hasMore = ideasRaw.length > 10
+  const ideas = ideasRaw.slice(0, 10).map(({ ideaTopics, ...idea }) => ({
+    ...idea,
+    topics: mapIdeaWithTopics({ ideaTopics } as any),
+  })) as any
 
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
