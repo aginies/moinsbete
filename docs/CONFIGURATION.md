@@ -12,6 +12,9 @@ DATABASE_URL="file:./dev.db"
 NEXTAUTH_SECRET="une-clé-secrète-aléatoire-générer-avec-openssl"
 NEXTAUTH_URL="http://localhost:3000"
 
+# FreeNewsAPI (actualités)
+FREE_NEWS_API_KEY="votre-cle-api"
+
 # LLM (pour génération d'idées et ingestion Wikipédia)
 LLM_BASE_URL="https://votre-api-llm:port/v1"
 LLM_MODEL="nom-du-modele"
@@ -57,6 +60,7 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 | `EMAIL_FROM` | Adresse expéditeur des emails | `Moins Bete <noreply@moinsbete.com>` |
 | `TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (captcha inscription) | — |
 | `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key | — |
+| `FREE_NEWS_API_KEY` | Clé API FreeNewsAPI pour actualités | — |
 | `PIXABAY_API_KEY` | Clé API Pixabay pour vidéos | — |
 | `REGISTRATION_LOCKED` | Verrouiller l'inscription | `false` |
 

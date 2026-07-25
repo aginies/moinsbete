@@ -30,6 +30,7 @@
 | **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) | variable |
 | **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) | variable |
 | **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) | variable |
+| **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) | variable |
 | **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur | variable |
 
 ## Gestion de la base de données

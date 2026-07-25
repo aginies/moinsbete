@@ -19,6 +19,7 @@
 | **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) |
 | **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) |
 | **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) |
+| **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) |
 | **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
 | **SaviezVousFact** | Faits "Le saviez-vous" | 8 136 |
 | **SourceTopic** | Junction Source ↔ Topic |
@@ -37,7 +38,7 @@
 - 👥 Sociologie (20+), ⚛️ Physique (20+)
 - 🍳 Cuisine & Alimentation (20+), 🧬 Biologie & Évolution (20+)
 - 🔢 Mathématiques (20+), 🎨 Art & Design (20+), 🎤 Débat & Rhétorique (20+)
-- 💪 En forme 40+ (15+)
+- 💪 En forme 40+ (15+), 📰 Actualités NEWS (FreeNewsAPI)
 
 ## Remplir la base de données
 
@@ -65,6 +66,7 @@ npm run fetch-proverbes
 # Étape 7: Cache sources externes
 npm run cache:all
 npx tsx src/scripts/scrape-wikiloves.ts
+npx tsx src/scripts/cache-news.ts
 ```
 
 **Prérequis**: `OPENROUTER_API_KEY` ou `LLM_API_KEY` dans `.env` pour étapes 3 et 4.
@@ -157,10 +159,10 @@ npx tsx scripts/insert_saviez_vous.ts
 | `scrape-wikiloves.ts` | Images Wiki Loves | 30 jours | Mensuel |
 | `cache-news.ts` | Actualités NEWS (FreeNewsAPI) | 24h | 5x/jour (6h, 12h, 15h, 16h, 21h) |
 
-`npm run cache:all` lance cache-cnrs, cache-radio-france, cache-wikipedia-image + cleanup (pas scrape-wikiloves).
+`npm run cache:all` lance cache-cnrs, cache-radio-france, cache-wikipedia-image + cleanup (pas scrape-wikiloves, pas cache-news).
 
 ```bash
-# Lancer tous les caches (sans wikiloves)
+# Lancer tous les caches (sans wikiloves, sans news)
 npm run cache:all
 
 # Ou individuellement
@@ -168,6 +170,7 @@ npx tsx src/scripts/cache-cnrs.ts
 npx tsx src/scripts/cache-radio-france.ts
 npx tsx src/scripts/cache-wikipedia-image.ts
 npx tsx src/scripts/scrape-wikiloves.ts
+npx tsx src/scripts/cache-news.ts
 
 # Nettoyer les items expirés
 npx tsx src/scripts/cleanup-cached.ts

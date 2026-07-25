@@ -53,4 +53,4 @@ npx prisma studio
 - **Tailwind CSS v4** - Styling
 - **shadcn ^4.12** - Composants UI
 - **Lucide React** - Icônes
-- **NextAuth v4.24** - Authentification
+- **Custom auth** (NextAuth v5 adapter) - Authentification

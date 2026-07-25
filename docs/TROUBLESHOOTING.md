@@ -128,7 +128,7 @@ EOF
 ## Lister tous les utilisateurs avec rôles
 
 ```bash
-# Voir tous les utilisateurs et leurs rôles
+# Voir tous les utilisateurs et leurs rôles — attention: expose PII
 npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
 SELECT email, displayName, role, enabled, createdAt
 FROM "User"
@@ -225,8 +225,8 @@ npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
 SELECT key, value FROM "CachedConfig" WHERE key = 'cartes_global_visibility';
 EOF
 
-# Réinitialiser à toutes visibles (true)
+# Réinitialiser à toutes visibles (true) — inclut news
 npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
-UPDATE "CachedConfig" SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"proverbe":true}' WHERE key = 'cartes_global_visibility';
+UPDATE "CachedConfig" SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"proverbe":true,"news":true}' WHERE key = 'cartes_global_visibility';
 EOF
 ```
