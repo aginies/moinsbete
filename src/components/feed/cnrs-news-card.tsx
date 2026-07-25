@@ -71,6 +71,7 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
   const loadArticle = useCallback(async () => {
     setLoading(true)
     setError(false)
+    setArticle(null)
     const newArticle = await fetchRandomArticle()
     if (newArticle) {
       setArticle(newArticle)

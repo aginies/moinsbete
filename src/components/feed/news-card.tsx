@@ -35,20 +35,20 @@ interface NewsCardProps {
 const NEWS_FILTER_STORAGE_KEY = 'news_filter_visible'
 
 const CATEGORIES = [
-  { key: 'world', labelKey: 'feed.world', icon: Globe },
-  { key: 'business', labelKey: 'feed.business', icon: Briefcase },
-  { key: 'technology', labelKey: 'feed.tech', icon: Cpu },
-  { key: 'entertainment', labelKey: 'feed.entertainment', icon: Film },
-  { key: 'sports', labelKey: 'feed.sports', icon: Trophy },
-  { key: 'science', labelKey: 'feed.science', icon: Beaker },
-  { key: 'health', labelKey: 'feed.health', icon: Heart },
-  { key: 'digital currencies', labelKey: 'feed.crypto', icon: Bitcoin },
-  { key: 'golf', labelKey: 'feed.golf', icon: Trophy },
-  { key: 'vehicles', labelKey: 'feed.vehicles', icon: Car },
-  { key: 'internet security', labelKey: 'feed.internet_security', icon: Shield },
-  { key: 'movies', labelKey: 'feed.movies', icon: Film },
-  { key: 'gadgets', labelKey: 'feed.gadgets', icon: Cpu },
-  { key: 'soccer', labelKey: 'feed.soccer', icon: Circle },
+  { key: 'world', labelKey: 'world', icon: Globe },
+  { key: 'business', labelKey: 'business', icon: Briefcase },
+  { key: 'technology', labelKey: 'tech', icon: Cpu },
+  { key: 'entertainment', labelKey: 'entertainment', icon: Film },
+  { key: 'sports', labelKey: 'sports', icon: Trophy },
+  { key: 'science', labelKey: 'science', icon: Beaker },
+  { key: 'health', labelKey: 'health', icon: Heart },
+  { key: 'digital currencies', labelKey: 'crypto', icon: Bitcoin },
+  { key: 'golf', labelKey: 'golf', icon: Trophy },
+  { key: 'vehicles', labelKey: 'vehicles', icon: Car },
+  { key: 'internet security', labelKey: 'internet_security', icon: Shield },
+  { key: 'movies', labelKey: 'movies', icon: Film },
+  { key: 'gadgets', labelKey: 'gadgets', icon: Cpu },
+  { key: 'soccer', labelKey: 'soccer', icon: Circle },
 ] as const
 
 const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string; darkBorder: string; darkBg: string; darkText: string }> = {
@@ -70,6 +70,31 @@ const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string
   cinema: { border: 'border-yellow-400', bg: 'bg-yellow-100', text: 'text-yellow-800', darkBorder: 'dark:border-yellow-700', darkBg: 'dark:bg-yellow-900/40', darkText: 'dark:text-yellow-300' },
   auto: { border: 'border-slate-400', bg: 'bg-slate-100', text: 'text-slate-800', darkBorder: 'dark:border-slate-700', darkBg: 'dark:bg-slate-900/40', darkText: 'dark:text-slate-300' },
 }
+
+const CATEGORY_KEY_MAP: Record<string, string> = {
+  'freed.free.world': 'world',
+  'freed.free.business': 'business',
+  'freed.free.technology': 'technology',
+  'freed.free.entertainment': 'entertainment',
+  'freed.free.sports': 'sports',
+  'freed.free.science': 'science',
+  'freed.free.health': 'health',
+  'freed.free.digital_currencies': 'digital currencies',
+  'freed.free.golf': 'golf',
+  'freed.free.vehicles': 'vehicles',
+  'freed.free.internet_security': 'internet security',
+  'freed.free.movies': 'movies',
+  'freed.free.gadgets': 'gadgets',
+  'freed.free.soccer': 'soccer',
+}
+
+function getCategoryLabel(category: string, t: ReturnType<typeof useTranslations>): string {
+  const key = CATEGORY_KEY_MAP[category] || category
+  const catDef = CATEGORIES.find(c => c.key === key)
+  if (catDef) return t(catDef.labelKey)
+  return category
+}
+
 
 async function fetchArticles(categories: string | null, excludeUrl?: string, query?: string | null): Promise<NewsArticle[] | null> {
   try {
@@ -404,7 +429,7 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
 
                       <div className="mb-2">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${categoryStyle.border} ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.darkBorder} ${categoryStyle.darkBg} ${categoryStyle.darkText}`}>
-                          {article.category}
+                          {getCategoryLabel(article.category, t)}
                         </span>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-blue-200 bg-blue-50 text-blue-700 ml-2 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
                           {article.source}
