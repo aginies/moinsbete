@@ -9,7 +9,7 @@ interface ImagePixabayClientProps {
 export function ImagePixabayClient({ userId }: ImagePixabayClientProps) {
   return (
     <div className="w-full">
-      <ImagePixabayCard fullImage showToggle={false} swipeable={true} userId={userId} enableAutoRefresh={true} />
+      <ImagePixabayCard fullImage showToggle={false} swipeable={true} enableAutoRefresh={true} />
     </div>
   )
 }

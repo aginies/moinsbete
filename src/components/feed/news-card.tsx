@@ -7,9 +7,8 @@ import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { toggleNewsFavoriteAction, isNewsFavoriteAction, isNewsFavoriteBatchAction } from '@/actions/news-bookmark-actions'
-import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
-import { VisibilityButton } from './visibility-button'
+import { CardVisibilityGuard } from './card-visibility-guard'
 import { useTranslations } from 'next-intl'
 
 export interface NewsArticle {
@@ -25,7 +24,6 @@ export interface NewsArticle {
 
 interface NewsCardProps {
   onToggle?: () => void
-  userId?: string
   showToggle?: boolean
   isVisible?: boolean
   linkHref?: string
@@ -92,7 +90,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string, que
   }
 }
 
-function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
+function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
   const t = useTranslations()
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
@@ -113,8 +111,6 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
     return true
   })
   const favoritesCheckedRef = useRef(false)
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'news_card_visible', userId, initialShow: isVisible })
-  const show = isVisible !== undefined ? isVisible : showFromHook
 
   const scrollHeight = infiniteScroll ? (maxHeight || '800px') : undefined
 
@@ -141,7 +137,7 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
   }, [selectedCategories])
 
   useEffect(() => {
-    if (!hasMounted || !show) return
+    if (isVisible === false) return
 
     loadCountRef.current++
     const currentLoadCount = loadCountRef.current
@@ -152,11 +148,11 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
     }, 300)
 
     return () => clearTimeout(timer)
-  }, [hasMounted, show, selectedCategories, searchQuery, loadArticles])
+  }, [isVisible, selectedCategories, searchQuery, loadArticles])
 
   useEffect(() => {
     if (favoritesCheckedRef.current) return
-    if (userId && articles.length > 0) {
+    if (articles.length > 0) {
       const checkFavorites = async () => {
         const urls = articles.map(a => a.url)
         const result = await isNewsFavoriteBatchAction(urls)
@@ -167,7 +163,7 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
       checkFavorites()
     }
     favoritesCheckedRef.current = true
-  }, [userId, articles])
+  }, [articles])
 
   useEffect(() => {
     favoritesCheckedRef.current = false
@@ -260,16 +256,15 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
     text: articles[0] ? `${articles[0].title}\n\n${articles[0].description || ''}` : '',
   })
 
-  if (!hasMounted) {
-    return null
-  }
-
   return (
-    <>
-      {!show && hasMounted ? (
-        <VisibilityButton color={buttonColor} label="Afficher NEWS" onClick={onToggle || handleToggle} />
-      ) : (
-        <div className={`flex flex-col overflow-hidden rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow ${infiniteScroll ? 'overflow-visible' : ''}`} style={{ maxHeight: infiniteScroll ? undefined : (maxHeight || '700px') }}>
+    <CardVisibilityGuard
+      isVisible={isVisible}
+      onToggle={onToggle}
+      showToggle={showToggle}
+      buttonColor="blue"
+      label="Afficher NEWS"
+    >
+      <div className={`flex flex-col overflow-hidden rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow ${infiniteScroll ? 'overflow-visible' : ''}`} style={{ maxHeight: infiniteScroll ? undefined : (maxHeight || '700px') }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
@@ -498,10 +493,9 @@ function NewsCardInner({ onToggle, userId, showToggle = true, isVisible, linkHre
 
           <div className="mt-3 text-center text-xs text-blue-500 dark:text-blue-400/60">
             Powered by <Link href="https://freenewsapi.io" target="_blank" rel="noopener noreferrer" className="hover:underline">freenewsapi.io</Link>
-          </div>
-        </div>
-      )}
-    </>
+       </div>
+      </div>
+    </CardVisibilityGuard>
   )
 }
 export const NewsCard = React.memo(NewsCardInner)

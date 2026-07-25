@@ -5,11 +5,10 @@ import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play, Maxi
 import Link from 'next/link'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
-import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
-import { VisibilityButton } from './visibility-button'
 import { ImageLoading } from './image-loading'
+import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 
@@ -70,7 +69,6 @@ function formatTime(seconds: number, empty = '0:00'): string {
 }
 
 function ImagePixabayCardInner({
-  userId,
   swipeable = false,
   fullImage = false,
   largeImage = false,
@@ -81,7 +79,6 @@ function ImagePixabayCardInner({
   storageKey = 'pixabay',
   isVisible,
 }: {
-  userId?: string
   swipeable?: boolean
   fullImage?: boolean
   largeImage?: boolean
@@ -105,15 +102,6 @@ function ImagePixabayCardInner({
   const [showCategories, setShowCategories] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({
-    storageKey: 'image_pixabay_card_visible',
-    defaultShow: true,
-    userId,
-    initialShow: isVisible,
-  })
-
-  const show = isVisible !== undefined ? isVisible : showFromHook
-
   const loadVideo = useCallback(async () => {
     setLoading(true)
     setError(false)
@@ -131,13 +119,14 @@ function ImagePixabayCardInner({
   useAutoRefresh('pixabay', loadVideo)
 
   useEffect(() => {
-    if (hasMounted && show && !video && !loading && !error) {
+    if (isVisible === false) return
+    if (!video && !loading && !error) {
       const timer = setTimeout(() => {
         loadVideo()
       }, 0)
       return () => clearTimeout(timer)
     }
-  }, [hasMounted, show, video, loading, error, loadVideo])
+  }, [isVisible, video, loading, error, loadVideo])
 
   useEffect(() => {
     const el = videoRef.current
@@ -209,10 +198,9 @@ function ImagePixabayCardInner({
   })
 
   const handleCategorySelect = useCallback((categoryId: string) => {
-    if (!show) return
     setActiveCategory(categoryId)
     loadVideo()
-  }, [loadVideo, show])
+  }, [loadVideo])
 
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: video?.pageURL ?? '',
@@ -228,14 +216,12 @@ function ImagePixabayCardInner({
     isDragging,
     prefersReducedMotion,
   } = useSwipeGesture({
-    onSwipeLeft: show ? loadVideo : undefined,
-    onSwipeRight: show ? loadVideo : undefined,
-    onRefresh: show ? loadVideo : undefined,
+    onSwipeLeft: loadVideo,
+    onSwipeRight: loadVideo,
+    onRefresh: loadVideo,
     swipeable,
     resetDep: video?.videoUrl,
   })
-
-  if (!hasMounted) return null
 
   const shareOptions = video ? { onClick: handleShare, copied, shareUrl } : undefined
 
@@ -263,7 +249,7 @@ function ImagePixabayCardInner({
             {showToggle && (
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); (onToggle || handleToggle)() }}
+                onClick={(e) => { e.stopPropagation(); onToggle?.() }}
                 className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors mr-2 sm:mr-4"
                 title="Masquer la carte"
               >
@@ -278,7 +264,7 @@ function ImagePixabayCardInner({
             >
               <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
-            {video && userId && (
+            {video && (
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
@@ -416,10 +402,14 @@ function ImagePixabayCardInner({
   )
 
   return (
-    <>
-      {!show && hasMounted ? (
-        <VisibilityButton color={buttonColor} label="Afficher Pixabay" onClick={onToggle || handleToggle} />
-      ) : swipeable ? (
+    <CardVisibilityGuard
+      isVisible={isVisible}
+      onToggle={onToggle}
+      showToggle={showToggle}
+      buttonColor="orange"
+      label="Afficher Pixabay"
+    >
+      {swipeable ? (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
           <div
             className={`w-full relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
@@ -431,7 +421,7 @@ function ImagePixabayCardInner({
       ) : (
         cardContent
       )}
-    </>
+    </CardVisibilityGuard>
   )
 }
 export const ImagePixabayCard = React.memo(ImagePixabayCardInner)

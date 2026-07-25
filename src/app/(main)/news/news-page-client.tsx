@@ -33,7 +33,6 @@ export function NewsPageClient({ userId }: { userId?: string }) {
   return (
     <div className="w-full">
       <NewsCard
-        userId={userId}
         showToggle={false}
         infiniteScroll
         onLoadMore={handleLoadMore}

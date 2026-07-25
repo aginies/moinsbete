@@ -469,15 +469,14 @@ export function ProverbesPageClient({ userId, initialQuery }: { userId?: string;
       )}
 
       {currentProverbe && (
-        <ProverbeCard
-          userId={userId}
-          proverbe={currentProverbe}
-          onRefresh={handleRefresh}
-          loading={loading}
-          showToggle={false}
-          title={t('feed.proverbe')}
-          linkHref={null}
-        />
+       <ProverbeCard
+           proverbe={currentProverbe}
+           onRefresh={handleRefresh}
+           loading={loading}
+           showToggle={false}
+           title={t('feed.proverbe')}
+           linkHref={null}
+         />
       )}
 
       {error && !loading && (

@@ -7,13 +7,12 @@ import Link from 'next/link'
 import { isValidUrl as isValidUrlUtil, sanitizeUrl, decodeHtmlEntities } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
-import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
-import { VisibilityButton } from './visibility-button'
 import { SwipeBackgroundCard } from './swipe-background-card'
+import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
@@ -34,7 +33,6 @@ interface SaviezVousCardProps {
   onToggle?: () => void
   enableAutoRefresh?: boolean
   storageKey?: string
-  userId?: string
   isVisible?: boolean
   linkAs?: string
 }
@@ -65,7 +63,6 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   onToggle,
   enableAutoRefresh = false,
   storageKey = 'saviez_vous',
-  userId,
   isVisible,
   linkAs,
 }: SaviezVousCardProps) {
@@ -93,8 +90,6 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   const [imageError, setImageError] = useState(false)
   const [imageKey, setImageKey] = useState(0)
   const [showFullImage, setShowFullImage] = useState(false)
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'saviez_vous_card_visible', userId, initialShow: isVisible })
-  const show = isVisible !== undefined ? isVisible : showFromHook
   const prefetchNextFact = useCallback(async () => {
     const fetched = await fetchRandomFact()
     if (fetched) {
@@ -112,7 +107,6 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     setIsImageLoaded(false)
     setIsRefreshing(true)
     if (nextFact) {
-      // Instant transition!
       setFact(nextFact)
       sessionStorage.setItem('saviez_vous_fact', JSON.stringify(nextFact))
       setNextFact(null)
@@ -120,7 +114,6 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
       setIsRefreshing(false)
       router.push(`${pathname}?factId=${nextFact.id}`, { scroll: false })
     } else {
-      // Fallback on-demand fetch
       setLoading(true)
       setImageError(false)
       const newFact = await fetchRandomFact()
@@ -186,10 +179,6 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     },
   })
 
-  if (!hasMounted) {
-    return null
-  }
-
   const absX = Math.abs(dragX)
   const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
 
@@ -206,7 +195,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         titleDarkColor="dark:text-blue-300"
         linkHref={showLink ? (linkAs || '/le-saviez-vous') : undefined}
         showToggle={showToggle}
-        onToggle={onToggle || handleToggle}
+        onToggle={onToggle}
         onRefresh={handleClick}
         showRefresh={showRefresh}
         loading={loading || (hasImage ? !isImageLoaded : false)}
@@ -273,62 +262,65 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
 
   return (
     <>
-      {!show && hasMounted && showToggle ? (
-        <VisibilityButton color={buttonColor} label="Afficher saviez-vous ?" onClick={onToggle || handleToggle} />
-      ) : swipeable ? (
-        <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
-          {/* Prev hint overlay */}
-          {prevHintOpacity > 0 && (
+      <CardVisibilityGuard
+        isVisible={isVisible}
+        onToggle={onToggle}
+        showToggle={showToggle}
+        buttonColor="blue"
+        label="Afficher saviez-vous ?"
+      >
+        {swipeable ? (
+          <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
+            {prevHintOpacity > 0 && (
+              <div
+                className="pointer-events-none absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-green-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
+                style={{ opacity: prevHintOpacity }}
+              >
+                ← Précédent
+              </div>
+            )}
+
+            {nextHintOpacity > 0 && (
+              <div
+                className="pointer-events-none absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-blue-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
+                style={{ opacity: nextHintOpacity }}
+              >
+                Suivant →
+              </div>
+            )}
+
+            {nextFact && bgOpacity > 0 && (
+              <SwipeBackgroundCard
+                title="saviez-vous ?"
+                icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
+                iconBgColor="bg-blue-400"
+                iconDarkColor="dark:bg-blue-600"
+                titleColor="text-blue-800"
+                titleDarkColor="dark:text-blue-300"
+                borderColor="border-blue-300"
+                borderDarkColor="dark:border-blue-700"
+                bgGradient="bg-gradient-to-br from-blue-50 to-cyan-50"
+                bgGradientDark="dark:from-blue-950/30 dark:to-cyan-950/30"
+                textColor="text-blue-900"
+                textDarkColor="dark:text-blue-100"
+              >
+                <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
+                  {decodeHtmlEntities(nextFact.text)}
+                </p>
+              </SwipeBackgroundCard>
+            )}
+
             <div
-              className="pointer-events-none absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-green-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
-              style={{ opacity: prevHintOpacity }}
+              className={`w-full relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
+              style={swipeStyle}
             >
-              ← Précédent
+              {cardContent}
             </div>
-          )}
-
-          {/* Next hint overlay */}
-          {nextHintOpacity > 0 && (
-            <div
-              className="pointer-events-none absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-blue-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
-              style={{ opacity: nextHintOpacity }}
-            >
-              Suivant →
-            </div>
-          )}
-
-          {/* Background Card Stack (Using pre-fetched nextFact) */}
-          {nextFact && bgOpacity > 0 && (
-            <SwipeBackgroundCard
-        title="saviez-vous ?"
-              icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
-              iconBgColor="bg-blue-400"
-              iconDarkColor="dark:bg-blue-600"
-              titleColor="text-blue-800"
-              titleDarkColor="dark:text-blue-300"
-              borderColor="border-blue-300"
-              borderDarkColor="dark:border-blue-700"
-              bgGradient="bg-gradient-to-br from-blue-50 to-cyan-50"
-              bgGradientDark="dark:from-blue-950/30 dark:to-cyan-950/30"
-              textColor="text-blue-900"
-              textDarkColor="dark:text-blue-100"
-            >
-              <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
-                {decodeHtmlEntities(nextFact.text)}
-              </p>
-            </SwipeBackgroundCard>
-          )}
-
-          <div
-            className={`w-full relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
-            style={swipeStyle}
-          >
-            {cardContent}
           </div>
-        </div>
-      ) : (
-        cardContent
-      )}
+        ) : (
+          cardContent
+        )}
+      </CardVisibilityGuard>
 
       {showFullImage && (
         <ImageLightbox

@@ -4,12 +4,11 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Bookmark, Filter, EyeOff, RefreshCw, Settings } from 'lucide-react'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
-import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
-import { VisibilityButton } from './visibility-button'
+import { CardVisibilityGuard } from './card-visibility-guard'
 import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
@@ -134,13 +133,6 @@ export function BaseImageCard<TTopic>({
   const [isFavorite, setIsFavorite] = useState(false)
   const checkedImageIdsRef = useRef<Set<string>>(new Set())
 
-  const { show: showFromHook, hasMounted, handleToggle: handleVisibilityToggle, buttonColor: visibilityButtonColor } = useCardVisibility({
-    storageKey: visibilityStorageKey,
-    defaultShow: true,
-  })
-
-  const show = isVisible !== undefined ? isVisible : showFromHook
-
   const loadImage = useCallback(async () => {
     setLoading(true)
     setError(false)
@@ -161,11 +153,12 @@ export function BaseImageCard<TTopic>({
   useAutoRefresh(storageKey || 'base', loadImage)
 
   useEffect(() => {
-    if (hasMounted && show && !image && !loading && !error) {
+    if (isVisible === false) return
+    if (!image && !loading && !error) {
       const timer = setTimeout(() => loadImage(), 0)
       return () => clearTimeout(timer)
     }
-  }, [hasMounted, show, image, loading, error, loadImage])
+  }, [isVisible, image, loading, error, loadImage])
 
   useEffect(() => {
     if (image && !checkedImageIdsRef.current.has(image.docid)) {
@@ -218,11 +211,13 @@ export function BaseImageCard<TTopic>({
     onShowFullImageChange?.(show)
   }, [onShowFullImageChange])
 
-  if (!hasMounted) return null
+  if (!image && !loading) {
+    return null
+  }
 
   const shareOptions = image ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined
 
-  const handleToggleVisibility = showToggle ? (onToggle || handleVisibilityToggle) : undefined
+  const handleToggleVisibility = showToggle ? onToggle : undefined
 
   const cardContent = (
     <div
@@ -361,11 +356,15 @@ export function BaseImageCard<TTopic>({
 
   return (
     <>
-      {!show ? (
-        <VisibilityButton color={visibilityButtonColor} label={visibilityLabel} onClick={onToggle || handleVisibilityToggle} />
-      ) : (
-        renderCard()
-      )}
+      <CardVisibilityGuard
+        isVisible={isVisible}
+        onToggle={onToggle}
+        showToggle={showToggle}
+        buttonColor={config.buttonColor}
+        label={config.visibilityLabel}
+      >
+        {renderCard()}
+      </CardVisibilityGuard>
 
       {showFullImage && image && (
         <ImageLightbox

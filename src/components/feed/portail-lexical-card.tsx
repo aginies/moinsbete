@@ -6,8 +6,7 @@ import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { decodeHtmlEntities } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
-import { useCardVisibility } from '@/hooks/use-card-visibility'
-import { VisibilityButton } from './visibility-button'
+import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { CardHeader } from './card-header'
@@ -33,7 +32,6 @@ interface PortailLexicalWord {
 }
 
 interface PortailLexicalCardProps {
-  userId?: string
   onToggle?: () => void
   isVisible?: boolean
   showToggle?: boolean
@@ -52,13 +50,11 @@ async function fetchWordOfTheDay(): Promise<PortailLexicalWord | null> {
   }
 }
 
-function PortailLexicalCardInner({ userId, onToggle, isVisible, showToggle = true }: PortailLexicalCardProps) {
+function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: PortailLexicalCardProps) {
   const [word, setWord] = useState<PortailLexicalWord | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [renderError, setRenderError] = useState<Error | null>(null)
-  const { show: showFromHook, hasMounted, handleToggle, buttonColor } = useCardVisibility({ storageKey: 'portail_lexical_card_visible', userId, initialShow: isVisible })
-  const show = isVisible !== undefined ? isVisible : showFromHook
 
   const loadWord = useCallback(async () => {
     setLoading(true)
@@ -75,7 +71,7 @@ function PortailLexicalCardInner({ userId, onToggle, isVisible, showToggle = tru
 
   const { isPending, handleBookmark, isFavorite } = useSimpleBookmarkToggle({
     resourceId: word?.form,
-    guard: () => !word || !userId,
+    guard: () => !word,
     initialFavorite: false,
     onFavoriteChange: () => {},
     toggleFn: async (action) => {
@@ -88,13 +84,14 @@ function PortailLexicalCardInner({ userId, onToggle, isVisible, showToggle = tru
   })
 
   useEffect(() => {
-    if (hasMounted && show && !word && !loading && !error) {
+    if (isVisible === false) return
+    if (!word && !loading && !error) {
       const timer = setTimeout(() => {
         loadWord()
       }, 0)
       return () => clearTimeout(timer)
     }
-  }, [hasMounted, show, word, loading, error, loadWord])
+  }, [isVisible, word, loading, error, loadWord])
 
   const shareUrl = word ? `https://www.portail-lexical.fr/definition/${encodeURIComponent(word.form)}` : ''
   const { handleShare, copied, shareUrl: shareUrlResult } = useItemShare({
@@ -103,36 +100,32 @@ function PortailLexicalCardInner({ userId, onToggle, isVisible, showToggle = tru
     text: word ? `${word.full_form} (${word.full_pos})\n\n${word.description}` : '',
   })
 
-  if (!hasMounted) {
-    return null
-  }
-
-  if (loading && !word) {
-    return (
-      <div className="mb-6">
-        <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 dark:bg-amber-600">
-                <Languages className="h-4 w-4 text-amber-950" />
+  return (
+    <CardVisibilityGuard
+      isVisible={isVisible}
+      onToggle={onToggle}
+      showToggle={showToggle}
+      buttonColor="amber"
+      label="Afficher Lexique"
+    >
+      {loading && !word ? (
+        <div className="mb-6">
+          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 dark:bg-amber-600">
+                  <Languages className="h-4 w-4 text-amber-950" />
+                </div>
+                <h3 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">
+                  Portail Lexical — Mot du jour
+                </h3>
               </div>
-              <h3 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">
-                Portail Lexical — Mot du jour
-              </h3>
+            </div>
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw className="h-6 w-6 animate-spin text-amber-500" />
             </div>
           </div>
-          <div className="flex items-center justify-center py-8">
-            <RefreshCw className="h-6 w-6 animate-spin text-amber-500" />
-          </div>
         </div>
-      </div>
-    )
-  }
-
-  return (
-    <>
-      {!show && hasMounted ? (
-        <VisibilityButton color={buttonColor} label="Afficher Lexique" onClick={onToggle || handleToggle} />
       ) : (
         <div className="mb-6">
           <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow">
@@ -145,23 +138,23 @@ function PortailLexicalCardInner({ userId, onToggle, isVisible, showToggle = tru
               titleDarkColor="dark:text-amber-300"
               linkHref="/portail-lexical"
               showToggle={showToggle}
-              onToggle={onToggle || handleToggle}
+              onToggle={onToggle}
               showRefresh={false}
               loading={loading}
               shareOptions={word ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
                extraActions={word ? (
-                 <button
-                   type="button"
-                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                   disabled={isPending || loading}
-                   className="rounded-full p-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all disabled:opacity-50"
-                   title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                 >
-                    <Bookmark
-                      className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
-                    />
-                 </button>
-               ) : undefined}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                    disabled={isPending || loading}
+                    className="rounded-full p-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all disabled:opacity-50"
+                    title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                  >
+                     <Bookmark
+                       className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
+                     />
+                  </button>
+                ) : undefined}
             />
 
             {error && !loading && (
@@ -175,22 +168,22 @@ function PortailLexicalCardInner({ userId, onToggle, isVisible, showToggle = tru
             {word && (
               <>
                 <div className="mb-3">
-              <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100">
-                {word.form}
-              </h3>
-              <div className="mt-1 flex items-center gap-2">
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-                  {word.full_pos}
-                </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100">
-                  Mot du jour
-                </span>
-                {word.ipa && (
-                      <span className="text-xs text-amber-600 dark:text-amber-400 font-mono">
-                        /{word.ipa}/
-                      </span>
-                    )}
-                  </div>
+                  <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                    {word.form}
+                  </h3>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                      {word.full_pos}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100">
+                      Mot du jour
+                    </span>
+                    {word.ipa && (
+                          <span className="text-xs text-amber-600 dark:text-amber-400 font-mono">
+                            /{word.ipa}/
+                          </span>
+                        )}
+                      </div>
                 </div>
 
                 <p className="text-sm leading-relaxed text-amber-800 dark:text-amber-200 mb-3">
@@ -241,18 +234,18 @@ function PortailLexicalCardInner({ userId, onToggle, isVisible, showToggle = tru
                     </h4>
                     <div className="space-y-2">
                        {word.concordance.slice(0, 2).map((ex, i) => (
-                         <blockquote key={i} className="border-l-2 border-amber-300 dark:border-amber-700 pl-3 text-sm italic text-amber-700 dark:text-amber-300">
-                           <p className="leading-relaxed text-amber-700 dark:text-amber-300">
-                             <span className="mr-1">{"\u201C"}</span>{decodeHtmlEntities(ex.left)}{' '}
-                             <strong className="not-italic text-amber-900 dark:text-amber-100">{decodeHtmlEntities(ex.matching)}</strong>{' '}
-                             {decodeHtmlEntities(ex.right)}
-                             <span className="ml-1">{"\u201D"}</span>
-                           </p>
-                           <footer className="text-xs not-italic mt-1 text-amber-600 dark:text-amber-400">
-                             — {ex.name}, <em>{ex.title}</em> ({ex.date})
-                           </footer>
-                         </blockquote>
-                       ))}
+                        <blockquote key={i} className="border-l-2 border-amber-300 dark:border-amber-700 pl-3 text-sm italic text-amber-700 dark:text-amber-300">
+                          <p className="leading-relaxed text-amber-700 dark:text-amber-300">
+                            <span className="mr-1">{"\u201C"}</span>{decodeHtmlEntities(ex.left)}{' '}
+                            <strong className="not-italic text-amber-900 dark:text-amber-100">{decodeHtmlEntities(ex.matching)}</strong>{' '}
+                            {decodeHtmlEntities(ex.right)}
+                            <span className="ml-1">{"\u201D"}</span>
+                          </p>
+                          <footer className="text-xs not-italic mt-1 text-amber-600 dark:text-amber-400">
+                            — {ex.name}, <em>{ex.title}</em> ({ex.date})
+                          </footer>
+                        </blockquote>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -274,7 +267,7 @@ function PortailLexicalCardInner({ userId, onToggle, isVisible, showToggle = tru
           </div>
         </div>
       )}
-    </>
+    </CardVisibilityGuard>
   )
 }
 export const PortailLexicalCard = React.memo(PortailLexicalCardInner)

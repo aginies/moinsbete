@@ -14,6 +14,7 @@ import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
 import { ProverbeCard } from '@/components/feed/proverbe-card'
 import { NewsCard } from '@/components/feed/news-card'
 import { VisibilityButton } from '@/components/feed/visibility-button'
+import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CARD_DEFAULT_ORDER } from '@/lib/constants'
@@ -66,38 +67,38 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
   saviezVous: (config, fact) => {
     if (!fact) return null
     return (
-      <SaviezVousCard id={fact.id} text={fact.text} sourceUrl={fact.sourceUrl} imageFilename={fact.imageFilename} onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} linkAs={`/le-saviez-vous?factId=${fact.id}`} />
+      <SaviezVousCard id={fact.id} text={fact.text} sourceUrl={fact.sourceUrl} imageFilename={fact.imageFilename} onToggle={config.toggle} isVisible={config.isVisible} linkAs={`/le-saviez-vous?factId=${fact.id}`} />
     )
   },
   wikipedia: (config) => (
-    <WikipediaImageCard onToggle={config.toggle} mediumImage userId={undefined} isVisible={config.isVisible} />
+    <WikipediaImageCard onToggle={config.toggle} mediumImage isVisible={config.isVisible} />
   ),
   cnrs: (config) => (
-    <CnrsNewsCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} />
+    <CnrsNewsCard onToggle={config.toggle} isVisible={config.isVisible} />
   ),
   radioFrance: (config) => (
-    <RadioFranceCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} />
+    <RadioFranceCard onToggle={config.toggle} isVisible={config.isVisible} />
   ),
   news: (config, _, __, hasUserId) => {
     if (!hasUserId) return null
     return (
-      <NewsCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} linkHref="/news" maxHeight="700px" />
+      <NewsCard onToggle={config.toggle} isVisible={config.isVisible} linkHref="/news" maxHeight="700px" />
     )
   },
   wikimedia: (config) => (
-    <ImageWikimediaCard onToggle={config.toggle} userId={undefined} largeImage isVisible={config.isVisible} />
+    <ImageWikimediaCard onToggle={config.toggle} largeImage isVisible={config.isVisible} />
   ),
   wikiloves: (config) => (
-    <ImageWikiLovesCard onToggle={config.toggle} userId={undefined} largeImage isVisible={config.isVisible} />
+    <ImageWikiLovesCard onToggle={config.toggle} largeImage isVisible={config.isVisible} />
   ),
   pixabay: (config) => (
-    <ImagePixabayCard onToggle={config.toggle} userId={undefined} largeImage isVisible={config.isVisible} />
+    <ImagePixabayCard onToggle={config.toggle} largeImage isVisible={config.isVisible} />
   ),
   portailLexical: (config) => (
-    <PortailLexicalCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} />
+    <PortailLexicalCard onToggle={config.toggle} isVisible={config.isVisible} />
   ),
   proverbe: (config) => (
-    <ProverbeCard onToggle={config.toggle} userId={undefined} isVisible={config.isVisible} />
+    <ProverbeCard onToggle={config.toggle} isVisible={config.isVisible} />
   ),
 }
 
@@ -279,7 +280,26 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const hiddenCards = orderedConfigs.filter(c => !c.isVisible && c.isGloballyVisible && (c.key !== 'news' || hasUserId))
 
   if (!orderLoaded) {
-    return null
+    return (
+      <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
+        <div className="space-y-6 mb-6">
+          {[1, 2, 3].map(i => (
+            <Skeleton key={i} className="h-48 w-full rounded-2xl" />
+          ))}
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
+          {[1, 2, 3].map(i => (
+            <Skeleton key={i} className="h-12 w-full rounded-xl" />
+          ))}
+        </div>
+        <Skeleton className="h-16 w-full rounded-xl mb-6" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <Skeleton key={i} className="h-10 w-full rounded-lg" />
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (
