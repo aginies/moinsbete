@@ -49,6 +49,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
     const res = await fetch(`/api/cnrs-news?t=${Date.now()}`, {
       signal: AbortSignal.timeout(10000),
     })
+    if (!res.ok) return null
     const data = await res.json()
     if (data.error) return null
     return data
@@ -79,6 +80,7 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
       setError(true)
     }
     setLoading(false)
+    localStorage.setItem('last_refresh_cnrs', String(Date.now()))
   }, [])
 
   useAutoRefresh('cnrs', loadArticle)

@@ -79,7 +79,6 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
           return
         }
         const data = await res.json()
-        console.log('Search results:', data.ideas?.length || 0, 'ideas')
         setResults(data)
         setIsOpen(true)
       } catch (err) {
@@ -146,7 +145,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
               <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Idées</h4>
               <div className="space-y-2">
                 {results.ideas.slice(0, 10).map((idea) => {
-                  const compactIdea = {
+                    const compactIdea = {
                     id: idea.id,
                     title: idea.title,
                     slug: idea.slug,
@@ -154,7 +153,6 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
                     topics: idea.topics.map(t => ({ id: t.id || '', name: t.name, slug: t.slug || '', icon: t.icon, color: t.color })),
                     viewedAt: new Date().toISOString(),
                   }
-                  console.log('CompactIdeaCard idea:', compactIdea.id, 'title:', compactIdea.title, 'topics:', compactIdea.topics.length)
                   return (
                     <CompactIdeaCard key={idea.id} idea={compactIdea} />
                   )
