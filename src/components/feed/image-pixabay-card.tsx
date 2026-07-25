@@ -7,6 +7,7 @@ import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
+import { usePixabayActiveCategory } from '@/hooks/use-pixabay-active-category'
 import { ImageLoading } from './image-loading'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
@@ -70,6 +71,7 @@ function formatTime(seconds: number, empty = '0:00'): string {
 }
 
 function ImagePixabayCardInner({
+  userId,
   swipeable = false,
   fullImage = false,
   largeImage = false,
@@ -80,6 +82,7 @@ function ImagePixabayCardInner({
   storageKey = 'pixabay',
   isVisible,
 }: {
+  userId?: string
   swipeable?: boolean
   fullImage?: boolean
   largeImage?: boolean
@@ -92,6 +95,7 @@ function ImagePixabayCardInner({
 }) {
   const t = useTranslations('feed')
   const [video, setVideo] = useState<PixabayVideo | null>(() => {
+    if (typeof sessionStorage === 'undefined') return null
     const saved = sessionStorage.getItem('pixabay_video')
     return saved ? JSON.parse(saved) : null
   })
@@ -100,7 +104,7 @@ function ImagePixabayCardInner({
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [activeCategory, setActiveCategory] = useState<string>('bird')
+  const { activeCategory, handleCategoryChange } = usePixabayActiveCategory(userId)
   const [showCategories, setShowCategories] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -199,10 +203,10 @@ function ImagePixabayCardInner({
     },
   })
 
-  const handleCategorySelect = useCallback((categoryId: string) => {
-    setActiveCategory(categoryId)
+  const handleCategorySelect = useCallback(async (categoryId: string) => {
+    await handleCategoryChange(categoryId)
     loadVideo()
-  }, [loadVideo])
+  }, [handleCategoryChange, loadVideo])
 
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: video?.pageURL ?? '',

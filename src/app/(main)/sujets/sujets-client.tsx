@@ -38,6 +38,7 @@ interface CardVisibility {
   wikiloves: boolean
   cnrs: boolean
   pixabay: boolean
+  pixabayActiveCategory: string
   portailLexical: boolean
   proverbe: boolean
   news: boolean
@@ -91,8 +92,8 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
   wikiloves: (config, _, userId) => (
     <ImageWikiLovesCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} />
   ),
-  pixabay: (config) => (
-    <ImagePixabayCard onToggle={config.toggle} largeImage isVisible={config.isVisible} />
+  pixabay: (config, _, userId) => (
+    <ImagePixabayCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} />
   ),
   portailLexical: (config) => (
     <PortailLexicalCard onToggle={config.toggle} isVisible={config.isVisible} />
@@ -145,7 +146,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const isAllSelected = allTopics.length > 0 && followedIdsSet.size === allTopics.length
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
-    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true, news: true,
+    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true, news: true, pixabayActiveCategory: 'bird',
   })
 
   const lastSyncedRef = useRef<string | null>(null)
@@ -214,7 +215,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     [allTopics, followedIdsSet],
   )
 
-  const cardDefinitions: Array<{ key: string; visKey: keyof CardVisibility; field: string; extraCheck?: () => boolean }> = [
+  const cardDefinitions: Array<{ key: string; visKey: Exclude<keyof CardVisibility, 'pixabayActiveCategory'>; field: string; extraCheck?: () => boolean }> = [
     { key: 'saviezVous', visKey: 'saviezVous', field: 'saviezVousCardVisible' },
     { key: 'wikipedia', visKey: 'wikipedia', field: 'wikipediaImageCardVisible' },
     { key: 'cnrs', visKey: 'cnrs', field: 'cnrsNewsEnabled' },

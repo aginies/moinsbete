@@ -30,6 +30,7 @@ model User {
   imageWikimediaShowCategories Boolean               @default(true)
   imagePixabayCardVisible      Boolean               @default(true)
   imagePixabayShowCategories   Boolean               @default(true)
+  imagePixabayActiveCategory   String                @default("bird")
   portailLexicalCardVisible    Boolean               @default(true)
   proverbeCardVisible          Boolean               @default(true)
   cardOrder                    Json?
