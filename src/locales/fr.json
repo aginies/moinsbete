@@ -417,6 +417,11 @@
     "rechercher_sujet": "Rechercher un sujet...",
     "tout_sélectionner": "Tout sélectionner",
     "tout_désélectionner": "Tout désélectionner",
+    "login_toast": "Connectez-vous pour suivre un sujet, ajouter des favoris, voir uniquement les fiches que vous n'avez pas vues, et consulter votre historique.",
+    "login_button": "Connexion",
+    "show_card": "Afficher",
+    "db_maintenance_title": "AMÉLIORATION EN COURS DE LA DB DES SUJETS",
+    "db_maintenance_desc": "AUCUNE SAUVEGARDE NE SERA EFFECTUÉE PENDANT CETTE MAJ",
     "email_notifications": "Notifications par email",
     "email_notifications_desc": "Recevoir un email quand quelqu'un me partage un contenu"
   },

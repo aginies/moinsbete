@@ -17,6 +17,7 @@ import { VisibilityButton } from '@/components/feed/visibility-button'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CARD_DEFAULT_ORDER } from '@/lib/constants'
+import { useTranslations } from 'next-intl'
 
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
@@ -125,6 +126,7 @@ async function fetchCardOrder(userId: string): Promise<string[]> {
 export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, globalVisibility, csrfToken: initialCsrfToken }: SujetsClientProps) {
   const [csrfToken, setCsrfToken] = useState(initialCsrfToken || '')
   const router = useRouter()
+  const t = useTranslations('feed')
 
   useEffect(() => {
     const loadCsrf = async () => {
@@ -137,13 +139,9 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     }
   }, [csrfToken])
 
-  const initialFollowedIdsSet = useMemo(() => new Set(initialFollowedIds), [initialFollowedIds])
-  const isAllSelected = useMemo(
-    () => allTopics.length > 0 && allTopics.every(t => initialFollowedIdsSet.has(t.id)),
-    [allTopics, initialFollowedIdsSet],
-  )
-  const [followedIds, setFollowedIds] = useState<string[]>(isAllSelected ? [] : initialFollowedIds)
+  const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
   const followedIdsSet = useMemo(() => new Set(followedIds), [followedIds])
+  const isAllSelected = allTopics.length > 0 && followedIdsSet.size === allTopics.length
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
     saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true, news: true,
@@ -188,9 +186,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const toggleNews = useCallback(() => toggleVisibility('newsCardVisible', 'news'), [toggleVisibility])
 
   const handleToggle = (topicId: string) => {
-    if (isAllSelected) {
-      setFollowedIds([topicId])
-    } else if (followedIdsSet.has(topicId)) {
+    if (followedIdsSet.has(topicId)) {
       setFollowedIds(prev => prev.filter(id => id !== topicId))
     } else {
       setFollowedIds(prev => [...prev, topicId])
@@ -198,12 +194,12 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   }
 
   const followedTopics = useMemo(
-    () => allTopics.filter(t => isAllSelected || followedIdsSet.has(t.id)),
-    [allTopics, isAllSelected, followedIdsSet],
+    () => allTopics.filter(t => followedIdsSet.has(t.id)),
+    [allTopics, followedIdsSet],
   )
   const unfollowedTopics = useMemo(
-    () => allTopics.filter(t => !isAllSelected && !followedIdsSet.has(t.id)),
-    [allTopics, isAllSelected, followedIdsSet],
+    () => allTopics.filter(t => !followedIdsSet.has(t.id)),
+    [allTopics, followedIdsSet],
   )
 
   const cardConfigs: CardConfig[] = useMemo(() => [
@@ -301,7 +297,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
         {hiddenCards.map(card => (
           <div key={card.key} className="h-full">
-            {card.toggle && <VisibilityButton color={HIDDEN_CARD_COLORS[card.key] || 'teal'} label={`Afficher ${card.key}`} onClick={card.toggle} />}
+            {card.toggle && <VisibilityButton color={HIDDEN_CARD_COLORS[card.key] || 'teal'} label={`${t('show_card')} ${card.key}`} onClick={card.toggle} />}
           </div>
         ))}
       </div>
@@ -317,10 +313,10 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
             </div>
             <div>
               <h3 className="text-base font-bold text-rose-800 dark:text-rose-200">
-                {((userId && followedIds.length > 0) || isAllSelected) ? 'Carte aléatoire' : 'Choisissez vos sujets'}
+                {((userId && followedIds.length > 0) || isAllSelected) ? t('carte_aléatoire') : t('choisir_sujets')}
               </h3>
               <p className="text-xs text-rose-600 dark:text-rose-300">
-                {((userId && followedIds.length > 0) || isAllSelected) ? 'Découvrir au Hasard' : 'Sélectionnez des sujets dans Mon Plan'}
+                {((userId && followedIds.length > 0) || isAllSelected) ? t('découvrir_hasard') : t('sélectionner_sujets')}
               </p>
             </div>
           </div>
@@ -329,11 +325,11 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
       {followedTopics.length > 0 && (
         <div className="mb-8">
-          <TopicGrid topics={followedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} allSelected={isAllSelected} />
+          <TopicGrid topics={followedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} />
         </div>
       )}
 
-      <TopicGrid topics={unfollowedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} allSelected={isAllSelected} />
+      <TopicGrid topics={unfollowedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} />
     </div>
   )
 }

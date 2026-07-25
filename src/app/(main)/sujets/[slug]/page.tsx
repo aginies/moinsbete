@@ -3,6 +3,7 @@ import { Feed } from '@/components/feed/feed'
 import { getSession } from '@/lib/auth'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 
 import { sanitizeUrl } from '@/lib/utils'
 
@@ -14,6 +15,7 @@ export default async function SujetDetailPage({
   const { slug } = await params
   const session = await getSession()
   const userId = session?.user?.id
+  const t = await getTranslations('feed')
 
   const topic = await prisma.topic.findUnique({
     where: { slug },
@@ -26,9 +28,9 @@ export default async function SujetDetailPage({
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Sujet introuvable</h1>
+          <h1 className="text-2xl font-bold">{t('sujet_introuvable')}</h1>
           <Link href="/sujets" className="mt-4 text-primary hover:underline">
-            ← Retour aux sujets
+            {t('retour_sujets')}
           </Link>
         </div>
       </div>
@@ -43,9 +45,9 @@ export default async function SujetDetailPage({
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Erreur de chargement</h1>
+          <h1 className="text-2xl font-bold">{t('loading_error_generic')}</h1>
           <Link href="/sujets" className="mt-4 text-primary hover:underline">
-            ← Retour aux sujets
+            {t('retour_sujets')}
           </Link>
         </div>
       </div>
@@ -62,7 +64,7 @@ export default async function SujetDetailPage({
         className="mb-4 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:inline-flex"
       >
         <ArrowLeft className="h-4 w-4" />
-        Tous les sujets
+        {t('tous_sujets')}
       </Link>
 
       <div className="mb-6 flex items-center gap-3 rounded-xl border border-border/60 bg-card p-5">
@@ -74,7 +76,7 @@ export default async function SujetDetailPage({
 
       {topic.children && topic.children.length > 0 && (
         <div className="mt-6">
-          <h2 className="mb-3 text-lg font-semibold">Sujets associés</h2>
+          <h2 className="mb-3 text-lg font-semibold">{t('sujets_associés')}</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {topic.children.map((child) => (
               <Link
@@ -92,7 +94,7 @@ export default async function SujetDetailPage({
 
       <div className="mt-6">
         <h2 className="mb-3 text-lg font-semibold">
-          Idées sur {topic.name}
+          {t('idées_sur', { topic: topic.name })}
         </h2>
         <Feed
           topic={slug}

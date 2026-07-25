@@ -6,6 +6,7 @@ import { Bookmark } from 'lucide-react'
 import { toast } from 'sonner'
 import { Topic } from '@/generated/client'
 import { toggleTopic } from '@/actions/bookmark-actions'
+import { useTranslations } from 'next-intl'
 
 interface TopicCardProps {
   topic: Topic & {
@@ -15,34 +16,33 @@ interface TopicCardProps {
   isFollowing?: boolean
   onToggle?: () => void
   isAuthenticated?: boolean
-  allSelected?: boolean
 }
 
-export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing: initialFollowing = false, onToggle, isAuthenticated, allSelected }: TopicCardProps) {
+export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing: initialFollowing = false, onToggle, isAuthenticated }: TopicCardProps) {
   const [following, setFollowing] = useState(initialFollowing)
   const [loading, setLoading] = useState(false)
+  const t = useTranslations('feed')
 
   const handleToggle = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (loading) return
     if (!isAuthenticated) {
-      toast('Connectez-vous pour suivre un sujet, ajouter des favoris, voir uniquement les fiches que vous n\'avez pas vues, et consulter votre historique.', {
+      toast(t('login_toast'), {
         action: {
-          label: 'Connexion',
+          label: t('login_button'),
           onClick: () => window.location.href = '/login',
         },
       })
       return
     }
     setLoading(true)
-    const newState = allSelected ? false : !following
-    setFollowing(newState)
+    setFollowing(f => !f)
     
     const result = await toggleTopic(topic.id)
     if (result.error) {
       console.error('[TopicCard] Toggle error:', result.error)
-      setFollowing(following)
+      setFollowing(f => !f)
     } else {
       onToggle?.()
     }

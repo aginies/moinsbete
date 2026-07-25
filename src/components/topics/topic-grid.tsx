@@ -9,14 +9,13 @@ interface TopicGridProps {
   followedIdsSet?: Set<string>
   onToggle?: (topicId: string, isFollowing: boolean) => void
   isAuthenticated?: boolean
-  allSelected?: boolean
 }
 
-export const TopicGrid = React.memo(function TopicGrid({ topics, followedIdsSet = new Set(), onToggle, isAuthenticated, allSelected }: TopicGridProps) {
+export const TopicGrid = React.memo(function TopicGrid({ topics, followedIdsSet = new Set(), onToggle, isAuthenticated }: TopicGridProps) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {topics.map((topic) => {
-        const isFollowing = allSelected || followedIdsSet.has(topic.id)
+        const isFollowing = followedIdsSet.has(topic.id)
         return (
           <TopicCard
             key={topic.id}
@@ -24,7 +23,6 @@ export const TopicGrid = React.memo(function TopicGrid({ topics, followedIdsSet 
             isFollowing={isFollowing}
             onToggle={() => onToggle?.(topic.id, isFollowing)}
             isAuthenticated={isAuthenticated}
-            allSelected={allSelected}
           />
         )
       })}

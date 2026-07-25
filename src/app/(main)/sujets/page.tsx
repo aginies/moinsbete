@@ -4,12 +4,14 @@ import { SujetsClient } from './sujets-client'
 import { getRandomFact } from '@/lib/saviez-vous'
 import { getGlobalCardVisibility } from '@/actions/card-actions'
 import { Splash } from '@/components/splash'
+import { getTranslations } from 'next-intl/server'
 
 export const dynamic = 'force-dynamic'
 
 export default async function SujetsPage() {
   const session = await getSession()
   const userId = session?.user?.id
+  const t = await getTranslations('feed')
 
   const followedTopicIds = userId
     ? await prisma.user.findUnique({
@@ -76,10 +78,10 @@ export default async function SujetsPage() {
           <div className="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-center">
             <div className="flex items-center justify-center gap-2 text-sm font-bold text-amber-800">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-              AMÉLIORATION EN COURS DE LA DB DES SUJETS
+              {t('db_maintenance_title')}
             </div>
             <div className="mt-1 text-sm font-medium text-amber-700">
-              AUCUNE SAUVEGARDE NE SERA EFFECTUÉE PENDANT CETTE MAJ
+              {t('db_maintenance_desc')}
             </div>
           </div>
         </div>
