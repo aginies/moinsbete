@@ -12,17 +12,7 @@ import { getClientIpFromHeaders } from '@/lib/ip'
 
 async function verifyTurnstile(token: string, remoteIp: string): Promise<boolean> {
   if (!process.env.TURNSTILE_SECRET_KEY) {
-    return true
-  }
-
-  // Development bypass for testing keys when offline/behind proxy
-  if (
-    process.env.NODE_ENV === 'development' &&
-    process.env.TURNSTILE_SECRET_KEY === '0x4AAAAAAD329wA3uz-RrH8FJ80KzMltOSA' &&
-    !token
-  ) {
-    console.log('DEVELOPMENT BYPASS: Empty token allowed for Cloudflare Turnstile testing keys.')
-    return true
+    return false
   }
 
   try {
@@ -37,7 +27,6 @@ async function verifyTurnstile(token: string, remoteIp: string): Promise<boolean
     })
 
     const data = await result.json()
-    console.log('TURNSTILE response:', data)
     return data.success === true
   } catch {
     return false
@@ -49,7 +38,6 @@ export async function isRegistrationLocked() {
 }
 
 export async function getTurnstileSiteKey() {
-  console.log("SERVER SITE KEY VALUE:", process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY)
   return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
 }
 
@@ -75,10 +63,7 @@ export async function registerAction(formData: {
     return { error: 'Cet email est déjà utilisé' }
   }
 
-  const isTestingKey = process.env.TURNSTILE_SECRET_KEY === '0x4AAAAAAD329wA3uz-RrH8FJ80KzMltOSA'
-  const isDevEmptyToken = process.env.NODE_ENV === 'development' && isTestingKey && !cfToken
-
-  if (process.env.TURNSTILE_SECRET_KEY && !cfToken && !isDevEmptyToken) {
+  if (process.env.TURNSTILE_SECRET_KEY && !cfToken) {
     return { error: 'Vérification humaine requise.' }
   }
 
@@ -88,10 +73,6 @@ export async function registerAction(formData: {
     if (!turnstileSuccess) {
       return { error: 'Vérification humaine échouée. Réessayez.' }
     }
-  }
-
-  if (isDevEmptyToken) {
-    console.log('DEVELOPMENT BYPASS: Empty token allowed for Cloudflare Turnstile testing keys.')
   }
 
   const passwordHash = await bcrypt.hash(password, 12)
@@ -154,21 +135,11 @@ export async function loginAction(formData: {
     maxAge: SESSION_MAX_AGE_SECONDS,
   })
 
-  // Set session cookies (both secure and non-secure for maximum compatibility on HTTP and HTTPS)
+  // Set secure session cookie
   const cookieStore = await cookies()
   const cookieExpires = new Date()
   cookieExpires.setTime(cookieExpires.getTime() + SESSION_COOKIE_MAX_AGE_MS)
 
-  // 1. Non-secure cookie for HTTP
-  cookieStore.set('next-auth.session-token', token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    path: '/',
-    secure: false,
-    expires: cookieExpires,
-  })
-
-  // 2. Secure cookie for HTTPS
   cookieStore.set('__Secure-next-auth.session-token', token, {
     httpOnly: true,
     sameSite: 'lax',
@@ -183,15 +154,6 @@ export async function loginAction(formData: {
 export async function logoutAction() {
   const cookieStore = await cookies()
   const pastDate = new Date('1970-01-01T00:00:00Z')
-  
-  // Clear non-secure cookie
-  cookieStore.set('next-auth.session-token', '', {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: false,
-    expires: pastDate,
-  })
   
   // Clear secure cookie
   cookieStore.set('__Secure-next-auth.session-token', '', {
