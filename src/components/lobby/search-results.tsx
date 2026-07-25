@@ -1,7 +1,7 @@
 'use client'
 
 import { Search } from 'lucide-react'
-import { normalizeAccents } from '@/lib/utils'
+import { normalizeAccents, escapeHtml } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 
 interface SearchResult {
@@ -19,15 +19,15 @@ interface SearchResultsProps {
 }
 
 function highlightMatch(text: string, query: string): string {
-  if (!query?.trim()) return text
+  if (!query?.trim()) return escapeHtml(text)
   const normalizedText = normalizeAccents(text).toLowerCase()
   const normalizedQuery = normalizeAccents(query).toLowerCase()
   const index = normalizedText.indexOf(normalizedQuery)
-  if (index === -1) return text
+  if (index === -1) return escapeHtml(text)
   
-  const before = text.slice(0, index)
-  const match = text.slice(index, index + query.length)
-  const after = text.slice(index + query.length)
+  const before = escapeHtml(text.slice(0, index))
+  const match = escapeHtml(text.slice(index, index + query.length))
+  const after = escapeHtml(text.slice(index + query.length))
   
   return `${before}<mark class="bg-yellow-200 text-yellow-900 dark:bg-yellow-600 dark:text-yellow-100">${match}</mark>${after}`
 }

@@ -127,6 +127,17 @@ if [ -f "$DEST/dev.db" ] && command -v sqlite3 &>/dev/null; then
   fi
 fi
 
+# Fix weak plaintext password for view-only@local (one-time)
+if [ -f "$DEST/dev.db" ] && command -v sqlite3 &>/dev/null; then
+  PLAINTEXT_HASH=$(sqlite3 "$DEST/dev.db" "SELECT passwordHash FROM User WHERE email='view-only@local';" 2>/dev/null || true)
+  if [ "$PLAINTEXT_HASH" = "view" ]; then
+    echo "Fixing weak password for view-only@local..."
+    HASH=$(node -e "const bcrypt = require('bcryptjs'); bcrypt.hash('view', 12).then(h => console.log(h));" 2>/dev/null)
+    sqlite3 "$DEST/dev.db" "UPDATE User SET passwordHash='$HASH' WHERE email='view-only@local';"
+    echo "Password hashed."
+  fi
+fi
+
 # Always regenerate Prisma client to keep types in sync
 echo "Regenerating Prisma client..."
 npx prisma generate
