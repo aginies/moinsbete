@@ -102,13 +102,6 @@ export function IdeaDetailClient({
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-            <button
-              type="button"
-              className="absolute right-4 top-4 rounded-full bg-white/90 p-2.5 backdrop-blur-sm transition-all hover:bg-white hover:shadow-lg"
-              onClick={handleBookmark}
-            >
-              <Bookmark className={`h-5 w-5 transition-colors ${bookmarked ? 'fill-primary text-primary' : 'text-slate-600'}`} />
-            </button>
           </div>
         )}
 
