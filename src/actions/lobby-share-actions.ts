@@ -298,8 +298,9 @@ export async function getAllUsers() {
 
   const users = await prisma.user.findMany({
     where: { id: { not: session.user.id }, enabled: true },
-    select: { id: true, displayName: true, email: true, role: true },
+    select: { id: true, displayName: true },
     orderBy: { displayName: 'asc' },
+    take: 4,
   })
 
   return { users }
@@ -318,9 +319,9 @@ export async function searchUsers(query: string) {
         { email: { contains: query } },
       ],
     },
-    select: { id: true, displayName: true, email: true, role: true },
+    select: { id: true, displayName: true },
     orderBy: { displayName: 'asc' },
-    take: 20,
+    take: 3,
   })
 
   return { users }
