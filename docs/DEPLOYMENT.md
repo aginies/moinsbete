@@ -72,7 +72,7 @@ sqlite3 dev.db "SELECT COUNT(*) FROM SaviezVousFact;"
 **Permissions :**
 ```bash
 # 600 pour sécurité (contient emails + bcrypt hashes)
-sudo chmod 644 dev.db
+sudo chmod 600 dev.db
 sudo chown wwwrun:www dev.db
 ```
 
@@ -267,6 +267,7 @@ L'application supporte l'installation sur mobile comme une app native.
 - Thème dynamique (light/dark)
 - Service worker pour cache offline des favoris
 - Support Web Share API
+- Android Auto compatible (`display_override: [browser, minimal-ui]`, `X-Frame-Options: SAMEORIGIN`)
 
 **Vérification PWA :**
 ```bash

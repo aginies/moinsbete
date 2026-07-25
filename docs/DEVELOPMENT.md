@@ -39,7 +39,7 @@
 | `/api/image-wikimedia` | GET | Image Wikimedia (redirect vers wiki API) | 30/min IP |
 | `/api/image-wikiloves` | GET | Image Wiki Loves (cache dédié) | 30/min IP |
 | `/api/card-visibility` | GET | Global card visibility (admin) | — |
-| `/api/user-card-visibility` | POST | Toggle user card visibility (CSRF) | — |
+| `/api/user-card-visibility` | POST | Toggle user card visibility (session auth) | — |
 | `/api/user-card-order` | GET/POST | Get/set user card order (CSRF) | — |
 | `/api/wikimedia-topics` | GET/POST | User wikimedia topics (CSRF) | — |
 | `/api/image-wikiloves-topics` | POST | Toggle wiki loves topics (CSRF) | — |
@@ -118,7 +118,7 @@ Chaque utilisateur a ses propres préférences stockées dans le modèle `User`:
 
 - `saviezVousCardVisible`, `wikipediaImageCardVisible`, `cnrsNewsEnabled`, `radioFranceCardVisible`
 - `imageWikimediaCardVisible`, `imageWikiLovesCardVisible`, `imagePixabayCardVisible`
-- `portailLexicalCardVisible`, `proverbeCardVisible`
+- `portailLexicalCardVisible`, `proverbeCardVisible`, `newsCardVisible`
 
 Visibilité finale = `userVisibility && globalVisibility`.
 
