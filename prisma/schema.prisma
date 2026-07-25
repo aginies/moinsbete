@@ -44,6 +44,7 @@ model User {
   topicSuggestions             TopicSuggestion[]
   userSuggestions              UserSuggestion[]
   wikimediaTopics              UserWikimediaTopic[]
+  wikiLovesTopics              UserWikiLovesTopic[]
   viewedIdeas                  ViewedIdea[]
   following                    Topic[]               @relation("UserFollowing")
 }
@@ -237,6 +238,21 @@ model SaviezVousFact {
 }
 
 model UserWikimediaTopic {
+  id          String  @id @default(cuid())
+  userId      String
+  topicId     String
+  enabled     Boolean @default(true)
+  active      Boolean @default(false)
+  icon        String?
+  label       String?
+  searchTerms Json?
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+  @@index([userId])
+}
+
+model UserWikiLovesTopic {
   id          String  @id @default(cuid())
   userId      String
   topicId     String

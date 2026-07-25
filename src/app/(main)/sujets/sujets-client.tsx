@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Topic } from '@/generated/client'
 import { TopicGrid } from '@/components/topics/topic-grid'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
@@ -85,11 +85,11 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
       <NewsCard onToggle={config.toggle} isVisible={config.isVisible} linkHref="/news" maxHeight="700px" />
     )
   },
-  wikimedia: (config) => (
-    <ImageWikimediaCard onToggle={config.toggle} largeImage isVisible={config.isVisible} />
+  wikimedia: (config, _, userId) => (
+    <ImageWikimediaCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} />
   ),
-  wikiloves: (config) => (
-    <ImageWikiLovesCard onToggle={config.toggle} largeImage isVisible={config.isVisible} />
+  wikiloves: (config, _, userId) => (
+    <ImageWikiLovesCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} />
   ),
   pixabay: (config) => (
     <ImagePixabayCard onToggle={config.toggle} largeImage isVisible={config.isVisible} />
@@ -148,6 +148,16 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true, news: true,
   })
 
+  const lastSyncedRef = useRef<string | null>(null)
+  const syncKey = initialVisibility ? JSON.stringify(initialVisibility) : null
+
+  useEffect(() => {
+    if (initialVisibility && syncKey !== lastSyncedRef.current) {
+      setVisibility(initialVisibility)
+      lastSyncedRef.current = syncKey
+    }
+  }, [initialVisibility, syncKey])
+
   const hasUserId = !!userId
   const [cardOrder, setCardOrder] = useState<string[]>(() => hasUserId ? [] : ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe'])
   const [orderLoaded, setOrderLoaded] = useState(!hasUserId)
@@ -175,16 +185,17 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     })
   }, [userId, csrfToken, router])
 
-  const toggleSaviezVous = useCallback(() => toggleVisibility('saviezVousCardVisible', 'saviezVous'), [toggleVisibility])
-  const toggleWikipedia = useCallback(() => toggleVisibility('wikipediaImageCardVisible', 'wikipedia'), [toggleVisibility])
-  const toggleRadioFrance = useCallback(() => toggleVisibility('radioFranceCardVisible', 'radioFrance'), [toggleVisibility])
-  const toggleWikimedia = useCallback(() => toggleVisibility('imageWikimediaCardVisible', 'wikimedia'), [toggleVisibility])
-  const toggleWikiLoves = useCallback(() => toggleVisibility('imageWikiLovesCardVisible', 'wikiloves'), [toggleVisibility])
-  const toggleCnrs = useCallback(() => toggleVisibility('cnrsNewsEnabled', 'cnrs'), [toggleVisibility])
-  const togglePixabay = useCallback(() => toggleVisibility('imagePixabayCardVisible', 'pixabay'), [toggleVisibility])
-  const togglePortailLexical = useCallback(() => toggleVisibility('portailLexicalCardVisible', 'portailLexical'), [toggleVisibility])
-  const toggleProverbe = useCallback(() => toggleVisibility('proverbeCardVisible', 'proverbe'), [toggleVisibility])
-  const toggleNews = useCallback(() => toggleVisibility('newsCardVisible', 'news'), [toggleVisibility])
+  const toggleCacheRef = useRef<Map<string, () => void>>(new Map())
+
+  const getToggle = useCallback((field: string, key: keyof CardVisibility) => {
+    const cacheKey = `${field}:${String(key)}`
+    let fn = toggleCacheRef.current.get(cacheKey)
+    if (!fn) {
+      fn = () => toggleVisibility(field, key)
+      toggleCacheRef.current.set(cacheKey, fn)
+    }
+    return fn
+  }, [toggleVisibility])
 
   const handleToggle = (topicId: string) => {
     if (followedIdsSet.has(topicId)) {
@@ -203,68 +214,28 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     [allTopics, followedIdsSet],
   )
 
-  const cardConfigs: CardConfig[] = useMemo(() => [
-    {
-      key: 'saviezVous',
-      isVisible: visibility.saviezVous && (globalVisibility?.saviezVous ?? true),
-      isGloballyVisible: globalVisibility?.saviezVous ?? true,
-      toggle: toggleSaviezVous,
-    },
-    {
-      key: 'wikipedia',
-      isVisible: visibility.wikipedia && (globalVisibility?.wikipedia ?? true),
-      isGloballyVisible: globalVisibility?.wikipedia ?? true,
-      toggle: toggleWikipedia,
-    },
-    {
-      key: 'cnrs',
-      isVisible: visibility.cnrs && (globalVisibility?.cnrs ?? true),
-      isGloballyVisible: globalVisibility?.cnrs ?? true,
-      toggle: toggleCnrs,
-    },
-    {
-      key: 'radioFrance',
-      isVisible: visibility.radioFrance && (globalVisibility?.radioFrance ?? true),
-      isGloballyVisible: globalVisibility?.radioFrance ?? true,
-      toggle: toggleRadioFrance,
-    },
-    {
-      key: 'news',
-      isVisible: visibility.news && (globalVisibility?.news ?? true) && hasUserId,
-      isGloballyVisible: globalVisibility?.news ?? true,
-      toggle: toggleNews,
-    },
-    {
-      key: 'wikimedia',
-      isVisible: visibility.wikimedia && (globalVisibility?.wikimedia ?? true),
-      isGloballyVisible: globalVisibility?.wikimedia ?? true,
-      toggle: toggleWikimedia,
-    },
-    {
-      key: 'wikiloves',
-      isVisible: visibility.wikiloves && (globalVisibility?.wikiloves ?? true),
-      isGloballyVisible: globalVisibility?.wikiloves ?? true,
-      toggle: toggleWikiLoves,
-    },
-    {
-      key: 'pixabay',
-      isVisible: visibility.pixabay && (globalVisibility?.pixabay ?? true),
-      isGloballyVisible: globalVisibility?.pixabay ?? true,
-      toggle: togglePixabay,
-    },
-    {
-      key: 'portailLexical',
-      isVisible: visibility.portailLexical && (globalVisibility?.portailLexical ?? true),
-      isGloballyVisible: globalVisibility?.portailLexical ?? true,
-      toggle: togglePortailLexical,
-    },
-    {
-      key: 'proverbe',
-      isVisible: visibility.proverbe && (globalVisibility?.proverbe ?? true),
-      isGloballyVisible: globalVisibility?.proverbe ?? true,
-      toggle: toggleProverbe,
-    },
-  ], [visibility, toggleSaviezVous, toggleWikipedia, toggleRadioFrance, toggleNews, toggleWikimedia, toggleWikiLoves, toggleCnrs, togglePixabay, togglePortailLexical, toggleProverbe, globalVisibility, hasUserId])
+  const cardDefinitions: Array<{ key: string; visKey: keyof CardVisibility; field: string; extraCheck?: () => boolean }> = [
+    { key: 'saviezVous', visKey: 'saviezVous', field: 'saviezVousCardVisible' },
+    { key: 'wikipedia', visKey: 'wikipedia', field: 'wikipediaImageCardVisible' },
+    { key: 'cnrs', visKey: 'cnrs', field: 'cnrsNewsEnabled' },
+    { key: 'radioFrance', visKey: 'radioFrance', field: 'radioFranceCardVisible' },
+    { key: 'news', visKey: 'news', field: 'newsCardVisible', extraCheck: () => hasUserId },
+    { key: 'wikimedia', visKey: 'wikimedia', field: 'imageWikimediaCardVisible' },
+    { key: 'wikiloves', visKey: 'wikiloves', field: 'imageWikiLovesCardVisible' },
+    { key: 'pixabay', visKey: 'pixabay', field: 'imagePixabayCardVisible' },
+    { key: 'portailLexical', visKey: 'portailLexical', field: 'portailLexicalCardVisible' },
+    { key: 'proverbe', visKey: 'proverbe', field: 'proverbeCardVisible' },
+  ]
+
+  const cardConfigs: CardConfig[] = useMemo(() =>
+    cardDefinitions.map(def => ({
+      key: def.key,
+      isVisible: visibility[def.visKey] && (globalVisibility?.[def.visKey] ?? true) && (!def.extraCheck || def.extraCheck()),
+      isGloballyVisible: globalVisibility?.[def.visKey] ?? true,
+      toggle: getToggle(def.field, def.visKey),
+    })),
+    [visibility, globalVisibility, hasUserId, getToggle],
+  )
 
   const orderedConfigs = useMemo(() => {
     if (!orderLoaded || cardOrder.length === 0) return cardConfigs

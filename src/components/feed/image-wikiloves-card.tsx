@@ -46,6 +46,17 @@ interface ImageWikiLovesCardProps {
   isVisible?: boolean
 }
 
+async function fetchTopics(): Promise<Topic[]> {
+  try {
+    const res = await fetch('/api/image-wikiloves-topics')
+    if (!res.ok) return DEFAULT_TOPICS
+    const data = await res.json()
+    return data.topics?.length > 0 ? data.topics : DEFAULT_TOPICS
+  } catch {
+    return DEFAULT_TOPICS
+  }
+}
+
 async function fetchRandomImage(event?: string): Promise<WikiLovesImage | null> {
   try {
     const url = event ? `/api/image-wikiloves?event=${encodeURIComponent(event)}` : '/api/image-wikiloves'
@@ -82,6 +93,14 @@ function ImageWikiLovesCardInner({
     defaultShow: true,
     userId,
   })
+
+  useEffect(() => {
+    if (userId) {
+      fetchTopics().then(loadedTopics => {
+        setTopics(loadedTopics)
+      })
+    }
+  }, [userId])
 
   const handleTopicToggle = useCallback(async (topicId: string) => {
     setTopics(prev => prev.map(t => t.id === topicId ? { ...t, active: !t.active } : t))

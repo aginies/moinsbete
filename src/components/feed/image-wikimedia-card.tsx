@@ -116,6 +116,14 @@ function ImageWikimediaCardInner({
     }
   }, [userId])
 
+  useEffect(() => {
+    if (userId) {
+      fetchTopics().then(loadedTopics => {
+        setTopics(loadedTopics)
+      })
+    }
+  }, [userId])
+
   const refreshTopics = useCallback(async () => {
     if (userId) {
       const topics = await fetchTopics()

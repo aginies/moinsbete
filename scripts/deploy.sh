@@ -107,7 +107,8 @@ for migration in \
   20260716163000_add_image_wikimedia_show_categories \
   20260720000001_add_card_order \
   20260721190000_add_shared_with_user_to_shared_lobby_bookmark \
-  20260724130000_add_has_seen_splash; do
+  20260724130000_add_has_seen_splash \
+  20260725000000_add_wikiloves_topics; do
   npx prisma migrate resolve --applied "$migration" 2>/dev/null || true
 done
 
