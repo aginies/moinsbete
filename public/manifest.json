@@ -4,6 +4,7 @@
   "description": "Des faits surprenants et des idées pour devenir moins bête tous les jours.",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["browser", "minimal-ui"],
   "orientation": "any",
   "theme_color": "#372773",
   "background_color": "#7C6CF6",
