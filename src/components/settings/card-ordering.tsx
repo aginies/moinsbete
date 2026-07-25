@@ -19,6 +19,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, MoveUp, MoveDown, RotateCcw } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { CARD_DEFAULT_ORDER } from '@/lib/constants'
 
@@ -102,6 +103,7 @@ function SortableCardItem({
 }
 
 export function CardOrdering({ userId }: { userId?: string }) {
+  const t = useTranslations('feed')
   const [order, setOrder] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -191,7 +193,7 @@ export function CardOrdering({ userId }: { userId?: string }) {
       <div className="rounded-xl border bg-card p-6">
         <h2 className="mb-4 flex items-center gap-2 font-semibold">
           <RotateCcw className="h-5 w-5 text-muted-foreground" />
-          Ordre des cartes
+          {t('card_order')}
         </h2>
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -207,15 +209,15 @@ export function CardOrdering({ userId }: { userId?: string }) {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="flex items-center gap-2 font-semibold">
           <RotateCcw className="h-5 w-5 text-muted-foreground" />
-          Ordre des cartes
+          {t('card_order')}
         </h2>
         <Button variant="ghost" size="sm" onClick={handleReset} className="gap-2">
           <RotateCcw className="h-4 w-4" />
-          Réinitialiser
+          {t('reset')}
         </Button>
       </div>
       <p className="mb-4 text-sm text-muted-foreground">
-        Glissez-déposez ou utilisez les fleches pour reordonner
+        {t('drag_order')}
       </p>
       <DndContext
         sensors={sensors}

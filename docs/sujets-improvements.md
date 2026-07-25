@@ -28,8 +28,15 @@ Files modified:
 - `src/components/topics/topic-card.tsx` — removed `allSelected` prop, fix `newState` + error revert
 - `src/components/topics/topic-grid.tsx` — removed `allSelected` prop
 
-### 5. Card reorder — fetch but no UI
+### 5. Card reorder — fetch but no UI ✅ NOT A BUG
 `cardOrder` fetched from API (`sujets-client.tsx:156-162`), applied to sort. No drag-and-drop or settings to edit order. Dead feature.
+
+**Correction:** `/mon-compte` has full drag-and-drop card ordering UI (`CardOrdering` component with `@dnd-kit`). The fetch is the consumer.
+
+**Bonus fix:** `CardOrdering` had 3 hardcoded strings ("Ordre des cartes" x2, "Réinitialiser", "Glissez-déposez..."). Locale keys `card_order`, `reset`, `drag_order` already existed. Now using `useTranslations('feed')`.
+
+File modified:
+- `src/components/settings/card-ordering.tsx`
 
 ### 6. Blank loading state
 `sujets-client.tsx:285-287`: returns `null` while loading card order. White flash. Add skeleton.
