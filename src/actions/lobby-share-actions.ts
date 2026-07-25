@@ -109,22 +109,27 @@ export async function isSharedToLobby(ideaId: string): Promise<boolean> {
   return !!shared
 }
 
-const MAX_META_SIZE = 10 * 1024
+const MAX_META_TEXT = 200
+const MAX_META_KEY = 50
+const ALLOWED_META_KEYS = new Set(['title', 'description', 'text'])
 
 function validateMeta(meta: unknown): JsonValue | null {
   if (meta == null) return null
-  if (typeof meta === 'string') {
-    if (meta.length > MAX_META_SIZE) return null
-    try {
-      return JSON.parse(meta)
-    } catch {
-      return null
-    }
+  if (typeof meta !== 'object' || Array.isArray(meta)) return null
+  
+  const obj = meta as Record<string, unknown>
+  const cleaned: Record<string, string> = {}
+  
+  for (const key of Object.keys(obj)) {
+    if (!ALLOWED_META_KEYS.has(key)) return null
+    if (key.length > MAX_META_KEY) return null
+    const val = obj[key]
+    if (typeof val !== 'string') return null
+    if (val.length > MAX_META_TEXT) return null
+    cleaned[key] = val
   }
-  if (typeof meta !== 'object') return null
-  const serialized = JSON.stringify(meta)
-  if (serialized.length > MAX_META_SIZE) return null
-  return JSON.parse(serialized)
+  
+  return Object.keys(cleaned).length === 0 ? null : cleaned as JsonValue
 }
 
 function toPrismaMeta(meta: JsonValue | null) {
