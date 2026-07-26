@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useGesture } from '@use-gesture/react'
 
 interface UseSwipeGestureOptions {
@@ -27,65 +27,67 @@ export function useSwipeGesture({
   const containerRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ x: number; y: number } | null>(null)
 
-  const bind = useGesture(
-    {
-      onDragStart: () => {
-        if (!swipeable) return
-        setIsDragging(true)
-        if (onDragStart) {
-          onDragStart()
-        }
-        const el = containerRef.current
-        if (el) {
-          el.style.userSelect = 'none'
-          el.style.touchAction = 'pan-y'
-        }
-        dragStartRef.current = { x: 0, y: 0 }
-      },
-      onDrag: (state: { first: boolean; movement: [number, number] }) => {
-        if (!swipeable) return
-        const { first, movement } = state
-        if (!first) {
-          const [dx] = movement
-          setDragX(dx)
-          if (dx > 50) setHint('prev')
-          else if (dx < -50) setHint('next')
-          else setHint(null)
-        }
-      },
-      onDragEnd: (state: { movement: [number, number] }) => {
-        if (!swipeable) return
-        setIsDragging(false)
-        const el = containerRef.current
-        if (el) {
-          el.style.userSelect = ''
-          el.style.touchAction = ''
-        }
-        dragStartRef.current = null
+  const gestureHandlers = useMemo(() => ({
+    onDragStart: () => {
+      if (!swipeable) return
+      setIsDragging(true)
+      if (onDragStart) {
+        onDragStart()
+      }
+      const el = containerRef.current
+      if (el) {
+        el.style.userSelect = 'none'
+        el.style.touchAction = 'pan-y'
+      }
+      dragStartRef.current = { x: 0, y: 0 }
+    },
+    onDrag: (state: { first: boolean; movement: [number, number] }) => {
+      if (!swipeable) return
+      const { first, movement } = state
+      if (!first) {
+        const [dx] = movement
+        setDragX(dx)
+        if (dx > 50) setHint('prev')
+        else if (dx < -50) setHint('next')
+        else setHint(null)
+      }
+    },
+    onDragEnd: (state: { movement: [number, number] }) => {
+      if (!swipeable) return
+      setIsDragging(false)
+      const el = containerRef.current
+      if (el) {
+        el.style.userSelect = ''
+        el.style.touchAction = ''
+      }
+      dragStartRef.current = null
 
-        const [dx] = state.movement
-        if (dx > triggerDistance) {
-          if (onSwipeRight) {
-            setDragX(500)
-            onSwipeRight()
-          } else {
-            setDragX(0)
-            setHint(null)
-          }
-        } else if (dx < -triggerDistance) {
-          if (onSwipeLeft) {
-            setDragX(-500)
-            onSwipeLeft()
-          } else {
-            setDragX(0)
-            setHint(null)
-          }
+      const [dx] = state.movement
+      if (dx > triggerDistance) {
+        if (onSwipeRight) {
+          setDragX(500)
+          onSwipeRight()
         } else {
           setDragX(0)
           setHint(null)
         }
-      },
+      } else if (dx < -triggerDistance) {
+        if (onSwipeLeft) {
+          setDragX(-500)
+          onSwipeLeft()
+        } else {
+          setDragX(0)
+          setHint(null)
+        }
+      } else {
+        setDragX(0)
+        setHint(null)
+      }
     },
+  }), [swipeable, onSwipeLeft, onSwipeRight, onDragStart, triggerDistance])
+
+  const bind = useGesture(
+    gestureHandlers,
     {
       drag: {
         axis: 'x',
@@ -97,7 +99,7 @@ export function useSwipeGesture({
   useEffect(() => {
     if (!swipeable) return
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
+      if (e.key === 'ArrowLeft' || 'ArrowRight' || ' ') {
         if (e.key === ' ') e.preventDefault()
         if (onRefresh) {
           onRefresh()

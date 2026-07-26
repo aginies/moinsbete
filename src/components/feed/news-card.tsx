@@ -144,7 +144,7 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
   const virtualizer = useVirtualizer({
     count: articles.length,
     getScrollElement: () => scrollContainerRef.current,
-    estimateSize: () => 500,
+    estimateSize: () => 250,
     overscan: 5,
   })
 
