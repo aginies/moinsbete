@@ -1,5 +1,6 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { getCsrfToken } from 'next-auth/react'
 
 const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald'> = {
   wikipedia_image_card_visible: 'teal',
@@ -52,11 +53,20 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId, init
   const [hasMounted, setHasMounted] = useState(false)
   const buttonColor = COLOR_MAP[storageKey] || 'blue'
   const router = useRouter()
+  const csrfTokenRef = useRef<string>('')
+
+  useEffect(() => {
+    const loadCsrf = async () => {
+      const token = await getCsrfToken()
+      if (token) csrfTokenRef.current = token
+    }
+    loadCsrf()
+  }, [])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasMounted(true)
-    
+
     if (userId && initialShow === undefined) {
       const dbField = DB_FIELD_MAP[storageKey]
       if (dbField) {
@@ -74,36 +84,33 @@ export function useCardVisibility({ storageKey, defaultShow = true, userId, init
     }
   }, [userId, storageKey, initialShow])
 
-  const handleToggle = useCallback(async () => {
+  const handleToggle = useCallback(() => {
     setShow(prev => {
       const next = !prev
       if (userId) {
         const dbField = DB_FIELD_MAP[storageKey]
         if (dbField) {
-          import('next-auth/react').then(({ getCsrfToken }) => {
-            getCsrfToken().then(token => {
-              const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-              if (token) {
-                headers['X-CSRF-Token'] = token
-              }
-              fetch(`/api/user-card-visibility`, {
-                method: 'POST',
-                credentials: 'include',
-                headers,
-                body: JSON.stringify({ field: dbField, value: next }),
+          const token = csrfTokenRef.current
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+          if (token) {
+            headers['X-CSRF-Token'] = token
+          }
+          fetch(`/api/user-card-visibility`, {
+            method: 'POST',
+            credentials: 'include',
+            headers,
+            body: JSON.stringify({ field: dbField, value: next }),
+          })
+          .then(res => {
+            if (!res.ok) {
+              return res.text().then(text => {
+                console.error(`[useCardVisibility] POST Error response: ${text}`)
               })
-              .then(res => {
-                if (!res.ok) {
-                  return res.text().then(text => {
-                    console.error(`[useCardVisibility] POST Error response: ${text}`)
-                  })
-                }
-                router.refresh()
-              })
-              .catch((err) => {
-                console.error(`[useCardVisibility] POST Fetch Error for ${dbField}:`, err)
-              })
-            })
+            }
+            router.refresh()
+          })
+          .catch((err) => {
+            console.error(`[useCardVisibility] POST Fetch Error for ${dbField}:`, err)
           })
         }
       }

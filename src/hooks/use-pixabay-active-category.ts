@@ -1,9 +1,19 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { getCsrfToken } from 'next-auth/react'
 
 const DB_FIELD = 'imagePixabayActiveCategory'
 
 export function usePixabayActiveCategory(userId?: string) {
   const [activeCategory, setActiveCategory] = useState<string>('bird')
+  const csrfTokenRef = useRef<string>('')
+
+  useEffect(() => {
+    const loadCsrf = async () => {
+      const token = await getCsrfToken()
+      if (token) csrfTokenRef.current = token
+    }
+    loadCsrf()
+  }, [])
 
   useEffect(() => {
     if (!userId) return
@@ -31,8 +41,7 @@ export function usePixabayActiveCategory(userId?: string) {
     setActiveCategory(categoryId)
     if (userId) {
       try {
-        const { getCsrfToken } = await import('next-auth/react')
-        const token = await getCsrfToken()
+        const token = csrfTokenRef.current
         const headers: Record<string, string> = { 'Content-Type': 'application/json' }
         if (token) {
           headers['X-CSRF-Token'] = token
