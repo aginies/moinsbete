@@ -79,14 +79,6 @@ export function CardHeader({
   const justRefreshedRef = useRef(false)
 
   React.useEffect(() => {
-    if (!enableAutoRefresh) return
-
-    if (!initializedRef.current) {
-      initializedRef.current = true
-    }
-  }, [enableAutoRefresh, storageKey])
-
-  React.useEffect(() => {
     if (!enableAutoRefresh || !isActive || loading || !onRefresh) return
 
     const timer = setInterval(() => {
