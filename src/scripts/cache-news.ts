@@ -368,6 +368,8 @@ export async function scrapeAndCacheNews(): Promise<void> {
       const failedUrls = articles.length - validUrls
       categoryResults.push({ category, count: validUrls, reason: validUrls > 0 ? `${validUrls} valid URLs` : `${failedUrls} failed (publisher fallback)` })
       console.log(`  ✅ ${category}: ${articles.length} articles (${validUrls} valid URLs, ${failedUrls} fallback)`)
+      allArticles.push(...articles)
+    }
 
     if (catIdx < CATEGORIES.length - 1) {
       console.log(`  Pause 3s before next category...`)
