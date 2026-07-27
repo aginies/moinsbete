@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Search, X, Loader2 } from 'lucide-react'
+import Image from 'next/image'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -223,12 +224,12 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
                     className="group block rounded-lg overflow-hidden border border-border/60 hover:border-border hover:shadow-sm transition-all"
                     onClick={closeResults}
                   >
-                    <div className="aspect-square bg-muted">
-                      <img
+                    <div className="aspect-square bg-muted relative">
+                      <Image
                         src={image.imageUrl}
                         alt={image.description}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        loading="lazy"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform"
                       />
                     </div>
                     <div className="p-2">

@@ -41,12 +41,17 @@ export default function MonCompteClient({ session }: { session: SessionWithNotif
     setError('')
     setSuccess('')
     startTransition(async () => {
-      const result = await logoutAction()
-      if (result.success) {
-        window.location.href = '/'
-      } else {
-        setError('Erreur lors de la déconnexion')
+      try {
+        await logoutAction()
+      } catch {
+        // ignore
       }
+      document.cookie = '__Secure-next-auth.session-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure'
+      document.cookie = 'next-auth.session-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+      document.cookie = 'next-auth.csrf-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+      document.cookie = 'next-auth.callback-url=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+      document.cookie = 'csrf-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+      window.location.href = '/login'
     })
   }
 

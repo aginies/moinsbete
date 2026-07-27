@@ -111,7 +111,6 @@ export async function isSharedToLobby(ideaId: string): Promise<boolean> {
 
 const MAX_META_TEXT = 200
 const MAX_META_KEY = 50
-const ALLOWED_META_KEYS = new Set(['title', 'description', 'text'])
 
 function validateMeta(meta: unknown): JsonValue | null {
   if (meta == null) return null
@@ -120,10 +119,8 @@ function validateMeta(meta: unknown): JsonValue | null {
   const obj = meta as Record<string, unknown>
   const cleaned: Record<string, string> = {}
   
-  for (const key of Object.keys(obj)) {
-    if (!ALLOWED_META_KEYS.has(key)) return null
+  for (const [key, val] of Object.entries(obj)) {
     if (key.length > MAX_META_KEY) return null
-    const val = obj[key]
     if (typeof val !== 'string') return null
     if (val.length > MAX_META_TEXT) return null
     cleaned[key] = val
@@ -303,9 +300,9 @@ export async function getAllUsers() {
 
   const users = await prisma.user.findMany({
     where: { id: { not: session.user.id }, enabled: true },
-    select: { id: true, displayName: true },
-    orderBy: { displayName: 'asc' },
-    take: 4,
+    select: { id: true, displayName: true, email: true },
+    orderBy: [{ displayName: 'asc' }, { createdAt: 'asc' }],
+    take: 20,
   })
 
   return { users }

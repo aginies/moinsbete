@@ -163,6 +163,24 @@ export async function logoutAction() {
     secure: true,
     expires: pastDate,
   })
+  
+  // Clear standard session cookie
+  cookieStore.set('next-auth.session-token', '', {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    expires: pastDate,
+  })
+  
+  // Clear next-auth-cross-device cookie
+  cookieStore.set('next-auth.session-token', '', {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    expires: pastDate,
+  })
 
   return { success: true }
 }

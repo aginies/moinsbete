@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Share2, X, Search, User as UserIcon } from 'lucide-react'
-import { shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby } from '@/actions/lobby-share-actions'
+import { shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby, getShareDetails } from '@/actions/lobby-share-actions'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -97,14 +97,12 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
 
   useEffect(() => {
     if (!open) return
-
     const fetchShareDetails = async () => {
       try {
-        const res = await fetch('/api/lobby/share?resourceType=' + encodeURIComponent(resourceType) + '&resourceId=' + encodeURIComponent(resourceId) + '&details=true')
-        const data = await res.json()
-        setIsShared(data.shared || false)
-        setShareToCommunity(data.shareToCommunity || false)
-        setCheckingUserIds(new Set(data.sharedWithUserIds || []))
+        const result = await getShareDetails(resourceType, resourceId)
+        setIsShared(result.shared || false)
+        setShareToCommunity(result.shareToCommunity || false)
+        setCheckingUserIds(new Set(result.sharedWithUserIds || []))
       } catch {
         // ignore
       }
@@ -134,7 +132,9 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
   const filteredUsers = sortedUsers(users).filter(user => {
     if (!searchQuery) return true
     const q = searchQuery.toLowerCase()
-    return (user.displayName || '').toLowerCase().includes(q) || user.email.toLowerCase().includes(q)
+    const name = (user.displayName || '').toLowerCase()
+    const email = (user.email || '').toLowerCase()
+    return name.includes(q) || email.includes(q)
   })
 
   const toggleUser = useCallback((user: User) => {
@@ -211,15 +211,12 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
       setSelectedUsers(prev => prev.filter(u => u.id !== userId))
       removeRecentShare(userId)
       setRecentUserIds(getRecentShares())
-      if (checkingUserIds.size <= 1 && !shareToCommunity) {
-        const res = await fetch('/api/lobby/share?resourceType=' + encodeURIComponent(resourceType) + '&resourceId=' + encodeURIComponent(resourceId))
-        const data = await res.json()
-        setIsShared(data.shared || false)
-      }
+      const result = await getShareDetails(resourceType, resourceId)
+      setIsShared(result.shared || false)
     } catch {
       toast.error('Erreur lors du retrait')
     }
-  }, [resourceType, resourceId, checkingUserIds, shareToCommunity])
+  }, [resourceType, resourceId])
 
   const handleUnshareCommunity = useCallback(async () => {
     try {
@@ -227,9 +224,8 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
       setShareToCommunity(false)
       setSelectedUsers([])
       setCheckingUserIds(new Set())
-      const res = await fetch('/api/lobby/share?resourceType=' + encodeURIComponent(resourceType) + '&resourceId=' + encodeURIComponent(resourceId))
-      const data = await res.json()
-      setIsShared(data.shared || false)
+      const result = await getShareDetails(resourceType, resourceId)
+      setIsShared(result.shared || false)
     } catch {
       toast.error('Erreur lors du retrait')
     }
