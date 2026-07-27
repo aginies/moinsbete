@@ -321,7 +321,7 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
                     onClick={() => toggleUser(user)}
                   >
                     <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-medium">{(user.displayName || user.email)[0].toUpperCase()}</span>
+                      <span className="text-xs font-medium">{(user.displayName || user.email)?.[0]?.toUpperCase()}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{user.displayName || user.email}</p>
