@@ -156,6 +156,7 @@ echo "Applying pending migrations..."
 npx prisma migrate deploy 2>/dev/null || echo "No pending migrations or migrate skipped"
 
 echo "Building..."
+rm -rf .next
 if ! npm run build 2>&1 | tee /tmp/moinsbete-build.log | tail -20; then
   echo "BUILD FAILED. See /tmp/moinsbete-build.log"
   exit 1
