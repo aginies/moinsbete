@@ -20,6 +20,7 @@ function extractTitle(resourceType: string, resourceId: string | null, meta: Jso
     case 'IMAGE_WIKIMEDIA': return typeof m.titre === 'string' && m.titre ? m.titre : (typeof m.title === 'string' && m.title ? m.title : null)
     case 'IMAGE_WIKILOVES': return typeof m.titre === 'string' && m.titre ? m.titre : null
     case 'PROVERBE': return typeof m.text === 'string' && m.text ? m.text : null
+    case 'PORTAIL_LEXICAL': return typeof m.form === 'string' && m.form ? m.form : (typeof m.word === 'string' && m.word ? m.word : null)
     default: return null
   }
 }
@@ -132,7 +133,7 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
-  const validResourceTypes = ['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'IDEA', 'NEWS']
+  const validResourceTypes = ['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'IDEA', 'NEWS', 'PORTAIL_LEXICAL']
   if (!validResourceTypes.includes(resourceType)) {
     return { error: 'Type de ressource invalide' }
   }
@@ -176,7 +177,7 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
   return { success: true, shared: true }
 }
 
-const VALID_RESOURCE_TYPES = new Set(['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'IDEA', 'NEWS'])
+const VALID_RESOURCE_TYPES = new Set(['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'IDEA', 'NEWS', 'PORTAIL_LEXICAL'])
 
 export async function unshareResourceFromLobby(resourceType: string, resourceId: string, sharedWithUserId?: string | null) {
   const session = await getSession()

@@ -131,11 +131,15 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     })
 
     const saviezBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'SAVIEZ_VOUS' && b.resourceId)
+    const sharedWithMeSaviez = sharedWithMeBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'SAVIEZ_VOUS' && b.resourceId)
+    const sharedByMeSaviez = sharedByMeBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'SAVIEZ_VOUS' && b.resourceId)
+    const allSaviezIds = [...new Set([...saviezBookmarks, ...sharedWithMeSaviez, ...sharedByMeSaviez].map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean))]
+
     const imageBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'IMAGE_DU_JOUR' && b.resourceId)
     const wikiMediaBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'IMAGE_WIKIMEDIA' && b.resourceId)
     const wikiLovesBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'IMAGE_WIKILOVES' && b.resourceId)
 
-    const saviezIds = saviezBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
+    const saviezIds = allSaviezIds
     const imageIds = imageBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const wikiMediaIds = wikiMediaBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const wikiLovesIds = wikiLovesBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
@@ -359,8 +363,9 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           },
         }
       }
-      if (bookmark.resourceType === 'IDEA' && bookmark.resourceId) {
-        let idea = bookmark.idea || ideaMap.get(bookmark.resourceId) || null
+      if (bookmark.resourceType === 'IDEA' && (bookmark.resourceId || bookmark.ideaId)) {
+        let ideaId = bookmark.ideaId || bookmark.resourceId!
+        let idea = bookmark.idea || ideaMap.get(ideaId) || null
         if (idea) {
           return {
             ...bookmark,
