@@ -53,8 +53,8 @@ rsync -a --delete --checksum \
   --exclude='node_modules/' \
   --exclude='.env' \
   --exclude='docs/' \
-  --exclude='scripts/*.ts' \
-  --exclude='scripts/update' \
+  --exclude='/scripts/*.ts' \
+  --exclude='/scripts/update' \
   --include='src/scripts/generate-ideas.ts' \
   --include='src/scripts/ingest-wikipedia.ts' \
   --include='src/scripts/*.ts' \
