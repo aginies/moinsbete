@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote, Trash2 } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
@@ -73,6 +74,7 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
 }
 
 export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, newsFavoritesCount }: FavorisPageClientProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [previousTab, setPreviousTab] = useState<Tab | null>(null)
   const hasInitialSet = useRef(false)
@@ -263,11 +265,13 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           return next
         })
         toast.success('Retiré du lobby')
+        router.refresh()
       } else {
         const result = await shareResourceToLobby('SAVIEZ_VOUS', resourceId)
         if (result.success) {
           setSharedSaviezIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
+          router.refresh()
         } else {
           toast.error(result.error)
         }
@@ -290,11 +294,13 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           return next
         })
         toast.success('Retiré du lobby')
+        router.refresh()
       } else {
         const result = await shareResourceToLobby('IMAGE_DU_JOUR', resourceId, item as any)
         if (result.success) {
           setSharedImageIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
+          router.refresh()
         } else {
           toast.error(result.error)
         }
@@ -317,11 +323,13 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           return next
         })
         toast.success('Retiré du lobby')
+        router.refresh()
       } else {
         const result = await shareResourceToLobby('IMAGE_WIKILOVES', resourceId, item as any)
         if (result.success) {
           setSharedWikiLovesIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
+          router.refresh()
         } else {
           toast.error(result.error)
         }
@@ -344,11 +352,13 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           return next
         })
         toast.success('Retiré du lobby')
+        router.refresh()
       } else {
         const result = await shareResourceToLobby('IMAGE_WIKIMEDIA', resourceId, item as any)
         if (result.success) {
           setSharedWikimediaIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
+          router.refresh()
         } else {
           toast.error(result.error)
         }
@@ -371,6 +381,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
           return next
         })
         toast.success('Retiré du lobby')
+        router.refresh()
       } else {
         const result = await shareResourceToLobby('PROVERBE', resourceId, {
           text: item.text,
@@ -383,6 +394,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         if (result.success) {
           setSharedProverbeIds(prev => new Set([...prev, resourceId]))
           toast.success('Partagé au lobby')
+          router.refresh()
         } else {
           toast.error(result.error)
         }

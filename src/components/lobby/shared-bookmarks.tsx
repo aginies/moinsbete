@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List, Newspaper } from 'lucide-react'
@@ -24,14 +25,6 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Image: ImageIcon,
   Earth: Earth,
   Quote: Quote,
-}
-
-const handleUnshareResult = (r: { error?: string } | null | undefined) => {
-  if (r?.error) {
-    toast.error(r.error)
-  } else {
-    setTimeout(() => window.location.reload(), 100)
-  }
 }
 
 const handleUnshareError = (err: Error & { code?: string }) => {
@@ -137,6 +130,7 @@ function IdeaBookmarkItem({
   locale: string
   t: ReturnType<typeof useTranslations>
 }) {
+  const router = useRouter()
   const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = userFavoriteIds.IDEA.has(bookmark.idea.id)
@@ -157,7 +151,7 @@ function IdeaBookmarkItem({
     try {
       const result = await addToFavoritesFromLobby('IDEA', bookmark.idea.id)
       if (result.success) {
-        window.location.reload()
+        router.refresh()
       } else if (result.error) {
         toast.error(result.error)
       }
@@ -208,9 +202,15 @@ function IdeaBookmarkItem({
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
               if (bookmark.resourceType === 'IDEA' && bookmark.resourceId) {
-                unshareResourceFromLobby('IDEA', bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+                unshareResourceFromLobby('IDEA', bookmark.resourceId).then(r => {
+                  if (r?.error) toast.error(r.error)
+                  else router.refresh()
+                }).catch(handleUnshareError)
               } else if (bookmark.ideaId) {
-                unshareFromLobby(bookmark.ideaId).then(handleUnshareResult).catch(handleUnshareError)
+                unshareFromLobby(bookmark.ideaId).then(r => {
+                  if (r?.error) toast.error(r.error)
+                  else router.refresh()
+                }).catch(handleUnshareError)
               }
             }}
           >
@@ -240,6 +240,7 @@ function SaviezVousBookmarkItem({
   locale: string
   t: ReturnType<typeof useTranslations>
 }) {
+  const router = useRouter()
   const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.SAVIEZ_VOUS.has(bookmark.resourceId) : false
@@ -255,7 +256,7 @@ function SaviezVousBookmarkItem({
         imageFilename: bookmark.saviezFact.imageFilename,
       })
       if (result.success) {
-        window.location.reload()
+        router.refresh()
       } else if (result.error) {
         toast.error(result.error)
       }
@@ -323,7 +324,10 @@ function SaviezVousBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby('SAVIEZ_VOUS', bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+              bookmark.resourceId && unshareResourceFromLobby('SAVIEZ_VOUS', bookmark.resourceId).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
@@ -352,6 +356,7 @@ function WikiImageBookmarkItem({
   locale: string
   t: ReturnType<typeof useTranslations>
 }) {
+  const router = useRouter()
   const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
@@ -369,7 +374,7 @@ function WikiImageBookmarkItem({
         date: bookmark.wikiImage.date,
       })
       if (result.success) {
-        window.location.reload()
+        router.refresh()
       } else if (result.error) {
         toast.error(result.error)
       }
@@ -455,7 +460,10 @@ function WikiImageBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
@@ -491,6 +499,7 @@ function WikiLovesBookmarkItem({
   locale: string
   t: ReturnType<typeof useTranslations>
 }) {
+  const router = useRouter()
   const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
@@ -509,7 +518,7 @@ function WikiLovesBookmarkItem({
         droits: bookmark.wikiLovesImage.license,
       })
       if (result.success) {
-        window.location.reload()
+        router.refresh()
       } else if (result.error) {
         toast.error(result.error)
       }
@@ -603,7 +612,10 @@ function WikiLovesBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
@@ -639,6 +651,7 @@ function NewsBookmarkItem({
   locale: string
   t: ReturnType<typeof useTranslations>
 }) {
+  const router = useRouter()
   const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.NEWS.has(bookmark.resourceId) : false
@@ -656,7 +669,7 @@ function NewsBookmarkItem({
         category: bookmark.newsArticle.category,
       })
       if (result.success) {
-        window.location.reload()
+        router.refresh()
       } else if (result.error) {
         toast.error(result.error)
       }
@@ -758,7 +771,10 @@ function NewsBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
@@ -787,6 +803,7 @@ function WikiMediaBookmarkItem({
   locale: string
   t: ReturnType<typeof useTranslations>
 }) {
+  const router = useRouter()
   const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
@@ -805,7 +822,7 @@ function WikiMediaBookmarkItem({
         droits: bookmark.wikiMediaImage.license,
       })
       if (result.success) {
-        window.location.reload()
+        router.refresh()
       } else if (result.error) {
         toast.error(result.error)
       }
@@ -899,7 +916,10 @@ function WikiMediaBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />
@@ -935,6 +955,7 @@ function ProverbeBookmarkItem({
   locale: string
   t: ReturnType<typeof useTranslations>
 }) {
+  const router = useRouter()
   const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.PROVERBE.has(bookmark.resourceId) : false
@@ -953,7 +974,7 @@ function ProverbeBookmarkItem({
         definitions: bookmark.proverbe.definitions,
       })
       if (result.success) {
-        window.location.reload()
+        router.refresh()
       } else if (result.error) {
         toast.error(result.error)
       }
@@ -1046,7 +1067,10 @@ function ProverbeBookmarkItem({
             size="sm"
             className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => {
-              bookmark.resourceId && unshareResourceFromLobby('PROVERBE', bookmark.resourceId).then(handleUnshareResult).catch(handleUnshareError)
+              bookmark.resourceId && unshareResourceFromLobby('PROVERBE', bookmark.resourceId).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
             }}
           >
             <Trash2 className="h-3 w-3 text-muted-foreground" />

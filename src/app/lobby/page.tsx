@@ -2,10 +2,10 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { LobbyHeader } from '@/components/lobby/lobby-header'
 import { LobbyTabs } from '@/components/lobby/lobby-tabs'
-import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import type { JsonValue } from '@prisma/client/runtime/library'
 import type { Idea, SharedLobbyBookmark, SaviezVousFact, CachedWikipediaImage, CachedWikiLovesImage, CachedNewsArticle } from '@/generated/client'
+import { redirect } from 'next/navigation'
 
 interface SharedBookmarkRaw extends SharedLobbyBookmark {
   meta: JsonValue | null
@@ -39,7 +39,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
 
     const session = await getSession()
     if (!session?.user) {
-      redirect('/login')
+      return redirect('/login')
     }
 
     const cookieStore = await cookies()

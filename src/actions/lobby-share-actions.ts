@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { toggleBookmark, isBookmarked } from '@/lib/favorite'
@@ -79,6 +80,8 @@ export async function shareToLobby(ideaId: string, sharedWithUserIds?: string[])
     void sendShareEmails(sharer!, newSharedUserIds, 'IDEA', ideaId, null, idea?.title)
   }
 
+  revalidatePath('/lobby')
+
   return { success: true, shared: true, sharedToUsers: newSharedUserIds }
 }
 
@@ -96,17 +99,9 @@ export async function unshareFromLobby(ideaId: string, sharedWithUserId?: string
     },
   })
 
+  revalidatePath('/lobby')
+
   return { success: true, shared: false }
-}
-
-export async function isSharedToLobby(ideaId: string): Promise<boolean> {
-  const session = await getSession()
-  if (!session?.user) return false
-
-  const shared = await prisma.sharedLobbyBookmark.findFirst({
-    where: { userId: session.user.id, ideaId },
-  })
-  return !!shared
 }
 
 const MAX_META_TEXT = 200
@@ -171,6 +166,8 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
     })
   }
 
+  revalidatePath('/lobby')
+
   if (sharedUserIds.length > 0) {
     const sharer = await prisma.user.findUnique({ where: { id: session.user.id }, select: { id: true, displayName: true, email: true } })
     void sendShareEmails(sharer!, sharedUserIds, resourceType, resourceId, validatedMeta)
@@ -200,7 +197,19 @@ export async function unshareResourceFromLobby(resourceType: string, resourceId:
     },
   })
 
+  revalidatePath('/lobby')
+
   return { success: true, shared: false }
+}
+
+export async function isSharedToLobby(ideaId: string): Promise<boolean> {
+  const session = await getSession()
+  if (!session?.user) return false
+
+  const shared = await prisma.sharedLobbyBookmark.findFirst({
+    where: { userId: session.user.id, ideaId },
+  })
+  return !!shared
 }
 
 export async function isSharedResourceToLobby(resourceType: string, resourceId: string): Promise<boolean> {

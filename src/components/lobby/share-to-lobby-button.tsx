@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { Share2, X, Search, User as UserIcon } from 'lucide-react'
 import { shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby, getShareDetails } from '@/actions/lobby-share-actions'
 import { toast } from 'sonner'
@@ -59,6 +60,7 @@ function removeRecentShare(userId: string) {
 }
 
 export function ShareToLobbyButton({ resourceId, resourceType, icon, className, meta }: ShareToLobbyButtonProps) {
+  const router = useRouter()
   const [isShared, setIsShared] = useState(false)
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
@@ -161,12 +163,14 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
         setSearchQuery('')
         setOpen(false)
         toast.success('Retiré du lobby')
+        router.refresh()
       } else {
         await shareResourceToLobby(resourceType, resourceId, meta as any)
         setIsShared(true)
         setShareToCommunity(true)
         setOpen(false)
         toast.success('Partagé au lobby')
+        router.refresh()
       }
     } catch {
       toast.error('Erreur lors du partage')
@@ -193,6 +197,7 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
       setRecentUserIds(getRecentShares())
       setOpen(false)
       toast.success('Partagé')
+      router.refresh()
     } catch {
       toast.error('Erreur lors du partage')
     } finally {
