@@ -327,6 +327,7 @@ export async function scrapeAndCacheNews(): Promise<void> {
   console.log('')
 
   const allArticles: NewsArticle[] = []
+  const categoryResults: Array<{ category: string; count: number; reason: string }> = []
 
   const categoryArg = process.argv.find(arg => arg.startsWith('--category='))
   const selectedCategory = categoryArg ? categoryArg.split('=')[1] : null
@@ -350,7 +351,23 @@ export async function scrapeAndCacheNews(): Promise<void> {
     console.log(`\n═══ Category ${globalIdx}/${CATEGORIES.length}: ${category} ═══`)
 
     const articles = await fetchFromApi(category)
-    allArticles.push(...articles)
+    
+    if (articles.length === 0) {
+      let reason = 'API returned 0 articles'
+      if (!FREE_NEWS_API_KEY) {
+        reason = 'FREE_NEWS_API_KEY not set'
+      } else if (remaining() <= 0) {
+        reason = 'Daily quota exhausted'
+      } else if (remaining() < 100) {
+        reason = 'Low quota (skipped)'
+      }
+      categoryResults.push({ category, count: 0, reason })
+      console.log(`  ❌ ${category}: 0 articles — ${reason}`)
+    } else {
+      const validUrls = articles.filter(a => a.url.startsWith('http')).length
+      const failedUrls = articles.length - validUrls
+      categoryResults.push({ category, count: validUrls, reason: validUrls > 0 ? `${validUrls} valid URLs` : `${failedUrls} failed (publisher fallback)` })
+      console.log(`  ✅ ${category}: ${articles.length} articles (${validUrls} valid URLs, ${failedUrls} fallback)`)
 
     if (catIdx < CATEGORIES.length - 1) {
       console.log(`  Pause 3s before next category...`)
@@ -362,7 +379,17 @@ export async function scrapeAndCacheNews(): Promise<void> {
   }
 
   if (allArticles.length === 0) {
-    console.log('\n⚠️ Aucun article trouvé')
+    console.log('\n⚠️ NO ARTICLES FROM ANY CATEGORY')
+    console.log('═══════════════════════════════════════')
+    console.log('CATEGORY BREAKDOWN:')
+    categoryResults.forEach(r => {
+      const icon = r.count > 0 ? '✅' : '❌'
+      console.log(`  ${icon} ${r.category}: ${r.count} articles — ${r.reason}`)
+    })
+    console.log('═══════════════════════════════════════')
+    if (categoryResults.every(r => r.count === 0)) {
+      console.log('⛔ CRON FAILED SILENTLY — zero articles cached. Check API key, quota, or API availability.')
+    }
     return
   }
 
@@ -376,6 +403,16 @@ export async function scrapeAndCacheNews(): Promise<void> {
   console.log(`  API calls made: ${totalCalls}/${MAX_DAILY_REQUESTS}`)
   console.log(`  Time elapsed: ${elapsed}s`)
   console.log(`  Remaining quota: ${remaining()}`)
+  console.log('')
+  console.log('CATEGORY RESULTS:')
+  categoryResults.forEach(r => {
+    const icon = r.count > 0 ? '✅' : '❌'
+    console.log(`  ${icon} ${r.category}: ${r.count} articles — ${r.reason}`)
+  })
+  console.log('')
+  if (validUrls < 50) {
+    console.log(`⚠️ LOW YIELD: Only ${validUrls} valid URLs. Card may appear empty to users.`)
+  }
 
   console.log(`\n💾 Upsert ${allArticles.length} articles en DB...`)
   const now = new Date()
