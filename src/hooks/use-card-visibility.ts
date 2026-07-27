@@ -16,6 +16,7 @@ const COLOR_MAP: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' |
   image_wikiloves_show_categories: 'purple',
   portail_lexical_card_visible: 'amber',
   proverbe_card_visible: 'emerald',
+  f1_card_visible: 'rose',
 }
 
 const DB_FIELD_MAP: Record<string, string> = {
@@ -32,6 +33,7 @@ const DB_FIELD_MAP: Record<string, string> = {
   portail_lexical_card_visible: 'portailLexicalCardVisible',
   cnrs_news_enabled: 'cnrsNewsEnabled',
   proverbe_card_visible: 'proverbeCardVisible',
+  f1_card_visible: 'f1CardVisible',
 }
 
 interface UseCardVisibilityOptions {

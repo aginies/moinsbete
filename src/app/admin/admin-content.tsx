@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers } from 'lucide-react'
+import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers, Trophy } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
@@ -52,6 +52,9 @@ export interface AdminStats {
   newsArticles: number
   newsExpired: number
   newsScrapedAt: string | null
+  f1Articles: number
+  f1Expired: number
+  f1ScrapedAt: string | null
 }
 
 export interface AdminUser {
@@ -189,6 +192,12 @@ export function AdminContent({ stats, users }: AdminContentProps) {
               sublabel={stats.newsExpired > 0 ? `${stats.newsExpired} ${t('feed.expired')}` : undefined}
             />
             <StatCard
+              icon={<Trophy className="h-5 w-5" />}
+              label={t('feed.f1_articles')}
+              value={stats.f1Articles}
+              sublabel={stats.f1Expired > 0 ? `${stats.f1Expired} ${t('feed.expired')}` : undefined}
+            />
+            <StatCard
               icon={<Image className="h-5 w-5" />}
               label={t('feed.wiki_images')}
               value={stats.wikiImages}
@@ -292,7 +301,16 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                     <span className="font-medium text-destructive">{stats.newsExpired}</span>
                   </div>
                 )}
-                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && (
+                {stats.f1Expired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Trophy className="h-4 w-4 text-muted-foreground" />
+                      {t('feed.f1_expired')}
+                    </span>
+                    <span className="font-medium text-destructive">{stats.f1Expired}</span>
+                  </div>
+                )}
+                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && stats.f1Expired === 0 && (
                   <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
@@ -312,9 +330,9 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle>Confirmer le nettoyage</DialogTitle>
-                    <DialogDescription>
-                      Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired} éléments expirés ?
-                    </DialogDescription>
+                      <DialogDescription>
+                        Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired + stats.f1Expired} éléments expirés ?
+                      </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setCleanupOpen(false)} disabled={isPending}>
@@ -618,6 +636,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
   { key: 'pixabay', labelKey: 'feed.pixabay_tab', icon: <Image className="h-4 w-4" /> },
   { key: 'portailLexical', labelKey: 'feed.lexical_tab', icon: <Quote className="h-4 w-4" /> },
   { key: 'proverbe', labelKey: 'feed.proverbe_tab', icon: <Podcast className="h-4 w-4" /> },
+  { key: 'f1', labelKey: 'feed.f1_tab', icon: <Trophy className="h-4 w-4" /> },
 ]
 
 function CartesTab() {

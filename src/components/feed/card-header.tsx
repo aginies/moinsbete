@@ -78,29 +78,41 @@ export function CardHeader({
   const initializedRef = useRef(false)
   const justRefreshedRef = useRef(false)
 
+  // Start/stop timer and reset on toggle
   React.useEffect(() => {
-    if (!enableAutoRefresh || !isActive || loading || !onRefresh) return
+    if (!enableAutoRefresh || !isActive || !onRefresh) return
+
+    if (isActive && !loading) {
+      setTimeLeft(intervalValue)
+      justRefreshedRef.current = false
+    }
+
+    if (!isActive) return
 
     const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1)
+      setTimeLeft(prev => {
+        if (prev <= 1) return 0
+        if (loading) return prev
+        return prev - 1
+      })
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [enableAutoRefresh, isActive, loading, onRefresh])
+  }, [enableAutoRefresh, isActive, onRefresh, loading, intervalValue])
 
+  // Handle timeLeft reaching 0
   React.useEffect(() => {
     if (!enableAutoRefresh || !isActive || loading || !onRefresh) return
+    if (timeLeft > 0) return
 
-    if (timeLeft <= 0) {
-      if (!justRefreshedRef.current) {
-        onRefresh()
-        justRefreshedRef.current = true
-      } else {
-        setTimeLeft(intervalValue)
-        justRefreshedRef.current = false
-      }
+    if (!justRefreshedRef.current) {
+      onRefresh()
+      justRefreshedRef.current = true
+    } else {
+      setTimeLeft(intervalValue)
+      justRefreshedRef.current = false
     }
-  }, [timeLeft, enableAutoRefresh, isActive, intervalValue, loading, onRefresh])
+  }, [timeLeft, enableAutoRefresh, isActive, loading, intervalValue, onRefresh])
 
   return (
     <div className="mb-3 flex items-center justify-between">

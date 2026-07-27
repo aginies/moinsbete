@@ -56,6 +56,7 @@ export default async function SujetsPage() {
           proverbeCardVisible: true,
           cnrsNewsEnabled: true,
           newsCardVisible: true,
+          f1CardVisible: true,
           hasSeenSplash: true,
         },
       }).then(u => ({
@@ -72,6 +73,7 @@ export default async function SujetsPage() {
           proverbe: u.proverbeCardVisible ?? true,
           cnrs: u.cnrsNewsEnabled ?? true,
           news: u.newsCardVisible ?? true,
+          f1: u.f1CardVisible ?? true,
         } : undefined,
         hasSeenSplash: u?.hasSeenSplash ?? false,
       }))

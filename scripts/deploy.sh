@@ -127,6 +127,15 @@ if [ -f "$DEST/dev.db" ] && command -v sqlite3 &>/dev/null; then
   fi
 fi
 
+# Add f1CardVisible column if missing (F1 card visibility)
+if [ -f "$DEST/dev.db" ] && command -v sqlite3 &>/dev/null; then
+  HAS_F1_COL=$(sqlite3 "$DEST/dev.db" "PRAGMA table_info(\"User\");" 2>/dev/null | grep -c 'f1CardVisible' || true)
+  if [ "$HAS_F1_COL" -eq 0 ]; then
+    echo "Adding f1CardVisible column to User table..."
+    sqlite3 "$DEST/dev.db" 'ALTER TABLE "User" ADD COLUMN "f1CardVisible" BOOLEAN DEFAULT 1;'
+  fi
+fi
+
 # Fix weak plaintext password for view-only@local (one-time)
 if [ -f "$DEST/dev.db" ] && command -v sqlite3 &>/dev/null; then
   PLAINTEXT_HASH=$(sqlite3 "$DEST/dev.db" "SELECT passwordHash FROM User WHERE email='view-only@local';" 2>/dev/null || true)

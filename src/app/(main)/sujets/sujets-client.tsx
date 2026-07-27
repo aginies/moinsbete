@@ -13,6 +13,7 @@ import { ImagePixabayCard } from '@/components/feed/image-pixabay-card'
 import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
 import { ProverbeCard } from '@/components/feed/proverbe-card'
 import { NewsCard } from '@/components/feed/news-card'
+import { F1Card } from '@/components/feed/f1-card'
 import { VisibilityButton } from '@/components/feed/visibility-button'
 import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
@@ -42,6 +43,7 @@ interface CardVisibility {
   portailLexical: boolean
   proverbe: boolean
   news: boolean
+  f1: boolean
 }
 
 interface CardConfig {
@@ -62,6 +64,7 @@ const HIDDEN_CARD_COLORS: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 
   pixabay: 'amber',
   portailLexical: 'amber',
   proverbe: 'emerald',
+  f1: 'rose',
 }
 
 const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null, userId: string | undefined, hasUserId: boolean) => React.ReactElement | null> = {
@@ -100,6 +103,9 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
   ),
   proverbe: (config) => (
     <ProverbeCard onToggle={config.toggle} isVisible={config.isVisible} />
+  ),
+  f1: (config, _, userId) => (
+    <F1Card onToggle={config.toggle} isVisible={config.isVisible} userId={userId} />
   ),
 }
 
@@ -146,7 +152,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const isAllSelected = allTopics.length > 0 && followedIdsSet.size === allTopics.length
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
-    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true, news: true, pixabayActiveCategory: 'bird',
+    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true, news: true, f1: true, pixabayActiveCategory: 'bird',
   })
 
   const lastSyncedRef = useRef<string | null>(null)
@@ -226,6 +232,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     { key: 'pixabay', visKey: 'pixabay', field: 'imagePixabayCardVisible' },
     { key: 'portailLexical', visKey: 'portailLexical', field: 'portailLexicalCardVisible' },
     { key: 'proverbe', visKey: 'proverbe', field: 'proverbeCardVisible' },
+    { key: 'f1', visKey: 'f1', field: 'f1CardVisible', extraCheck: () => hasUserId },
   ]
 
   const cardConfigs: CardConfig[] = useMemo(() =>
@@ -249,7 +256,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   }, [cardConfigs, cardOrder, orderLoaded])
 
   const visibleCards = orderedConfigs.filter(c => c.isVisible)
-  const hiddenCards = orderedConfigs.filter(c => !c.isVisible && c.isGloballyVisible && (c.key !== 'news' || hasUserId))
+  const hiddenCards = orderedConfigs.filter(c => !c.isVisible && c.isGloballyVisible && (c.key !== 'news' || hasUserId) && (c.key !== 'f1' || hasUserId))
 
   if (!orderLoaded) {
     return (

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote, Trash2 } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote, Trash2, Trophy } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import Link from 'next/link'
@@ -27,6 +27,7 @@ import { PixabayFavorites } from './pixabay-favorites'
 import { PortailLexicalBookmarks } from './portail-lexical-bookmarks'
 import { ProverbeBookmarks } from './proverbe-bookmarks'
 import { NewsFavorites } from './news-favorites'
+import { F1Favorites } from './f1-favorites'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby } from '@/actions/lobby-share-actions'
@@ -49,9 +50,10 @@ interface FavorisPageClientProps {
   portailLexicalCount: number
   proverbeFavoritesCount: number
   newsFavoritesCount: number
+  f1FavoritesCount: number
 }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'proverbe' | 'news' | 'results'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'proverbe' | 'news' | 'f1' | 'results'
 
 interface TabConfig {
   id: Tab
@@ -73,7 +75,7 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
   return <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
 }
 
-export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, newsFavoritesCount }: FavorisPageClientProps) {
+export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, newsFavoritesCount, f1FavoritesCount }: FavorisPageClientProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [previousTab, setPreviousTab] = useState<Tab | null>(null)
@@ -196,7 +198,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [portailLexCount, setPortailLexCount] = useState(portailLexicalCount)
   const [proverbeCount, setProverbeCount] = useState(proverbeFavoritesCount)
   const [newsCount, setNewsCount] = useState(newsFavoritesCount)
-  const prevCountsRef = useRef({ radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, newsFavoritesCount })
+  const [f1Count, setF1Count] = useState(f1FavoritesCount)
+  const prevCountsRef = useRef({ radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, newsFavoritesCount, f1FavoritesCount })
 
   useEffect(() => {
     const prev = prevCountsRef.current
@@ -210,8 +213,9 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     if (prev.portailLexicalCount !== portailLexicalCount) setPortailLexCount(portailLexicalCount)
     if (prev.proverbeFavoritesCount !== proverbeFavoritesCount) setProverbeCount(proverbeFavoritesCount)
     if (prev.newsFavoritesCount !== newsFavoritesCount) setNewsCount(newsFavoritesCount)
-    prevCountsRef.current = { radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, newsFavoritesCount }
-  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount])
+    if (prev.f1FavoritesCount !== f1FavoritesCount) setF1Count(f1FavoritesCount)
+    prevCountsRef.current = { radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, newsFavoritesCount, f1FavoritesCount }
+  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, proverbeFavoritesCount, newsFavoritesCount, f1FavoritesCount])
 
   const handleRadioRemove = useCallback(() => {
     setRadioCount(prev => Math.max(0, prev - 1))
@@ -251,6 +255,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   const handleNewsRemove = useCallback(() => {
     setNewsCount(prev => Math.max(0, prev - 1))
+  }, [])
+
+  const handleF1Remove = useCallback(() => {
+    setF1Count(prev => Math.max(0, prev - 1))
   }, [])
 
   const handleSaviezVousShareToLobby = async (resourceId: string) => {
@@ -427,8 +435,9 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
        { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
        { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
        { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
-       { id: 'news', label: 'NEWS', Icon: Newspaper, count: newsCount },
-     ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount, saviezVousCount, radioCount, cnrsCount, newsCount])
+        { id: 'news', label: 'NEWS', Icon: Newspaper, count: newsCount },
+        { id: 'f1', label: 'F1', Icon: Trophy, count: f1Count },
+      ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, proverbeCount, saviezVousCount, radioCount, cnrsCount, newsCount, f1Count])
 
   const sortedTabs = useMemo(() =>
     [...tabConfig].sort((a, b) => b.count - a.count),
@@ -480,6 +489,17 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         source: 'NEWS',
         sourceTab: 'news',
         navigateTo: () => setActiveTab('news'),
+      })
+    }
+    
+    if (f1Count > 0) {
+      results.push({
+        id: 'f1-placeholder',
+        title: `${f1Count} favoris F1`,
+        description: 'Cliquez pour voir les résultats',
+        source: 'F1',
+        sourceTab: 'f1',
+        navigateTo: () => setActiveTab('f1'),
       })
     }
     
@@ -695,6 +715,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       <TabsContent value="cnrs-news"><CnrsBookmarks userId={userId} onRemoveComplete={handleCnrsRemove} searchQuery={searchQuery} /></TabsContent>
 
       <TabsContent value="news"><NewsFavorites userId={userId} onRemoveComplete={handleNewsRemove} searchQuery={searchQuery} /></TabsContent>
+
+      <TabsContent value="f1"><F1Favorites userId={userId} onRemoveComplete={handleF1Remove} searchQuery={searchQuery} /></TabsContent>
 
       <TabsContent value="image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} sharedIds={sharedImageIds} onShareToggle={handleImageShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
 

@@ -32,8 +32,9 @@ model User {
   imagePixabayShowCategories   Boolean               @default(true)
   imagePixabayActiveCategory   String                @default("bird")
   portailLexicalCardVisible    Boolean               @default(true)
-  proverbeCardVisible          Boolean               @default(true)
-  cardOrder                    Json?
+  f1CardVisible            Boolean               @default(true)
+  proverbeCardVisible      Boolean               @default(true)
+  cardOrder                Json?
   newsCardVisible              Boolean?              @default(true)
   emailNotificationsEnabled    Boolean               @default(true)
   hasSeenSplash                Boolean               @default(false)
@@ -348,6 +349,22 @@ model CachedNewsArticle {
   @@index([source], map: "CachedNewsArticle_source_idx")
 }
 
+model CachedF1Article {
+  id          String   @id @default(cuid())
+  section     String   // 'actualites', 'image', 'classement', 'lumiere', 'saviez'
+  title       String
+  description String?
+  content     String?
+  url         String   @unique
+  imageUrl    String?
+  meta        Json?
+  scrapedAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+  @@index([section])
+}
+
 model UserSuggestion {
   id          String              @id @default(cuid())
   userId      String
@@ -424,4 +441,5 @@ enum BookmarkType {
   PORTAIL_LEXICAL
   PROVERBE
   NEWS
+  F1
 }

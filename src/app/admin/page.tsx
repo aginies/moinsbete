@@ -48,6 +48,7 @@ export default async function AdminPage() {
     latestNews,
     latestWiki,
     latestWikiLoves,
+    latestF1,
     latestSaviezVous,
   ] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
@@ -68,6 +69,8 @@ export default async function AdminPage() {
       wikiLovesExpired: bigint
       newsTotal: bigint
       newsExpired: bigint
+      f1Total: bigint
+      f1Expired: bigint
     }>>`
       SELECT
         (SELECT COUNT(*) FROM CachedCnrsArticle) as cnrsTotal,
@@ -79,7 +82,9 @@ export default async function AdminPage() {
         (SELECT COUNT(*) FROM CachedWikiLovesImage) as wikiLovesTotal,
         (SELECT COUNT(*) FROM CachedWikiLovesImage WHERE datetime(expiresAt) < datetime('now')) as wikiLovesExpired,
         (SELECT COUNT(*) FROM CachedNewsArticle) as newsTotal,
-        (SELECT COUNT(*) FROM CachedNewsArticle WHERE datetime(expiresAt) < datetime('now')) as newsExpired
+        (SELECT COUNT(*) FROM CachedNewsArticle WHERE datetime(expiresAt) < datetime('now')) as newsExpired,
+        (SELECT COUNT(*) FROM CachedF1Article) as f1Total,
+        (SELECT COUNT(*) FROM CachedF1Article WHERE datetime(expiresAt) < datetime('now')) as f1Expired
     `,
     prisma.saviezVousFact.count(),
     prisma.bookmark.count({
@@ -111,6 +116,7 @@ export default async function AdminPage() {
     prisma.cachedNewsArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
     prisma.cachedWikipediaImage.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
     prisma.cachedWikiLovesImage.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
+    prisma.cachedF1Article.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
     prisma.saviezVousFact.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
   ])
 
@@ -125,6 +131,8 @@ export default async function AdminPage() {
   const wikiLovesExpiredCount = Number(stats.wikiLovesExpired)
   const newsCount = Number(stats.newsTotal)
   const newsExpiredCount = Number(stats.newsExpired)
+  const f1Count = Number(stats.f1Total)
+  const f1ExpiredCount = Number(stats.f1Expired)
 
   const formatScrapedAt = (date: Date | null) => {
     if (!date) return null
@@ -168,6 +176,9 @@ export default async function AdminPage() {
         newsArticles: newsCount,
         newsExpired: newsExpiredCount,
         newsScrapedAt: formatScrapedAt(latestNews?.scrapedAt ?? null),
+        f1Articles: f1Count,
+        f1Expired: f1ExpiredCount,
+        f1ScrapedAt: formatScrapedAt(latestF1?.scrapedAt ?? null),
       }}
       users={adminUsers}
     />

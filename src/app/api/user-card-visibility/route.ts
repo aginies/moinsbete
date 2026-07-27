@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
         portailLexicalCardVisible: true,
         proverbeCardVisible: true,
         cnrsNewsEnabled: true,
+        f1CardVisible: true,
       },
     })
 
@@ -80,6 +81,7 @@ export async function POST(request: NextRequest) {
       'proverbeCardVisible',
       'cnrsNewsEnabled',
       'newsCardVisible',
+      'f1CardVisible',
     ]
 
     if (!validFields.includes(field)) {

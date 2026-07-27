@@ -173,14 +173,14 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
     }, 300)
 
     return () => clearTimeout(timer)
-  }, [isVisible, selectedCategories, searchQuery, loadArticles])
+  }, [isVisible, selectedCategories, searchQuery])
 
   useEffect(() => {
     if (favoritesCheckedRef.current) return
     if (articles.length > 0) {
       const checkFavorites = async () => {
         const urls = articles.map(a => a.url)
-        const result = await isNewsFavoriteBatchAction(urls)
+        const result = await isNewsFavoriteBatchAction(JSON.stringify(urls))
         if (result.bookmarkedIds.length > 0) {
           setFavorites(prev => new Set([...prev, ...result.bookmarkedIds]))
         }
@@ -188,7 +188,7 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
       checkFavorites()
     }
     favoritesCheckedRef.current = true
-  }, [articles])
+  }, [articles.length])
 
   useEffect(() => {
     favoritesCheckedRef.current = false
@@ -219,7 +219,7 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
     if (sentinel) observer.observe(sentinel)
 
     return () => observer.disconnect()
-  }, [infiniteScroll, onLoadMore, hasMore, loading, articles, selectedCategories])
+  }, [infiniteScroll, onLoadMore, hasMore, loading, articles.length, selectedCategories])
 
   const handleCategoryChange = useCallback((category: string) => {
     setSelectedCategories(prev => {

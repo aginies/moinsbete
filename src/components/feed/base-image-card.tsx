@@ -95,6 +95,7 @@ export function BaseImageCard<TTopic>({
   onToggle,
   isVisible,
   onShowFullImageChange,
+  onImageLoaded,
 }: BaseImageCardProps<TTopic>) {
   const {
     resourceType,
@@ -125,6 +126,7 @@ export function BaseImageCard<TTopic>({
   const imageStorageKey = storageKey ? `base_image_${storageKey}` : 'base_image'
 
   const [image, setImage] = useState<BaseImage | null>(() => {
+    if (typeof sessionStorage === 'undefined') return null
     const saved = sessionStorage.getItem(imageStorageKey)
     return saved ? JSON.parse(saved) : null
   })
@@ -143,7 +145,11 @@ export function BaseImageCard<TTopic>({
     const newImage = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined)
     if (newImage) {
       setImage(newImage)
-      sessionStorage.setItem(imageStorageKey, JSON.stringify(newImage))
+      setIsImageLoaded(true)
+      onImageLoaded()
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(imageStorageKey, JSON.stringify(newImage))
+      }
       setError(false)
     } else {
       setError(true)
@@ -236,7 +242,7 @@ export function BaseImageCard<TTopic>({
         showToggle={false}
         showRefresh={false}
         onRefresh={loadImage}
-        loading={loading || (image?.imageUrl ? !isImageLoaded : false)}
+        loading={loading}
         shareOptions={shareOptions}
         enableAutoRefresh={enableAutoRefresh}
         storageKey={storageKey}
@@ -348,7 +354,7 @@ export function BaseImageCard<TTopic>({
   const renderCard = () => {
     if (swipeable) {
       return (
-        <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
+        <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()} suppressHydrationWarning>
           <div
             className={`w-full relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
             style={swipeStyle}
