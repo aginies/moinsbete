@@ -31,15 +31,14 @@ async function fetchFromCache(categories: string[], limit: number, query?: strin
     ]
   }
 
-   const count = await prisma.cachedNewsArticle.count({ where: queryWhere })
-  if (count === 0) return []
-
-  const take = Math.min(limit + 20, count)
-   const articles = await prisma.cachedNewsArticle.findMany({
+  // Fetch a fixed larger batch directly (no count query needed)
+  const articles = await prisma.cachedNewsArticle.findMany({
     where: queryWhere,
-    take: take,
+    take: limit + 20,
     orderBy: { scrapedAt: 'desc' },
   })
+
+  if (articles.length === 0) return []
 
   return articles.map(a => ({
     title: a.title,

@@ -216,7 +216,16 @@ export async function fetchProverbe(): Promise<ProverbeEntry | null> {
   }
 }
 
+// Module-level cache for portail lexical to avoid repeated external API calls
+let portailLexicalCache: { data: PortailLexicalWord | null; expiresAt: number } | null = null
+const PORTAIL_LEXICAL_CACHE_TTL = 60 * 60 * 1000 // 1 hour (word of the day changes once per day)
+
 export async function fetchPortailLexical(): Promise<PortailLexicalWord | null> {
+  const now = Date.now()
+  if (portailLexicalCache && portailLexicalCache.expiresAt > now) {
+    return portailLexicalCache.data
+  }
+
   const PORTAIL_LEXICAL_BASE = 'https://www.portail-lexical.fr'
 
   const stripHtml = (html: string): string => html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
@@ -309,7 +318,7 @@ export async function fetchPortailLexical(): Promise<PortailLexicalWord | null> 
       })
     }
 
-    return {
+    const result: PortailLexicalWord = {
       form: header.form,
       pos: header.pos,
       full_form: header.full_form,
@@ -321,8 +330,12 @@ export async function fetchPortailLexical(): Promise<PortailLexicalWord | null> 
       etymologie,
       concordance,
     }
+
+    // Cache the result
+    portailLexicalCache = { data: result, expiresAt: now + PORTAIL_LEXICAL_CACHE_TTL }
+    return result
   } catch {
-    return {
+    const fallback: PortailLexicalWord = {
       form: 'lexique',
       pos: 'nom',
       full_form: 'lexique',
@@ -334,6 +347,9 @@ export async function fetchPortailLexical(): Promise<PortailLexicalWord | null> 
       etymologie: '',
       concordance: [],
     }
+    // Cache the fallback too
+    portailLexicalCache = { data: fallback, expiresAt: now + PORTAIL_LEXICAL_CACHE_TTL }
+    return fallback
   }
 }
 

@@ -76,35 +76,6 @@ export async function getValidCachedWikipediaImages() {
   })
 }
 
-export async function upsertCnrsArticles(articles: Array<{ title: string; link: string; imageUrl: string; category: string }>) {
-  const now = new Date()
-  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
-  
-  for (const article of articles) {
-    await prisma.cachedCnrsArticle.upsert({
-      where: { link: article.link },
-      update: { ...article, scrapedAt: now, expiresAt },
-      create: { ...article, scrapedAt: now, expiresAt },
-    })
-  }
-  
-  return articles.length
-}
-
-export async function upsertRadioEpisodes(episodes: Array<{ title: string; description?: string | null; link: string; imageUrl?: string | null; audioUrl?: string | null; radio: string }>) {
-  const now = new Date()
-  const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-  
-  for (const episode of episodes) {
-    await prisma.cachedRadioEpisode.upsert({
-      where: { link: episode.link },
-      update: { ...episode, scrapedAt: now, expiresAt },
-      create: { ...episode, scrapedAt: now, expiresAt },
-    })
-  }
-  
-  return episodes.length
-}
 
 export async function upsertWikipediaImages(images: Array<{ imageUrl: string; description: string; fileUrl: string; date: string; archive: string }>) {
   const now = new Date()

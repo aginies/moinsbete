@@ -21,6 +21,10 @@ interface SearchCacheEntry {
 const searchCache = createRedisTtlCache<SearchCacheEntry>({ ttlMs: 5 * 60 * 1000 })
 const SEARCH_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
+// Module-level cache for parsed proverbes to avoid repeated JSON.parse + DB query
+let proverbesParseCache: { data: Array<{ text: string; signification: string; source: string }>; expiresAt: number } | null = null
+const PROVERBES_PARSE_TTL = 5 * 60 * 1000 // 5 minutes
+
 async function getCachedSearch(q: string) {
   const normalized = normalizeAccents(q).toLowerCase()
   const cached = await searchCache.get(normalized)
@@ -46,23 +50,36 @@ async function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue
 }
 
 async function searchProverbesInCache(q: string) {
-  try {
-    const cached = await prisma.cachedConfig.findUnique({
-      where: { key: 'proverbes_all' },
-    })
-    if (!cached) return []
-    const proverbs = JSON.parse(cached.value) as Array<{ text: string; signification: string; source: string }>
-    const normalized = normalizeAccents(q).toLowerCase()
-    return proverbs
-      .filter(p =>
-        normalizeAccents(p.text).toLowerCase().includes(normalized) ||
-        normalizeAccents(p.signification).toLowerCase().includes(normalized)
-      )
-      .slice(0, 20)
-      .map(p => ({ id: p.text.toLowerCase().replace(/\s+/g, '_'), text: p.text, signification: p.signification, source: p.source }))
-  } catch {
-    return []
+  const now = Date.now()
+  let proverbs: Array<{ text: string; signification: string; source: string }> = []
+
+  if (proverbesParseCache && proverbesParseCache.expiresAt > now) {
+    proverbs = proverbesParseCache.data
+  } else {
+    try {
+      const cached = await prisma.cachedConfig.findUnique({
+        where: { key: 'proverbes_all' },
+      })
+      if (!cached) {
+        proverbesParseCache = { data: [], expiresAt: now + PROVERBES_PARSE_TTL }
+        return []
+      }
+      proverbs = JSON.parse(cached.value) as Array<{ text: string; signification: string; source: string }>
+      proverbesParseCache = { data: proverbs, expiresAt: now + PROVERBES_PARSE_TTL }
+    } catch {
+      proverbesParseCache = { data: [], expiresAt: now + PROVERBES_PARSE_TTL }
+      return []
+    }
   }
+
+  const normalized = normalizeAccents(q).toLowerCase()
+  return proverbs
+    .filter(p =>
+      normalizeAccents(p.text).toLowerCase().includes(normalized) ||
+      normalizeAccents(p.signification).toLowerCase().includes(normalized)
+    )
+    .slice(0, 20)
+    .map(p => ({ id: p.text.toLowerCase().replace(/\s+/g, '_'), text: p.text, signification: p.signification, source: p.source }))
 }
 
 async function searchImagesInCache(q: string) {

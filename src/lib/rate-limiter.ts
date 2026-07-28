@@ -1,6 +1,7 @@
 const USE_REDIS = process.env.RATE_LIMITER_DRIVER === 'redis'
 export const stores = new Map<string, { timestamps: number[]; expiresAt: number }>()
 const CLEANUP_INTERVAL = 5 * 60 * 1000
+const MAX_STORE_ENTRIES = 5000
 
 function cleanup() {
   const now = Date.now()
@@ -8,6 +9,16 @@ function cleanup() {
     if (now > data.expiresAt) {
       stores.delete(key)
     }
+  }
+}
+
+function evictOldest() {
+  if (stores.size <= MAX_STORE_ENTRIES) return
+  // Sort by expiresAt ascending and remove oldest half
+  const entries = Array.from(stores.entries()).sort((a, b) => a[1].expiresAt - b[1].expiresAt)
+  const keep = Math.ceil(MAX_STORE_ENTRIES / 2)
+  for (let i = 0; i < entries.length - keep; i++) {
+    stores.delete(entries[i][0])
   }
 }
 
@@ -106,9 +117,10 @@ export async function checkRateLimit(key: string, max: number, windowMs: number)
     }
   }
   
-  // Clean expired keys before checking
+  // Clean expired keys and evict oldest if over capacity before checking
   cleanup()
-  
+  evictOldest()
+
   const data = stores.get(sanitizedKey)
   if (data && now > data.expiresAt) {
     stores.delete(sanitizedKey)

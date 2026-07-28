@@ -14,8 +14,10 @@ export async function scrapeAndCacheCnrs(): Promise<void> {
   console.log('📚 Scraping CNRS newsroom...')
   const allArticles: ScrapedArticle[] = []
   const totalPages = 100
+  const BATCH_SIZE = 5
+  const BATCH_DELAY = 2000 // ms between batches
 
-  for (let page = 1; page <= totalPages; page++) {
+  async function fetchPage(page: number): Promise<ScrapedArticle[]> {
     try {
       const res = await fetch(`${NEWSROOM_BASE}/fr/newsroom?page=${page}`, {
         headers: {
@@ -27,7 +29,7 @@ export async function scrapeAndCacheCnrs(): Promise<void> {
       })
       if (!res.ok) {
         console.log(`  Page ${page}/${totalPages}: HTTP ${res.status}`)
-        continue
+        return []
       }
 
       const html = await res.text()
@@ -60,21 +62,36 @@ export async function scrapeAndCacheCnrs(): Promise<void> {
         articles.push({ title, link: fullLink, imageUrl: fullImageUrl, category })
       }
 
+      return articles
+    } catch {
+      console.log(`  Page ${page}/${totalPages}: erreur`)
+      return []
+    }
+  }
+
+  // Fetch pages in parallel batches
+  for (let start = 1; start <= totalPages; start += BATCH_SIZE) {
+    const end = Math.min(start + BATCH_SIZE - 1, totalPages)
+    const pageRange = Array.from({ length: end - start + 1 }, (_, i) => start + i)
+
+    const results = await Promise.all(pageRange.map(page => fetchPage(page)))
+
+    for (let i = 0; i < pageRange.length; i++) {
+      const page = pageRange[i]
+      const articles = results[i]
       if (articles.length > 0) {
         allArticles.push(...articles)
         console.log(`  Page ${page}/${totalPages}: ${articles.length} articles (total: ${allArticles.length})`)
       } else {
         console.log(`  Page ${page}/${totalPages}: 0 article`)
       }
-    } catch {
-      console.log(`  Page ${page}/${totalPages}: erreur`)
     }
 
-    if (page % 20 === 0 && page < totalPages) {
-      console.log(`  Pause 10s...`)
-      await sleep(10000)
-    } else if (page < totalPages) {
-      await sleep(2000)
+    // Delay between batches (not after the last batch)
+    if (end < totalPages) {
+      const delay = end % 20 === 0 ? 10000 : BATCH_DELAY
+      console.log(`  Pause ${delay / 1000}s...`)
+      await sleep(delay)
     }
   }
 

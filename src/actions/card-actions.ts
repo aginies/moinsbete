@@ -21,9 +21,11 @@ const DEFAULT_VISIBILITY: Record<CardKey, boolean> = {
 
 const CONFIG_KEY = 'cartes_global_visibility'
 
-export async function getGlobalCardVisibility(): Promise<Record<CardKey, boolean>> {
-  const config = await prisma.cachedConfig.findUnique({ where: { key: CONFIG_KEY } })
-  if (!config) return { ...DEFAULT_VISIBILITY }
+// Module-level cache for visibility config to avoid repeated DB query + JSON.parse
+let visibilityCache: { data: Record<CardKey, boolean>; expiresAt: number } | null = null
+const VISIBILITY_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+function parseVisibility(config: { value: string }): Record<CardKey, boolean> | null {
   try {
     const parsed = JSON.parse(config.value) as Record<string, boolean>
     const result: Partial<Record<CardKey, boolean>> = {}
@@ -33,8 +35,27 @@ export async function getGlobalCardVisibility(): Promise<Record<CardKey, boolean
     }
     return result as Record<CardKey, boolean>
   } catch {
-    return { ...DEFAULT_VISIBILITY }
+    return null
   }
+}
+
+export async function getGlobalCardVisibility(): Promise<Record<CardKey, boolean>> {
+  const now = Date.now()
+  if (visibilityCache && visibilityCache.expiresAt > now) {
+    return visibilityCache.data
+  }
+
+  const config = await prisma.cachedConfig.findUnique({ where: { key: CONFIG_KEY } })
+  let result: Record<CardKey, boolean>
+  if (!config) {
+    result = { ...DEFAULT_VISIBILITY }
+  } else {
+    const parsed = parseVisibility(config)
+    result = parsed ?? { ...DEFAULT_VISIBILITY }
+  }
+
+  visibilityCache = { data: result, expiresAt: now + VISIBILITY_CACHE_TTL }
+  return result
 }
 
 export async function updateGlobalCardVisibility(field: CardKey, enabled: boolean) {
@@ -59,6 +80,9 @@ export async function updateGlobalCardVisibility(field: CardKey, enabled: boolea
     create: { key: CONFIG_KEY, value: JSON.stringify(visibility) },
     update: { value: JSON.stringify(visibility) },
   })
+
+  // Invalidate cache so next read fetches fresh data
+  visibilityCache = null
 
   return { success: true }
 }
