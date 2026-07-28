@@ -27,7 +27,7 @@ interface F1PageClientProps {
 
 const TABS = [
   { key: 'image', label: 'Image du jour', icon: ImageIcon },
-  { key: 'actualites', label: 'Actualités Wikipedia', icon: Newspaper },
+  { key: 'actualites', label: 'News', icon: Newspaper },
   { key: 'fia', label: 'FIA F1 NEWS', icon: Globe },
   { key: 'classement', label: 'Classement', icon: Trophy },
   { key: 'saviez', label: 'Le saviez-vous ?', icon: Star },
@@ -42,7 +42,7 @@ export function F1PageClient({ actualites, image, classement, saviez, fia }: F1P
       </div>
       
       <Tabs defaultValue="image" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-3">
             {TABS.map(tab => (
               <TabsTrigger key={tab.key} value={tab.key} className="flex items-center gap-2">
                 <tab.icon className="h-4 w-4" />
