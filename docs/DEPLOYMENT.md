@@ -267,7 +267,7 @@ L'application supporte l'installation sur mobile comme une app native.
 - Thème dynamique (light/dark)
 - Service worker pour cache offline des favoris
 - Support Web Share API
-- Android Auto compatible (`display_override: [browser, minimal-ui]`, `X-Frame-Options: SAMEORIGIN`)
+- Android Auto / Standalone compatible (`display_override: [standalone, minimal-ui]`, `X-Frame-Options: SAMEORIGIN`)
 
 **Vérification PWA :**
 ```bash
