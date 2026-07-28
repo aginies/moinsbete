@@ -217,7 +217,7 @@ async function fetchArticlesWithDetails(articles: Array<{ uuid: string; title: s
         description: '',
         url: detail.url,
         imageUrl: detail.imageUrl,
-        source: article.publisher,
+        source: article.publisher || 'Unknown',
         category,
         publishedAt: article.published_at,
       })
