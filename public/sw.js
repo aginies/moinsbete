@@ -8,8 +8,8 @@ const ASSET_CACHE = `app-assets-${CACHE_VERSION}`;
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(PRECACHE_CACHE).then(async (cache) => {
-      // Precache static URLs
-      await cache.addAll([
+      // Precache static URLs + chunks manifest
+      const staticUrls = [
         '/',
         '/manifest.json',
         '/icon-192.png',
@@ -23,12 +23,14 @@ self.addEventListener('install', (event) => {
         '/portail-lexical',
         '/proverbes',
         '/idees/au-hasard',
-      ]);
+        '/chunks-manifest.json',
+      ];
+      await cache.addAll(staticUrls);
 
-      // Fetch and precache all JS/CSS chunks from manifest
+      // Read chunks from precached manifest and precache them
       try {
-        const manifestResponse = await fetch('/chunks-manifest.json');
-        if (manifestResponse.ok) {
+        const manifestResponse = await cache.match('/chunks-manifest.json');
+        if (manifestResponse) {
           const manifest = await manifestResponse.json();
           const allUrls = [...manifest.js, ...manifest.css];
           await cache.addAll(allUrls);
