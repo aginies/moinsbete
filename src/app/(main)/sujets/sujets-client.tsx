@@ -11,6 +11,7 @@ import { ImageWikimediaCard } from '@/components/feed/image-wikimedia-card'
 import { ImageWikiLovesCard } from '@/components/feed/image-wikiloves-card'
 import { ImagePixabayCard } from '@/components/feed/image-pixabay-card'
 import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
+import { PortailWikipediaCard } from '@/components/feed/portail-wikipedia-card'
 import { ProverbeCard } from '@/components/feed/proverbe-card'
 import { NewsCard } from '@/components/feed/news-card'
 import { F1Card } from '@/components/feed/f1-card'
@@ -41,6 +42,7 @@ interface CardVisibility {
   pixabay: boolean
   pixabayActiveCategory: string
   portailLexical: boolean
+  portailWikipedia: boolean
   proverbe: boolean
   news: boolean
   f1: boolean
@@ -63,8 +65,24 @@ const HIDDEN_CARD_COLORS: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 
   wikiloves: 'indigo',
   pixabay: 'amber',
   portailLexical: 'amber',
+  portailWikipedia: 'indigo',
   proverbe: 'emerald',
   f1: 'rose',
+}
+
+const CARD_DISPLAY_NAMES: Record<string, string> = {
+  saviezVous: 'saviez_vous_tab',
+  wikipedia: 'wikipedia_tab',
+  cnrs: 'cnrs_tab',
+  radioFrance: 'radio_tab',
+  news: 'news_tab',
+  wikimedia: 'wikimedia_tab',
+  wikiloves: 'wiki_loves_tab',
+  pixabay: 'pixabay_tab',
+  portailLexical: 'lexical_tab',
+  portailWikipedia: 'portail_wikipedia_tab',
+  proverbe: 'proverbe_tab',
+  f1: 'f1_tab',
 }
 
 const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null, userId: string | undefined, hasUserId: boolean) => React.ReactElement | null> = {
@@ -100,6 +118,9 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
   ),
   portailLexical: (config) => (
     <PortailLexicalCard onToggle={config.toggle} isVisible={config.isVisible} />
+  ),
+  portailWikipedia: (config, _, userId) => (
+    <PortailWikipediaCard userId={userId} onToggle={config.toggle} isVisible={config.isVisible} />
   ),
   proverbe: (config) => (
     <ProverbeCard onToggle={config.toggle} isVisible={config.isVisible} />
@@ -152,7 +173,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const isAllSelected = allTopics.length > 0 && followedIdsSet.size === allTopics.length
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
-    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, proverbe: true, news: true, f1: true, pixabayActiveCategory: 'bird',
+    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, portailWikipedia: true, proverbe: true, news: true, f1: true, pixabayActiveCategory: 'bird',
   })
 
   const lastSyncedRef = useRef<string | null>(null)
@@ -166,7 +187,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   }, [initialVisibility, syncKey])
 
   const hasUserId = !!userId
-  const [cardOrder, setCardOrder] = useState<string[]>(() => hasUserId ? [] : ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'proverbe'])
+  const [cardOrder, setCardOrder] = useState<string[]>(() => hasUserId ? [] : ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'portailWikipedia', 'proverbe'])
   const [orderLoaded, setOrderLoaded] = useState(!hasUserId)
 
   useEffect(() => {
@@ -231,6 +252,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     { key: 'wikiloves', visKey: 'wikiloves', field: 'imageWikiLovesCardVisible' },
     { key: 'pixabay', visKey: 'pixabay', field: 'imagePixabayCardVisible' },
     { key: 'portailLexical', visKey: 'portailLexical', field: 'portailLexicalCardVisible' },
+    { key: 'portailWikipedia', visKey: 'portailWikipedia', field: 'portailWikipediaCardVisible' },
     { key: 'proverbe', visKey: 'proverbe', field: 'proverbeCardVisible' },
     { key: 'f1', visKey: 'f1', field: 'f1CardVisible', extraCheck: () => hasUserId },
   ]
@@ -296,7 +318,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
         {hiddenCards.map(card => (
           <div key={card.key} className="h-full">
-            {card.toggle && <VisibilityButton color={HIDDEN_CARD_COLORS[card.key] || 'teal'} label={`${t('show_card')} ${card.key}`} onClick={card.toggle} />}
+            {card.toggle && <VisibilityButton color={HIDDEN_CARD_COLORS[card.key] || 'teal'} label={CARD_DISPLAY_NAMES[card.key] ? t(CARD_DISPLAY_NAMES[card.key]) : card.key} onClick={card.toggle} />}
           </div>
         ))}
       </div>
