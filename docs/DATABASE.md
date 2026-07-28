@@ -10,31 +10,31 @@
 
 ## Statistiques actuelles
 
-| Modèle | Description | Compteur |
-|--------|-------------|----------|
-| **Idea** | Idées bite-sized (titre + contenu + takeaway) | 1 464 |
-| **Source** | Sources (Wikipédia articles) | 259 |
-| **Topic** | Sujets de connaissance | 23 |
-| **IdeaTopic** | Association Idea ↔ Topic (1 par idée) | 1 464 |
-| **SaviezVousFact** | Faits "Le saviez-vous" | 7 770 |
-| **Collection** | Collections d'idées | 6 |
-| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN, enabled, lastLogin, lastVisited) | 8 |
-| **Bookmark** | Bookmarks utilisateur | 43 |
-| **ViewedIdea** | Historique de consultation | 99 |
-| **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) | 4 |
-| **TopicSuggestion** | Suggestions de nouveaux topics (admin) | variable |
-| **PasswordResetToken** | Tokens de réinitialisation de mot de passe | variable |
-| **SharedLobbyBookmark** | Favoris partagés dans le lobby | variable |
-| **CachedConfig** | Config cachée (proverbes, global card visibility, card order) | variable |
-| **CachedCnrsArticle** | Articles CNRS en cache (TTL: 24h) | 961 |
-| **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) | 1 324 |
-| **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) | 3 559 |
-| **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) | 125 |
-| **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) | 293 |
-| **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur | variable |
-| **CachedProverbe** | Proverbes depuis Wiktionary | 5 557 |
-| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache | 5 443 |
-| **CachedF1Article** | Articles F1 en cache | 17 |
+| Modèle | Description |
+|--------|-------------|
+| **Idea** | Idées bite-sized (titre + contenu + takeaway) |
+| **Source** | Sources (Wikipédia articles) |
+| **Topic** | Sujets de connaissance |
+| **IdeaTopic** | Association Idea ↔ Topic (1 par idée) |
+| **SaviezVousFact** | Faits "Le saviez-vous" |
+| **Collection** | Collections d'idées |
+| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN, enabled, lastLogin, lastVisited) |
+| **Bookmark** | Bookmarks utilisateur |
+| **ViewedIdea** | Historique de consultation |
+| **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) |
+| **TopicSuggestion** | Suggestions de nouveaux topics (admin) |
+| **PasswordResetToken** | Tokens de réinitialisation de mot de passe |
+| **SharedLobbyBookmark** | Favoris partagés dans le lobby |
+| **CachedConfig** | Config cachée (proverbes, global card visibility, card order) |
+| **CachedCnrsArticle** | Articles CNRS en cache (TTL: 24h) |
+| **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) |
+| **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) |
+| **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) |
+| **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) |
+| **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
+| **CachedProverbe** | Proverbes depuis Wiktionary |
+| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache |
+| **CachedF1Article** | Articles F1 en cache |
 
 ## Gestion de la base de données
 
