@@ -16,6 +16,7 @@ interface SharedBookmarkRaw extends SharedLobbyBookmark {
   user: { id: string; displayName: string | null; email: string }
   sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }>
   newsArticle?: { id: string; title: string; description: string; imageUrl: string | null; source: string; category: string; url: string } | null
+  portailWikipediaArticle?: { id: string; title: string; extract: string; imageUrl: string | null; pageUrl: string } | null
 }
 
 interface UserFavoriteIds {
@@ -27,6 +28,7 @@ interface UserFavoriteIds {
   PROVERBE: Set<string>
   PORTAIL_LEXICAL: Set<string>
   NEWS: Set<string>
+  PORTAIL_WIKIPEDIA: Set<string>
 }
 
 const PAGE_SIZE = 20
@@ -54,6 +56,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       PROVERBE: new Set(),
       PORTAIL_LEXICAL: new Set(),
       NEWS: new Set(),
+      PORTAIL_WIKIPEDIA: new Set(),
     }
     if (session?.user?.id) {
       const bookmarks = await prisma.bookmark.findMany({
@@ -63,7 +66,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         },
         select: { resourceId: true, type: true },
       })
-      const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS'] as const
+      const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'PORTAIL_WIKIPEDIA'] as const
       for (const bm of bookmarks) {
         if (bm.resourceId && knownTypes.includes(bm.type as typeof knownTypes[number])) {
           userFavoriteIds[bm.type as keyof UserFavoriteIds].add(bm.resourceId)
@@ -146,15 +149,18 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
 
     const proverbeBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'PROVERBE' && b.resourceId)
     const newsBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'NEWS' && b.resourceId)
+    const portailWikiBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'PORTAIL_WIKIPEDIA' && b.resourceId)
     const newsIds = newsBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
+    const portailWikiIds = portailWikiBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = proverbeConfig ? JSON.parse(proverbeConfig.value) : []
 
-    const [saviezFacts, wikiImages, wikiMediaImages, wikiLovesImages, cachedNewsArticles] = await prisma.$transaction([
+    const [saviezFacts, wikiImages, wikiMediaImages, wikiLovesImages, cachedNewsArticles, cachedPortailWikiArticles] = await prisma.$transaction([
       prisma.saviezVousFact.findMany({ where: saviezIds.length > 0 ? { id: { in: saviezIds } } : {} }),
       prisma.cachedWikipediaImage.findMany({ where: imageIds.length > 0 ? { fileUrl: { in: imageIds } } : {} }),
       prisma.cachedWikiLovesImage.findMany({ where: wikiMediaIds.length > 0 ? { docid: { in: wikiMediaIds }, source: 'EARTH' } : {} }),
       prisma.cachedWikiLovesImage.findMany({ where: wikiLovesIds.length > 0 ? { docid: { in: wikiLovesIds } } : {} }),
       prisma.cachedNewsArticle.findMany({ where: newsIds.length > 0 ? { url: { in: newsIds } } : {} }),
+      prisma.cachedWikipediaPortalArticle.findMany({ where: portailWikiIds.length > 0 ? { id: { in: portailWikiIds } } : {} }),
     ])
 
     const proverbeMap = new Map<string, typeof cachedProverbes[0]>()
@@ -172,6 +178,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const wikiMediaMap = new Map(wikiMediaImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
     const wikiLovesMap = new Map(wikiLovesImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
     const newsMap = new Map(cachedNewsArticles.map((a: { url: string; title: string; description: string | null; imageUrl: string | null; source: string; category: string }) => [a.url, a]))
+    const portailWikiMap = new Map(cachedPortailWikiArticles.map((a: { id: string; title: string; extract: string; imageUrl: string | null; pageUrl: string }) => [a.id, a]))
 
     const allBookmarks = [...sharedBookmarks, ...sharedWithMeBookmarks, ...sharedByMeBookmarks]
     const missingIdeaIds = [...new Set(
@@ -372,6 +379,30 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
             idea: idea as typeof idea,
           }
         }
+      }
+      if (bookmark.resourceType === 'PORTAIL_WIKIPEDIA' && bookmark.resourceId) {
+        let article = portailWikiMap.get(bookmark.resourceId)
+        if (article) return { ...bookmark, portailWikipediaArticle: article as any }
+        if (bookmark.meta) {
+          let meta = bookmark.meta as JsonValue | null
+          if (typeof meta === 'string') {
+            try { meta = JSON.parse(meta) as JsonValue } catch { meta = {} }
+          }
+          if (typeof meta === 'object' && meta !== null && 'title' in meta) {
+            const m = meta as Record<string, unknown>
+            return {
+              ...bookmark,
+              portailWikipediaArticle: {
+                id: bookmark.resourceId,
+                title: (m.title || '') as string,
+                extract: (m.extract || '') as string,
+                imageUrl: (m.imageUrl || null) as string | null,
+                pageUrl: (m.pageUrl || '') as string,
+              },
+            }
+          }
+        }
+        return { ...bookmark, portailWikipediaArticle: null }
       }
       return bookmark
     }

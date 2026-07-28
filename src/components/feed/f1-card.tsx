@@ -68,6 +68,8 @@ const TABS = [
 interface FetchF1Result {
   data: F1Data
   bookmarkedIds: string[]
+  lastUpdated?: string
+  nextUpdate?: string
 }
 
 async function fetchF1Data(): Promise<FetchF1Result | null> {
@@ -121,6 +123,8 @@ async function fetchF1Data(): Promise<FetchF1Result | null> {
     return {
       data: { actualites, image, classement, saviez, fia },
       bookmarkedIds: data.bookmarkedIds || [],
+      lastUpdated: data.lastUpdated,
+      nextUpdate: data.nextUpdate,
     }
   } catch {
     return null
@@ -139,6 +143,8 @@ export const F1Card = React.memo(function F1CardInner({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [lastUpdated, setLastUpdated] = useState<string | undefined>(undefined)
+  const [nextUpdate, setNextUpdate] = useState<string | undefined>(undefined)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -147,6 +153,8 @@ export const F1Card = React.memo(function F1CardInner({
     if (result) {
       setData(result.data)
       setFavorites(new Set(result.bookmarkedIds))
+      setLastUpdated(result.lastUpdated)
+      setNextUpdate(result.nextUpdate)
       setError(false)
     } else {
       setError(true)
@@ -242,11 +250,25 @@ export const F1Card = React.memo(function F1CardInner({
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 dark:bg-red-700">
               <Trophy className="h-4 w-4 text-white" />
             </div>
-            <Link href="/formula1" className="hover:underline cursor-pointer">
-              <h3 className="text-sm font-bold uppercase tracking-wide text-red-800 dark:text-red-300">
-                {t('f1_tab')}
-              </h3>
-            </Link>
+            <div className="flex flex-col">
+              <Link href="/formula1" className="hover:underline cursor-pointer">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-red-800 dark:text-red-300">
+                  {t('f1_tab')}
+                </h3>
+              </Link>
+              <div className="flex items-center gap-1.5">
+                {lastUpdated && (
+                  <span className="text-[10px] text-red-500 dark:text-red-400">
+                    {t('last_updated', { date: new Date(lastUpdated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}
+                  </span>
+                )}
+                {nextUpdate && (
+                  <span className="text-[10px] text-red-400 dark:text-red-500">
+                    · {t('next_update', { date: new Date(nextUpdate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
            <div className="flex items-center gap-2">
              {showToggle && onToggle && (

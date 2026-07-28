@@ -13,7 +13,7 @@ interface F1Section {
   data: unknown
 }
 
-async function fetchFromApi(): Promise<F1Section[]> {
+async function fetchFromApi(): Promise<{ sections: F1Section[]; lastUpdated?: string; nextUpdate?: string }> {
   const now = new Date()
 
   const [actualites, image, classement, saviez, fia] = await Promise.all([
@@ -75,7 +75,22 @@ async function fetchFromApi(): Promise<F1Section[]> {
     })
   }
 
-  return sections
+  // Find the most recent scrapedAt and earliest expiresAt across all sections
+  let lastUpdated: Date | undefined
+  let nextUpdate: Date | undefined
+  const allResults = [actualites, image ? [image] : [], classement, saviez, fia]
+  for (const items of allResults) {
+    for (const item of items) {
+      if (item.scrapedAt && (!lastUpdated || item.scrapedAt > lastUpdated)) {
+        lastUpdated = item.scrapedAt
+      }
+      if (item.expiresAt && (!nextUpdate || item.expiresAt < nextUpdate)) {
+        nextUpdate = item.expiresAt
+      }
+    }
+  }
+
+  return { sections, lastUpdated: lastUpdated?.toISOString(), nextUpdate: nextUpdate?.toISOString() }
 }
 
 export async function GET(request: NextRequest) {
@@ -85,7 +100,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 
-    const sections = await fetchFromApi()
+    const result = await fetchFromApi()
+    const { sections, lastUpdated, nextUpdate } = result
 
     const session = await getServerSession(authOptions)
     const userId = session?.user?.id
@@ -100,9 +116,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ sections, bookmarkedIds })
+    return NextResponse.json({ sections, bookmarkedIds, lastUpdated, nextUpdate })
   } catch (error) {
     console.error('F1 API error:', error)
-    return NextResponse.json({ sections: [], bookmarkedIds: [] })
+    return NextResponse.json({ sections: [], bookmarkedIds: [], lastUpdated: undefined, nextUpdate: undefined })
   }
 }

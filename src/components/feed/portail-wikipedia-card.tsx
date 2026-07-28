@@ -9,6 +9,7 @@ import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { isPortailWikipediaFavoriteBatchAction } from '@/actions/portail-wikipedia-bookmark-actions'
 import { CardHeader } from './card-header'
 import { ShareButton } from './share-button'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
 
 interface PortailWikipediaArticle {
@@ -215,6 +216,7 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
                           <ExternalLink className="h-3 w-3" />
                         </Link>
                         <div className="flex items-center gap-2 ml-auto">
+                          <ShareToLobbyButton resourceId={article.id} resourceType="PORTAIL_WIKIPEDIA" meta={{ title: article.title, extract: article.extract, imageUrl: article.imageUrl, pageUrl: article.pageUrl }} />
                           <button
                             type="button"
                             onClick={(e) => {

@@ -30,6 +30,7 @@ interface LobbyTabsProps {
     IMAGE_WIKILOVES: Set<string>
     PROVERBE: Set<string>
     NEWS: Set<string>
+    PORTAIL_WIKIPEDIA: Set<string>
   }
 }
 
@@ -48,6 +49,7 @@ const TYPE_FILTERS: TypeFilter[] = [
   { value: 'IMAGE_WIKILOVES', label: 'Wiki Loves', icon: 'Earth' },
   { value: 'PROVERBE', label: 'Proverbes', icon: 'Quote' },
   { value: 'NEWS', label: 'NEWS', icon: 'Newspaper' },
+  { value: 'PORTAIL_WIKIPEDIA', label: 'Portail Wikipédia', icon: 'List' },
 ]
 
 export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks, sharedByMeBookmarks, currentUserId, isAdmin, totalPages, totalPagesSharedWithMe, totalPagesSharedByMe, currentPage, locale, userFavoriteIds }: LobbyTabsProps) {
@@ -71,9 +73,6 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
       params.set('type', value)
     } else {
       params.delete('type')
-    }
-    if (params.get('tab') !== 'favoris') {
-      params.set('tab', 'favoris')
     }
     router.push(`${pathname}?${params.toString()}`)
   }, [searchParams, pathname, router])
@@ -137,10 +136,15 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           const source = ((b as any).proverbe.source || '').toLowerCase()
           if (text.includes(q) || signification.includes(q) || source.includes(q)) return true
         }
+        if ((b as any).portailWikipediaArticle) {
+          const title = ((b as any).portailWikipediaArticle.title || '').toLowerCase()
+          const extract = ((b as any).portailWikipediaArticle.extract || '').toLowerCase()
+          if (title.includes(q) || extract.includes(q)) return true
+        }
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe)
   }, [sharedBookmarks, activeType, searchQuery])
 
   const filteredSharedWithMe = useMemo(() => {
@@ -189,10 +193,15 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           const source = ((b as any).proverbe.source || '').toLowerCase()
           if (text.includes(q) || signification.includes(q) || source.includes(q)) return true
         }
+        if ((b as any).portailWikipediaArticle) {
+          const title = ((b as any).portailWikipediaArticle.title || '').toLowerCase()
+          const extract = ((b as any).portailWikipediaArticle.extract || '').toLowerCase()
+          if (title.includes(q) || extract.includes(q)) return true
+        }
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe)
   }, [sharedWithMeBookmarks, activeType, searchQuery])
 
   const filteredSharedByMe = useMemo(() => {
@@ -240,10 +249,15 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           const source = ((b as any).proverbe.source || '').toLowerCase()
           if (text.includes(q) || signification.includes(q) || source.includes(q)) return true
         }
+        if ((b as any).portailWikipediaArticle) {
+          const title = ((b as any).portailWikipediaArticle.title || '').toLowerCase()
+          const extract = ((b as any).portailWikipediaArticle.extract || '').toLowerCase()
+          if (title.includes(q) || extract.includes(q)) return true
+        }
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe)
   }, [sharedByMeBookmarks, activeType, searchQuery])
 
   return (

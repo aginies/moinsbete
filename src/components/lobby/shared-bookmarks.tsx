@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List, Newspaper } from 'lucide-react'
+import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List, Newspaper, Languages } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -57,6 +57,14 @@ interface CachedWikiLovesImage {
   year: number
 }
 
+interface PortailWikipediaArticle {
+  id: string
+  title: string
+  extract: string
+  imageUrl: string | null
+  pageUrl: string
+}
+
 interface SharedBookmark {
   id: string
   userId: string
@@ -80,6 +88,7 @@ interface SharedBookmark {
   wikiMediaImage: CachedWikiLovesImage | null
   wikiLovesImage: CachedWikiLovesImage | null
   newsArticle: { id: string; title: string; description: string; imageUrl: string | null; source: string; category: string; url: string } | null
+  portailWikipediaArticle: PortailWikipediaArticle | null
   proverbe?: {
     id: string
     text: string
@@ -106,6 +115,7 @@ interface SharedBookmarksProps {
     IMAGE_WIKILOVES: Set<string>
     PROVERBE: Set<string>
     NEWS: Set<string>
+    PORTAIL_WIKIPEDIA: Set<string>
   }
   typeFilters?: { value: string; label: string; icon: string }[]
   activeType?: string
@@ -1084,6 +1094,151 @@ function ProverbeBookmarkItem({
   )
 }
 
+function PortailWikipediaBookmarkItem({
+  bookmark,
+  currentUserId,
+  isAdmin,
+  userFavoriteIds,
+  locale,
+  t,
+}: {
+  bookmark: SharedBookmark & { portailWikipediaArticle: NonNullable<SharedBookmark['portailWikipediaArticle']> }
+  currentUserId: string | null
+  isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
+}) {
+  const router = useRouter()
+  const [hovered, setHovered] = useState(false)
+  const [showFullImage, setShowFullImage] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.PORTAIL_WIKIPEDIA.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('PORTAIL_WIKIPEDIA', bookmark.resourceId, {
+        title: bookmark.portailWikipediaArticle.title,
+        extract: bookmark.portailWikipediaArticle.extract,
+        imageUrl: bookmark.portailWikipediaArticle.imageUrl,
+        pageUrl: bookmark.portailWikipediaArticle.pageUrl,
+      })
+      if (result.success) {
+        router.refresh()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
+
+  return (
+    <div
+      className="group relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 to-violet-50 p-4 dark:border-indigo-700 dark:from-indigo-950/30 dark:to-violet-950/30">
+        <div className="mb-2 flex items-center gap-2">
+          <Languages className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
+          <h4 className="text-sm font-bold uppercase tracking-wide text-indigo-800 dark:text-indigo-300">Portail Wikipédia</h4>
+        </div>
+        {bookmark.portailWikipediaArticle.imageUrl && isValidUrl(bookmark.portailWikipediaArticle.imageUrl) && (
+          <div
+            className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-indigo-200 dark:border-indigo-800"
+            onClick={() => setShowFullImage(true)}
+          >
+            <img
+              src={sanitizeUrl(bookmark.portailWikipediaArticle.imageUrl, '')}
+              alt={bookmark.portailWikipediaArticle.title}
+              loading="lazy"
+              className="w-full h-32 object-cover transition-opacity hover:opacity-90"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none'
+              }}
+            />
+          </div>
+        )}
+        <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
+          {bookmark.portailWikipediaArticle.title}
+        </p>
+        {bookmark.portailWikipediaArticle.extract && (
+          <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-2 line-clamp-3">
+            {bookmark.portailWikipediaArticle.extract}
+          </p>
+        )}
+        <Link
+          href={sanitizeUrl(bookmark.portailWikipediaArticle.pageUrl)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-200 hover:underline"
+        >
+          Lire l'article
+          <ExternalLink className="h-3 w-3" />
+        </Link>
+      </div>
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
+        <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
+          <User className="h-3 w-3" />
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
+        </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
+        {(currentUserId === bookmark.user.id || isAdmin) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            onClick={() => {
+              bookmark.resourceId && unshareResourceFromLobby('PORTAIL_WIKIPEDIA', bookmark.resourceId).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
+            }}
+          >
+            <Trash2 className="h-3 w-3 text-muted-foreground" />
+          </Button>
+        )}
+      </div>
+      <div className="mt-1 text-xs text-muted-foreground">
+        {t('shared_on')} {bookmark.formattedCreatedAt}
+      </div>
+      {showFullImage && (
+        <ImageLightbox
+          src={bookmark.portailWikipediaArticle.imageUrl || ''}
+          alt={bookmark.portailWikipediaArticle.title}
+          onClose={() => setShowFullImage(false)}
+        />
+      )}
+    </div>
+  )
+}
+
 export function SharedBookmarks({
   sharedBookmarks,
   currentUserId,
@@ -1098,7 +1253,7 @@ export function SharedBookmarks({
   emptyMessage,
 }: SharedBookmarksProps) {
   const t = useTranslations('feed')
-  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.newsArticle || b.proverbe)
+  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.newsArticle || b.portailWikipediaArticle || b.proverbe)
 
   const hasFilters = typeFilters.length > 0 || searchQuery
 
@@ -1172,6 +1327,9 @@ export function SharedBookmarks({
             }
             if (bookmark.newsArticle) {
               return <NewsBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { newsArticle: NonNullable<SharedBookmark['newsArticle']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
+            }
+            if (bookmark.portailWikipediaArticle) {
+              return <PortailWikipediaBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { portailWikipediaArticle: NonNullable<SharedBookmark['portailWikipediaArticle']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             if (bookmark.proverbe) {
               return <ProverbeBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { proverbe: NonNullable<SharedBookmark['proverbe']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />

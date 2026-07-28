@@ -12,7 +12,10 @@ import { Prisma } from '@/generated/client'
 function extractTitle(resourceType: string, resourceId: string | null, meta: JsonValue | null, ideaTitle?: string): string | null {
   if (resourceType === 'IDEA') return ideaTitle || null
   if (!meta || typeof meta !== 'object') return null
-  const m = meta as Record<string, unknown>
+  let m: Record<string, unknown> = meta as Record<string, unknown>
+  if (typeof meta === 'string') {
+    try { m = JSON.parse(meta) as Record<string, unknown> } catch { return null }
+  }
   switch (resourceType) {
     case 'NEWS': return typeof m.title === 'string' && m.title ? m.title : null
     case 'SAVIEZ_VOUS': return typeof m.text === 'string' && m.text ? m.text.substring(0, 200) : null
@@ -21,6 +24,7 @@ function extractTitle(resourceType: string, resourceId: string | null, meta: Jso
     case 'IMAGE_WIKILOVES': return typeof m.titre === 'string' && m.titre ? m.titre : null
     case 'PROVERBE': return typeof m.text === 'string' && m.text ? m.text : null
     case 'PORTAIL_LEXICAL': return typeof m.form === 'string' && m.form ? m.form : (typeof m.word === 'string' && m.word ? m.word : null)
+    case 'PORTAIL_WIKIPEDIA': return typeof m.title === 'string' && m.title ? m.title : null
     default: return null
   }
 }
@@ -133,7 +137,7 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
   const session = await getSession()
   if (!session?.user) return { error: 'Non authentifié' }
 
-  const validResourceTypes = ['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'IDEA', 'NEWS', 'PORTAIL_LEXICAL']
+  const validResourceTypes = ['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'IDEA', 'NEWS', 'PORTAIL_LEXICAL', 'PORTAIL_WIKIPEDIA']
   if (!validResourceTypes.includes(resourceType)) {
     return { error: 'Type de ressource invalide' }
   }
@@ -177,7 +181,7 @@ export async function shareResourceToLobby(resourceType: string, resourceId: str
   return { success: true, shared: true }
 }
 
-const VALID_RESOURCE_TYPES = new Set(['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'IDEA', 'NEWS', 'PORTAIL_LEXICAL'])
+const VALID_RESOURCE_TYPES = new Set(['SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'IDEA', 'NEWS', 'PORTAIL_LEXICAL', 'PORTAIL_WIKIPEDIA'])
 
 export async function unshareResourceFromLobby(resourceType: string, resourceId: string, sharedWithUserId?: string | null) {
   const session = await getSession()
