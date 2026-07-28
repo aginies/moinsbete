@@ -396,8 +396,8 @@ export const F1Card = React.memo(function F1CardInner({
                           />
                         </div>
                       )}
+                      <ImageHint color="rose" />
                     </div>
-                    <ImageHint color="rose" />
                     {data.image.caption && (
                       <p className="text-sm text-red-800 dark:text-red-200 italic">{data.image.caption}</p>
                     )}
