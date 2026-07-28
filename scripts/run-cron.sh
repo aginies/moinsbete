@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd /home/aginies/devel/github/aginies/moinsbete
+export DATABASE_URL="file:/home/aginies/devel/github/aginies/moinsbete/dev.db"
 
 LOGFILE="/var/log/moinsbete-cron.log"
 
