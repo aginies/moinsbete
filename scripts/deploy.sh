@@ -134,16 +134,21 @@ install_dependencies() {
     cd "$DEST"
     rm -rf node_modules
     npm cache clean --force 2>/dev/null || true
-    npm install --legacy-peer-deps
+    npm install --legacy-peer-deps || error_exit "npm install failed"
 
-    local pkg
+    local pkg missing=()
     for pkg in next-intl next-pwa next; do
-        if [ ! -d "node_modules/$pkg" ]; then
-            log "WARNING: $pkg not found, retrying..."
-            npm install
-            break
-        fi
+        [ ! -d "node_modules/$pkg" ] && missing+=("$pkg")
     done
+    if [ ${#missing[@]} -gt 0 ]; then
+        log "Missing packages: ${missing[*]}, retrying..."
+        npm install || error_exit "npm install retry failed"
+        for pkg in "${missing[@]}"; do
+            if [ ! -d "node_modules/$pkg" ]; then
+                error_exit "$pkg still missing after retry"
+            fi
+        done
+    fi
     log "All critical dependencies installed"
 }
 
