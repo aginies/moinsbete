@@ -11,7 +11,8 @@ describe('robots.txt', () => {
     const defaultFn = robots.default
     const result = defaultFn()
 
-    expect((result.rules as MetadataRoute.RobotsRule[]).allow).toBe('/')
+    const rules = result.rules as { allow: string; disallow: string[] }
+    expect(rules.allow).toBe('/')
   })
 
   it('disallows admin and api paths', async () => {
@@ -19,8 +20,9 @@ describe('robots.txt', () => {
     const defaultFn = robots.default
     const result = defaultFn()
 
-    expect((result.rules as MetadataRoute.RobotsRule[]).disallow).toContain('/admin')
-    expect((result.rules as MetadataRoute.RobotsRule[]).disallow).toContain('/api/')
+    const rules = result.rules as { allow: string; disallow: string[] }
+    expect(rules.disallow).toContain('/admin')
+    expect(rules.disallow).toContain('/api/')
   })
 
   it('includes sitemap URL', async () => {

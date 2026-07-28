@@ -21,6 +21,7 @@ const mockUser = {
   imagePixabayCardVisible: true,
   imagePixabayShowCategories: true,
   imagePixabayActiveCategory: 'bird',
+  f1CardVisible: true,
   lastLogin: null,
   lastVisited: null,
   portailLexicalCardVisible: true,

@@ -172,9 +172,10 @@ export const F1Card = React.memo(function F1CardInner({
       else next.add(url)
       return next
     })
-    const article = data?.actualites.find(a => a.url === url) ?? data?.fia.find(a => a.url === url)
+    const actualite = data?.actualites.find(a => a.url === url)
+    const article = actualite ?? data?.fia.find(a => a.url === url)
     if (article) {
-      const section = data?.actualites.find(a => a.url === url) ? 'actualites' : 'fia'
+      const section = actualite ? 'actualites' : 'fia'
       await toggleF1FavoriteAction(url, action, {
         title: article.title,
         section: section,
@@ -426,10 +427,10 @@ export const F1Card = React.memo(function F1CardInner({
                     ))}
                   </div>
                 )}
-                </TabsContent>
+              </TabsContent>
 
-                <TabsContent value="fia" className="mt-0">
-                 {error && !loading ? (
+              <TabsContent value="fia" className="mt-0">
+                {error && !loading ? (
                    <div className="text-center py-8">
                      <p className="text-sm text-red-600 dark:text-red-400">
                        {t('no_article_loaded')}
@@ -509,10 +510,10 @@ export const F1Card = React.memo(function F1CardInner({
                         </div>
                       ))}
                     </div>
-                 )}
-               </TabsContent>
+                  )}
+              </TabsContent>
 
-               <TabsContent value="saviez" className="mt-0">
+              <TabsContent value="saviez" className="mt-0">
                 {error && !loading ? (
                   <div className="text-center py-8">
                     <p className="text-sm text-red-600 dark:text-red-400">
