@@ -237,12 +237,10 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
 
       {hasImage && !loading && (
         <div
-          className={`mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}
+          className={`mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 cursor-pointer`}
           onClick={(e) => {
-            if (!fullImage) {
-              e.stopPropagation()
-              setShowFullImage(true)
-            }
+            e.stopPropagation()
+            setShowFullImage(true)
           }}
         >
           <img
@@ -254,7 +252,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
             onLoad={() => setIsImageLoaded(true)}
             onError={() => setImageError(true)}
           />
-          {!fullImage && <ImageHint color="teal" />}
+          <ImageHint color="teal" />
         </div>
       )}
 

@@ -307,16 +307,14 @@ export function BaseImageCard<TTopic>({
 
       {image?.imageUrl && !loading && (
         <div
-          className={`mb-3 overflow-hidden rounded-lg border ${imageBorderClass} ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}
+          className={`mb-3 overflow-hidden rounded-lg border ${imageBorderClass} cursor-pointer`}
           onClick={(e) => {
-            if (!fullImage) {
-              e.stopPropagation()
-              handleShowFullImageChange(true)
-            }
+            e.stopPropagation()
+            handleShowFullImageChange(true)
           }}
         >
           {renderImage(image)}
-          {!fullImage && <ImageHint color={hintColor} />}
+          <ImageHint color={hintColor} />
         </div>
       )}
 

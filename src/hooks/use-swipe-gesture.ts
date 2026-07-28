@@ -99,7 +99,7 @@ export function useSwipeGesture({
   useEffect(() => {
     if (!swipeable) return
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft' || 'ArrowRight' || ' ') {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
         if (e.key === ' ') e.preventDefault()
         if (onRefresh) {
           onRefresh()
