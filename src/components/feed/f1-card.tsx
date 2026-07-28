@@ -259,7 +259,7 @@ export const F1Card = React.memo(function F1CardInner({
               <div className="flex items-center gap-1.5">
                 {lastUpdated && (
                   <span className="text-[10px] text-red-500 dark:text-red-400">
-                    {t('last_updated', { date: new Date(lastUpdated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}
+                    {new Date(lastUpdated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                   </span>
                 )}
                 {nextUpdate && (
