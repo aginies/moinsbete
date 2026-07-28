@@ -27,9 +27,8 @@
 | **PasswordResetToken** | Tokens de réinitialisation mot de passe |
 | **UserSuggestion** | Suggestions utilisateur |
 | **SuggestionComment** | Commentaires sur suggestions utilisateur |
-| **CachedProverbe** | Proverbes depuis Wiktionary |
-| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache |
 | **CachedF1Article** | Articles F1 en cache |
+| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache |
 
 ## Topics disponibles
 
@@ -162,6 +161,8 @@ npx tsx scripts/insert_saviez_vous.ts
 | `cache-wikipedia-image.ts` | Images Wikipédia | 30 jours | Mensuel |
 | `scrape-wikiloves.ts` | Images Wiki Loves | 30 jours | Mensuel |
 | `cache-news.ts` | Actualités NEWS (FreeNewsAPI) | 24h | 5x/jour (6h, 12h, 15h, 16h, 21h) |
+| `cache-f1.ts` | Articles Formule 1 | 24h | Quotidien |
+| `cache-portail-wikipedia.ts` | Articles Portail Wikipédia | 7 jours | Quotidien |
 
 `npm run cache:all` lance cache-cnrs, cache-radio-france, cache-wikipedia-image + cleanup (pas scrape-wikiloves, pas cache-news).
 
@@ -175,6 +176,8 @@ npx tsx src/scripts/cache-radio-france.ts
 npx tsx src/scripts/cache-wikipedia-image.ts
 npx tsx src/scripts/scrape-wikiloves.ts
 npx tsx src/scripts/cache-news.ts
+npx tsx src/scripts/cache-f1.ts
+npx tsx src/scripts/cache-portail-wikipedia.ts
 
 # Nettoyer les items expirés
 npx tsx src/scripts/cleanup-cached.ts

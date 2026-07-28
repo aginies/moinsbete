@@ -32,9 +32,8 @@
 | **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) |
 | **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) |
 | **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
-| **CachedProverbe** | Proverbes depuis Wiktionary |
-| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache |
 | **CachedF1Article** | Articles F1 en cache |
+| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache |
 
 ## Gestion de la base de données
 

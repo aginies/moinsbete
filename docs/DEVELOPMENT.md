@@ -293,17 +293,21 @@ src/components/
 
 ```
 src/scripts/
-├── seed-ideas.ts              # 148+ idées manuelles
-├── generate-ideas.ts          # Génération LLM par topic
-├── ingest-wikipedia.ts        # Ingestion massive Wikipédia
-├── enhance-ideas.ts           # Amélioration contenu court des idées
-├── change-password.ts         # Changement mot de passe utilisateur
-├── rename-ideas.ts            # Renommage massif des idées via LLM
-├── fetch-proverbes.ts         # Récupération proverbes Wiktionary
-├── scrape-saviez-vous.ts      # Scrap archives Le saviez-vous Wikipédia
-├── cache-cnrs.ts              # Cache articles CNRS (TTL: 24h)
-├── cache-radio-france.ts      # Cache épisodes Radio France (TTL: 24h)
-├── cache-wikipedia-image.ts   # Cache images Wikipédia (TTL: 30 jours)
-├── scrape-wikiloves.ts        # Cache images Wiki Loves (TTL: 30 jours)
-└── cleanup-cached.ts          # Nettoyage items expirés
+├── seed-ideas.ts                    # 148+ idées manuelles
+├── generate-ideas.ts                # Génération LLM par topic
+├── ingest-wikipedia.ts              # Ingestion massive Wikipédia
+├── enhance-ideas.ts                 # Amélioration contenu court des idées
+├── change-password.ts               # Changement mot de passe utilisateur
+├── rename-ideas.ts                  # Renommage massif des idées via LLM
+├── fetch-proverbes.ts               # Récupération proverbes Wiktionary
+├── scrape-saviez-vous.ts            # Scrap archives Le saviez-vous Wikipédia
+├── cache-cnrs.ts                    # Cache articles CNRS (TTL: 24h)
+├── cache-radio-france.ts            # Cache épisodes Radio France (TTL: 24h)
+├── cache-wikipedia-image.ts         # Cache images Wikipédia (TTL: 30 jours)
+├── scrape-wikiloves.ts              # Cache images Wiki Loves (TTL: 30 jours)
+├── cache-news.ts                    # Cache actualités NEWS (TTL: 24h)
+├── cache-f1.ts                      # Cache articles F1 (TTL: 24h)
+├── cache-portail-wikipedia.ts       # Cache articles Portail Wikipédia (TTL: 7 jours)
+├── cache-saviez-vous-images.ts      # Cache images Le saviez-vous
+└── cleanup-cached.ts                # Nettoyage items expirés
 ```
