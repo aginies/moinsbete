@@ -293,9 +293,9 @@ export const F1Card = React.memo(function F1CardInner({
                   value={tab.key}
                   className={`flex-1 h-auto px-3 py-2 text-xs font-medium data-[state=active]:bg-red-100 dark:data-[state=active]:bg-red-900/30 data-[state=active]:text-red-800 dark:data-[state=active]:text-red-300 data-[state=active]:border-b-2 data-[state=active]:border-red-600 dark:data-[state=active]:border-red-500 rounded-none border-b-2 border-transparent data-[state=inactive]:border-transparent`}
                 >
-                  <tab.icon className="h-3 w-3 mr-1" />
-                  <span className="hidden sm:inline">{t(tab.label)}</span>
-                  <span className="sm:hidden">{t(tab.label).split(' ')[0]}</span>
+                <tab.icon className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">{tab.key === 'image' ? '' : t(tab.label)}</span>
+                <span className="sm:hidden">{tab.key === 'image' ? '' : t(tab.label).split(' ')[0]}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -435,7 +435,7 @@ export const F1Card = React.memo(function F1CardInner({
                           </h4>
                         </div>
                         <div className="divide-y divide-red-100 dark:divide-red-900/30">
-                          {standing.rows.slice(0, 5).map((row) => (
+                          {standing.rows.slice(0, 10).map((row) => (
                             <div key={row.pos} className="flex items-center gap-2 px-3 py-2 text-sm">
                               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
                                 {row.pos}
