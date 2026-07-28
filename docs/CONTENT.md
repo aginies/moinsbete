@@ -5,30 +5,33 @@
 | Modèle | Description |
 |--------|-------------|
 | **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN, enabled, lastLogin, lastVisited) |
-| **Topic** | Sujets de connaissance (21 topics, hiérarchie parent/enfant) |
+| **Topic** | Sujets de connaissance (23 topics, hiérarchie parent/enfant) |
 | **Source** | Sources (Wikipédia, livres, articles, podcasts) |
-| **Idea** | Idées bite-sized (titre, contenu, takeaway, image source) | 736 |
-| **IdeaTopic** | Junction Idea ↔ Topic (1 par idée) | 736 |
-| **Bookmark** | Bookmarks utilisateur |
+| **Idea** | Idées bite-sized (titre, contenu, takeaway) | 1 464 |
+| **IdeaTopic** | Junction Idea ↔ Topic (1 par idée) | 1 464 |
+| **Bookmark** | Bookmarks utilisateur | 43 |
 | **Collection** | Collections d'idées |
 | **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) |
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) |
 | **SharedLobbyBookmark** | Favoris partagés dans le lobby |
 | **CachedConfig** | Config cachée (proverbes, global card visibility, card order) |
-| **CachedCnrsArticle** | Articles CNRS en cache (TTL: 24h) |
-| **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) |
-| **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) |
-| **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) |
-| **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) |
+| **CachedCnrsArticle** | Articles CNRS en cache (TTL: 24h) | 961 |
+| **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) | 1 324 |
+| **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) | 3 559 |
+| **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) | 125 |
+| **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) | 293 |
 | **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
-| **SaviezVousFact** | Faits "Le saviez-vous" | 8 136 |
+| **SaviezVousFact** | Faits "Le saviez-vous" | 7 770 |
 | **SourceTopic** | Junction Source ↔ Topic |
-| **ViewedIdea** | Idées vues par utilisateur |
+| **ViewedIdea** | Idées vues par utilisateur | 99 |
 | **PasswordResetToken** | Tokens de réinitialisation mot de passe |
 | **UserSuggestion** | Suggestions utilisateur |
 | **SuggestionComment** | Commentaires sur suggestions utilisateur |
+| **CachedProverbe** | Proverbes depuis Wiktionary | 5 557 |
+| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache | 5 443 |
+| **CachedF1Article** | Articles F1 en cache | 17 |
 
-## Topics disponibles (21)
+## Topics disponibles (23)
 
 - 🧠 Psychologie (20+), 🏛️ Philosophie (15+), 🔬 Sciences cognitives (15+)
 - 💰 Économie (15+), 🗣️ Communication (15+), ⚡ Productivité (15+)
@@ -39,6 +42,7 @@
 - 🍳 Cuisine & Alimentation (20+), 🧬 Biologie & Évolution (20+)
 - 🔢 Mathématiques (20+), 🎨 Art & Design (20+), 🎤 Débat & Rhétorique (20+)
 - 💪 En forme 40+ (15+), 📰 Actualités NEWS (FreeNewsAPI)
+- 🏎️ Formule 1 (17 articles)
 
 ## Remplir la base de données
 
@@ -57,7 +61,7 @@ npx tsx src/scripts/generate-ideas.ts
 # Étape 4: Idées depuis Wikipédia (~890 idées + 183 sources)
 npx tsx src/scripts/ingest-wikipedia.ts
 
-# Étape 5: Faits "Le saviez-vous ?" (8136+)
+# Étape 5: Faits "Le saviez-vous ?" (7 770+)
 ./scripts/update le-saviez-vous
 
 # Étape 6: Proverbes depuis Wiktionary

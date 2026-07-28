@@ -12,26 +12,29 @@
 
 | Modèle | Description | Compteur |
 |--------|-------------|----------|
-| **Idea** | Idées bite-sized (titre + contenu + takeaway) | 736 |
-| **Source** | Sources (Wikipédia articles) | 183 |
-| **Topic** | Sujets de connaissance | 21 |
-| **IdeaTopic** | Association Idea ↔ Topic (1 par idée) | 736 |
-| **SaviezVousFact** | Faits "Le saviez-vous" | 8 136 |
+| **Idea** | Idées bite-sized (titre + contenu + takeaway) | 1 464 |
+| **Source** | Sources (Wikipédia articles) | 259 |
+| **Topic** | Sujets de connaissance | 23 |
+| **IdeaTopic** | Association Idea ↔ Topic (1 par idée) | 1 464 |
+| **SaviezVousFact** | Faits "Le saviez-vous" | 7 770 |
 | **Collection** | Collections d'idées | 6 |
-| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN, enabled, lastLogin, lastVisited) | variable |
-| **Bookmark** | Bookmarks utilisateur | variable |
-| **ViewedIdea** | Historique de consultation | variable |
-| **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) | variable |
+| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN, enabled, lastLogin, lastVisited) | 8 |
+| **Bookmark** | Bookmarks utilisateur | 43 |
+| **ViewedIdea** | Historique de consultation | 99 |
+| **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) | 4 |
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) | variable |
 | **PasswordResetToken** | Tokens de réinitialisation de mot de passe | variable |
 | **SharedLobbyBookmark** | Favoris partagés dans le lobby | variable |
 | **CachedConfig** | Config cachée (proverbes, global card visibility, card order) | variable |
-| **CachedCnrsArticle** | Articles CNRS en cache (TTL: 24h) | variable |
-| **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) | variable |
-| **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) | variable |
-| **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) | variable |
-| **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) | variable |
+| **CachedCnrsArticle** | Articles CNRS en cache (TTL: 24h) | 961 |
+| **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) | 1 324 |
+| **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) | 3 559 |
+| **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) | 125 |
+| **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) | 293 |
 | **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur | variable |
+| **CachedProverbe** | Proverbes depuis Wiktionary | 5 557 |
+| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache | 5 443 |
+| **CachedF1Article** | Articles F1 en cache | 17 |
 
 ## Gestion de la base de données
 

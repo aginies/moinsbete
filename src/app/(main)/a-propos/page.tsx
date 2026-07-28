@@ -322,6 +322,80 @@ export default function AproposPage() {
         </section>
 
         <section>
+           <h2 className="mb-3 text-xl font-semibold">En chiffres</h2>
+           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">1 464</div>
+               <div className="text-sm text-muted-foreground">Idées publiées</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">23</div>
+               <div className="text-sm text-muted-foreground">Sujets</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">259</div>
+               <div className="text-sm text-muted-foreground">Sources</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">43</div>
+               <div className="text-sm text-muted-foreground">Signets totaux</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">8</div>
+               <div className="text-sm text-muted-foreground">Utilisateurs</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">99</div>
+               <div className="text-sm text-muted-foreground">Idées consultées</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">4</div>
+               <div className="text-sm text-muted-foreground">Séries actives</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">4</div>
+               <div className="text-sm text-muted-foreground">Révisions dues (SRS)</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">961</div>
+               <div className="text-sm text-muted-foreground">Articles CNRS</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">1 324</div>
+               <div className="text-sm text-muted-foreground">Épisodes radio</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">293</div>
+               <div className="text-sm text-muted-foreground">Articles NEWS</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">17</div>
+               <div className="text-sm text-muted-foreground">Articles F1</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">5 443</div>
+               <div className="text-sm text-muted-foreground">Articles Portail Wikipédia</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">3 559</div>
+               <div className="text-sm text-muted-foreground">Images Wikipédia</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">125</div>
+               <div className="text-sm text-muted-foreground">Images Wiki Loves</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center">
+               <div className="text-2xl font-bold text-primary">7 770</div>
+               <div className="text-sm text-muted-foreground">Le saviez-vous ?</div>
+             </div>
+             <div className="rounded-lg border border-border/60 p-4 text-center col-span-2 sm:col-span-1">
+               <div className="text-2xl font-bold text-primary">5 557</div>
+               <div className="text-sm text-muted-foreground">Proverbes</div>
+             </div>
+           </div>
+        </section>
+
+        <section>
            <h2 className="mb-3 text-xl font-semibold">Licence</h2>
            <p className="text-muted-foreground">
              Ce programme est un logiciel libre: vous pouvez le redistribuer et/ou le modifier conformément aux clauses de la Licence Publique Générale Affero GNU telle que publiée par la Free Software Foundation; soit la version 3 de la Licence, soit (à votre choix) toute version ultérieure.
