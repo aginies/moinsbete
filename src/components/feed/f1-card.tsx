@@ -11,6 +11,7 @@ import { toggleF1FavoriteAction } from '@/actions/f1-bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useTranslations } from 'next-intl'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { ImageLightbox } from './image-lightbox'
 
 interface F1CardProps {
   onToggle?: () => void
@@ -145,6 +146,7 @@ export const F1Card = React.memo(function F1CardInner({
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [lastUpdated, setLastUpdated] = useState<string | undefined>(undefined)
   const [nextUpdate, setNextUpdate] = useState<string | undefined>(undefined)
+  const [expandedImage, setExpandedImage] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -380,15 +382,21 @@ export const F1Card = React.memo(function F1CardInner({
                   <div className="space-y-3">
                     <div className="overflow-hidden rounded-lg border border-red-200 dark:border-red-800">
                       {data.image.imageUrl && (
-                        <img
-                          src={data.image.imageUrl.replace(/\/\d+px-/, '/1280px-')}
-                          alt={data.image.caption}
-                          loading="lazy"
-                          className="w-full h-80 object-cover hover:opacity-90 transition-opacity"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                        />
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => data.image && setExpandedImage(data.image.imageUrl)}
+                        >
+                          <img
+                            src={data.image.imageUrl.replace(/\/\d+px-/, '/1280px-')}
+                            alt={data.image.caption}
+                            loading="lazy"
+                            className="w-full h-80 object-cover hover:opacity-90 transition-opacity"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                          />
+                        </div>
                       )}
                     </div>
+                    <p className="text-xs text-center text-red-600 dark:text-red-400">{t('click_to_expand')}</p>
                     {data.image.caption && (
                       <p className="text-sm text-red-800 dark:text-red-200 italic">{data.image.caption}</p>
                     )}
@@ -404,6 +412,13 @@ export const F1Card = React.memo(function F1CardInner({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     </Link>
+                    {expandedImage && (
+                      <ImageLightbox
+                        src={expandedImage}
+                        alt={data.image.caption || ''}
+                        onClose={() => setExpandedImage(null)}
+                      />
+                    )}
                   </div>
                 )}
               </TabsContent>
