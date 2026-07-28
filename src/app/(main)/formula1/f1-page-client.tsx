@@ -28,7 +28,7 @@ interface F1PageClientProps {
 const TABS = [
   { key: 'image', label: 'Image du jour', icon: ImageIcon },
   { key: 'actualites', label: 'News', icon: Newspaper },
-  { key: 'fia', label: 'FIA F1 NEWS', icon: Globe },
+  { key: 'fia', label: 'FIA F1', icon: Globe },
   { key: 'classement', label: 'Classement', icon: Trophy },
   { key: 'saviez', label: 'Le saviez-vous ?', icon: Star },
 ]
