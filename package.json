@@ -21,7 +21,8 @@
     "cache:cleanup": "tsx src/scripts/cleanup-cached.ts",
     "cache:news": "tsx src/scripts/cache-news.ts",
     "cache:all": "tsx src/scripts/cache-cnrs.ts && tsx src/scripts/cache-radio-france.ts && tsx src/scripts/cache-wikipedia-image.ts && tsx src/scripts/cache-news.ts && tsx src/scripts/cleanup-cached.ts",
-    "fetch-proverbes": "tsx src/scripts/fetch-proverbes.ts"
+    "fetch-proverbes": "tsx src/scripts/fetch-proverbes.ts",
+    "build:all": "next build && node scripts/generate-chunks-manifest.js"
   },
   "prisma": {
     "seed": "tsx src/scripts/seed-ideas.ts"

@@ -1,31 +1,42 @@
 /* eslint-disable no-undef */
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v9';
 const PRECACHE_CACHE = `app-precache-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `app-dynamic-${CACHE_VERSION}`;
 const ASSET_CACHE = `app-assets-${CACHE_VERSION}`;
 
-// URLs to precache for offline access
-const PRECACHE_URLS = [
-  '/',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/icon-512-maskable.png',
-  '/favicon.ico',
-  '/offline.html',
-  '/sujets',
-  '/image-du-jour',
-  '/le-saviez-vous',
-  '/portail-lexical',
-  '/proverbes',
-  '/idees/au-hasard',
-];
-
-// Install: precache app shell
+// Install: precache app shell + chunks manifest
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(PRECACHE_CACHE).then((cache) => {
-      return cache.addAll(PRECACHE_URLS);
+    caches.open(PRECACHE_CACHE).then(async (cache) => {
+      // Precache static URLs
+      await cache.addAll([
+        '/',
+        '/manifest.json',
+        '/icon-192.png',
+        '/icon-512.png',
+        '/icon-512-maskable.png',
+        '/favicon.ico',
+        '/offline.html',
+        '/sujets',
+        '/image-du-jour',
+        '/le-saviez-vous',
+        '/portail-lexical',
+        '/proverbes',
+        '/idees/au-hasard',
+      ]);
+
+      // Fetch and precache all JS/CSS chunks from manifest
+      try {
+        const manifestResponse = await fetch('/chunks-manifest.json');
+        if (manifestResponse.ok) {
+          const manifest = await manifestResponse.json();
+          const allUrls = [...manifest.js, ...manifest.css];
+          await cache.addAll(allUrls);
+          console.log(`Precached ${allUrls.length} chunks`);
+        }
+      } catch (error) {
+        console.error('Failed to precache chunks:', error);
+      }
     })
   );
   self.skipWaiting();
@@ -72,12 +83,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // JS/CSS chunks - CacheFirst
+  // JS/CSS chunks - CacheFirst (precached)
   if (url.pathname.startsWith('/_next/static/chunks/')) {
     event.respondWith(
-      caches.open(ASSET_CACHE).then(async (cache) => {
+      caches.open(PRECACHE_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
         if (cached) return cached;
+        // Try asset cache (dynamic)
+        const assetCached = await caches.open(ASSET_CACHE).then((c) => c.match(request));
+        if (assetCached) return assetCached;
+        // Fetch from network
         try {
           const networkResponse = await fetch(request);
           if (networkResponse.ok) {
