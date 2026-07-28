@@ -346,17 +346,6 @@ function parseActualitesFromPage(html: string): F1Actualite[] {
   return articles.slice(0, 5)
 }
 
-function isSundayAfternoon(): boolean {
-  const now = new Date()
-  return now.getDay() === 0 && now.getHours() >= 18
-}
-
-function shouldUpdateImage(): boolean {
-  const now = new Date()
-  const lastImageUpdate = now.getTime() - 25 * 60 * 60 * 1000
-  return now.getTime() > lastImageUpdate
-}
-
 export async function scrapeAndCacheF1(): Promise<void> {
   console.log('🏎️ Scraping F1 portal...')
 

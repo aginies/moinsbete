@@ -36,13 +36,6 @@ interface F1Standing {
   rows: F1StandingRow[]
 }
 
-interface F1Lumiere {
-  title: string
-  summary: string
-  imageUrl: string
-  articleUrl: string
-}
-
 interface F1SaviezVous {
   facts: string[]
 }
@@ -146,39 +139,6 @@ function parseClassement(html: string): F1Standing[] {
   }
 
   return standings
-}
-
-function parseLumiereSur(html: string): F1Lumiere | null {
-  const lumiereBlock = html.match(/<div class="boite-coloree-contenu"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/)
-  if (!lumiereBlock) return null
-
-  const content = lumiereBlock[1]
-
-  const figureMatch = content.match(/<figure[^>]*class="[^"]*mw-halign-right[^"]*"[^>]*>([\s\S]*?)<\/figure>/)
-  const imgMatch = figureMatch ? figureMatch[1].match(/<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*>/) : null
-  const imageUrl = imgMatch ? (imgMatch[1].startsWith('//') ? `https:${imgMatch[1]}` : imgMatch[1]) : null
-
-  const titleMatch = content.match(/<p[^>]*>\s*<b>\s*<a[^>]*href="([^"]*)"[^>]*>([^<]+)<\/a><\/b>\s*<\/p>/)
-  const title = titleMatch ? titleMatch[2].trim() : null
-  const articleUrl = titleMatch ? (titleMatch[1].startsWith('http') ? titleMatch[1] : `https://fr.wikipedia.org${titleMatch[1]}`) : null
-
-  const paragraphs = content.match(/<p[^>]*>([\s\S]*?)<\/p>/g)
-  const summaries: string[] = []
-  if (paragraphs) {
-    for (const p of paragraphs) {
-      const text = stripHtml(p).trim()
-      if (text && text.length > 20 && text.length < 500) {
-        summaries.push(text)
-      }
-    }
-  }
-  const summary = summaries.slice(0, 3).join(' ')
-
-  if (title && summary) {
-    return { title, summary, imageUrl: imageUrl || '', articleUrl: articleUrl || 'https://fr.wikipedia.org/wiki/Portail:Formule_1' }
-  }
-
-  return null
 }
 
 function parseSaviezVous(html: string): F1SaviezVous | null {
