@@ -294,8 +294,8 @@ export const F1Card = React.memo(function F1CardInner({
                   className={`flex-1 h-auto px-3 py-2 text-xs font-medium data-[state=active]:bg-red-100 dark:data-[state=active]:bg-red-900/30 data-[state=active]:text-red-800 dark:data-[state=active]:text-red-300 data-[state=active]:border-b-2 data-[state=active]:border-red-600 dark:data-[state=active]:border-red-500 rounded-none border-b-2 border-transparent data-[state=inactive]:border-transparent`}
                 >
                 <tab.icon className="h-3 w-3 mr-1" />
-                <span className="hidden sm:inline">{tab.key === 'image' ? '' : t(tab.label)}</span>
-                <span className="sm:hidden">{tab.key === 'image' ? '' : t(tab.label).split(' ')[0]}</span>
+                <span className="hidden sm:inline">{tab.key === 'image' || tab.key === 'actualites' ? '' : t(tab.label)}</span>
+                <span className="sm:hidden">{tab.key === 'image' || tab.key === 'actualites' ? '' : t(tab.label).split(' ')[0]}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
