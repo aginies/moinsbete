@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const CACHE_VERSION = 'v9';
+const CACHE_VERSION = 'v10';
 const PRECACHE_CACHE = `app-precache-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `app-dynamic-${CACHE_VERSION}`;
 const ASSET_CACHE = `app-assets-${CACHE_VERSION}`;
@@ -62,6 +62,9 @@ self.addEventListener('activate', (event) => {
 // Fetch handler
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  
+  if (request.method !== 'GET') return;
+
   const url = new URL(request.url);
 
   // App shell HTML - NetworkFirst with precache fallback
@@ -75,11 +78,37 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(async () => {
-          // Try precache first
-          const precached = await caches.match(request.url);
+          const dynamicCached = await caches.match(request);
+          if (dynamicCached) return dynamicCached;
+
+          const precached = await caches.match(request, { ignoreSearch: true });
           if (precached) return precached;
-          // Fallback to offline page
+          
           return caches.match('/offline.html');
+        })
+    );
+    return;
+  }
+
+  // Next.js App Router RSC payloads & prefetches - NetworkFirst
+  const isRSC = request.headers.get('RSC') === '1' || request.headers.get('Next-Router-Prefetch') === '1' || url.searchParams.has('_rsc');
+  if (isRSC) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(request, networkResponse.clone());
+          });
+          return networkResponse;
+        })
+        .catch(async () => {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          
+          const cachedStale = await caches.match(request, { ignoreSearch: true });
+          if (cachedStale) return cachedStale;
+
+          return new Response('Offline', { status: 503 });
         })
     );
     return;
