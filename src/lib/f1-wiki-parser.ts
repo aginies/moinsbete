@@ -124,11 +124,15 @@ export function parseImageDuJour(html: string): F1Image | null {
   if (!imageMatch) return null
 
   const content = imageMatch[1]
-  const imgMatch = content.match(/<img[^>]*alt="([^"]*)"[^>]*src="([^"]*)"[^>]*>/)
+  const imgMatch = content.match(/<img([^>]*)>/)
   if (!imgMatch) return null
+  const imgAttrs = imgMatch[1]
+  const srcMatch = imgAttrs.match(/src="([^"]*)"/)
+  const altMatch = imgAttrs.match(/alt="([^"]*)"/)
+  if (!srcMatch) return null
 
-  const imageUrl = imgMatch[2].startsWith('//') ? `https:${imgMatch[2]}` : imgMatch[2]
-  const caption = imgMatch[1] || ''
+  const imageUrl = srcMatch[1].startsWith('//') ? `https:${srcMatch[1]}` : srcMatch[1]
+  const caption = altMatch ? altMatch[1] : ''
 
   // Convert Wikimedia thumbnail to full-size image
   let fullImageUrl = imageUrl
@@ -142,7 +146,7 @@ export function parseImageDuJour(html: string): F1Image | null {
   }
 
   const linkMatch = content.match(
-    /<a[^>]*href="([^"]*)"[^>]*class="mw-file-description"[^>]*>/
+    /<a[^>]*href="([^"]*)"[^>]*class="[^"]*mw-file-description[^"]*"[^>]*>/
   )
   const articleLink = linkMatch
     ? linkMatch[1].startsWith('http')

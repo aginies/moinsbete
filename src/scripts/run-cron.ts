@@ -3,6 +3,7 @@ import { scrapeAndCacheRadioEpisodes } from './cache-radio-france'
 import { scrapeAndCacheWikipediaImages } from './cache-wikipedia-image'
 import { scrapeAndCacheNews } from './cache-news'
 import { scrapeAndCacheSaviezVousImages } from './cache-saviez-vous-images'
+import { scrapeAndCacheF1 } from './cache-f1'
 import { prisma } from '@/lib/db'
 
 async function run() {
@@ -16,6 +17,7 @@ async function run() {
     await scrapeAndCacheNews()
     await scrapeAndCacheWikipediaImages(1)
     await scrapeAndCacheSaviezVousImages()
+    await scrapeAndCacheF1()
 
     console.log(`\n═══════════════════════════════════════`)
     console.log(`[cron] Cache update completed successfully`)
