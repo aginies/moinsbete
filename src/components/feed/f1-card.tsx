@@ -12,6 +12,7 @@ import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useTranslations } from 'next-intl'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ImageLightbox } from './image-lightbox'
+import { ImageHint } from './image-hint'
 
 interface F1CardProps {
   onToggle?: () => void
@@ -396,7 +397,7 @@ export const F1Card = React.memo(function F1CardInner({
                         </div>
                       )}
                     </div>
-                    <p className="text-xs text-center text-red-600 dark:text-red-400">{t('click_to_expand')}</p>
+                    <ImageHint color="rose" />
                     {data.image.caption && (
                       <p className="text-sm text-red-800 dark:text-red-200 italic">{data.image.caption}</p>
                     )}
