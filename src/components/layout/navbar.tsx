@@ -5,6 +5,7 @@ import { BookOpen, User, Clock, Bookmark, MessageSquare, Shield, CircleHelp } fr
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from './theme-toggle'
 import { SearchButton } from './search-button'
+import { InstallButton } from '@/components/pwa/install-button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { HelpContent } from '@/components/help-content'
 import { LobbyHelpContent } from '@/components/lobby-help-content'
@@ -116,6 +117,7 @@ export function NavbarInner({ session }: NavbarInnerProps) {
               </DialogContent>
             </Dialog>
             <ThemeToggle />
+            <InstallButton variant="ghost" size="sm" />
           </div>
         </div>
       </nav>

@@ -718,5 +718,11 @@
     "historique_revoir_desc": "Cliquez sur n importe quelle idée de votre historique pour la relire. Continuez votre parcours d apprentissage.",
     "historique_supprimer_title": "Effacer l historique",
     "historique_supprimer_desc": "Supprimez des éléments individuels ou effacez tout votre historique. Vos favoris restent intacts."
+  },
+  "pwa": {
+    "install_app": "Installer l'application",
+    "install_title": "Installer MoinsBête",
+    "install_desc": "Ajoutez MoinsBête à votre écran d'accueil pour un accès rapide.",
+    "installed": "Déjà installé"
   }
 }

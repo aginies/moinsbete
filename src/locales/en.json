@@ -718,5 +718,11 @@
     "historique_revoir_desc": "Click on any idea in your history to read it again. Continue your learning journey.",
     "historique_supprimer_title": "Clear history",
     "historique_supprimer_desc": "Remove individual items or clear your entire history. Your favorites remain untouched."
+  },
+  "pwa": {
+    "install_app": "Install App",
+    "install_title": "Install MoinsBête",
+    "install_desc": "Add MoinsBête to your home screen for quick access.",
+    "installed": "Already installed"
   }
 }

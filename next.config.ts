@@ -61,4 +61,51 @@ export default withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
+  workbox: {
+    navigateFallback: undefined,
+    navigateFallbackDenyList: [/^\/api\//],
+    maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+    cleanupOutdatedCaches: true,
+    ignoreURLParametersMatching: [/^(utm_source|utm_medium|utm_campaign)$/, /^fbclid$/],
+  },
+  runtimeCaching: [
+    {
+      urlPattern: /^https:\/\/api\.openai\.com\/.*/i,
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'api-cache',
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 60 * 60 * 24,
+        },
+        networkTimeoutSeconds: 10,
+      },
+    },
+    {
+      urlPattern: /^https:\/\/upload\.wikimedia\.org\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'wikimedia-images-cache',
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 60 * 60 * 24 * 30,
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+    {
+      urlPattern: ({ request }) => request.mode === 'navigate',
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'html-cache',
+        networkTimeoutSeconds: 3,
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 24 * 60 * 60,
+        },
+      },
+    },
+  ],
 } as PWAConfig)(integratedConfig as any) as any;
