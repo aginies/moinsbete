@@ -50,6 +50,7 @@ export default async function AdminPage() {
     latestWikiLoves,
     latestF1,
     latestSaviezVous,
+    latestPortailWiki,
   ] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
     prisma.topic.count(),
@@ -71,6 +72,8 @@ export default async function AdminPage() {
       newsExpired: bigint
       f1Total: bigint
       f1Expired: bigint
+      portailWikipediaTotal: bigint
+      portailWikipediaExpired: bigint
     }>>`
       SELECT
         (SELECT COUNT(*) FROM CachedCnrsArticle) as cnrsTotal,
@@ -84,7 +87,9 @@ export default async function AdminPage() {
         (SELECT COUNT(*) FROM CachedNewsArticle) as newsTotal,
         (SELECT COUNT(*) FROM CachedNewsArticle WHERE datetime(expiresAt) < datetime('now')) as newsExpired,
         (SELECT COUNT(*) FROM CachedF1Article) as f1Total,
-        (SELECT COUNT(*) FROM CachedF1Article WHERE datetime(expiresAt) < datetime('now')) as f1Expired
+        (SELECT COUNT(*) FROM CachedF1Article WHERE datetime(expiresAt) < datetime('now')) as f1Expired,
+        (SELECT COUNT(*) FROM CachedWikipediaPortalArticle) as portailWikipediaTotal,
+        (SELECT COUNT(*) FROM CachedWikipediaPortalArticle WHERE datetime(expiresAt) < datetime('now')) as portailWikipediaExpired
     `,
     prisma.saviezVousFact.count(),
     prisma.bookmark.count({
@@ -118,6 +123,7 @@ export default async function AdminPage() {
     prisma.cachedWikiLovesImage.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
     prisma.cachedF1Article.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
     prisma.saviezVousFact.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
+    prisma.cachedWikipediaPortalArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
   ])
 
   const stats = cacheStats[0]
@@ -133,6 +139,8 @@ export default async function AdminPage() {
   const newsExpiredCount = Number(stats.newsExpired)
   const f1Count = Number(stats.f1Total)
   const f1ExpiredCount = Number(stats.f1Expired)
+  const portailWikipediaCount = Number(stats.portailWikipediaTotal)
+  const portailWikipediaExpiredCount = Number(stats.portailWikipediaExpired)
 
   const formatScrapedAt = (date: Date | null) => {
     if (!date) return null
@@ -179,6 +187,9 @@ export default async function AdminPage() {
         f1Articles: f1Count,
         f1Expired: f1ExpiredCount,
         f1ScrapedAt: formatScrapedAt(latestF1?.scrapedAt ?? null),
+        portailWikipediaArticles: portailWikipediaCount,
+        portailWikipediaExpired: portailWikipediaExpiredCount,
+        portailWikipediaScrapedAt: formatScrapedAt(latestPortailWiki?.scrapedAt ?? null),
       }}
       users={adminUsers}
     />

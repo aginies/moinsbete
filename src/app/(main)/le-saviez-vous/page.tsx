@@ -1,8 +1,6 @@
 import { prisma } from '@/lib/db'
 import type { Metadata } from 'next'
 import { LeSaviezVousClient } from './le-saviez-vous-client'
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
 import { resolveWikimediaImageUrls } from '@/lib/utils'
 
 export const revalidate = 0
@@ -73,13 +71,6 @@ export default async function LeSaviezVousPage({ searchParams }: { searchParams:
   if (!fact) {
     return (
       <div className="mx-auto flex min-h-[90vh] w-full flex-col items-center justify-start px-4 py-8 md:max-w-4xl md:p-6">
-        <Link
-          href="/"
-          className="mb-6 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors md:flex"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Retour à l&apos;accueil
-        </Link>
         <div className="text-center">
           <h1 className="mb-4 text-2xl font-bold">Le saviez-vous ?</h1>
           <p className="text-muted-foreground">Aucun fait disponible pour le moment.</p>
@@ -90,14 +81,6 @@ export default async function LeSaviezVousPage({ searchParams }: { searchParams:
 
   return (
      <div className="mx-auto flex min-h-[90vh] w-full flex-col items-center justify-start px-4 py-8 md:max-w-4xl md:p-6">
-      <Link
-        href="/"
-        className="mb-6 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors md:flex"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Retour à l&apos;accueil
-      </Link>
-
       <LeSaviezVousClient
         id={fact.id}
         text={fact.text}

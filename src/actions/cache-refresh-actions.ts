@@ -8,6 +8,7 @@ import { scrapeAndCacheNews } from '@/scripts/cache-news'
 import { scrapeAndCacheWikipediaImages } from '@/scripts/cache-wikipedia-image'
 import { scrapeAndCacheSaviezVousImages } from '@/scripts/cache-saviez-vous-images'
 import { scrapeAndCacheWikiLoves } from '@/scripts/scrape-wikiloves'
+import { scrapeAndCachePortailWikipedia } from '@/scripts/cache-portail-wikipedia'
 import { cleanupExpired } from '@/lib/cache-helpers'
 
 export interface RefreshResult {
@@ -24,14 +25,14 @@ async function authCheck(): Promise<RefreshResult | null> {
   return null
 }
 
-async function executeRefresh(name: string, fn: () => Promise<void>): Promise<RefreshResult> {
+async function executeRefresh(name: string, fn: () => Promise<unknown>): Promise<RefreshResult> {
   const authErr = await authCheck()
   if (authErr) return authErr
 
   try {
     await fn()
     const counts = await cleanupExpired()
-    const total = counts.cnrs + counts.radio + counts.wiki + counts.wikiLoves + counts.news
+    const total = counts.cnrs + counts.radio + counts.wiki + counts.wikiLoves + counts.news + counts.f1 + counts.portailWikipedia
     return { success: true, message: `${name} mis à jour. ${total} éléments expirés nettoyés.` }
   } catch (error) {
     return { success: false, message: `${name}: ${error instanceof Error ? error.message : String(error)}` }
@@ -62,6 +63,10 @@ export async function refreshSaviezVous(): Promise<RefreshResult> {
   return executeRefresh('Saviez-vous', scrapeAndCacheSaviezVousImages)
 }
 
+export async function refreshPortailWikipedia(): Promise<RefreshResult> {
+  return executeRefresh('Portail Wikipédia', scrapeAndCachePortailWikipedia)
+}
+
 export async function refreshAll(): Promise<RefreshResult> {
   const authErr = await authCheck()
   if (authErr) return authErr
@@ -86,6 +91,9 @@ export async function refreshAll(): Promise<RefreshResult> {
 
     await scrapeAndCacheSaviezVousImages()
     results.push({ name: 'Saviez-vous', ok: true })
+
+    await scrapeAndCachePortailWikipedia()
+    results.push({ name: 'Portail Wikipédia', ok: true })
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
     const allOk = results.every(r => r.ok)

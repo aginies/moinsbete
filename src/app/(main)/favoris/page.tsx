@@ -57,6 +57,7 @@ export default async function FavorisPage({
   const wikilovesFavoritesCount = countMap.get('IMAGE_WIKILOVES') ?? 0
   const pixabayFavoritesCount = countMap.get('IMAGE_PIXABAY') ?? 0
   const portailLexicalCount = countMap.get('PORTAIL_LEXICAL') ?? 0
+  const portailWikipediaFavoritesCount = countMap.get('PORTAIL_WIKIPEDIA') ?? 0
   const proverbeFavoritesCount = countMap.get('PROVERBE') ?? 0
   const newsFavoritesCount = countMap.get('NEWS') ?? 0
   const f1FavoritesCount = countMap.get('F1') ?? 0
@@ -106,6 +107,7 @@ export default async function FavorisPage({
         wikilovesFavoritesCount={wikilovesFavoritesCount}
         pixabayFavoritesCount={pixabayFavoritesCount}
         portailLexicalCount={portailLexicalCount}
+        portailWikipediaCount={portailWikipediaFavoritesCount}
         proverbeFavoritesCount={proverbeFavoritesCount}
         newsFavoritesCount={newsFavoritesCount}
         f1FavoritesCount={f1FavoritesCount}

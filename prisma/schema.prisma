@@ -32,9 +32,10 @@ model User {
   imagePixabayShowCategories   Boolean               @default(true)
   imagePixabayActiveCategory   String                @default("bird")
   portailLexicalCardVisible    Boolean               @default(true)
-  f1CardVisible            Boolean               @default(true)
-  proverbeCardVisible      Boolean               @default(true)
-  cardOrder                Json?
+  portailWikipediaCardVisible  Boolean               @default(true)
+  f1CardVisible                Boolean               @default(true)
+  proverbeCardVisible          Boolean               @default(true)
+  cardOrder                    Json?
   newsCardVisible              Boolean?              @default(true)
   emailNotificationsEnabled    Boolean               @default(true)
   hasSeenSplash                Boolean               @default(false)
@@ -45,8 +46,8 @@ model User {
   suggestionComments           SuggestionComment[]
   topicSuggestions             TopicSuggestion[]
   userSuggestions              UserSuggestion[]
-  wikimediaTopics              UserWikimediaTopic[]
   wikiLovesTopics              UserWikiLovesTopic[]
+  wikimediaTopics              UserWikimediaTopic[]
   viewedIdeas                  ViewedIdea[]
   following                    Topic[]               @relation("UserFollowing")
 }
@@ -345,13 +346,13 @@ model CachedNewsArticle {
 
   @@index([category], map: "CachedBbcArticle_category_idx")
   @@index([expiresAt], map: "CachedBbcArticle_expiresAt_idx")
-  @@index([title], map: "CachedNewsArticle_title_idx")
-  @@index([source], map: "CachedNewsArticle_source_idx")
+  @@index([title])
+  @@index([source])
 }
 
 model CachedF1Article {
   id          String   @id @default(cuid())
-  section     String   // 'actualites', 'image', 'classement', 'lumiere', 'saviez'
+  section     String
   title       String
   description String?
   content     String?
@@ -363,6 +364,18 @@ model CachedF1Article {
 
   @@index([expiresAt])
   @@index([section])
+}
+
+model CachedWikipediaPortalArticle {
+  id        String   @id @default(cuid())
+  title     String
+  extract   String
+  imageUrl  String?
+  pageUrl   String
+  scrapedAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([expiresAt])
 }
 
 model UserSuggestion {
@@ -442,4 +455,5 @@ enum BookmarkType {
   PROVERBE
   NEWS
   F1
+  PORTAIL_WIKIPEDIA
 }

@@ -1,0 +1,142 @@
+[
+  {
+    "id": "article-1",
+    "title": "La Lune",
+    "extract": "La Lune est l'unique satellite naturel de la Terre. C'est le quatrième plus grand satellite naturel du Système solaire par rayon et par masse. Sa masse est d'environ un quatre-vingts celle de la Terre.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Earth-and-Moon-from-apollo-17.jpg/400px-Earth-and-Moon-from-apollo-17.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Lune"
+  },
+  {
+    "id": "article-2",
+    "title": "Shakespeare",
+    "extract": "William Shakespeare est un dramaturge, poète et acteur anglais, né à Stratford-upon-Avon entre le 23 avril et le 3 mai 1564, et mort le 23 avril 1616 à Stratford-upon-Avon. Considéré comme le plus grand dramaturge de la langue anglaise, il est souvent surnommé le bardes de Avon.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Shakespeare_Gemini_Portrait.jpg/400px-Shakespeare_Gemini_Portrait.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/William_Shakespeare"
+  },
+  {
+    "id": "article-3",
+    "title": "L'Échelle de Jacob",
+    "extract": "Dans la Bible, l'Échelle de Jacob est l'échelle permettant de relier le ciel à la terre, et qui apparaît dans le livre de la Genèse. Jacob y voit des anges monter et descendre lors de son exil chez son oncle Laban.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Duccio_-_The_Ascension_of_Angels_-_WGA07897.jpg/400px-Duccio_-_The_Ascension_of_Angels_-_WGA07897.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/%C3%89chelle_de_Jacob"
+  },
+  {
+    "id": "article-4",
+    "title": "Le Système solaire",
+    "extract": "Le Système solaire est le système planétaire qui comprend le Soleil et les objets astronomiques qui gravitent directement ou indirectement autour de lui. Il s'est formé il y a environ 4,6 milliards d'années par effondrement gravitationnel d'une petite portion d'un nuage moléculaire géant.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/The_Solar_System.jpg/400px-The_Solar_System.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Syst%C3%A8me_solaire"
+  },
+  {
+    "id": "article-5",
+    "title": "Mona Lisa",
+    "extract": "La Joconde, également appelée Mona Lisa ou Monna Lisa, est un tableau peint par Léonard de Vinci entre 1503 et 1506, et peut-être jusqu'en 1507. Cette peinture à l'huile sur peuplier est une représentation de Lisa Gherardini, épouse de Francesco del Giocondo.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/400px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Mona_Lisa"
+  },
+  {
+    "id": "article-6",
+    "title": "L'Île de Pâques",
+    "extract": "L'île de Pâques, en mapuche Rapa Nui, est une île volcanique située dans le sud de l'océan Pacifique. Elle est réputée pour ses 900巨石 statues de pierre appelées moaï, construites entre 1250 et 1500 par le peuple Rapa Nui.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Ahu_Tongariki.jpg/400px-Ahu_Tongariki.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/%C3%8Ele_de_P%C3%A2ques"
+  },
+  {
+    "id": "article-7",
+    "title": "Le Code Napoléon",
+    "extract": "Le Code civil des Français, souvent appelé code Napoléon, est le code français des obligations privées. Promulgué sous le Consulat entre 1803 et 1804, il reste aujourd'hui l'un des textes de référence du droit civil dans le monde.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Napoleon_code_1804.jpg/400px-Napoleon_code_1804.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Code_civil_fran%C3%A7ais"
+  },
+  {
+    "id": "article-8",
+    "title": "La Tour de Pise",
+    "extract": "La tour penchée de Pise, ou tour campanile de la cathédrale de Pise, est le clocher de la cathédrale Santa Maria Asunta dans le Campo dei Miracoli de Pise en Italie. Sa construction a duré près de deux cents ans, de 1173 à 1372.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/The_Leaning_Tower_of_Pisa.jpg/400px-The_Leaning_Tower_of_Pisa.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Tour_de_Pise"
+  },
+  {
+    "id": "article-9",
+    "title": "Le Telescopium",
+    "extract": "Le Télescope est une constellation boréale découverte par Nicolas-Louis de Lacaille en 1751-1752. C'est l'une des douze constellations créées par Lacaille à l'observatoire du Cap de Bonne-Espérance.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Telescopium.jpg/400px-Telescopium.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/T%C3%A9lescope_%28constellation%29"
+  },
+  {
+    "id": "article-10",
+    "title": "La Révolution française",
+    "extract": "La Révolution française est un phénomène historique majeur de la fin du XVIIIe siècle qui est à l'origine de la fin de la monarchie absolue en France et de la mise en place progressive d'une monarchie constitutionnelle, puis d'une république.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Louis_Jean_Fran%C3%A7ois_Duval_-_La_prise_de_la_Bastille.jpg/400px-Louis_Jean_Fran%C3%A7ois_Duval_-_La_prise_de_la_Bastille.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/R%C3%A9volution_fran%C3%A7aise"
+  },
+  {
+    "id": "article-11",
+    "title": "L'Impressionnisme",
+    "extract": "L'impressionnisme est un mouvement artistique apparu dans les années 1860 à Paris. Les impressionnistes cherchent à saisir sur le vif les impressions fugitives et les effets changeants de la lumière naturelle.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Claude_Monet_-_Impression,_soleil_levant.jpg/400px-Claude_Monet_-_Impression,_soleil_levant.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Impressionnisme"
+  },
+  {
+    "id": "article-12",
+    "title": "Le Da Vinci Code",
+    "extract": "Le Da Vinci Code est un roman policier écrit par Dan Brown, publié en 2003. Le roman met en scène Robert Langdon, un symbologiste de Harvard, dans une course contre la montre à travers Paris et Londres.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Da_Vinci_Code_cover.jpg/400px-Da_Vinci_Code_cover.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Le_Code_Da_Vinci_(roman)"
+  },
+  {
+    "id": "article-13",
+    "title": "Le Mont Saint-Michel",
+    "extract": "Le mont Saint-Michel est un mont rocheux au large de la côte nord-ouest de la France, en Normandie. Sommet d'un îlot au milieu d'une vaste baie boueuse, il est surmonté d'une abbaye fortifiée du XIe siècle, chef-d'œuvre de l'art gothique.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mont_Saint_Michel_2.jpg/400px-Mont_Saint_Michel_2.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Mont-Saint-Michel"
+  },
+  {
+    "id": "article-14",
+    "title": "La Guerre des mondes",
+    "extract": "La Guerre des mondes est un roman de science-fiction de H. G. Wells publié en 1898. L'histoire raconte l'invasion de la Terre par des Martiens qui utilisent des machines de guerre pour détruire les armées et les civilisations humaines.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/H_G_Wells_-_The_War_of_the_Worlds_%281898%29.jpg/400px-H_G_Wells_-_The_War_of_the_Worlds_%281898%29.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/La_Guerre_des_mondes"
+  },
+  {
+    "id": "article-15",
+    "title": "L'Atlantide",
+    "extract": "L'Atlantide est un continent légendaire décrit pour la première fois par Platon dans ses dialogues Timée et Critias. Selon le philosophe, cette civilisation avancée aurait disparu sous les flots après un cataclysme.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Atlantis_in_the_12th_century_BC.jpg/400px-Atlantis_in_the_12th_century_BC.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Atlantide"
+  },
+  {
+    "id": "article-16",
+    "title": "Le Parthénon",
+    "extract": "Le Parthénon est un temple dorique dédié à la déesse Athéna, situé sur l'Acropole d'Athènes en Grèce. Construit entre 447 et 432 av. J.-C., il est considéré comme l'aboutissement de l'ordre dorique et un chef-d'œuvre de l'architecture grecque antique.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Parthenon_as_Digital_Erechtheion.jpg/400px-Parthenon_as_Digital_Erechtheion.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Parth%C3%A9non"
+  },
+  {
+    "id": "article-17",
+    "title": "Le Big Bang",
+    "extract": "Le Big Bang est le modèle scientifique dominant décrivant l'histoire de l'Univers depuis sa naissance. Selon ce modèle, l'Univers observable s'est formé il y a environ 13,8 milliards d'années à partir d'un état extrêmement dense et chaud.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Hubble_ultra_deep_field.jpg/400px-Hubble_ultra_deep_field.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Big_Bang"
+  },
+  {
+    "id": "article-18",
+    "title": "Les Fleurs du mal",
+    "extract": "Les Fleurs du mal est un recueil de poèmes de Charles Baudelaire publié pour la première fois en 1857. L'ouvrage comprend 103 poèmes et est divisé en six parties : Spleen et Idéal, Fleurs du mal, Le Spleen de Paris, etc.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Baudelaire_fleurs_du_mal_1857.jpg/400px-Baudelaire_fleurs_du_mal_1857.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Les_Fleurs_du_mal"
+  },
+  {
+    "id": "article-19",
+    "title": "La Guerre de Troie",
+    "extract": "La guerre de Troie est un conflit mythologique entre les Achéens et les Troyens, relaté principalement dans l'Iliade d'Homère. Ce conflit, qui eut lieu au XIIe ou XIIIe siècle av. J.-C., est l'un des événements les plus célèbres de la mythologie grecque.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Angelica_Caufield_Kaufrmann_-_The_Trojan_War.jpg/400px-Angelica_Caufield_Kaufrmann_-_The_Trojan_War.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/Guerre_de_Troie"
+  },
+  {
+    "id": "article-20",
+    "title": "Le Teletype",
+    "extract": "Le télex est un système de transmission de messages textuels utilisé dans les télécommunications. Il a été largement utilisé avant l'avènement d'Internet et reste un symbole de l'ère pré-numérique des communications.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Teletype_Model_33.jpg/400px-Teletype_Model_33.jpg",
+    "pageUrl": "https://fr.wikipedia.org/wiki/T%C3%A9lex"
+  }
+]

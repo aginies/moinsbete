@@ -1,6 +1,4 @@
 import { F1Card } from '@/components/feed/f1-card'
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
 import { getSession } from '@/lib/auth'
 
 export const metadata = {
@@ -19,16 +17,6 @@ export default async function F1Page() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full flex-col px-0 py-8 md:max-w-4xl md:p-6">
-      <div className="px-4 md:px-0">
-        <Link
-          href="/sujets"
-          className="mb-6 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors md:inline-flex"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Retour aux sujets
-        </Link>
-      </div>
-
       <F1Card userId={userId} />
     </div>
   )

@@ -18,7 +18,7 @@ import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { clearAllNewsAction, clearFreenewsapiAction } from '@/actions/cleanup-actions'
-import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshAll } from '@/actions/cache-refresh-actions'
+import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshPortailWikipedia, refreshAll } from '@/actions/cache-refresh-actions'
 import type { RefreshResult } from '@/actions/cache-refresh-actions'
 import { toggleUserEnabled, deleteUser } from '@/actions/user-actions'
 import { updateGlobalCardVisibility } from '@/actions/card-actions'
@@ -55,6 +55,9 @@ export interface AdminStats {
   f1Articles: number
   f1Expired: number
   f1ScrapedAt: string | null
+  portailWikipediaArticles: number
+  portailWikipediaExpired: number
+  portailWikipediaScrapedAt: string | null
 }
 
 export interface AdminUser {
@@ -198,6 +201,12 @@ export function AdminContent({ stats, users }: AdminContentProps) {
               sublabel={stats.f1Expired > 0 ? `${stats.f1Expired} ${t('feed.expired')}` : undefined}
             />
             <StatCard
+              icon={<Globe className="h-5 w-5" />}
+              label={t('feed.portail_wikipedia_articles')}
+              value={stats.portailWikipediaArticles}
+              sublabel={stats.portailWikipediaExpired > 0 ? `${stats.portailWikipediaExpired} ${t('feed.expired')}` : undefined}
+            />
+            <StatCard
               icon={<Image className="h-5 w-5" />}
               label={t('feed.wiki_images')}
               value={stats.wikiImages}
@@ -310,7 +319,16 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                     <span className="font-medium text-destructive">{stats.f1Expired}</span>
                   </div>
                 )}
-                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && stats.f1Expired === 0 && (
+                {stats.portailWikipediaExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-muted-foreground" />
+                      {t('feed.portail_wikipedia_expired')}
+                    </span>
+                    <span className="font-medium text-destructive">{stats.portailWikipediaExpired}</span>
+                  </div>
+                )}
+                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && stats.f1Expired === 0 && stats.portailWikipediaExpired === 0 && (
                   <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
@@ -331,7 +349,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <DialogHeader>
                     <DialogTitle>Confirmer le nettoyage</DialogTitle>
                       <DialogDescription>
-                        Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired + stats.f1Expired} éléments expirés ?
+                        Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired + stats.f1Expired + stats.portailWikipediaExpired} éléments expirés ?
                       </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -635,6 +653,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
   { key: 'wikiloves', labelKey: 'feed.wiki_loves_tab', icon: <ImagePlus className="h-4 w-4" /> },
   { key: 'pixabay', labelKey: 'feed.pixabay_tab', icon: <Image className="h-4 w-4" /> },
   { key: 'portailLexical', labelKey: 'feed.lexical_tab', icon: <Quote className="h-4 w-4" /> },
+  { key: 'portailWikipedia', labelKey: 'feed.portail_wikipedia_tab', icon: <Globe className="h-4 w-4" /> },
   { key: 'proverbe', labelKey: 'feed.proverbe_tab', icon: <Podcast className="h-4 w-4" /> },
   { key: 'f1', labelKey: 'feed.f1_tab', icon: <Trophy className="h-4 w-4" /> },
 ]
@@ -791,6 +810,14 @@ function CacheTab({ stats }: { stats: AdminStats }) {
       count: stats.saviezVousFacts,
       scrapedAt: stats.saviezVousScrapedAt,
       refreshFn: refreshSaviezVous,
+    },
+    {
+      key: 'portailWikipedia',
+      labelKey: adminT('cache_portail_wikipedia'),
+      icon: <Globe className="h-4 w-4" />,
+      count: stats.portailWikipediaArticles,
+      scrapedAt: stats.portailWikipediaScrapedAt,
+      refreshFn: refreshPortailWikipedia,
     },
   ]
 
