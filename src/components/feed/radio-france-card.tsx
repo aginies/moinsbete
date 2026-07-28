@@ -44,6 +44,7 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
 function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCardProps) {
   const t = useTranslations('feed')
   const [doc, setDoc] = useState<RadioFranceDoc | null>(() => {
+    if (typeof sessionStorage === 'undefined') return initialDoc || null
     const saved = sessionStorage.getItem('radio_france_doc')
     if (saved) {
       try { return JSON.parse(saved) } catch { /* ignore */ }

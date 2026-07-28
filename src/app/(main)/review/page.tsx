@@ -1,5 +1,5 @@
 import { getSession } from '@/lib/auth'
-import { ReviewPageClient } from './review-page-client'
+import { FlashcardPageClient } from './flashcard-page-client'
 
 export default async function ReviewPage({
   searchParams,
@@ -26,7 +26,7 @@ export default async function ReviewPage({
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-4xl md:p-6">
       <h1 className="mb-6 text-2xl font-heading font-bold">Révision</h1>
-      <ReviewPageClient userId={session.user.id} currentPage={currentPage} />
+      <FlashcardPageClient currentPage={currentPage} />
     </div>
   )
 }

@@ -61,6 +61,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
 function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsCardProps) {
   const t = useTranslations('feed')
   const [article, setArticle] = useState<CnrsArticle | null>(() => {
+    if (typeof sessionStorage === 'undefined') return null
     const saved = sessionStorage.getItem('cnrs_article')
     return saved ? JSON.parse(saved) : null
   })

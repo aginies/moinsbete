@@ -2,16 +2,14 @@
 
 import { useCallback, useState, useEffect, useRef } from 'react'
 import { fetchDueIdeas, type DueIdea } from '@/actions/review-actions'
-import { ReviewList } from '@/components/review/review-list'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import type { Idea } from '@/types/idea'
+import { FlashcardList } from '@/components/review/flashcard-list'
+import { Button } from '@/components/ui/button'
 
-interface ReviewPageClientProps {
-  userId: string
+interface FlashcardPageClientProps {
   currentPage: number
 }
 
-export function ReviewPageClient({ currentPage }: ReviewPageClientProps) {
+export function FlashcardPageClient({ currentPage }: FlashcardPageClientProps) {
   const [ideas, setIdeas] = useState<DueIdea[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -25,7 +23,7 @@ export function ReviewPageClient({ currentPage }: ReviewPageClientProps) {
       setIdeas(result.ideas)
       setTotal(result.total)
     } catch (err) {
-      console.error('[ReviewPageClient] Error loading ideas:', err)
+      console.error('[FlashcardPageClient] Error loading ideas:', err)
       setIdeas([])
       setTotal(0)
     } finally {
@@ -36,6 +34,14 @@ export function ReviewPageClient({ currentPage }: ReviewPageClientProps) {
   const [loadedPage, setLoadedPage] = useState(page)
   const loadedPageRef = useRef(page)
 
+  // Load on initial mount
+  useEffect(() => {
+    loadIdeas(page)
+    loadedPageRef.current = page
+    setLoadedPage(page)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load on page change
   useEffect(() => {
     if (page !== loadedPageRef.current) {
       loadIdeas(page)
@@ -54,17 +60,27 @@ export function ReviewPageClient({ currentPage }: ReviewPageClientProps) {
   }, [])
 
   const displayedIdeas = ideas.filter(idea => !removedIds.has(idea.id))
+  const hasMore = page * 10 < total
 
   return (
-    <TooltipProvider>
-      <ReviewList
+    <div className="mx-auto w-full px-4 py-4 md:max-w-4xl md:p-6">
+      <FlashcardList
         ideas={displayedIdeas}
         total={total}
         loading={loading}
-        currentPage={page}
-        onPageChange={handlePageChange}
         onIdeaRemoved={handleIdeaRemoved}
       />
-    </TooltipProvider>
+
+      {hasMore && (
+        <div className="mt-8 flex justify-center">
+          <Button
+            variant="outline"
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Charger plus d'idées
+          </Button>
+        </div>
+      )}
+    </div>
   )
 }

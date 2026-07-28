@@ -157,16 +157,19 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const router = useRouter()
   const t = useTranslations('feed')
 
+  const csrfLoadedRef = useRef(false)
+
   useEffect(() => {
+    if (csrfLoadedRef.current || csrfToken) return
+    csrfLoadedRef.current = true
+
     const loadCsrf = async () => {
       const { getCsrfToken } = await import('next-auth/react')
       const token = await getCsrfToken()
       if (token) setCsrfToken(token)
     }
-    if (!csrfToken) {
-      loadCsrf()
-    }
-  }, [csrfToken])
+    loadCsrf()
+  }, [])
 
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
   const followedIdsSet = useMemo(() => new Set(followedIds), [followedIds])
