@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { NavbarInner } from '@/components/layout/navbar'
 import { BottomNav } from '@/components/layout/bottom-nav'
+import { SWRegister } from '@/components/pwa/sw-register'
 import { Toaster } from '@/components/ui/sonner'
 import Link from 'next/link'
 import { getSession } from '@/lib/auth'
@@ -108,6 +109,7 @@ export default async function RootLayout({
             <BottomNav isLoggedIn={!!session?.user} />
           </div>
         </NextIntlClientProvider>
+        <SWRegister />
         <Toaster />
       </body>
     </html>
