@@ -20,60 +20,276 @@ export default function AproposPage() {
         </p>
       </div>
 
+      <nav className="mb-8 rounded-lg border border-border/60 p-4">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Sommaire</h2>
+        <ul className="space-y-1.5 text-sm">
+          <li><a href="#apropos" className="text-primary hover:underline">À propos</a></li>
+          <li><a href="#utilisation" className="text-primary hover:underline">Utilisation</a></li>
+          <li><a href="#contenus" className="text-primary hover:underline">Contenus</a></li>
+          <li><a href="#communaute" className="text-primary hover:underline">Communauté</a></li>
+          <li><a href="#chiffres" className="text-primary hover:underline">En chiffres</a></li>
+          <li><a href="#sources" className="text-primary hover:underline">Sources des contenus</a></li>
+          <li><a href="#auteur" className="text-primary hover:underline">Auteur &amp; infrastructure</a></li>
+          <li><a href="#mentions" className="text-primary hover:underline">Mentions légales</a></li>
+          <li><a href="#conditions" className="text-primary hover:underline">Conditions d&apos;utilisation</a></li>
+        </ul>
+      </nav>
+
       <div className="space-y-6">
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Qu&apos;est-ce que MoinsBête ?</h2>
+        {/* ——— À PROPOS ——— */}
+        <section id="apropos">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Qu&apos;est-ce que MoinsBête ?</h2>
           <p className="text-muted-foreground">
-            MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia, d&apos;articles scientifiques, de livres et de podcasts en idées digestibles que vous pouvez apprendre en quelques minutes par jour. Vous pouvez aussi accéder aux actualités mondiales, découvrir des faits surprenants, explorer des images de Wikimedia Commons, écouter des documentaires Radio France et regarder des vidéos Pixabay.
+            MoinsBête est une application d&apos;apprentissage rapide en français. Nous transformons les connaissances issues de Wikipédia, d&apos;articles scientifiques, de livres et de podcasts en idées digestibles que vous pouvez apprendre en quelques minutes par jour.
+          </p>
+          <p className="mt-2 text-muted-foreground">
+            L&apos;objectif est de remplacer le scroll infini des réseaux sociaux par
+            un apprentissage actif et intentionnel. Chaque idée est conçue pour
+            être digérée en quelques minutes, tout en restant mémorable et
+            actionnable.
           </p>
         </section>
 
         <section>
-          <h2 className="mb-3 text-xl font-semibold">Comment ça marche ?</h2>
-          <div className="space-y-3">
-            {[
-              'Scrollez votre feed d\'idées quotidiennes',
-              'Consultez votre historique de lecture',
-              'Suivez des sujets qui vous passionnent',
-              'Découvrez des faits surprenants dans "Le saviez-vous ?"',
-              'Explorez des images quotidiennes de Wikimedia Commons',
-              'Regardez des vidéos Pixabay',
-              'Écoutez des documentaires Radio France',
-              'Suivez l\'actualité mondiale dans NEWS',
-              'Visualisez vos sujets dans la carte mentale',
-              'Suivez votre progression avec les streaks',
-              'Partagez vos contenus favoris',
-            ].map((step, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {i + 1}
-                </span>
-                <p className="text-sm">{step}</p>
-              </div>
-            ))}
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">100% gratuit</h2>
+          <p className="text-muted-foreground">
+            MoinsBête est gratuit. Pas de publicité, pas d&apos;abonnement.
+            Juste de l&apos;apprentissage de qualité, sans friction.
+          </p>
+        </section>
+
+        {/* ——— UTILISATION ——— */}
+        <section id="utilisation" className="pt-6 border-t border-border/40">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Utilisation</h2>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Les sujets</h3>
+            <p className="text-muted-foreground">
+              Explorez des sujets variés : psychologie, philosophie, productivité,
+              sciences cognitives, économie, histoire, communication, créativité,
+              santé et bien-être, leadership, et bien plus encore.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Les sujets sont automatiquement détectés et ajoutés quand du nouveau contenu est ingéré.
+              Vous pouvez suggérer de nouveaux sujets via l&apos;interface d&apos;administration.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Collections</h3>
+            <p className="text-muted-foreground">
+              Explorez des collections thématiques curatées d&apos;idées sur des sujets précis.
+              Chaque collection regroupe les meilleures idées d&apos;un domaine pour un apprentissage
+              structuré et approfondi.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Carte mentale</h3>
+            <p className="text-muted-foreground">
+              Visualisez les liens entre vos idées et vos sujets favoris grâce à la carte mentale interactive.
+              Cette représentation graphique vous aide à comprendre comment les connaissances s&apos;articulent
+              entre elles et à découvrir de nouvelles connexions.
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground/70">Visible uniquement sur mobile.</p>
+          </section>
+        </section>
+
+        {/* ——— CONTENUS ——— */}
+        <section id="contenus" className="pt-6 border-t border-border/40">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Contenus</h2>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Le saviez-vous ?</h3>
+            <p className="text-muted-foreground">
+              Découvrez des faits surprenants et méconnus issus de Wikipédia. Chaque jour, de nouvelles anecdotes
+              sont sélectionnées pour éveiller votre curiosité. Vous pouvez sauvegarder vos faits préférés
+              dans vos favoris et les réviser via notre système de répétition espacée.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Proverbes</h3>
+            <p className="text-muted-foreground">
+              Explorez une collection de proverbes français et de proverbes du monde entier.
+              Les proverbes sont récupérés depuis Wiktionary et vérifiés pour garantir leur authenticité.
+              Vous pouvez sauvegarder vos proverbes préférés dans vos favoris et les réviser via notre système de répétition espacée.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Accédez à la section Proverbes pour naviguer par catégorie, rechercher des proverbes par mot-clé,
+              et découvrir des proverbes au hasard. Chaque proverbe peut être partagé avec la communauté.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Portail Lexical — Mot du jour</h3>
+            <p className="text-muted-foreground">
+              Découvrez un nouveau mot français chaque jour via le Portail Lexical.
+              Chaque carte présente la définition du TLFi, les entries du Wiktionnaire,
+              l&apos;étymologie historique avec des dates d&apos;attestation, et des exemples
+              d&apos;usage dans la littérature française.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Accédez au portail lexical complet pour rechercher n&apos;importe quel mot,
+              consulter ses définitions détaillées et explorer son histoire linguistique.
+              Les mots peuvent être sauvegardés dans vos favoris Lexique pour y revenir plus tard.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Images &amp; visuels</h3>
+            <p className="text-muted-foreground">
+              MoinsBête propose deux sections dédiées aux images : l&apos;Image du jour, une photo sélectionnée
+              quotidiennement depuis Wikimedia Commons, et la galerie Wikimedia pour explorer des milliers
+              d&apos;images libres de droits. Cliquez sur une image pour la voir en grand et partagez vos préférées.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Documentaires Radio France</h3>
+            <p className="text-muted-foreground">
+              Découvrez des documentaires audio de qualité depuis Radio France.
+              Chaque jour, une carte vous propose un documentaire aléatoire parmi nos
+              collections sélectionnées : histoires, sciences, arts, société et plus encore.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sauvegardez vos documentaires préférés dans vos favoris et retrouvez-les
+              facilement dans l&apos;onglet Documentaires Radio France de votre page favoris.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Vidéos Pixabay</h3>
+            <p className="text-muted-foreground">
+              Découvrez des vidéos d&apos;ambiance de haute qualité gratuites depuis Pixabay.
+              Vous pouvez naviguer entre de nombreuses catégories (Nature, Pluie, Ciel, Coucher de soleil, Forêt, Océan, Espace, Paysage, Montagne, Oiseau)
+              pour personnaliser votre expérience d&apos;apprentissage d&apos;une touche apaisante.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sauvegardez vos vidéos d&apos;ambiance préférées dans vos favoris et retrouvez-les
+              facilement dans l&apos;onglet Pixabay de votre page favoris.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Actualités mondiales</h3>
+            <p className="text-muted-foreground">
+              La carte NEWS propose des actualités internationales provenant de FreeNewsAPI.
+              Les articles sont classés par catégories (monde, entreprise, technologie, sport, etc.)
+              et mis à jour automatiquement cinq fois par jour.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Les articles sont mis en cache pendant 24 heures. En mode développement,
+              un fichier JSON statique sert de repli. Vous pouvez filtrer par catégorie
+              et sauvegarder vos articles préférés dans vos favoris.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Formule 1</h3>
+            <p className="text-muted-foreground">
+              Suivez l&apos;actualité de la Formule 1 : résultats, classements pilotes et constructeurs,
+              ainsi que des faits intéressants sur le monde de la automobile.
+            </p>
+          </section>
+        </section>
+
+        {/* ——— COMMUNAUTÉ ——— */}
+        <section id="communaute" className="pt-6 border-t border-border/40">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Communauté</h2>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Le Lobby</h3>
+            <p className="text-muted-foreground">
+              Le Lobby est un espace communautaire avec quatre onglets : les favoris partagés par la communauté, les contenus partagés avec vous, vos partages vers d&apos;autres utilisateurs, et un forum de discussion.
+            </p>
+            <h4 className="mt-4 mb-2 text-base font-medium text-foreground/80">Favoris partagés</h4>
+            <p className="text-muted-foreground">
+              Chaque utilisateur peut partager ses favoris avec la communauté. Pour qu&apos;un contenu apparaisse dans les favoris partagés,
+              il doit d&apos;abord être ajouté aux favoris de l&apos;utilisateur. Les favoris incluent les idées, faits surprenants, images du jour,
+              images Wikimedia et Wiki Loves.
+            </p>
+            <h4 className="mt-4 mb-2 text-base font-medium text-foreground/80">Partagé avec vous</h4>
+            <p className="text-muted-foreground">
+              Cet onglet affiche les contenus qu&apos;un autre utilisateur a spécifiquement partagés avec vous. Vous pouvez les ajouter à vos favoris
+              ou les découvrir selon les goûts de vos camarades.
+            </p>
+            <h4 className="mt-4 mb-2 text-base font-medium text-foreground/80">Ce que j&apos;ai partagé</h4>
+            <p className="text-muted-foreground">
+              Consultez ici tous les contenus que vous avez partagés à des utilisateurs spécifiques. Quand vous partagez un favori,
+              vous pouvez choisir de le partager à toute la communauté ou sélectionner des destinataires précis.
+            </p>
+            <h4 className="mt-4 mb-2 text-base font-medium text-foreground/80">Discuter</h4>
+            <p className="text-muted-foreground">
+              L&apos;onglet Discuter est un espace pour partager des idées d&apos;amélioration de l&apos;application, suggérer de nouveaux sujets,
+              proposer des modifications ou simplement discuter avec la communauté.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Partagez tout le contenu</h3>
+            <p className="text-muted-foreground">
+              Chaque idée, fait, image, article du CNRS, article NEWS, article F1, documentaire Radio France, vidéo Pixabay et page de MoinsBête peut être partagée
+              facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
+              ou copier le lien directement.
+            </p>
+          </section>
+        </section>
+
+        {/* ——— EN CHIFFRES ——— */}
+        <section id="chiffres" className="pt-6 border-t border-border/40">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">En chiffres</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">1 464</div>
+              <div className="text-sm text-muted-foreground">Idées publiées</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">961</div>
+              <div className="text-sm text-muted-foreground">Articles CNRS</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">1 324</div>
+              <div className="text-sm text-muted-foreground">Épisodes radio</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">293</div>
+              <div className="text-sm text-muted-foreground">Articles NEWS</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">17</div>
+              <div className="text-sm text-muted-foreground">Articles F1</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">5 443</div>
+              <div className="text-sm text-muted-foreground">Articles Portail Wikipédia</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">3 559</div>
+              <div className="text-sm text-muted-foreground">Images Wikipédia</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">125</div>
+              <div className="text-sm text-muted-foreground">Images Wiki Loves</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">7 770</div>
+              <div className="text-sm text-muted-foreground">Le saviez-vous ?</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center col-span-2 sm:col-span-1">
+              <div className="text-2xl font-bold text-primary">5 557</div>
+              <div className="text-sm text-muted-foreground">Proverbes</div>
+            </div>
           </div>
         </section>
 
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Les sujets</h2>
+        {/* ——— SOURCES ——— */}
+        <section id="sources" className="pt-6 border-t border-border/40">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Sources des contenus</h2>
           <p className="text-muted-foreground">
-            Explorez des sujets variés : psychologie, philosophie, productivité,
-            sciences cognitives, économie, histoire, communication, créativité,
-            santé et bien-être, leadership, et bien plus encore.
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Les sujets sont automatiquement détectés et ajoutés quand du nouveau contenu est ingéré.
-            Vous pouvez suggérer de nouveaux sujets via l&apos;interface d&apos;administration.
-          </p>
-        </section>
-
-       <section>
-          <h2 className="mb-3 text-xl font-semibold">Source des contenus</h2>
-          <p className="text-muted-foreground">
-            Le contenu de MoinsBête provient de multiples sources :
-            Wikipédia en français pour les idées et faits, Wiktionary pour les proverbes, le journal du CNRS pour les actualités scientifiques,
-            la FreeNewsAPI pour les actualités internationales,
-            Wikimedia Commons pour les images, Radio France pour les documentaires audio, et Pixabay pour les vidéos d&apos;ambiance.
+            Le contenu de MoinsBête provient de multiples sources de qualité en français :
+            Wikipédia, Wiktionary, le journal du CNRS, FreeNewsAPI, Wikimedia Commons,
+            Radio France, Pixabay, la Formule 1 (FIA), Wiki Loves et le Portail Lexical.
             L&apos;IA analyse, résume et structure le contenu pour offrir des idées claires et digestes.
           </p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -137,350 +353,62 @@ export default function AproposPage() {
                 pixabay.com →
               </a>
             </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Wiki Loves</h3>
+              <p className="text-sm text-muted-foreground">Images du patrimoine mondial</p>
+              <a
+                href="https://commons.wikimedia.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                commons.wikimedia.org →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Formule 1</h3>
+              <p className="text-sm text-muted-foreground">Actualité automobile</p>
+              <a
+                href="https://www.fia.com/f1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                fia.com/f1 →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Portail Lexical</h3>
+              <p className="text-sm text-muted-foreground">Dictionnaires et étymologie</p>
+              <a
+                href="https://www.portail-lexical.fr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                portail-lexical.fr →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">TLFi</h3>
+              <p className="text-sm text-muted-foreground">Trésor de la Langue Française informatisé</p>
+              <a
+                href="https://atlas.atilf.fr/tlfi/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                atlas.atilf.fr/tlfi →
+              </a>
+            </div>
           </div>
         </section>
 
-       <section>
-          <h2 className="mb-3 text-xl font-semibold">Partagez tout le contenu</h2>
+        {/* ——— AUTEUR & INFRASTRUCTURE ——— */}
+        <section id="auteur" className="pt-6 border-t border-border/40">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">L&apos;auteur &amp; infrastructure</h2>
           <p className="text-muted-foreground">
-            Chaque idée, fait, image, article du CNRS, article NEWS, documentaire Radio France, vidéo Pixabay et page de MoinsBête peut être partagée
-            facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
-            ou copier le lien directement.
-          </p>
-        </section>
-
-         <section>
-            <h2 className="mb-3 text-xl font-semibold">Le Lobby</h2>
-            <p className="text-muted-foreground">
-              Le Lobby est un espace communautaire avec quatre onglets : les favoris partagés par la communauté, les contenus partagés avec vous, vos partages vers d&apos;autres utilisateurs, et un forum de discussion.
-            </p>
-            <h3 className="mt-4 mb-2 text-lg font-semibold">Favoris partagés</h3>
-            <p className="text-muted-foreground">
-              Chaque utilisateur peut partager ses favoris avec la communauté. Pour qu&apos;un contenu apparaisse dans les favoris partagés,
-              il doit d&apos;abord être ajouté aux favoris de l&apos;utilisateur. Les favoris incluent les idées, faits surprenants, images du jour,
-              images Wikimedia et Wiki Loves.
-            </p>
-            <h3 className="mt-4 mb-2 text-lg font-semibold">Partagé avec vous</h3>
-            <p className="text-muted-foreground">
-              Cet onglet affiche les contenus qu&apos;un autre utilisateur a spécifiquement partagés avec vous. Vous pouvez les ajouter à vos favoris
-              ou les découvrir selon les goûts de vos camarades.
-            </p>
-            <h3 className="mt-4 mb-2 text-lg font-semibold">Ce que j&apos;ai partagé</h3>
-            <p className="text-muted-foreground">
-              Consultez ici tous les contenus que vous avez partagés à des utilisateurs spécifiques. Quand vous partagez un favori,
-              vous pouvez choisir de le partager à toute la communauté ou sélectionner des destinataires précis.
-            </p>
-            <h3 className="mt-4 mb-2 text-lg font-semibold">Discuter</h3>
-            <p className="text-muted-foreground">
-              L&apos;onglet Discuter est un espace pour partager des idées d&apos;amélioration de l&apos;application, suggérer de nouveaux sujets,
-              proposer des modifications ou simplement discuter avec la communauté.
-            </p>
-         </section>
-
-        <section>
-           <h2 className="mb-3 text-xl font-semibold">Le saviez-vous ?</h2>
-           <p className="text-muted-foreground">
-             Découvrez des faits surprenants et méconnus issus de Wikipédia. Chaque jour, de nouvelles anecdotes
-             sont sélectionnées pour éveiller votre curiosité. Vous pouvez sauvegarder vos faits préférés
-             dans vos favoris et les réviser via notre système de répétition espacée.
-           </p>
-        </section>
-
-        <section>
-           <h2 className="mb-3 text-xl font-semibold">Proverbes</h2>
-           <p className="text-muted-foreground">
-             Explorez une collection de proverbes français et de proverbes du monde entier.
-             Les proverbes sont récupérés depuis Wiktionary et vérifiés pour garantir leur authenticité.
-             Vous pouvez sauvegarder vos proverbes préférés dans vos favoris et les réviser via notre système de répétition espacée.
-           </p>
-           <p className="mt-2 text-sm text-muted-foreground">
-             Accédez à la section Proverbes pour naviguer par catégorie, rechercher des proverbes par mot-clé,
-             et découvrir des proverbes au hasard. Chaque proverbe peut être partagé avec la communauté.
-           </p>
-        </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Images &amp; visuels</h2>
-          <p className="text-muted-foreground">
-            MoinsBête propose deux sections dédiées aux images : l&apos;Image du jour, une photo sélectionnée
-            quotidiennement depuis Wikimedia Commons, et la galerie Wikimedia pour explorer des milliers
-            d&apos;images libres de droits. Cliquez sur une image pour la voir en grand et partagez vos préférées.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Collections</h2>
-          <p className="text-muted-foreground">
-            Explorez des collections thématiques curatées d&apos;idées sur des sujets précis.
-            Chaque collection regroupe les meilleures idées d&apos;un domaine pour un apprentissage
-            structuré et approfondi.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Carte mentale</h2>
-          <p className="text-muted-foreground">
-            Visualisez les liens entre vos idées et vos sujets favoris grâce à la carte mentale interactive.
-            Cette représentation graphique vous aide à comprendre comment les connaissances s&apos;articulent
-            entre elles et à découvrir de nouvelles connexions.
-          </p>
-        </section>
-
-        <section>
-           <h2 className="mb-3 text-xl font-semibold">Révision par répétition espacée</h2>
-           <p className="text-muted-foreground">
-             MoinsBête utilise la répétition espacée pour vous aider à retenir les idées importantes.
-             Quand vous bookmark une idée, elle entre automatiquement dans votre cycle de révision.
-           </p>
-           <p className="mt-2 text-sm text-muted-foreground">
-              Accédez à l&apos;onglet Révision pour revoir les idées au moment optimal.
-              Chaque idée est notée selon votre niveau de mémorisation :
-              &quot;Encore&quot; pour celles que vous avez oubliées, &quot;Difficile&quot;, &quot;Bon&quot; ou &quot;Facile&quot; pour celles que vous retenez.
-              L&apos;algorithme ajuste automatiquement les intervalles entre les révisions pour optimiser la mémorisation à long terme.
-           </p>
-        </section>
-
-        <section>
-           <h2 className="mb-3 text-xl font-semibold">Portail Lexical — Mot du jour</h2>
-           <p className="text-muted-foreground">
-             Découvrez un nouveau mot français chaque jour via le Portail Lexical.
-             Chaque carte présente la définition du TLFi, les entries du Wiktionnaire,
-             l&apos;étymologie historique avec des dates d&apos;attestation, et des exemples
-             d&apos;usage dans la littérature française.
-           </p>
-           <p className="mt-2 text-sm text-muted-foreground">
-             Accédez au portail lexical complet pour rechercher n&apos;importe quel mot,
-             consulter ses définitions détaillées et explorer son histoire linguistique.
-             Les mots peuvent être sauvegardés dans vos favoris Lexique pour y revenir plus tard.
-           </p>
-           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-             <div className="rounded-lg border border-border/60 p-4">
-               <h3 className="mb-1 font-semibold">Portail Lexical</h3>
-               <p className="text-sm text-muted-foreground">Dictionnaires et ressources linguistiques</p>
-               <a
-                 href="https://www.portail-lexical.fr"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="mt-2 inline-block text-xs text-primary hover:underline"
-               >
-                 portail-lexical.fr →
-               </a>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4">
-               <h3 className="mb-1 font-semibold">TLFi</h3>
-               <p className="text-sm text-muted-foreground">Trésor de la Langue Française informatisé</p>
-               <a
-                 href="https://atlas.atilf.fr/tlfi/"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="mt-2 inline-block text-xs text-primary hover:underline"
-               >
-                 atlas.atilf.fr/tlfi →
-               </a>
-             </div>
-           </div>
-         </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Documentaires Radio France</h2>
-          <p className="text-muted-foreground">
-            Découvrez des documentaires audio de qualité depuis Radio France.
-            Chaque jour, une carte vous propose un documentaire aléatoire parmi nos
-            collections sélectionnées : histoires, sciences, arts, société et plus encore.
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Sauvegardez vos documentaires préférés dans vos favoris et retrouvez-les
-            facilement dans l&apos;onglet Documentaires Radio France de votre page favoris.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Vidéos Pixabay</h2>
-          <p className="text-muted-foreground">
-            Découvrez des vidéos d&apos;ambiance de haute qualité gratuites depuis Pixabay.
-            Vous pouvez naviguer entre de nombreuses catégories (Nature, Pluie, Ciel, Coucher de soleil, Forêt, Océan, Espace, Paysage, Montagne, Oiseau)
-            pour personnaliser votre expérience d&apos;apprentissage d&apos;une touche apaisante.
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Sauvegardez vos vidéos d&apos;ambiance préférées dans vos favoris et retrouvez-les
-            facilement dans l&apos;onglet Pixabay de votre page favoris.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Actualités mondiales</h2>
-          <p className="text-muted-foreground">
-            La carte NEWS propose des actualités internationales provenant de FreeNewsAPI.
-            Les articles sont classés par catégories (monde, entreprise, technologie, sport, etc.)
-            et mis à jour automatiquement cinq fois par jour.
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Les articles sont mis en cache pendant 24 heures. En mode développement,
-            un fichier JSON statique sert de repli. Vous pouvez filtrer par catégorie
-            et sauvegarder vos articles préférés dans vos favoris.
-          </p>
-        </section>
-
-        <section>
-           <h2 className="mb-3 text-xl font-semibold">En chiffres</h2>
-           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">1 464</div>
-               <div className="text-sm text-muted-foreground">Idées publiées</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">23</div>
-               <div className="text-sm text-muted-foreground">Sujets</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">259</div>
-               <div className="text-sm text-muted-foreground">Sources</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">43</div>
-               <div className="text-sm text-muted-foreground">Signets totaux</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">8</div>
-               <div className="text-sm text-muted-foreground">Utilisateurs</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">99</div>
-               <div className="text-sm text-muted-foreground">Idées consultées</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">4</div>
-               <div className="text-sm text-muted-foreground">Séries actives</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">4</div>
-               <div className="text-sm text-muted-foreground">Révisions dues (SRS)</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">961</div>
-               <div className="text-sm text-muted-foreground">Articles CNRS</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">1 324</div>
-               <div className="text-sm text-muted-foreground">Épisodes radio</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">293</div>
-               <div className="text-sm text-muted-foreground">Articles NEWS</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">17</div>
-               <div className="text-sm text-muted-foreground">Articles F1</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">5 443</div>
-               <div className="text-sm text-muted-foreground">Articles Portail Wikipédia</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">3 559</div>
-               <div className="text-sm text-muted-foreground">Images Wikipédia</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">125</div>
-               <div className="text-sm text-muted-foreground">Images Wiki Loves</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center">
-               <div className="text-2xl font-bold text-primary">7 770</div>
-               <div className="text-sm text-muted-foreground">Le saviez-vous ?</div>
-             </div>
-             <div className="rounded-lg border border-border/60 p-4 text-center col-span-2 sm:col-span-1">
-               <div className="text-2xl font-bold text-primary">5 557</div>
-               <div className="text-sm text-muted-foreground">Proverbes</div>
-             </div>
-           </div>
-        </section>
-
-        <section>
-           <h2 className="mb-3 text-xl font-semibold">Licence</h2>
-           <p className="text-muted-foreground">
-             Ce programme est un logiciel libre: vous pouvez le redistribuer et/ou le modifier conformément aux clauses de la Licence Publique Générale Affero GNU telle que publiée par la Free Software Foundation; soit la version 3 de la Licence, soit (à votre choix) toute version ultérieure.
-           </p>
-           <p className="mt-2 text-muted-foreground">
-             Consultez la licence complète sur{' '}
-             <a
-               href="https://www.gnu.org/licenses/agpl-3.0.html"
-               target="_blank"
-               rel="noopener noreferrer"
-               className="text-primary hover:underline"
-             >
-               gnu.org/licenses/agpl-3.0.html
-             </a>
-             .
-           </p>
-          </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Code source</h2>
-          <p className="text-muted-foreground">
-            Le code source de MoinsBête est disponible sur{' '}
-            <a
-              href="https://github.com/aginies/moinsbete"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              GitHub
-            </a>
-            .
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Le dépôt est actuellement privé en attendant la résolution de quelques problèmes de sécurité.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">100% gratuit</h2>
-          <p className="text-muted-foreground">
-            MoinsBête est gratuit. Pas de publicité, pas d&apos;abonnement.
-            Juste de l&apos;apprentissage de qualité, sans friction.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Contact</h2>
-          <p className="text-muted-foreground">
-            Pour réinitialiser votre mot de passe ou partager un retour sur MoinsBête,
-            envoyez un email à{' '}
-            <a
-              href="mailto:moinsbete@ginies.org"
-              className="text-primary hover:underline"
-            >
-              moinsbete@ginies.org
-            </a>
-            .
-          </p>
-        </section>
-
-       <section>
-          <h2 className="mb-3 text-xl font-semibold">Vie privée</h2>
-          <p className="text-muted-foreground">
-            <Link href="/confidentialite" className="text-primary hover:underline">
-              Politique de confidentialité
-            </Link>
-          </p>
-        </section>
-
-        <section>
-          <h2 className="mb-3 text-xl font-semibold">Cookies</h2>
-          <p className="text-muted-foreground">
-            MoinsBête utilise un cookie JWT de session pour l&apos;authentification.
-            Voir la section cookies dans les{' '}
-            <Link href="/mentions-legales" className="text-primary hover:underline">
-              mentions légales
-            </Link>{' '}
-            pour plus de détails.
-          </p>
-        </section>
-
-        <section>
-            <h2 className="mb-3 text-xl font-semibold">L&apos;auteur</h2>
-    <p className="text-muted-foreground">
-          MoinsBête a été créé par <strong>Antoine Giniès</strong>.
+            MoinsBête a été créé par <strong>Antoine Giniès</strong>.
             Le projet s&apos;inspire de la philosophie Deep Stash, popularisée par&nbsp;
             <a
               href="https://deepstash.com"
@@ -495,31 +423,109 @@ export default function AproposPage() {
             sources de connaissance.
           </p>
           <p className="mt-3 text-muted-foreground">
-            L&apos;objectif est de remplacer le scroll infini des réseaux sociaux par
-            un apprentissage actif et intentionnel. Chaque idée est conçue pour
-            être digérée en quelques minutes, tout en restant mémorable et
-            actionnable.     Le contenu est soigneusement sélectionné et enrichi depuis
-            Wikipédia, le CNRS, FreeNewsAPI, Wikimedia Commons, Radio France et d&apos;autres sources
-            de qualité en français.
+            Le service MoinsBête est hébergé sur un serveur loué personnellement par Antoine Giniès à des fins personnelles.
+            Ce service est offert en l&apos;état et peut être arrêté à tout moment sans annonce préalable.
+          </p>
+          <p className="mt-3 text-muted-foreground">
+            Ceci est un projet de développement à usage personnel uniquement. Le contenu, les fonctionnalités et l&apos;interface peuvent changer sans préavis. L&apos;application n&apos;est pas encore prête pour une utilisation en production.
           </p>
         </section>
 
-         <section>
-            <h2 className="mb-3 text-xl font-semibold">Infrastructure</h2>
+        {/* ——— MENTIONS LÉGALES ——— */}
+        <section id="mentions" className="pt-6 border-t border-border/40">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Mentions légales</h2>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Licence</h3>
             <p className="text-muted-foreground">
-               Le service MoinsBete est hébergé sur un serveur loué personnellement par Antoine Giniès à des fins personnelles.
-               Ce service est offert en l&apos;état et peut être arrêté à tout moment sans annonce préalable.
+              Ce programme est un logiciel libre: vous pouvez le redistribuer et/ou le modifier conformément aux clauses de la Licence Publique Générale Affero GNU telle que publiée par la Free Software Foundation; soit la version 3 de la Licence, soit (à votre choix) toute version ultérieure.
+            </p>
+            <p className="mt-2 text-muted-foreground">
+              Consultez la licence complète sur{' '}
+              <a
+                href="https://www.gnu.org/licenses/agpl-3.0.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                gnu.org/licenses/agpl-3.0.html
+              </a>
+              .
             </p>
           </section>
 
-         <section>
-            <h2 className="mb-3 text-xl font-semibold">Projet de développement</h2>
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Code source</h3>
             <p className="text-muted-foreground">
-               Ceci est un projet de développement à usage personnel uniquement. Le contenu, les fonctionnalités et l&apos;interface peuvent changer sans préavis. L&apos;application n&apos;est pas encore prête pour une utilisation en production.
+              Le code source de MoinsBête est disponible sur{' '}
+              <a
+                href="https://github.com/aginies/moinsbete"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                GitHub
+              </a>
+              .
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Le dépôt est actuellement privé en attendant la résolution de quelques problèmes de sécurité.
             </p>
           </section>
 
-       </div>
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Vie privée</h3>
+            <p className="text-muted-foreground">
+              <Link href="/confidentialite" className="text-primary hover:underline">
+                Politique de confidentialité
+              </Link>
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Cookies</h3>
+            <p className="text-muted-foreground">
+              MoinsBête utilise un cookie JWT de session pour l&apos;authentification.
+              Voir la section cookies dans les{' '}
+              <Link href="/mentions-legales" className="text-primary hover:underline">
+                mentions légales
+              </Link>{' '}
+              pour plus de détails.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Contact</h3>
+            <p className="text-muted-foreground">
+              Pour réinitialiser votre mot de passe ou partager un retour sur MoinsBête,
+              envoyez un email à{' '}
+              <a
+                href="mailto:moinsbete@ginies.org"
+                className="text-primary hover:underline"
+              >
+                moinsbete@ginies.org
+              </a>
+              .
+            </p>
+           </section>
+         </section>
+
+         {/* ——— CONDITIONS D'UTILISATION ——— */}
+         <section id="conditions" className="pt-6 border-t border-border/40">
+           <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Conditions d&apos;utilisation</h2>
+           <p className="text-muted-foreground">
+             MoinsBête est un service gratuit à usage personnel. Le contenu provient de sources externes et est résumé pour faciliter la lecture. Aucune garantie d&apos;exactitude n&apos;est apportée. Le service peut être modifié ou interrompu à tout moment.
+           </p>
+           <p className="mt-2 text-muted-foreground">
+             Pour le texte complet :{' '}
+             <Link href="/conditions-utilisation" className="text-primary hover:underline">
+               Conditions d&apos;utilisation complètes
+             </Link>
+             .
+           </p>
+         </section>
+
+      </div>
 
       <div className="mt-12 pt-6 border-t text-center text-sm text-muted-foreground">
         <Link href="/confidentialite" className="hover:underline">Politique de confidentialité</Link>

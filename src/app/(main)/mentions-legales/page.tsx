@@ -113,8 +113,8 @@ export default function MentionsLegalesPage() {
           <h2 className="mb-3 text-xl font-semibold">Conditions d&apos;utilisation</h2>
           <p className="text-muted-foreground">
             En utilisant MoinsBête, vous acceptez nos conditions d&apos;utilisation décrites dans la page{' '}
-            <Link href="/a-propos" className="text-primary hover:underline">
-              À propos
+            <Link href="/conditions-utilisation" className="text-primary hover:underline">
+              Conditions d&apos;utilisation
             </Link>
             .
           </p>
