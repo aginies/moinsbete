@@ -285,7 +285,7 @@ export const F1Card = React.memo(function F1CardInner({
         </div>
 
         <div className="px-2 pt-2">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full gap-0">
             <TabsList className="w-full h-auto bg-transparent p-0 gap-0 border-b border-red-200 dark:border-red-800 rounded-none">
               {TABS.map(tab => (
                 <TabsTrigger
