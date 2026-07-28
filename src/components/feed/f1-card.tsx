@@ -425,7 +425,8 @@ export const F1Card = React.memo(function F1CardInner({
                     <Trophy className="h-8 w-8 mx-auto mb-2 text-red-400" />
                     <p className="text-sm text-muted-foreground">Aucun classement disponible</p>
                   </div>
-                ) : (
+                 ) : (
+                  <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {data.classement.map((standing, idx) => (
                       <div key={idx} className="rounded-lg border border-red-200 dark:border-red-800 overflow-hidden">
@@ -435,19 +436,72 @@ export const F1Card = React.memo(function F1CardInner({
                           </h4>
                         </div>
                         <div className="divide-y divide-red-100 dark:divide-red-900/30">
-                          {standing.rows.slice(0, 10).map((row) => (
-                            <div key={row.pos} className="flex items-center gap-2 px-3 py-2 text-sm">
-                              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
-                                {row.pos}
-                              </span>
-                              <span className="flex-1 text-red-900 dark:text-red-200 font-medium truncate">{row.name}</span>
-                              <span className="text-red-600 dark:text-red-400 font-mono text-xs">{row.points} pts</span>
-                            </div>
-                          ))}
+                          {(() => {
+                            const firstRow = standing.rows[0]
+                            const firstPoints = Number(firstRow?.points ?? 0)
+                            return standing.rows.slice(0, 10).map((row) => (
+                              <div key={row.pos} className={`flex items-center gap-2 px-3 py-2 text-sm ${row.pos <= 3 ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''}`}>
+                                <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white ${row.pos === 1 ? 'bg-green-600' : row.pos === 2 ? 'bg-blue-600' : row.pos === 3 ? 'bg-gray-500' : 'bg-red-600'}`}>
+                                  {row.pos}
+                                </span>
+                                <span className="flex-1 text-red-900 dark:text-red-200 font-medium truncate">{row.name}</span>
+                                <span className="text-red-600 dark:text-red-400 font-mono text-xs w-24 text-right">{row.pos === 1 ? `${row.points} pts` : `${row.points} pts (-${firstPoints - Number(row.points)})`}</span>
+                              </div>
+                            ))
+                          })()}
                         </div>
                       </div>
                     ))}
                   </div>
+                  <div className="mt-6 overflow-x-auto">
+                    <h4 className="text-sm font-semibold text-red-800 dark:text-red-300 mb-3">{t('f1_bareme')}</h4>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-red-200 dark:border-red-800">
+                          <th className="px-2 py-1 text-left font-medium text-red-700 dark:text-red-300">Position</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">1er</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">2e</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">3e</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">4e</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">5e</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">6e</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">7e</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">8e</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">9e</th>
+                          <th className="px-2 py-1 text-center font-medium text-red-700 dark:text-red-300">10e</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-red-100 dark:border-red-900/30">
+                          <td className="px-2 py-1.5 font-medium text-red-800 dark:text-red-200">GP</td>
+                          <td className="px-2 py-1.5 text-center text-green-600 dark:text-green-400 font-bold">25</td>
+                          <td className="px-2 py-1.5 text-center text-blue-600 dark:text-blue-400 font-bold">18</td>
+                          <td className="px-2 py-1.5 text-center text-gray-500 dark:text-gray-400 font-bold">15</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">12</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">10</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">8</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">6</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">4</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">2</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">1</td>
+                        </tr>
+                        <tr>
+                          <td className="px-2 py-1.5 font-medium text-red-800 dark:text-red-200">Sprint</td>
+                          <td className="px-2 py-1.5 text-center text-green-600 dark:text-green-400 font-bold">8</td>
+                          <td className="px-2 py-1.5 text-center text-blue-600 dark:text-blue-400 font-bold">7</td>
+                          <td className="px-2 py-1.5 text-center text-gray-500 dark:text-gray-400 font-bold">6</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">5</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">4</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">3</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">2</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">1</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">-</td>
+                          <td className="px-2 py-1.5 text-center text-red-600 dark:text-red-400">-</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  </>
                 )}
               </TabsContent>
 

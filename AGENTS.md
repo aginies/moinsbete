@@ -51,11 +51,32 @@ Every new card source must include these files/patterns:
   - Category selector (multi-select toggle)
   - Bookmark per article (inline handler, not useSimpleBookmarkToggle in loop)
   - Share button
-  - Visibility toggle button
+  - Visibility toggle button (eye-off icon)
   - Refresh button
   - Error state handling
 - Use `useCardVisibility` hook for show/hide
 - Use `useItemShare` for sharing
+- Tab labels MUST use locale keys (not hardcoded):
+  ```ts
+  const TABS = [
+    { key: 'image', label: '{source}_tab_image', icon: ImageIcon },
+    { key: 'actualites', label: '{source}_tab_actualites', icon: Newspaper },
+    // ...
+  ] as const
+  // Render: t(tab.label) for desktop, t(tab.label).split(' ')[0] for mobile
+  ```
+- Wrap card in `CardVisibilityGuard` for show/hide logic
+- Reuse existing components first: `CardVisibilityGuard`, `useAutoRefresh`, `useItemShare`, `PaginatedFavoritesList`, `useFavoritesList`, `createBookmarkManager`, `createBookmarkActions`
+
+## 5b. Reusable Components (check before creating new ones)
+- `CardVisibilityGuard` — show/hide wrapper with eye-off button
+- `useAutoRefresh` — periodic data reload hook
+- `useItemShare` — share functionality hook
+- `PaginatedFavoritesList` + `useFavoritesList` — favorites list
+- `createBookmarkManager()` — bookmark manager factory
+- `createBookmarkActions()` — server actions factory
+- `ShareButton` — standalone share button component
+- `useSimpleBookmarkToggle` — simple bookmark state hook (for single-item cards)
 
 ## 6. Favorites Page (`src/app/(main)/favoris/{source}-favorites.tsx`)
 - Import `PaginatedFavoritesList` + `useFavoritesList`
@@ -114,7 +135,8 @@ Every new card source must include these files/patterns:
 ## 8. Locales (`src/locales/{fr,en}.json`)
 - `feed.{source}`: Display name (e.g., "NEWS")
 - `feed.read_article`: "Read article" / "Lire l'article"
-- `feed.{source}_tab`: Tab label
+- `feed.{source}_tab`: Tab label (e.g., "Formula 1")
+- **Tab keys** (one per tab in the card): `feed.{source}_tab_{name}` (e.g., `feed.f1_tab_actualites`, `feed.f1_tab_image`)
 - `feed.{source}`: About section name
 - `feed.{source}_desc`: About section description
 - `feed.{source}_articles`: Admin stat label
