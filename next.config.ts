@@ -45,6 +45,24 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: '/_next/static/chunks/(.*\\.js)',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/chunks/(.*\\.css)',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/css',
+          },
+        ],
+      },
     ];
   },
   async rewrites() {
