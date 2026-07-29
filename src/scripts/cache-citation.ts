@@ -203,21 +203,20 @@ async function upsertCitations(
   categoryType: 'theme' | 'auteur' | 'daily',
   now: Date,
   expiresAt: Date,
-): Promise<number> {
-  let count = 0
+): Promise<{ created: number; updated: number }> {
+  let created = 0
+  let updated = 0
   for (const citation of page.citations) {
     const wikiUrl = `https://fr.wikiquote.org/wiki/${encodeURIComponent(page.title)}`
     try {
-      await prisma.cachedCitationArticle.upsert({
+      const result = await prisma.cachedCitationArticle.upsert({
         where: { author_text: { author: page.title, text: citation.text } },
         update: {
           text: citation.text,
-          author: page.title,
           source: citation.source,
           category,
           categoryType,
           imageUrl: page.imageUrl,
-          scrapedAt: now,
           expiresAt,
         },
         create: {
@@ -232,12 +231,13 @@ async function upsertCitations(
           expiresAt,
         },
       })
-      count++
+      if (result.scrapedAt.getTime() === now.getTime()) created++
+      else updated++
     } catch {
       // skip
     }
   }
-  return count
+  return { created, updated }
 }
 
 export async function scrapeAndCacheCitation(): Promise<void> {
@@ -245,12 +245,15 @@ export async function scrapeAndCacheCitation(): Promise<void> {
 
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-  let totalInserted = 0
+  let totalCreated = 0
+  let totalUpdated = 0
 
   // 1. Citation du jour
   const dailyPages = await scrapeCitationDuJour()
   for (const page of dailyPages) {
-    totalInserted += await upsertCitations(page, 'Citation du jour', 'daily', now, new Date(now.getTime() + 24 * 60 * 60 * 1000))
+    const r = await upsertCitations(page, 'Citation du jour', 'daily', now, new Date(now.getTime() + 24 * 60 * 60 * 1000))
+    totalCreated += r.created
+    totalUpdated += r.updated
   }
   console.log(`  Citation du jour: ${dailyPages.length} entries`)
 
@@ -269,7 +272,7 @@ export async function scrapeAndCacheCitation(): Promise<void> {
   const themePageMap = new Map<string, string[]>()
   const shuffledThemes = themeCats.sort(() => Math.random() - 0.5).slice(0, 100)
   for (const cat of shuffledThemes) {
-    const pages = await fetchRandomCategoryPages(cat, 1)
+    const pages = await fetchRandomCategoryPages(cat, 3)
     if (pages.length > 0) {
       themePageMap.set(cat, pages.map(p => p.title))
     }
@@ -282,7 +285,9 @@ export async function scrapeAndCacheCitation(): Promise<void> {
   for (const page of themeParsed) {
     const cat = [...themePageMap.entries()].find(([, titles]) => titles.includes(page.title))?.[0]
     if (cat) {
-      totalInserted += await upsertCitations(page, cat, 'theme', now, expiresAt)
+      const r = await upsertCitations(page, cat, 'theme', now, expiresAt)
+      totalCreated += r.created
+      totalUpdated += r.updated
     }
   }
   console.log(`  Thèmes: ${themeParsed.length} pages from ${themePageMap.size} categories`)
@@ -305,7 +310,7 @@ export async function scrapeAndCacheCitation(): Promise<void> {
   const authorPageMap = new Map<string, string[]>()
   const shuffledAuthors = authorCats.sort(() => Math.random() - 0.5).slice(0, 100)
   for (const cat of shuffledAuthors) {
-    const pages = await fetchRandomCategoryPages(cat, 1)
+    const pages = await fetchRandomCategoryPages(cat, 3)
     if (pages.length > 0) {
       authorPageMap.set(cat, pages.map(p => p.title))
     }
@@ -318,13 +323,15 @@ export async function scrapeAndCacheCitation(): Promise<void> {
   for (const page of authorParsed) {
     const cat = [...authorPageMap.entries()].find(([, titles]) => titles.includes(page.title))?.[0]
     if (cat) {
-      totalInserted += await upsertCitations(page, cat, 'auteur', now, expiresAt)
+      const r = await upsertCitations(page, cat, 'auteur', now, expiresAt)
+      totalCreated += r.created
+      totalUpdated += r.updated
     }
   }
   console.log(`  Auteurs: ${authorParsed.length} pages from ${authorPageMap.size} categories`)
 
   await cleanupExpired()
-  console.log(`  ✅ Citation cache updated (${totalInserted} citations)`)
+  console.log(`  ✅ Citation cache updated (+${totalCreated} new, ${totalUpdated} updated)`)
 }
 
 if (process.argv[1]?.includes('cache-citation')) {
