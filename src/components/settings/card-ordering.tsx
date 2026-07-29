@@ -124,7 +124,7 @@ export function CardOrdering({ userId }: { userId?: string }) {
         .then(res => res.ok ? res.json() : Promise.reject())
         .then(data => {
           if (Array.isArray(data.order)) {
-            const merged = [...new Set([...DEFAULT_ORDER, ...data.order])]
+            const merged = [...new Set([...data.order, ...DEFAULT_ORDER])]
             setOrder(merged)
           } else {
             setOrder(DEFAULT_ORDER)
