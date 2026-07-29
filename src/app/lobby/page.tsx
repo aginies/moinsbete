@@ -208,7 +208,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       : []
     const ideaMap = new Map(missingIdeas.map(i => [i.id, i]))
 
-    const enrichBookmark = (bookmark: SharedLobbyBookmark & { idea: any; user: any }): SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any } => {
+    const enrichBookmark = (bookmark: SharedLobbyBookmark & { idea: any; user: any }): SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; citation?: CachedCitationArticle | null; idea?: any } => {
       if (bookmark.resourceType === 'SAVIEZ_VOUS' && bookmark.resourceId) {
         const fact = saviezMap.get(bookmark.resourceId)
         if (fact) return { ...bookmark, saviezFact: fact as SaviezVousFact | null }

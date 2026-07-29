@@ -118,7 +118,7 @@ function CitationItemRow({
           </div>
         </div>
         <div className="flex-shrink-0 flex items-center gap-1">
-          <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, source: item.source, url: item.wikiUrl, category: item.category }} />
+          <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, ...(item.source && { source: item.source }), url: item.wikiUrl, category: item.category }} />
           <button
             onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id, isFavorite) }}
             className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
@@ -482,7 +482,7 @@ export const CitationCard = React.memo(function CitationCardInner({
                               >
                                 {t('read_citation')}
                               </Link>
-                              <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, source: item.source, url: item.wikiUrl, category: item.category }} />
+       <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, ...(item.source && { source: item.source }), url: item.wikiUrl, category: item.category }} />
                               <button
                                 onClick={(e) => { e.stopPropagation(); handleBookmark(item.id, allFavorites.has(item.id)) }}
                                 className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
