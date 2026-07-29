@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Mail, User as UserIcon, Lock, LogOut, Bell } from 'lucide-react'
+import { Mail, User as UserIcon, Lock, LogOut, Bell, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -33,6 +33,7 @@ export default function MonCompteClient({ session }: { session: SessionWithNotif
         setError(result.error)
       } else {
         setSuccess('Mot de passe mis à jour avec succès')
+        e.currentTarget.reset()
       }
     })
   }
@@ -149,8 +150,18 @@ export default function MonCompteClient({ session }: { session: SessionWithNotif
                   type="password"
                   placeholder="••••••••"
                   required
-                  className="pl-10"
+                  className="pl-10 pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.getElementById('currentPassword') as HTMLInputElement
+                    input.type = input.type === 'password' ? 'text' : 'password'
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
               </div>
             </div>
 
@@ -164,10 +175,45 @@ export default function MonCompteClient({ session }: { session: SessionWithNotif
                   type="password"
                   placeholder="••••••••"
                   required
-                  className="pl-10"
+                  className="pl-10 pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.getElementById('newPassword') as HTMLInputElement
+                    input.type = input.type === 'password' ? 'text' : 'password'
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
               </div>
               <p className="text-xs text-muted-foreground">Minimum 8 caractères</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                  className="pl-10 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.getElementById('confirmPassword') as HTMLInputElement
+                    input.type = input.type === 'password' ? 'text' : 'password'
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={isPending}>

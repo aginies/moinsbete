@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import bcrypt from 'bcryptjs'
+import { prisma } from '@/lib/db'
 
 vi.mock('@/lib/db', () => ({
   prisma: {
@@ -394,9 +396,21 @@ describe('changePasswordAction', () => {
     const formData = new FormData()
     formData.set('currentPassword', 'oldpass')
     formData.set('newPassword', 'short')
+    formData.set('confirmPassword', 'short')
 
     const result = await changePasswordAction(formData)
     expect(result).toEqual({ error: 'Le mot de passe doit contenir au moins 8 caractères' })
+  })
+
+  it('returns error when passwords do not match', async () => {
+    const { changePasswordAction } = await import('@/actions/auth-actions')
+    const formData = new FormData()
+    formData.set('currentPassword', 'oldpass')
+    formData.set('newPassword', 'newpassword123')
+    formData.set('confirmPassword', 'differentpass')
+
+    const result = await changePasswordAction(formData)
+    expect(result).toEqual({ error: 'Les mots de passe ne correspondent pas' })
   })
 
   it('returns error when not logged in', async () => {
@@ -407,9 +421,39 @@ describe('changePasswordAction', () => {
     const formData = new FormData()
     formData.set('currentPassword', 'oldpass')
     formData.set('newPassword', 'newpassword123')
+    formData.set('confirmPassword', 'newpassword123')
 
     const result = await changePasswordAction(formData)
     expect(result).toEqual({ error: 'Non connecté' })
+  })
+
+  it('changes password successfully', async () => {
+    const { changePasswordAction } = await import('@/actions/auth-actions')
+    const hash = await bcrypt.hash('oldpass', 12)
+
+    const mockUser = {
+      id: 'user-1',
+      email: 'test@example.com',
+      passwordHash: hash,
+      displayName: 'Test',
+      role: 'USER',
+      enabled: true,
+    }
+
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as any)
+
+    const formData = new FormData()
+    formData.set('currentPassword', 'oldpass')
+    formData.set('newPassword', 'newpassword123')
+    formData.set('confirmPassword', 'newpassword123')
+
+    const result = await changePasswordAction(formData)
+    expect(result).toEqual({ success: true })
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      data: expect.objectContaining({ passwordHash: expect.any(String) }),
+    })
   })
 })
 

@@ -200,6 +200,11 @@ export async function toggleEmailNotificationsAction(enabled: boolean) {
 export async function changePasswordAction(formData: FormData) {
   const currentPassword = formData.get('currentPassword') as string
   const newPassword = formData.get('newPassword') as string
+  const confirmPassword = formData.get('confirmPassword') as string
+
+  if (newPassword !== confirmPassword) {
+    return { error: 'Les mots de passe ne correspondent pas' }
+  }
 
   if (newPassword.length < MIN_PASSWORD_LENGTH) {
     return { error: `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères` }
