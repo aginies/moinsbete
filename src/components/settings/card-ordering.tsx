@@ -33,7 +33,10 @@ const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
   { key: 'wikiloves', label: 'Wiki Loves', icon: '🏛️' },
   { key: 'pixabay', label: 'Pixabay', icon: '🎨' },
   { key: 'portailLexical', label: 'Portail Lexical', icon: '📝' },
+  { key: 'portailWikipedia', label: 'Portail Wikipedia', icon: '🌐' },
   { key: 'proverbe', label: 'Proverbe', icon: '🗣️' },
+  { key: 'f1', label: 'Formula 1', icon: '🏎️' },
+  { key: 'citation', label: 'Citations', icon: '💬' },
 ]
 
 const DEFAULT_ORDER = CARD_DEFAULT_ORDER
