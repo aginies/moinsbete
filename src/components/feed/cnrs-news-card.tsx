@@ -16,6 +16,7 @@ interface CnrsNewsCardProps {
   onToggle?: () => void
   showToggle?: boolean
   isVisible?: boolean
+  onExitComplete?: () => void
 }
 
 interface CnrsArticle {
@@ -58,7 +59,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
   }
 }
 
-function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsCardProps) {
+function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible, onExitComplete }: CnrsNewsCardProps) {
   const t = useTranslations('feed')
   const [article, setArticle] = useState<CnrsArticle | null>(() => {
     if (typeof sessionStorage === 'undefined') return null
@@ -134,6 +135,7 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
       isVisible={isVisible}
       onToggle={onToggle}
       showToggle={showToggle}
+      onExitComplete={onExitComplete}
       buttonColor="green"
       label="Afficher Actualité CNRS"
     >

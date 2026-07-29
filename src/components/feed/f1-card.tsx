@@ -19,6 +19,7 @@ interface F1CardProps {
   showToggle?: boolean
   isVisible?: boolean
   userId?: string
+  onExitComplete?: () => void
 }
 
 interface F1Actualite {
@@ -138,6 +139,7 @@ export const F1Card = React.memo(function F1CardInner({
   showToggle = true,
   isVisible,
   userId,
+  onExitComplete,
 }: F1CardProps) {
   const t = useTranslations('feed')
   const [activeTab, setActiveTab] = useState('image')
@@ -244,6 +246,7 @@ export const F1Card = React.memo(function F1CardInner({
       isVisible={isVisible}
       onToggle={onToggle}
       showToggle={showToggle}
+      onExitComplete={onExitComplete}
       buttonColor="rose"
       label="Afficher Formule 1"
     >

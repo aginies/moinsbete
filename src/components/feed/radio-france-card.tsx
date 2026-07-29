@@ -26,6 +26,7 @@ interface RadioFranceCardProps {
   initialDoc?: RadioFranceDoc
   onToggle?: () => void
   isVisible?: boolean
+  onExitComplete?: () => void
 }
 
 async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null> {
@@ -41,7 +42,7 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
   }
 }
 
-function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCardProps) {
+function RadioFranceCardInner({ initialDoc, onToggle, isVisible, onExitComplete }: RadioFranceCardProps) {
   const t = useTranslations('feed')
   const [doc, setDoc] = useState<RadioFranceDoc | null>(() => {
     if (typeof sessionStorage === 'undefined') return initialDoc || null
@@ -121,6 +122,7 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
       isVisible={isVisible}
       onToggle={onToggle}
       showToggle={true}
+      onExitComplete={onExitComplete}
       buttonColor="purple"
       label="Afficher Docs Radio France"
     >

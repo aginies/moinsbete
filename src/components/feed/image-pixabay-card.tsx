@@ -81,6 +81,7 @@ function ImagePixabayCardInner({
   enableAutoRefresh = false,
   storageKey = 'pixabay',
   isVisible,
+  onExitComplete,
 }: {
   userId?: string
   swipeable?: boolean
@@ -92,6 +93,7 @@ function ImagePixabayCardInner({
   enableAutoRefresh?: boolean
   storageKey?: string
   isVisible?: boolean
+  onExitComplete?: () => void
 }) {
   const t = useTranslations('feed')
   const [video, setVideo] = useState<PixabayVideo | null>(() => {
@@ -417,6 +419,7 @@ function ImagePixabayCardInner({
       isVisible={isVisible}
       onToggle={onToggle}
       showToggle={showToggle}
+      onExitComplete={onExitComplete}
       buttonColor="orange"
       label="Afficher Pixabay"
     >

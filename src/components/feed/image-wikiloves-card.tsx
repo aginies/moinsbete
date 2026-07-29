@@ -44,6 +44,7 @@ interface ImageWikiLovesCardProps {
   enableAutoRefresh?: boolean
   storageKey?: string
   isVisible?: boolean
+  onExitComplete?: () => void
 }
 
 async function fetchTopics(): Promise<Topic[]> {
@@ -84,6 +85,7 @@ function ImageWikiLovesCardInner({
   enableAutoRefresh = false,
   storageKey = 'wikiloves',
   isVisible,
+  onExitComplete,
 }: ImageWikiLovesCardProps) {
   const [topics, setTopics] = useState<Topic[]>(DEFAULT_TOPICS)
   const [modalOpen, setModalOpen] = useState(false)
@@ -169,6 +171,7 @@ function ImageWikiLovesCardInner({
         showToggle={showToggle}
         onToggle={onToggle}
         isVisible={isVisible}
+        onExitComplete={onExitComplete}
         renderTopics={() =>
           topics.filter((t): t is Topic & { enabled: boolean } => t.enabled).map((topic: Topic) => (
             <button

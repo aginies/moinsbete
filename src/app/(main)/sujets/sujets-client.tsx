@@ -53,6 +53,7 @@ interface CardConfig {
   isVisible: boolean
   isGloballyVisible: boolean
   toggle: () => void
+  onExitComplete: () => void
 }
 
 const HIDDEN_CARD_COLORS: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald' | 'indigo'> = {
@@ -89,44 +90,44 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
   saviezVous: (config, fact) => {
     if (!fact) return null
     return (
-      <SaviezVousCard id={fact.id} text={fact.text} sourceUrl={fact.sourceUrl} imageFilename={fact.imageFilename} onToggle={config.toggle} isVisible={config.isVisible} linkAs={`/le-saviez-vous?factId=${fact.id}`} />
+      <SaviezVousCard id={fact.id} text={fact.text} sourceUrl={fact.sourceUrl} imageFilename={fact.imageFilename} onToggle={config.toggle} isVisible={config.isVisible} onExitComplete={config.onExitComplete} linkAs={`/le-saviez-vous?factId=${fact.id}`} />
     )
   },
   wikipedia: (config) => (
-    <WikipediaImageCard onToggle={config.toggle} mediumImage isVisible={config.isVisible} />
+    <WikipediaImageCard onToggle={config.toggle} mediumImage isVisible={config.isVisible} onExitComplete={config.onExitComplete} />
   ),
   cnrs: (config) => (
-    <CnrsNewsCard onToggle={config.toggle} isVisible={config.isVisible} />
+    <CnrsNewsCard onToggle={config.toggle} isVisible={config.isVisible} onExitComplete={config.onExitComplete} />
   ),
   radioFrance: (config) => (
-    <RadioFranceCard onToggle={config.toggle} isVisible={config.isVisible} />
+    <RadioFranceCard onToggle={config.toggle} isVisible={config.isVisible} onExitComplete={config.onExitComplete} />
   ),
   news: (config, _, __, hasUserId) => {
     if (!hasUserId) return null
     return (
-      <NewsCard onToggle={config.toggle} isVisible={config.isVisible} linkHref="/news" maxHeight="700px" />
+      <NewsCard onToggle={config.toggle} isVisible={config.isVisible} onExitComplete={config.onExitComplete} linkHref="/news" maxHeight="700px" />
     )
   },
   wikimedia: (config, _, userId) => (
-    <ImageWikimediaCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} />
+    <ImageWikimediaCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} onExitComplete={config.onExitComplete} />
   ),
   wikiloves: (config, _, userId) => (
-    <ImageWikiLovesCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} />
+    <ImageWikiLovesCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} onExitComplete={config.onExitComplete} />
   ),
   pixabay: (config, _, userId) => (
-    <ImagePixabayCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} />
+    <ImagePixabayCard userId={userId} onToggle={config.toggle} largeImage isVisible={config.isVisible} onExitComplete={config.onExitComplete} />
   ),
   portailLexical: (config) => (
-    <PortailLexicalCard onToggle={config.toggle} isVisible={config.isVisible} />
+    <PortailLexicalCard onToggle={config.toggle} isVisible={config.isVisible} onExitComplete={config.onExitComplete} />
   ),
   portailWikipedia: (config, _, userId) => (
-    <PortailWikipediaCard userId={userId} onToggle={config.toggle} isVisible={config.isVisible} />
+    <PortailWikipediaCard userId={userId} onToggle={config.toggle} isVisible={config.isVisible} onExitComplete={config.onExitComplete} />
   ),
   proverbe: (config) => (
-    <ProverbeCard onToggle={config.toggle} isVisible={config.isVisible} />
+    <ProverbeCard onToggle={config.toggle} isVisible={config.isVisible} onExitComplete={config.onExitComplete} />
   ),
   f1: (config, _, userId) => (
-    <F1Card onToggle={config.toggle} isVisible={config.isVisible} userId={userId} />
+    <F1Card onToggle={config.toggle} isVisible={config.isVisible} userId={userId} onExitComplete={config.onExitComplete} />
   ),
 }
 
@@ -174,6 +175,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
   const followedIdsSet = useMemo(() => new Set(followedIds), [followedIds])
   const isAllSelected = allTopics.length > 0 && followedIdsSet.size === allTopics.length
+  const [hidingCards, setHidingCards] = useState<Set<string>>(new Set())
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
     saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, portailWikipedia: true, proverbe: true, news: true, f1: true, pixabayActiveCategory: 'bird',
@@ -202,9 +204,12 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     }
   }, [userId])
 
-  const toggleVisibility = useCallback((field: string, key: keyof CardVisibility) => {
+  const toggleVisibility = useCallback((field: string, key: keyof CardVisibility, cardKey: string) => {
     setVisibility(prev => {
       const next = !prev[key]
+      if (!next) {
+        setHidingCards(prev => new Set(prev).add(cardKey))
+      }
       if (userId) {
         updateCardVisibility(field, next, csrfToken)
           .then(() => {
@@ -218,11 +223,11 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
   const toggleCacheRef = useRef<Map<string, () => void>>(new Map())
 
-  const getToggle = useCallback((field: string, key: keyof CardVisibility) => {
+  const getToggle = useCallback((field: string, key: keyof CardVisibility, cardKey: string) => {
     const cacheKey = `${field}:${String(key)}`
     let fn = toggleCacheRef.current.get(cacheKey)
     if (!fn) {
-      fn = () => toggleVisibility(field, key)
+      fn = () => toggleVisibility(field, key, cardKey)
       toggleCacheRef.current.set(cacheKey, fn)
     }
     return fn
@@ -260,14 +265,23 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     { key: 'f1', visKey: 'f1', field: 'f1CardVisible', extraCheck: () => hasUserId },
   ]
 
+  const handleExitComplete = useCallback((cardKey: string) => {
+    setHidingCards(prev => {
+      const next = new Set(prev)
+      next.delete(cardKey)
+      return next
+    })
+  }, [])
+
   const cardConfigs: CardConfig[] = useMemo(() =>
     cardDefinitions.map(def => ({
       key: def.key,
       isVisible: visibility[def.visKey] && (globalVisibility?.[def.visKey] ?? true) && (!def.extraCheck || def.extraCheck()),
       isGloballyVisible: globalVisibility?.[def.visKey] ?? true,
-      toggle: getToggle(def.field, def.visKey),
+      toggle: getToggle(def.field, def.visKey, def.key),
+      onExitComplete: () => handleExitComplete(def.key),
     })),
-    [visibility, globalVisibility, hasUserId, getToggle],
+    [visibility, globalVisibility, hasUserId, getToggle, handleExitComplete],
   )
 
   const orderedConfigs = useMemo(() => {
@@ -280,8 +294,8 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     })
   }, [cardConfigs, cardOrder, orderLoaded])
 
-  const visibleCards = orderedConfigs.filter(c => c.isVisible)
-  const hiddenCards = orderedConfigs.filter(c => !c.isVisible && c.isGloballyVisible && (c.key !== 'news' || hasUserId) && (c.key !== 'f1' || hasUserId))
+  const renderedCards = orderedConfigs.filter(c => c.isVisible || hidingCards.has(c.key))
+  const hiddenCards = orderedConfigs.filter(c => !c.isVisible && !hidingCards.has(c.key) && c.isGloballyVisible && (c.key !== 'news' || hasUserId) && (c.key !== 'f1' || hasUserId))
 
   if (!orderLoaded) {
     return (
@@ -308,7 +322,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
-      {visibleCards.map(card => {
+      {renderedCards.map(card => {
         const renderer = CARD_RENDERERS[card.key]
         if (!renderer) return null
         return (

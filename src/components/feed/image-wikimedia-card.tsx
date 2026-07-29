@@ -57,6 +57,7 @@ interface ImageWikimediaCardProps {
   enableAutoRefresh?: boolean
   storageKey?: string
   isVisible?: boolean
+  onExitComplete?: () => void
 }
 
 async function fetchTopics(): Promise<Topic[]> {
@@ -98,6 +99,7 @@ function ImageWikimediaCardInner({
   enableAutoRefresh = false,
   storageKey = 'wikimedia',
   isVisible,
+  onExitComplete,
 }: ImageWikimediaCardProps) {
   const [topics, setTopics] = useState<Topic[]>(DEFAULT_TOPICS)
   const [modalOpen, setModalOpen] = useState(false)
@@ -198,6 +200,7 @@ function ImageWikimediaCardInner({
         showToggle={showToggle}
         onToggle={onToggle}
         isVisible={isVisible}
+        onExitComplete={onExitComplete}
         renderTopics={() => {
           const enabledTopics = topics.filter((t): t is Topic & { active: boolean } => t.active)
 

@@ -25,6 +25,7 @@ interface PortailWikipediaCardProps {
   onToggle?: () => void
   isVisible?: boolean
   showToggle?: boolean
+  onExitComplete?: () => void
 }
 
 async function fetchArticles(count: number): Promise<PortailWikipediaArticle[]> {
@@ -38,7 +39,7 @@ async function fetchArticles(count: number): Promise<PortailWikipediaArticle[]> 
   return []
 }
 
-function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = true }: PortailWikipediaCardProps) {
+function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = true, onExitComplete }: PortailWikipediaCardProps) {
   const t = useTranslations('feed')
   const [articles, setArticles] = useState<PortailWikipediaArticle[]>([])
   const [loading, setLoading] = useState(false)
@@ -138,6 +139,7 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
       isVisible={isVisible}
       onToggle={onToggle}
       showToggle={showToggle}
+      onExitComplete={onExitComplete}
       buttonColor="indigo"
       label="Afficher Portail Wikipédia"
     >

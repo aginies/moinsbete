@@ -35,6 +35,7 @@ interface SaviezVousCardProps {
   enableAutoRefresh?: boolean
   storageKey?: string
   isVisible?: boolean
+  onExitComplete?: () => void
   linkAs?: string
 }
 
@@ -65,6 +66,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   enableAutoRefresh = false,
   storageKey = 'saviez_vous',
   isVisible,
+  onExitComplete,
   linkAs,
 }: SaviezVousCardProps) {
   const router = useRouter()
@@ -269,6 +271,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         isVisible={isVisible}
         onToggle={onToggle}
         showToggle={showToggle}
+        onExitComplete={onExitComplete}
         buttonColor="blue"
         label="Afficher saviez-vous ?"
       >

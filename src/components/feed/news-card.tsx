@@ -26,6 +26,7 @@ interface NewsCardProps {
   onToggle?: () => void
   showToggle?: boolean
   isVisible?: boolean
+  onExitComplete?: () => void
   linkHref?: string
   infiniteScroll?: boolean
   onLoadMore?: (cursor: string, currentArticles: NewsArticle[], currentCategories: string[]) => Promise<{ articles: NewsArticle[]; hasMore: boolean }>
@@ -115,7 +116,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string, que
   }
 }
 
-function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
+function NewsCardInner({ onToggle, showToggle = true, isVisible, onExitComplete, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
   const t = useTranslations('feed')
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
@@ -286,6 +287,7 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
       isVisible={isVisible}
       onToggle={onToggle}
       showToggle={showToggle}
+      onExitComplete={onExitComplete}
       buttonColor="blue"
       label="Afficher NEWS"
     >

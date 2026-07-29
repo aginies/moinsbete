@@ -28,6 +28,7 @@ interface ProverbeCardProps {
   onToggle?: () => void
   isVisible?: boolean
   showToggle?: boolean
+  onExitComplete?: () => void
   proverbe?: Proverbe | null
   onRefresh?: () => void
   loading?: boolean
@@ -53,6 +54,7 @@ function ProverbeCardInner({
   onToggle, 
   isVisible, 
   showToggle = true,
+  onExitComplete,
   proverbe: externalProverbe,
   onRefresh: externalOnRefresh,
   loading: externalLoading,
@@ -130,6 +132,7 @@ function ProverbeCardInner({
       isVisible={isVisible}
       onToggle={onToggle}
       showToggle={showToggle}
+      onExitComplete={onExitComplete}
       buttonColor="emerald"
       label="Afficher Proverbe"
     >

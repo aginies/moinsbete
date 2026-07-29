@@ -76,6 +76,7 @@ interface BaseImageCardProps<TTopic> {
   showToggle?: boolean
   onToggle?: () => void
   isVisible?: boolean
+  onExitComplete?: () => void
   onShowFullImageChange?: (show: boolean) => void
 }
 
@@ -94,6 +95,7 @@ export function BaseImageCard<TTopic>({
   showToggle = true,
   onToggle,
   isVisible,
+  onExitComplete,
   onShowFullImageChange,
   onImageLoaded,
 }: BaseImageCardProps<TTopic>) {
@@ -371,6 +373,7 @@ export function BaseImageCard<TTopic>({
         isVisible={isVisible}
         onToggle={onToggle}
         showToggle={showToggle}
+        onExitComplete={onExitComplete}
         buttonColor={config.buttonColor}
         label={config.visibilityLabel}
       >

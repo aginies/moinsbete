@@ -36,6 +36,7 @@ interface PortailLexicalCardProps {
   onToggle?: () => void
   isVisible?: boolean
   showToggle?: boolean
+  onExitComplete?: () => void
 }
 
 async function fetchWordOfTheDay(): Promise<PortailLexicalWord | null> {
@@ -51,7 +52,7 @@ async function fetchWordOfTheDay(): Promise<PortailLexicalWord | null> {
   }
 }
 
-function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: PortailLexicalCardProps) {
+function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true, onExitComplete }: PortailLexicalCardProps) {
   const t = useTranslations('feed')
   const [word, setWord] = useState<PortailLexicalWord | null>(null)
   const [loading, setLoading] = useState(false)
@@ -103,12 +104,13 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
   })
 
   return (
-    <CardVisibilityGuard
+   <CardVisibilityGuard
       isVisible={isVisible}
       onToggle={onToggle}
       showToggle={showToggle}
+      onExitComplete={onExitComplete}
       buttonColor="amber"
-      label="Afficher Lexique"
+      label="Afficher Portail Lexical"
     >
       {loading && !word ? (
         <div className="mb-6">

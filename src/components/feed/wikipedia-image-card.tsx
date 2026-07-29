@@ -38,6 +38,7 @@ interface WikipediaImageCardProps {
   enableAutoRefresh?: boolean
   storageKey?: string
   isVisible?: boolean
+  onExitComplete?: () => void
 }
 
 async function fetchRandomImage(): Promise<{ data: ImageData | null; error: string | null }> {
@@ -63,6 +64,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
   enableAutoRefresh = false,
   storageKey = 'image_du_jour',
   isVisible,
+  onExitComplete,
 }: WikipediaImageCardProps) {
   const t = useTranslations('feed')
   const [image, setImage] = useState<ImageData | null>(() => {
@@ -285,6 +287,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
         isVisible={isVisible}
         onToggle={onToggle}
         showToggle={showToggle}
+        onExitComplete={onExitComplete}
         buttonColor="teal"
         label="Afficher Image du jour"
       >
