@@ -16,6 +16,7 @@ interface CitationCardProps {
   showToggle?: boolean
   isVisible?: boolean
   userId?: string
+  searchQuery?: string
 }
 
 interface CitationItem {
@@ -36,9 +37,9 @@ interface CitationData {
 }
 
 const TABS = [
+  { key: 'auteurs', label: 'citation_tab_auteurs', icon: User },
   { key: 'dujour', label: 'citation_tab_dujour', icon: Sparkles },
   { key: 'themes', label: 'citation_tab_themes', icon: BookOpen },
-  { key: 'auteurs', label: 'citation_tab_auteurs', icon: User },
 ] as const
 
 async function fetchCitationData(type?: string, categories?: string[]): Promise<CitationData | null> {
@@ -150,9 +151,10 @@ export const CitationCard = React.memo(function CitationCardInner({
   showToggle = true,
   isVisible,
   userId,
+  searchQuery,
 }: CitationCardProps) {
   const t = useTranslations('feed')
-  const [activeTab, setActiveTab] = useState('dujour')
+  const [activeTab, setActiveTab] = useState('auteurs')
 
   // Daily state
   const [dailyData, setDailyData] = useState<CitationData | null>(null)
@@ -208,25 +210,25 @@ export const CitationCard = React.memo(function CitationCardInner({
     if (activeTab === 'dujour') await loadDaily()
     else if (activeTab === 'themes') await loadThemes()
     else await loadAuteurs()
-  }, [activeTab, loadDaily])
+  }, [activeTab, loadDaily, loadThemes, loadAuteurs])
 
   useAutoRefresh('citation', loadData)
 
   useEffect(() => {
     if (isVisible === false) return
     if (!dailyData && !themesData && !auteursData && !loading && !error) {
-      const timer = setTimeout(() => loadDaily(), 0)
+      const timer = setTimeout(() => loadAuteurs(), 0)
       return () => clearTimeout(timer)
     }
-  }, [isVisible, dailyData, themesData, auteursData, loading, error, loadDaily])
+  }, [isVisible, dailyData, themesData, auteursData, loading, error, loadAuteurs])
 
 // Reload on tab switch
   useEffect(() => {
-    if (activeTab === 'themes' && !themesData) loadThemes()
+    if (activeTab === 'auteurs' && !auteursData) loadAuteurs()
   }, [activeTab])
 
   useEffect(() => {
-    if (activeTab === 'auteurs' && !auteursData) loadAuteurs()
+    if (activeTab === 'themes' && !themesData) loadThemes()
   }, [activeTab])
 
   const handleBookmark = useCallback(async (id: string, isFav: boolean) => {
@@ -296,6 +298,22 @@ export const CitationCard = React.memo(function CitationCardInner({
     ? (auteursPickedRef.current = { key: auteursKey, items: pickFew(filteredAuteurs) }).items
     : auteursPickedRef.current.items
 
+  // Search mode: filter all citations by text, show all matches
+  const isSearching = searchQuery && searchQuery.length >= 2
+  const searchResults = isSearching ? (() => {
+    const q = searchQuery.toLowerCase()
+    const all = [...(dailyData?.citations || []), ...(themesData?.citations || []), ...(auteursData?.citations || [])]
+    return all.filter(c => c.text.toLowerCase().includes(q))
+  })() : []
+
+  // Load all data when searching
+  useEffect(() => {
+    if (!isSearching) return
+    if (!dailyData) loadDaily()
+    if (!themesData) loadThemes()
+    if (!auteursData) loadAuteurs()
+  }, [isSearching])
+
   return (
     <CardVisibilityGuard
       isVisible={isVisible}
@@ -307,14 +325,17 @@ export const CitationCard = React.memo(function CitationCardInner({
       <div className="mb-6">
         <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-0 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow overflow-hidden">
           <div className="px-5 pt-4 pb-2 flex items-center justify-between border-b border-amber-200 dark:border-amber-800">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 dark:bg-amber-600">
-                <Quote className="h-4 w-4 text-white" />
-              </div>
-              <h3 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">
-                {t('citation_tab')}
-              </h3>
-            </div>
+<Link
+                href="/citations"
+                className="flex items-center gap-2"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 dark:bg-amber-600">
+                  <Quote className="h-4 w-4 text-white" />
+                </div>
+                <h3 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+                  {t('citation_tab')}
+                </h3>
+              </Link>
             <div className="flex items-center justify-between sm:justify-end sm:gap-3">
               {showToggle && onToggle && (
                 <button
@@ -340,6 +361,32 @@ export const CitationCard = React.memo(function CitationCardInner({
           </div>
 
           <div className="px-2 pt-2">
+            {isSearching ? (
+            <div className="p-4">
+              <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">
+                {searchResults.length > 0
+                  ? `${searchResults.length} résultat${searchResults.length > 1 ? 's' : ''} pour "${searchQuery}"`
+                  : t('no_search_results')}
+              </p>
+              {searchResults.length > 0 ? (
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {searchResults.map(item => (
+                    <CitationItemRow
+                      key={item.id}
+                      item={item}
+                      isFavorite={allFavorites.has(item.id)}
+                      onToggleFavorite={handleBookmark}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Quote className="h-8 w-8 mx-auto mb-2 text-amber-400" />
+                  <p className="text-sm text-muted-foreground">Aucune citation trouvée</p>
+                </div>
+              )}
+            </div>
+          ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full gap-0">
               <TabsList className="w-full h-auto bg-transparent p-0 gap-0 border-b border-amber-200 dark:border-amber-800 rounded-none">
                 {TABS.map(tab => (
@@ -558,6 +605,7 @@ export const CitationCard = React.memo(function CitationCardInner({
                 </TabsContent>
               </div>
             </Tabs>
+          )}
           </div>
         </div>
       </div>

@@ -25,6 +25,63 @@ export async function GET(request: NextRequest) {
     }
 
     const url = new URL(request.url)
+    const action = url.searchParams.get('action')
+
+    if (action === 'search') {
+      const q = url.searchParams.get('q') || ''
+      const pageNum = parseInt(url.searchParams.get('page') || '1', 10)
+      const categoryType = url.searchParams.get('type')
+      const pageSize = 20
+      const skip = (pageNum - 1) * pageSize
+
+      const now = new Date()
+      const where: any = { expiresAt: { gte: now } }
+      if (q.length >= 2) {
+        where.text = { contains: q, mode: 'insensitive' }
+      }
+      if (categoryType) {
+        where.categoryType = categoryType
+      }
+
+      const [totalCount, results] = await Promise.all([
+        prisma.cachedCitationArticle.count({ where }),
+        prisma.cachedCitationArticle.findMany({
+          where,
+          orderBy: { scrapedAt: 'desc' },
+          take: pageSize,
+          skip,
+        }),
+      ])
+
+      const items: CitationItem[] = results.map(c => ({
+        id: c.id,
+        text: c.text,
+        author: c.author,
+        source: c.source || undefined,
+        category: c.category,
+        categoryType: c.categoryType as 'theme' | 'auteur' | 'daily',
+        wikiUrl: c.wikiUrl,
+        imageUrl: c.imageUrl || undefined,
+      }))
+
+      const session = await getServerSession(authOptions)
+      const userId = session?.user?.id
+      let bookmarkedIds: string[] = []
+      if (userId && items.length > 0) {
+        const bookmarks = await prisma.bookmark.findMany({
+          where: { userId, type: 'CITATION', resourceId: { in: items.map(i => i.id) } },
+          select: { resourceId: true },
+        })
+        bookmarkedIds = bookmarks.map(b => b.resourceId || '')
+      }
+
+      return NextResponse.json({
+        citations: items,
+        totalCount,
+        bookmarkedIds,
+      })
+    }
+
     const categories = url.searchParams.get('categories')?.split(',').filter(Boolean)
     const categoryType = url.searchParams.get('type')
     const daily = url.searchParams.get('daily')

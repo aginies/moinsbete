@@ -269,6 +269,9 @@
     "citation_articles": "Citations en cache",
     "citation_expired": "Citations expirées",
     "citation_desc": "Citations de personnalités, œuvres et thèmes, tirées de Wikiquote",
+    "see_all_citations": "Voir tout",
+    "citations_tab_all": "Tout",
+    "no_search_results": "Aucun résultat",
     "read_citation": "Lire sur Wikiquote",
     "all": "Tous",
     "ideas_tab": "Idées",
@@ -733,5 +736,15 @@
     "install_title": "Installer MoinsBête",
     "install_desc": "Ajoutez MoinsBête à votre écran d'accueil pour un accès rapide.",
     "installed": "Déjà installé"
+  },
+  "pages": {
+    "citations": {
+      "title": "Citations",
+      "search_placeholder": "Rechercher dans les citations...",
+      "no_results": "Aucun résultat trouvé",
+      "found_count": "{{count}} résultats pour \"{{query}}\"",
+      "load_more": "Voir plus",
+      "empty": "Aucune citation disponible"
+    }
   }
 }

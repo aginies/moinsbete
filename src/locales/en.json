@@ -269,6 +269,9 @@
     "citation_articles": "Cached Quotes",
     "citation_expired": "Expired Quotes",
     "citation_desc": "Quotes from personalities, works and themes, from Wikiquote",
+    "see_all_citations": "See all",
+    "citations_tab_all": "All",
+    "no_search_results": "No results",
     "read_citation": "Read on Wikiquote",
     "all": "All",
     "ideas_tab": "Ideas",
@@ -733,5 +736,15 @@
     "install_title": "Install MoinsBête",
     "install_desc": "Add MoinsBête to your home screen for quick access.",
     "installed": "Already installed"
+  },
+  "pages": {
+    "citations": {
+      "title": "Quotes",
+      "search_placeholder": "Search quotes...",
+      "no_results": "No results found",
+      "found_count": "{{count}} results for \"{{query}}\"",
+      "load_more": "Load more",
+      "empty": "No quotes available"
+    }
   }
 }
