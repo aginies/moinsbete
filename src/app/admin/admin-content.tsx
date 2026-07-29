@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers, Trophy } from 'lucide-react'
+import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers, Trophy, BarChart3, Map } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
@@ -120,12 +120,27 @@ export function AdminContent({ stats, users }: AdminContentProps) {
       </div>
 
       <Tabs defaultValue="stats" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="stats">{t('feed.stats')}</TabsTrigger>
-          <TabsTrigger value="users">{t('feed.users')}</TabsTrigger>
-          <TabsTrigger value="cartes">{adminT('cartes_title')}</TabsTrigger>
-          <TabsTrigger value="cleanup">{t('feed.cleanup')}</TabsTrigger>
-          <TabsTrigger value="cache">{adminT('cache_title')}</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="stats" className="flex flex-col items-center gap-1">
+            <BarChart3 className="h-4 w-4 sm:hidden" />
+            <span className="hidden sm:inline">{t('feed.stats')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex flex-col items-center gap-1">
+            <Users className="h-4 w-4 sm:hidden" />
+            <span className="hidden sm:inline">{t('feed.users')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="cartes" className="flex flex-col items-center gap-1">
+            <Map className="h-4 w-4 sm:hidden" />
+            <span className="hidden sm:inline">{adminT('cartes_title')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="cleanup" className="flex flex-col items-center gap-1">
+            <Trash2 className="h-4 w-4 sm:hidden" />
+            <span className="hidden sm:inline">{t('feed.cleanup')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="cache" className="flex flex-col items-center gap-1">
+            <span className="sm:hidden">Cache</span>
+            <span className="hidden sm:inline">{adminT('cache_title')}</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="stats">
@@ -680,6 +695,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
 function CartesTab() {
   const [isPending, startTransition] = useTransition()
   const adminT = useTranslations('admin')
+  const feedT = useTranslations('feed')
 
   return (
     <div className="space-y-6">
@@ -694,7 +710,7 @@ function CartesTab() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
                   {card.icon}
                 </div>
-                <span className="text-sm font-medium">{adminT(card.labelKey)}</span>
+                <span className="text-sm font-medium">{feedT(card.labelKey.replace('feed.', ''))}</span>
               </div>
               <CardToggle cardKey={card.key} />
             </CardContent>
