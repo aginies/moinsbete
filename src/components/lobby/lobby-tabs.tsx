@@ -146,7 +146,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation)
   }, [sharedBookmarks, activeType, searchQuery])
 
   const filteredSharedWithMe = useMemo(() => {
@@ -203,7 +203,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation)
   }, [sharedWithMeBookmarks, activeType, searchQuery])
 
   const filteredSharedByMe = useMemo(() => {
@@ -259,7 +259,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation)
   }, [sharedByMeBookmarks, activeType, searchQuery])
 
   return (

@@ -1403,7 +1403,7 @@ export function SharedBookmarks({
   emptyMessage,
 }: SharedBookmarksProps) {
   const t = useTranslations('feed')
-  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.newsArticle || b.portailWikipediaArticle || b.proverbe)
+  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.newsArticle || b.portailWikipediaArticle || b.proverbe || b.citation)
 
   const hasFilters = typeFilters.length > 0 || searchQuery
 
