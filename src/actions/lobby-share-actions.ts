@@ -23,6 +23,7 @@ function extractTitle(resourceType: string, resourceId: string | null, meta: Jso
     case 'IMAGE_WIKIMEDIA': return typeof m.titre === 'string' && m.titre ? m.titre : (typeof m.title === 'string' && m.title ? m.title : null)
     case 'IMAGE_WIKILOVES': return typeof m.titre === 'string' && m.titre ? m.titre : null
     case 'PROVERBE': return typeof m.text === 'string' && m.text ? m.text : null
+    case 'CITATION': return typeof m.text === 'string' && m.text ? `${m.text} — ${m.author}` : null
     case 'PORTAIL_LEXICAL': return typeof m.form === 'string' && m.form ? m.form : (typeof m.word === 'string' && m.word ? m.word : null)
     case 'PORTAIL_WIKIPEDIA': return typeof m.title === 'string' && m.title ? m.title : null
     default: return null

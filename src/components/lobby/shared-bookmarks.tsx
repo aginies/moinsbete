@@ -98,6 +98,15 @@ interface SharedBookmark {
     etymologie?: string
     definitions?: string[]
   } | null
+  citation?: {
+    id: string
+    text: string
+    author: string
+    source: string | null
+    category: string
+    wikiUrl: string
+    imageUrl: string | null
+  } | null
   user: { id: string; displayName: string | null; email: string }
   sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }>
 }
@@ -116,6 +125,7 @@ interface SharedBookmarksProps {
     PROVERBE: Set<string>
     NEWS: Set<string>
     PORTAIL_WIKIPEDIA: Set<string>
+    CITATION: Set<string>
   }
   typeFilters?: { value: string; label: string; icon: string }[]
   activeType?: string
@@ -1239,6 +1249,146 @@ function PortailWikipediaBookmarkItem({
   )
 }
 
+function CitationBookmarkItem({
+  bookmark,
+  currentUserId,
+  isAdmin,
+  userFavoriteIds,
+  locale,
+  t,
+}: {
+  bookmark: SharedBookmark & { citation: NonNullable<SharedBookmark['citation']>; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }
+  currentUserId: string | null
+  isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
+}) {
+  const router = useRouter()
+  const [hovered, setHovered] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.CITATION.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('CITATION', bookmark.resourceId, {
+        text: bookmark.citation.text,
+        author: bookmark.citation.author,
+        source: bookmark.citation.source,
+        url: bookmark.citation.wikiUrl,
+        category: bookmark.citation.category,
+      })
+      if (result.success) {
+        router.refresh()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
+
+  return (
+    <div
+      className="group relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="rounded-xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50 p-4 dark:border-amber-700 dark:from-amber-950/20 dark:to-yellow-950/20">
+        <div className="mb-2 flex items-center gap-2">
+          <Quote className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+          <h4 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">Citation</h4>
+        </div>
+        <p className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-2 italic">
+          &quot;{bookmark.citation.text}&quot;
+        </p>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+            {bookmark.citation.author}
+          </span>
+          {bookmark.citation.source && (
+            <span className="text-xs text-amber-500 dark:text-amber-400">
+              - {bookmark.citation.source}
+            </span>
+          )}
+        </div>
+        <div className="mb-2">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+            {bookmark.citation.category}
+          </span>
+        </div>
+        {bookmark.citation.wikiUrl && (
+          <Link
+            href={sanitizeUrl(bookmark.citation.wikiUrl)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200 hover:underline"
+          >
+            Lire la citation
+            <ExternalLink className="h-3 w-3" />
+          </Link>
+        )}
+      </div>
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
+        <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
+          <User className="h-3 w-3" />
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
+        </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
+        {bookmark.sharedToCommunity && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {t('shared_to_community')}
+          </span>
+        )}
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
+        {(currentUserId === bookmark.user.id || isAdmin) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            onClick={() => {
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
+            }}
+          >
+            <Trash2 className="h-3 w-3 text-muted-foreground" />
+          </Button>
+        )}
+      </div>
+      <div className="mt-1 text-xs text-muted-foreground">
+        {t('shared_on')} {bookmark.formattedCreatedAt}
+      </div>
+    </div>
+  )
+}
+
 export function SharedBookmarks({
   sharedBookmarks,
   currentUserId,
@@ -1333,6 +1483,9 @@ export function SharedBookmarks({
             }
             if (bookmark.proverbe) {
               return <ProverbeBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { proverbe: NonNullable<SharedBookmark['proverbe']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
+            }
+            if (bookmark.citation) {
+              return <CitationBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { citation: NonNullable<SharedBookmark['citation']>; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             return null
           })}

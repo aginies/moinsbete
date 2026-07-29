@@ -4,7 +4,7 @@ import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Quote, Bookmark, Sparkles, BookOpen, User, EyeOff, Filter } from 'lucide-react'
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
-import { useItemShare } from './use-item-share'
+import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { toggleCitationFavoriteAction } from '@/actions/citation-bookmark-actions'
@@ -84,12 +84,6 @@ function CitationItemRow({
 }) {
   const t = useTranslations('feed')
 
-  const { handleShare, copied, shareUrl } = useItemShare({
-    shareUrl: item.wikiUrl,
-    title: `${item.text} — ${item.author}`,
-    text: `"${item.text}" — ${item.author}${item.source ? ` (${item.source})` : ''}`,
-  })
-
   return (
     <div className="p-3 rounded-lg bg-white/50 dark:bg-black/20 border border-amber-100 dark:border-amber-900/30 hover:bg-white dark:hover:bg-black/30 transition-colors">
       <div className="flex items-start gap-3">
@@ -104,7 +98,7 @@ function CitationItemRow({
             </span>
             {item.source && (
               <span className="text-xs text-amber-500 dark:text-amber-400">
-                • {item.source}
+                - {item.source}
               </span>
             )}
           </div>
@@ -124,15 +118,7 @@ function CitationItemRow({
           </div>
         </div>
         <div className="flex-shrink-0 flex items-center gap-1">
-          <button
-            onClick={(e) => { e.stopPropagation(); handleShare() }}
-            className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
-            title={copied ? 'Copié !' : 'Partager'}
-          >
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-          </button>
+          <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, source: item.source, url: item.wikiUrl, category: item.category }} />
           <button
             onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id, isFavorite) }}
             className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
@@ -171,6 +157,29 @@ export const CitationCard = React.memo(function CitationCardInner({
   const [error, setError] = useState(false)
   const [showThemeFilters, setShowThemeFilters] = useState(false)
   const [showAuteurFilters, setShowAuteurFilters] = useState(false)
+  const [localFavorites, setLocalFavorites] = useState<Set<string>>(new Set())
+  const favoritesSyncedRef = useRef(false)
+
+  useEffect(() => {
+    if (favoritesSyncedRef.current) return
+    const allIds = [
+      ...(dailyData?.bookmarkedIds || []),
+      ...(themesData?.bookmarkedIds || []),
+      ...(auteursData?.bookmarkedIds || []),
+    ]
+    if (allIds.length > 0) {
+      setLocalFavorites(prev => {
+        const next = new Set(prev)
+        allIds.forEach(id => next.add(id))
+        return next
+      })
+    }
+    favoritesSyncedRef.current = true
+  }, [dailyData?.bookmarkedIds, themesData?.bookmarkedIds, auteursData?.bookmarkedIds])
+
+  useEffect(() => {
+    favoritesSyncedRef.current = false
+  }, [dailyData, themesData, auteursData, selectedThemes, selectedAuteurs])
 
   const loadDaily = useCallback(async () => {
     const result = await fetchDailyCitation()
@@ -234,6 +243,15 @@ export const CitationCard = React.memo(function CitationCardInner({
   const handleBookmark = useCallback(async (id: string, isFav: boolean) => {
     const action = isFav ? 'remove' : 'add'
     const item = [...(dailyData?.citations || []), ...(themesData?.citations || []), ...(auteursData?.citations || [])].find(c => c.id === id)
+    setLocalFavorites(prev => {
+      const next = new Set(prev)
+      if (isFav) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
     if (item) {
       await toggleCitationFavoriteAction(id, action, {
         text: item.text,
@@ -242,7 +260,17 @@ export const CitationCard = React.memo(function CitationCardInner({
         url: item.wikiUrl,
         category: item.category,
         imageUrl: item.imageUrl,
-      }).catch(() => {})
+      }).catch(() => {
+        setLocalFavorites(prev => {
+          const next = new Set(prev)
+          if (isFav) {
+            next.add(id)
+          } else {
+            next.delete(id)
+          }
+          return next
+        })
+      })
     }
   }, [dailyData, themesData, auteursData])
 
@@ -263,11 +291,7 @@ export const CitationCard = React.memo(function CitationCardInner({
     await loadData()
   }, [loading, loadData])
 
-  const allFavorites = new Set([
-    ...(dailyData?.bookmarkedIds || []),
-    ...(themesData?.bookmarkedIds || []),
-    ...(auteursData?.bookmarkedIds || []),
-  ])
+  const allFavorites = localFavorites
 
   const themeCategories = themesData?.categories?.theme || []
   const auteurCategories = auteursData?.categories?.auteur || []
@@ -448,24 +472,25 @@ export const CitationCard = React.memo(function CitationCardInner({
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center justify-center gap-2 mt-3">
-                            <Link
-                              href={sanitizeUrl(item.wikiUrl)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-xs text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 hover:underline"
-                            >
-                              {t('read_citation')}
-                            </Link>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleBookmark(item.id, allFavorites.has(item.id)) }}
-                              className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
-                              title={allFavorites.has(item.id) ? t('remove_favorite') : t('add_favorite')}
-                            >
-                              <Bookmark className={`h-4 w-4 ${allFavorites.has(item.id) ? 'fill-current' : ''}`} />
-                            </button>
-                          </div>
+       <div className="flex items-center justify-center gap-2 mt-3">
+                              <Link
+                                href={sanitizeUrl(item.wikiUrl)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-xs text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 hover:underline"
+                              >
+                                {t('read_citation')}
+                              </Link>
+                              <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, source: item.source, url: item.wikiUrl, category: item.category }} />
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleBookmark(item.id, allFavorites.has(item.id)) }}
+                                className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
+                                title={allFavorites.has(item.id) ? t('remove_favorite') : t('add_favorite')}
+                              >
+                                <Bookmark className={`h-4 w-4 ${allFavorites.has(item.id) ? 'fill-current' : ''}`} />
+                              </button>
+                            </div>
                         </div>
                       ))}
                     </div>

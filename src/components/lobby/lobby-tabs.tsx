@@ -31,6 +31,7 @@ interface LobbyTabsProps {
     PROVERBE: Set<string>
     NEWS: Set<string>
     PORTAIL_WIKIPEDIA: Set<string>
+    CITATION: Set<string>
   }
 }
 
@@ -50,6 +51,7 @@ const TYPE_FILTERS: TypeFilter[] = [
   { value: 'PROVERBE', label: 'Proverbes', icon: 'Quote' },
   { value: 'NEWS', label: 'NEWS', icon: 'Newspaper' },
   { value: 'PORTAIL_WIKIPEDIA', label: 'Portail Wikipédia', icon: 'List' },
+  { value: 'CITATION', label: 'Citations', icon: 'Quote' },
 ]
 
 export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks, sharedByMeBookmarks, currentUserId, isAdmin, totalPages, totalPagesSharedWithMe, totalPagesSharedByMe, currentPage, locale, userFavoriteIds }: LobbyTabsProps) {

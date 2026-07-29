@@ -4,7 +4,7 @@ import { LobbyHeader } from '@/components/lobby/lobby-header'
 import { LobbyTabs } from '@/components/lobby/lobby-tabs'
 import { cookies } from 'next/headers'
 import type { JsonValue } from '@prisma/client/runtime/library'
-import type { Idea, SharedLobbyBookmark, SaviezVousFact, CachedWikipediaImage, CachedWikiLovesImage, CachedNewsArticle } from '@/generated/client'
+import type { Idea, SharedLobbyBookmark, SaviezVousFact, CachedWikipediaImage, CachedWikiLovesImage, CachedNewsArticle, CachedCitationArticle } from '@/generated/client'
 import { redirect } from 'next/navigation'
 
 interface SharedBookmarkRaw extends SharedLobbyBookmark {
@@ -17,6 +17,7 @@ interface SharedBookmarkRaw extends SharedLobbyBookmark {
   sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }>
   newsArticle?: { id: string; title: string; description: string; imageUrl: string | null; source: string; category: string; url: string } | null
   portailWikipediaArticle?: { id: string; title: string; extract: string; imageUrl: string | null; pageUrl: string } | null
+  citation?: CachedCitationArticle | null
 }
 
 interface UserFavoriteIds {
@@ -29,6 +30,7 @@ interface UserFavoriteIds {
   PORTAIL_LEXICAL: Set<string>
   NEWS: Set<string>
   PORTAIL_WIKIPEDIA: Set<string>
+  CITATION: Set<string>
 }
 
 const PAGE_SIZE = 20
@@ -57,12 +59,13 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       PORTAIL_LEXICAL: new Set(),
       NEWS: new Set(),
       PORTAIL_WIKIPEDIA: new Set(),
+      CITATION: new Set(),
     }
     if (session?.user?.id) {
       const bookmarks = await prisma.bookmark.findMany({
         where: {
           userId: session.user.id,
-          type: { in: ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS'] },
+          type: { in: ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'CITATION'] },
         },
         select: { resourceId: true, type: true },
       })
@@ -152,15 +155,18 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const portailWikiBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'PORTAIL_WIKIPEDIA' && b.resourceId)
     const newsIds = newsBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const portailWikiIds = portailWikiBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
+    const citationBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'CITATION' && b.resourceId)
+    const citationIds = citationBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = proverbeConfig ? JSON.parse(proverbeConfig.value) : []
 
-    const [saviezFacts, wikiImages, wikiMediaImages, wikiLovesImages, cachedNewsArticles, cachedPortailWikiArticles] = await prisma.$transaction([
+    const [saviezFacts, wikiImages, wikiMediaImages, wikiLovesImages, cachedNewsArticles, cachedPortailWikiArticles, cachedCitationArticles] = await prisma.$transaction([
       prisma.saviezVousFact.findMany({ where: saviezIds.length > 0 ? { id: { in: saviezIds } } : {} }),
       prisma.cachedWikipediaImage.findMany({ where: imageIds.length > 0 ? { fileUrl: { in: imageIds } } : {} }),
       prisma.cachedWikiLovesImage.findMany({ where: wikiMediaIds.length > 0 ? { docid: { in: wikiMediaIds }, source: 'EARTH' } : {} }),
       prisma.cachedWikiLovesImage.findMany({ where: wikiLovesIds.length > 0 ? { docid: { in: wikiLovesIds } } : {} }),
       prisma.cachedNewsArticle.findMany({ where: newsIds.length > 0 ? { url: { in: newsIds } } : {} }),
       prisma.cachedWikipediaPortalArticle.findMany({ where: portailWikiIds.length > 0 ? { id: { in: portailWikiIds } } : {} }),
+      prisma.cachedCitationArticle.findMany({ where: citationIds.length > 0 ? { id: { in: citationIds } } : {} }),
     ])
 
     const proverbeMap = new Map<string, typeof cachedProverbes[0]>()
@@ -179,6 +185,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const wikiLovesMap = new Map(wikiLovesImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
     const newsMap = new Map(cachedNewsArticles.map((a: { url: string; title: string; description: string | null; imageUrl: string | null; source: string; category: string }) => [a.url, a]))
     const portailWikiMap = new Map(cachedPortailWikiArticles.map((a: { id: string; title: string; extract: string; imageUrl: string | null; pageUrl: string }) => [a.id, a]))
+    const citationMap = new Map(cachedCitationArticles.map((a: CachedCitationArticle) => [a.id, a]))
 
     const allBookmarks = [...sharedBookmarks, ...sharedWithMeBookmarks, ...sharedByMeBookmarks]
     const missingIdeaIds = [...new Set(
@@ -404,12 +411,37 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         }
         return { ...bookmark, portailWikipediaArticle: null }
       }
+      if (bookmark.resourceType === 'CITATION' && bookmark.resourceId) {
+        let citation = citationMap.get(bookmark.resourceId)
+        if (!citation && bookmark.meta) {
+          let meta = bookmark.meta as JsonValue | null
+          if (typeof meta === 'string') {
+            try { meta = JSON.parse(meta) as JsonValue } catch { meta = {} }
+          }
+          if (typeof meta === 'object' && meta !== null && 'text' in meta) {
+            const m = meta as Record<string, unknown>
+            citation = {
+              id: bookmark.resourceId,
+              text: (m.text || '') as string,
+              author: (m.author || '') as string,
+              source: (m.source || null) as string | null,
+              category: (m.category || '') as string,
+              categoryType: 'auteur',
+              wikiUrl: (m.url || '') as string,
+              imageUrl: (m.imageUrl || null) as string | null,
+              scrapedAt: new Date(),
+              expiresAt: new Date(),
+            } as CachedCitationArticle
+          }
+        }
+        return { ...bookmark, citation: citation as CachedCitationArticle | null }
+      }
       return bookmark
     }
 
-    const enrichedBookmarks = sharedBookmarks.map(enrichBookmark).map(b => ({ ...b, sharedToCommunity: b.sharedWithUserId === null, sharedWithUsers: [], formattedCreatedAt: b.createdAt.toLocaleDateString(locale) })) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any; formattedCreatedAt: string; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }>
+    const enrichedBookmarks = sharedBookmarks.map(enrichBookmark).map(b => ({ ...b, sharedToCommunity: b.sharedWithUserId === null, sharedWithUsers: [], formattedCreatedAt: b.createdAt.toLocaleDateString(locale) })) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; citation?: CachedCitationArticle | null; idea?: any; formattedCreatedAt: string; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }>
 
-    const enrichedSharedWithMe = sharedWithMeBookmarks.map(enrichBookmark).map(b => ({ ...b, formattedCreatedAt: b.createdAt.toLocaleDateString(locale) })) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any; formattedCreatedAt: string }>
+    const enrichedSharedWithMe = sharedWithMeBookmarks.map(enrichBookmark).map(b => ({ ...b, formattedCreatedAt: b.createdAt.toLocaleDateString(locale) })) as Array<SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; citation?: CachedCitationArticle | null; idea?: any; formattedCreatedAt: string }>
 
     const sharedByMeMap = new Map<string, { bookmark: typeof sharedByMeBookmarks[0]; recipientIds: string[] }>()
     for (const bookmark of sharedByMeBookmarks) {
@@ -437,7 +469,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const recipientMap = new Map(recipientUsers.map(u => [u.id, u]))
     
     const enrichedSharedByMe = Array.from(sharedByMeMap.entries()).map(([key, { bookmark, recipientIds }]) => {
-      const enriched = enrichBookmark(bookmark) as SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; idea?: any }
+      const enriched = enrichBookmark(bookmark) as SharedBookmarkRaw & { saviezFact?: SaviezVousFact | null; wikiImage?: CachedWikipediaImage | null; wikiMediaImage?: CachedWikiLovesImage | null; wikiLovesImage?: CachedWikiLovesImage | null; proverbe?: { id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }; citation?: CachedCitationArticle | null; idea?: any }
       return { 
         ...enriched, 
         sharedWithUsers: recipientIds.map(id => recipientMap.get(id)).filter(Boolean) as Array<{ id: string; displayName: string | null; email: string }>
