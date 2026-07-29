@@ -26,5 +26,5 @@ export const MAX_URL_LENGTH = 2048
 
 export const CARD_DEFAULT_ORDER = [
   'saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news',
-  'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'portailWikipedia', 'proverbe', 'citation'
+  'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'portailWikipedia', 'proverbe', 'f1', 'citation'
 ]
