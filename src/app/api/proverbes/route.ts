@@ -136,7 +136,13 @@ const cleanWikitext = (text: string): string => {
     const name = parts[0].toLowerCase().trim()
     
     if (name === 'lang' || name === 'langue') {
-      return parts[2] ? parts[2].trim() : ''
+      return parts[2]?.replace(/\}\}/, '').trim()
+    }
+    if (name === 'siècle') {
+      return parts[2]?.replace(/\}\}/, '').trim()
+    }
+    if (name === 'ébauche-étym') {
+      return 'Ébauche'
     }
     if (name === 'figuré' || name === 'fig') {
       return '(Figuré)'
@@ -271,40 +277,48 @@ async function verifyFrenchWiktionnaire(proverbs: CachedProverbe[]): Promise<Cac
           )
           const hasFrenchSection = hasFrenchLanguageHeader || hasFrenchProverbCategory || content.includes('== {{fr}} ==') || content.includes('== français ==') || content.includes('== Français ==')
           
-          if (hasFrenchSection) {
-            let etymologie = ''
-            let definitions: string[] = []
-            
-            // Try wikitext format first
-            const etymMatch = content.match(/==\s*\{\{S\|étymologie\}\}\s*==([\s\S]*?)(?==\s*\{)/)
-            if (etymMatch) {
-              etymologie = cleanWikitext(etymMatch[1])
-            } else {
-              // Try plain wikitext == étymologie ==
-              const etymPlain = content.match(/==\s*étymologie\s*==([\s\S]*?)(?==\s*\{\{|\s*==)/i)
-              if (etymPlain) {
-                etymologie = cleanWikitext(etymPlain[1])
+            if (hasFrenchSection) {
+              let etymologie = ''
+              let definitions: string[] = []
+              
+              // Try wikitext format first
+              const etymMatch = content.match(/==\s*\{\{S\|étymologie\}\}\s*==([\s\S]*?)(?===)/)
+              if (etymMatch) {
+                let etym = etymMatch[1].trim()
+                etym = etym.replace(/^:\s*/, '')
+                etym = etym.replace(/\{\{ébauche-étym\|fr\}\}/g, '')
+                if (etym.trim()) {
+                  etymologie = cleanWikitext(etym)
+                }
+              } else {
+                // Try plain wikitext == étymologie ==
+                const etymPlain = content.match(/==\s*étymologie\s*==([\s\S]*?)(?==\s*\{\{|\s*==)/i)
+                if (etymPlain) {
+                  let etym = etymPlain[1].trim()
+                  etym = etym.replace(/^:\s*/, '')
+                  etym = etym.replace(/\{\{ébauche-étym\|fr\}\}/g, '')
+                  if (etym.trim()) {
+                    etymologie = cleanWikitext(etym)
+                  }
+                }
               }
-            }
-            // Try HTML format
-            if (!etymologie) {
-              const etymHtml = content.match(/<h[23][^>]*id=["'][^"']*étymologie[^"']*["'][^>]*>([^<]*)<\/h[23]>([\s\S]*?)(?=<h[23]|<div class="mw-heading)/i)
-              if (etymHtml) {
-                etymologie = cleanWikitext(etymHtml[2])
+              // Try HTML format
+              if (!etymologie) {
+                const etymHtml = content.match(/<h[23][^>]*id=["'][^"']*étymologie[^"']*["'][^>]*>([^<]*)<\/h[23]>([\s\S]*?)(?=<h[23]|<div class="mw-heading)/i)
+                if (etymHtml) {
+                  etymologie = cleanWikitext(etymHtml[2])
+                }
               }
-            }
 
-            // Try wikitext format definitions
-            const defMatches = content.match(/#\s+([^(].*?)(?=\n\*|\n#|$)/g)
-            if (defMatches && defMatches.length > 0) {
-              definitions = defMatches.map((d: string) => cleanWikitext(d.replace(/^#\s+/, ''))).filter(Boolean)
-            } else {
-              // Try HTML <ol><li> format
-              const liMatches = content.match(/<li[^>]*>([\s\S]*?)<\/li>/g)
-              if (liMatches && liMatches.length > 0) {
-                definitions = liMatches.map((li: string) => cleanWikitext(li.replace(/^<li[^>]*>/, '').replace(/<\/li>$/, '').trim())).filter(Boolean)
+              // Parse definitions from French section only
+              const frenchSectionMatch = content.match(/==\s*\{\{langue\|fr\}\}\s*==([\s\S]*?)(?=\n==[^=]|$)/)
+              if (frenchSectionMatch) {
+                const frenchSection = frenchSectionMatch[1]
+                const defMatches = frenchSection.match(/^#\s+(.+)$/gm)
+                if (defMatches && defMatches.length > 0) {
+                  definitions = defMatches.map((d: string) => cleanWikitext(d.replace(/^#\s+/, ''))).filter(Boolean)
+                }
               }
-            }
             
             verified.push({
               ...p,
@@ -736,17 +750,27 @@ async function enrichWithWiktionnaire(proverbes: CachedProverbe[]): Promise<Prov
         if (!isMissing) {
           hasPage = true
           const content = pageData.revisions?.[0]?.['*']
-          if (content) {
-            // Try wikitext format first
-            const etymMatch = content.match(/==\s*\{\{S\|étymologie\}\}\s*==([\s\S]*?)(?==\s*\{)/)
-            if (etymMatch) {
-              etymologie = cleanWikitext(etymMatch[1])
-            } else {
+            if (content) {
+              // Try wikitext format first
+              const etymMatch = content.match(/==\s*\{\{S\|étymologie\}\}\s*==([\s\S]*?)(?===)/)
+              if (etymMatch) {
+                let etym = etymMatch[1].trim()
+                etym = etym.replace(/^:\s*/, '')
+                etym = etym.replace(/\{\{ébauche-étym\|fr\}\}/g, '')
+                if (etym.trim()) {
+                  const stripped = etym.replace(/^=\s*:\s*/, '')
+                  etymologie = cleanWikitext(stripped)
+                }
+              } else {
               // Try plain wikitext == étymologie ==
               const etymPlain = content.match(/==\s*étymologie\s*==([\s\S]*?)(?==\s*\{\{|\s*==)/i)
               if (etymPlain) {
-                etymologie = cleanWikitext(etymPlain[1])
-              }
+                let etym = etymPlain[1].trim()
+                etym = etym.replace(/^:\s*/, '')
+                etym = etym.replace(/\{\{ébauche-étym\|fr\}\}/g, '')
+                if (etym.trim()) {
+                  etymologie = cleanWikitext(etym)
+                }
             }
             // Try HTML format
             if (!etymologie) {
@@ -756,16 +780,15 @@ async function enrichWithWiktionnaire(proverbes: CachedProverbe[]): Promise<Prov
               }
             }
 
-            // Try wikitext format definitions
-            const defMatches = content.match(/#\s+([^(].*?)(?=\n\*|\n#|$)/g)
-            if (defMatches && defMatches.length > 0) {
-              definitions = defMatches.map((d: string) => cleanWikitext(d.replace(/^#\s+/, ''))).filter(Boolean)
-            } else {
-              // Try HTML <ol><li> format
-              const liMatches = content.match(/<li[^>]*>([\s\S]*?)<\/li>/g)
-              if (liMatches && liMatches.length > 0) {
-                definitions = liMatches.map((li: string) => cleanWikitext(li.replace(/^<li[^>]*>/, '').replace(/<\/li>$/, '').trim())).filter(Boolean)
+            // Try wikitext format definitions from French section only
+            const frenchSectionMatch = content.match(/==\s*\{\{langue\|fr\}\}\s*==([\s\S]*?)(?=\n==[^=]|$)/)
+            if (frenchSectionMatch) {
+              const frenchSection = frenchSectionMatch[1]
+              const defMatches = frenchSection.match(/^#\s+(.+)$/gm)
+              if (defMatches && defMatches.length > 0) {
+                definitions = defMatches.map((d: string) => cleanWikitext(d.replace(/^#\s+/, ''))).filter(Boolean)
               }
+            }
             }
           }
         }
