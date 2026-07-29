@@ -38,6 +38,7 @@ model User {
   citationCardVisible          Boolean               @default(true)
   cardOrder                    Json?
   newsCardVisible              Boolean?              @default(true)
+  cardNavBarEnabled            Boolean               @default(true)
   emailNotificationsEnabled    Boolean               @default(true)
   hasSeenSplash                Boolean               @default(false)
   bookmarks                    Bookmark[]

@@ -233,7 +233,7 @@ function ImagePixabayCardInner({
 
   const cardContent = (
     <div
-      className="rounded-xl border-2 border-amber-800 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-900 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow"
+      className="rounded-xl border-2 border-amber-800 bg-gradient-to-br from-amber-50 to-yellow-50 p-3 sm:p-5 dark:border-amber-900 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow"
     >
       <CardHeader
         icon={<BookOpen className="h-4 w-4 text-white" />}

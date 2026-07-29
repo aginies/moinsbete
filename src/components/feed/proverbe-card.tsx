@@ -133,8 +133,8 @@ function ProverbeCardInner({
       buttonColor="emerald"
       label="Afficher Proverbe"
     >
-      <div className="mb-6">
-        <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-green-50 p-5 dark:border-emerald-700 dark:from-emerald-950/30 dark:to-green-950/30 hover:shadow-md transition-shadow">
+      <div className="mb-4 sm:mb-6">
+        <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-green-50 p-3 sm:p-5 dark:border-emerald-700 dark:from-emerald-950/30 dark:to-green-950/30 hover:shadow-md transition-shadow">
           <CardHeader
             icon={<Quote className="h-4 w-4 text-emerald-950" />}
             iconBgColor="bg-emerald-500"

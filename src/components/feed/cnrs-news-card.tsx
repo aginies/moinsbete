@@ -138,7 +138,7 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
       label="Afficher Actualité CNRS"
     >
       <div
-        className="flex h-full flex-col rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 hover:shadow-md transition-shadow"
+        className="flex h-full flex-col rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-3 sm:p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 hover:shadow-md transition-shadow"
       >
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">

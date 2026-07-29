@@ -346,7 +346,7 @@ export const CitationCard = React.memo(function CitationCardInner({
       buttonColor="amber"
       label="Afficher Citations"
     >
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-0 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow overflow-hidden">
           <div className="px-5 pt-4 pb-2 flex items-center justify-between border-b border-amber-200 dark:border-amber-800">
 <Link

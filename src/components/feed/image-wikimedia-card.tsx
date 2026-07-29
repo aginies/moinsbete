@@ -147,8 +147,8 @@ function ImageWikimediaCardInner({
   }, [userId, refreshTopics])
 
   const cardClassName = fullImage
-    ? 'rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-5 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30'
-    : 'rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-5 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30 cursor-pointer hover:shadow-md transition-shadow'
+    ? 'rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-3 sm:p-5 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30'
+    : 'rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-3 sm:p-5 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30 cursor-pointer hover:shadow-md transition-shadow'
 
   return (
     <>

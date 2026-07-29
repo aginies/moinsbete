@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Mail, User as UserIcon, Lock, LogOut, Bell, Eye, EyeOff } from 'lucide-react'
+import { Mail, User as UserIcon, Lock, LogOut, Bell, Eye, EyeOff, Navigation } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,6 +13,7 @@ import { CardOrdering } from '@/components/settings/card-ordering'
 
 interface SessionWithNotifs extends Session {
   emailNotificationsEnabled?: boolean
+  cardNavBarEnabled?: boolean
 }
 
 export default function MonCompteClient({ session }: { session: SessionWithNotifs }) {
@@ -20,6 +21,7 @@ export default function MonCompteClient({ session }: { session: SessionWithNotif
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [emailNotifications, setEmailNotifications] = useState(session.emailNotificationsEnabled ?? true)
+  const [cardNavBarEnabled, setCardNavBarEnabled] = useState(session.cardNavBarEnabled ?? true)
   const t = useTranslations('feed')
 
   async function handlePasswordChange(e: React.FormEvent<HTMLFormElement>) {
@@ -113,6 +115,35 @@ export default function MonCompteClient({ session }: { session: SessionWithNotif
                 const result = await toggleEmailNotificationsAction(checked)
                 if (result.error) {
                   setEmailNotifications(!checked)
+                }
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="rounded-xl border bg-card p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Navigation className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-semibold">{t('card_nav_bar')}</h2>
+                <p className="text-sm text-muted-foreground">{t('card_nav_bar_desc')}</p>
+              </div>
+            </div>
+            <Switch
+              checked={cardNavBarEnabled}
+              onCheckedChange={async (checked) => {
+                setCardNavBarEnabled(checked)
+                try {
+                  await fetch('/api/user-card-visibility', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ field: 'cardNavBarEnabled', value: checked }),
+                  })
+                } catch {
+                  setCardNavBarEnabled(!checked)
                 }
               }}
             />

@@ -413,6 +413,8 @@
     "db_maintenance_desc": "NO SAVES WILL BE MADE DURING THIS UPDATE",
     "email_notifications": "Email notifications",
     "email_notifications_desc": "Receive an email when someone shares content with me",
+    "card_nav_bar": "Quick nav bar",
+    "card_nav_bar_desc": "Show shortcuts to hidden cards",
     "share": "Share",
     "close": "Close",
     "settings": "Settings",

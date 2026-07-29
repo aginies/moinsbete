@@ -456,6 +456,8 @@
     "db_maintenance_desc": "AUCUNE SAUVEGARDE NE SERA EFFECTUÉE PENDANT CETTE MAJ",
     "email_notifications": "Notifications par email",
     "email_notifications_desc": "Recevoir un email quand quelqu'un me partage un contenu",
+    "card_nav_bar": "Barre de navigation rapide",
+    "card_nav_bar_desc": "Afficher les raccourcis vers les cartes masquées",
     "share": "Partager",
     "close": "Fermer",
     "settings": "Paramètres",

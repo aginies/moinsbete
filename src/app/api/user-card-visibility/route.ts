@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
         cnrsNewsEnabled: true,
         f1CardVisible: true,
         citationCardVisible: true,
+        cardNavBarEnabled: true,
       },
     })
 
@@ -86,6 +87,7 @@ export async function POST(request: NextRequest) {
       'newsCardVisible',
       'f1CardVisible',
       'citationCardVisible',
+      'cardNavBarEnabled',
     ]
 
     if (!validFields.includes(field)) {

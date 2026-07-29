@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Home, Clock, Bookmark, BookOpen, Network, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useVisitTracking } from '@/hooks/use-visit-tracking'
+import { useState, useEffect, useRef } from 'react'
 
 const navItems = [
   { href: '/sujets', label: 'Accueil', icon: Home },
@@ -19,8 +20,28 @@ const PROTECTED_PATHS = ['/lobby', '/favoris', '/mon-historique']
 
 export function BottomNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const pathname = usePathname()
+  const [isVisible, setIsVisible] = useState(true)
+  const lastScrollYRef = useRef(0)
 
   useVisitTracking()
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      const lastScrollY = lastScrollYRef.current
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false)
+      } else {
+        setIsVisible(true)
+      }
+
+      lastScrollYRef.current = currentScrollY
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const visibleItems = navItems.filter(item => {
     if (item.hidden) return false
@@ -29,7 +50,10 @@ export function BottomNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   })
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
+    <nav className={cn(
+      'fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden transition-transform duration-300',
+      isVisible ? 'translate-y-0' : 'translate-y-full'
+    )}>
       <div className="flex items-center justify-around px-1 py-0">
         {visibleItems.map((item) => {
           const Icon = item.icon

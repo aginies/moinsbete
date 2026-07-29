@@ -124,8 +124,8 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
       buttonColor="purple"
       label="Afficher Docs Radio France"
     >
-      <div className="mb-6">
-        <div className="rounded-xl border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-violet-50 p-5 dark:border-purple-700 dark:from-purple-950/30 dark:to-violet-950/30 hover:shadow-md transition-shadow">
+      <div className="mb-4 sm:mb-6">
+        <div className="rounded-xl border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-violet-50 p-3 sm:p-5 dark:border-purple-700 dark:from-purple-950/30 dark:to-violet-950/30 hover:shadow-md transition-shadow">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 dark:bg-purple-600">

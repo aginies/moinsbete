@@ -60,6 +60,7 @@ export default async function SujetsPage() {
           f1CardVisible: true,
           citationCardVisible: true,
           hasSeenSplash: true,
+          cardNavBarEnabled: true,
         },
       }).then(u => ({
         topicIds: u?.following.map((t: { id: string }) => t.id) || [],
@@ -80,6 +81,7 @@ export default async function SujetsPage() {
           citation: u.citationCardVisible ?? true,
         } : undefined,
         hasSeenSplash: u?.hasSeenSplash ?? false,
+        cardNavBarEnabled: u?.cardNavBarEnabled ?? true,
       }))
     : null
 
@@ -99,6 +101,7 @@ export default async function SujetsPage() {
 
   const initialVisibility = followedTopicIds?.visibility
   const hasSeenSplash = followedTopicIds?.hasSeenSplash ?? true
+  const cardNavBarEnabled = followedTopicIds?.cardNavBarEnabled ?? true
 
   const saviezVousFact = await getRandomFact()
 
@@ -129,6 +132,7 @@ export default async function SujetsPage() {
         initialVisibility={initialVisibility}
         globalVisibility={globalVisibility}
         csrfToken=""
+        cardNavBarEnabled={cardNavBarEnabled}
       />
     </>
   )

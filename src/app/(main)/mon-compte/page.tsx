@@ -6,6 +6,7 @@ import type { Session } from 'next-auth'
 
 interface ExtendedSession extends Session {
   emailNotificationsEnabled?: boolean
+  cardNavBarEnabled?: boolean
 }
 
 export default async function MonComptePage() {
@@ -29,10 +30,10 @@ export default async function MonComptePage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { emailNotificationsEnabled: true },
+    select: { emailNotificationsEnabled: true, cardNavBarEnabled: true },
   })
 
-  const extendedSession = { ...session, emailNotificationsEnabled: user?.emailNotificationsEnabled ?? true } as ExtendedSession
+  const extendedSession = { ...session, emailNotificationsEnabled: user?.emailNotificationsEnabled ?? true, cardNavBarEnabled: user?.cardNavBarEnabled ?? true } as ExtendedSession
 
   return <MonCompteClient session={extendedSession} />
 }

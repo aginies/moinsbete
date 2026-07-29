@@ -75,7 +75,7 @@ export function NavbarInner({ session }: NavbarInnerProps) {
                 </Link>
                 <Link href="/mon-compte" className="flex items-center gap-2 mr-2 hover:opacity-80 transition-opacity">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{session.user.name || session.user.email}</span>
+                  <span className="hidden md:inline text-sm text-muted-foreground">{session.user.name || session.user.email}</span>
                 </Link>
                 {session.user.role === 'ADMIN' && (
                   <Link href="/admin">

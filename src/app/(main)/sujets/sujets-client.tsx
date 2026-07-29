@@ -21,6 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CARD_DEFAULT_ORDER } from '@/lib/constants'
+import { CardNavBar } from '@/components/feed/card-nav-bar'
 import { useTranslations } from 'next-intl'
 
 interface SujetsClientProps {
@@ -31,6 +32,7 @@ interface SujetsClientProps {
   initialVisibility?: CardVisibility
   globalVisibility?: Record<string, boolean>
   csrfToken: string
+  cardNavBarEnabled?: boolean
 }
 
 interface CardVisibility {
@@ -159,7 +161,7 @@ async function fetchCardOrder(userId: string): Promise<string[]> {
   return CARD_DEFAULT_ORDER
 }
 
-export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, globalVisibility, csrfToken: initialCsrfToken }: SujetsClientProps) {
+export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, globalVisibility, csrfToken: initialCsrfToken, cardNavBarEnabled = true }: SujetsClientProps) {
   const [csrfToken, setCsrfToken] = useState(initialCsrfToken || '')
   const router = useRouter()
   const t = useTranslations('feed')
@@ -294,7 +296,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   if (!orderLoaded) {
     return (
       <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
-        <div className="space-y-6 mb-6">
+        <div className="space-y-4 sm:space-y-6 mb-4 sm:mb-6">
           {[1, 2, 3].map(i => (
             <Skeleton key={i} className="h-48 w-full rounded-2xl" />
           ))}
@@ -304,7 +306,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
             <Skeleton key={i} className="h-12 w-full rounded-xl" />
           ))}
         </div>
-        <Skeleton className="h-16 w-full rounded-xl mb-6" />
+        <Skeleton className="h-16 w-full rounded-xl mb-4 sm:mb-6" />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           {[1, 2, 3, 4, 5, 6].map(i => (
             <Skeleton key={i} className="h-10 w-full rounded-lg" />
@@ -316,11 +318,20 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
+      <CardNavBar
+        cards={orderedConfigs.map(c => ({
+          key: c.key,
+          label: CARD_DISPLAY_NAMES[c.key] ? t(CARD_DISPLAY_NAMES[c.key]) : c.key,
+          color: HIDDEN_CARD_COLORS[c.key] || 'teal',
+        }))}
+        enabled={cardNavBarEnabled}
+      />
+
       {visibleCards.map(card => {
         const renderer = CARD_RENDERERS[card.key]
         if (!renderer) return null
         return (
-          <div key={card.key} className="mb-6">
+          <div key={card.key} className="mb-4 sm:mb-6" id={card.key}>
             {renderer(card, saviezVousFact, userId, hasUserId)}
           </div>
         )
@@ -334,7 +345,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         ))}
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <Link
           href={((userId && followedIds.length > 0) || isAllSelected) ? '/idees/au-hasard?followed=1' : '/sujets'}
           className="block rounded-xl border-2 border-rose-400 bg-gradient-to-br from-rose-50 to-pink-50 p-5 dark:border-rose-600 dark:from-rose-950/30 dark:to-pink-950/30 hover:shadow-md transition-shadow"

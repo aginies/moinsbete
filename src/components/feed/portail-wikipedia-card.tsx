@@ -142,16 +142,16 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
       label="Afficher Portail Wikipédia"
     >
       {loading && articles.length === 0 ? (
-        <div className="mb-6">
-          <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 to-violet-50 p-5 dark:border-indigo-700 dark:from-indigo-950/30 dark:to-violet-950/30">
+        <div className="mb-4 sm:mb-6">
+          <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 to-violet-50 p-3 sm:p-5 dark:border-indigo-700 dark:from-indigo-950/30 dark:to-violet-950/30">
             <div className="flex items-center justify-center py-8">
               <RefreshCw className="h-6 w-6 animate-spin text-indigo-500" />
             </div>
           </div>
         </div>
       ) : (
-        <div className="mb-6">
-          <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 to-violet-50 p-5 dark:border-indigo-700 dark:from-indigo-950/30 dark:to-violet-950/30 hover:shadow-md transition-shadow">
+        <div className="mb-4 sm:mb-6">
+          <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 to-violet-50 p-3 sm:p-5 dark:border-indigo-700 dark:from-indigo-950/30 dark:to-violet-950/30 hover:shadow-md transition-shadow">
             <CardHeader
               icon={<Languages className="h-4 w-4 text-indigo-950" />}
               iconBgColor="bg-indigo-500"

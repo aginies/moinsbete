@@ -111,8 +111,8 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
       label="Afficher Lexique"
     >
       {loading && !word ? (
-        <div className="mb-6">
-          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
+        <div className="mb-4 sm:mb-6">
+          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-3 sm:p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 dark:bg-amber-600">
@@ -129,8 +129,8 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
           </div>
         </div>
       ) : (
-        <div className="mb-6">
-          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow">
+        <div className="mb-4 sm:mb-6">
+          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-3 sm:p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow">
             <CardHeader
               icon={<Languages className="h-4 w-4 text-amber-950" />}
               iconBgColor="bg-amber-500"
