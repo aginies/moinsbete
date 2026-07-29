@@ -58,6 +58,9 @@ export interface AdminStats {
   portailWikipediaArticles: number
   portailWikipediaExpired: number
   portailWikipediaScrapedAt: string | null
+  citationArticles: number
+  citationExpired: number
+  citationScrapedAt: string | null
 }
 
 export interface AdminUser {
@@ -223,12 +226,18 @@ export function AdminContent({ stats, users }: AdminContentProps) {
               label={t('feed.saviez_vous_facts')}
               value={stats.saviezVousFacts}
             />
-            <StatCard
-              icon={<Quote className="h-5 w-5" />}
-              label={t('feed.proverbes')}
-              value={stats.proverbesCached}
-            />
-          </div>
+<StatCard
+               icon={<Quote className="h-5 w-5" />}
+               label={t('feed.proverbes')}
+               value={stats.proverbesCached}
+             />
+             <StatCard
+               icon={<Quote className="h-5 w-5" />}
+               label={t('feed.citation_articles')}
+               value={stats.citationArticles}
+               sublabel={stats.citationExpired > 0 ? `${stats.citationExpired} ${t('feed.expired')}` : undefined}
+             />
+           </div>
         </TabsContent>
 
         <TabsContent value="users">
@@ -328,7 +337,16 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                     <span className="font-medium text-destructive">{stats.portailWikipediaExpired}</span>
                   </div>
                 )}
-                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && stats.f1Expired === 0 && stats.portailWikipediaExpired === 0 && (
+                {stats.citationExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Quote className="h-4 w-4 text-muted-foreground" />
+                      {t('feed.citation_expired')}
+                    </span>
+                    <span className="font-medium text-destructive">{stats.citationExpired}</span>
+                  </div>
+                )}
+                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && stats.f1Expired === 0 && stats.portailWikipediaExpired === 0 && stats.citationExpired === 0 && (
                   <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
@@ -349,7 +367,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <DialogHeader>
                     <DialogTitle>Confirmer le nettoyage</DialogTitle>
                       <DialogDescription>
-                        Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired + stats.f1Expired + stats.portailWikipediaExpired} éléments expirés ?
+                        Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired + stats.f1Expired + stats.portailWikipediaExpired + stats.citationExpired} éléments expirés ?
                       </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -656,6 +674,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
   { key: 'portailWikipedia', labelKey: 'feed.portail_wikipedia_tab', icon: <Globe className="h-4 w-4" /> },
   { key: 'proverbe', labelKey: 'feed.proverbe_tab', icon: <Podcast className="h-4 w-4" /> },
   { key: 'f1', labelKey: 'feed.f1_tab', icon: <Trophy className="h-4 w-4" /> },
+  { key: 'citation', labelKey: 'feed.citation_tab', icon: <Quote className="h-4 w-4" /> },
 ]
 
 function CartesTab() {

@@ -15,6 +15,7 @@ import { PortailWikipediaCard } from '@/components/feed/portail-wikipedia-card'
 import { ProverbeCard } from '@/components/feed/proverbe-card'
 import { NewsCard } from '@/components/feed/news-card'
 import { F1Card } from '@/components/feed/f1-card'
+import { CitationCard } from '@/components/feed/citation-card'
 import { VisibilityButton } from '@/components/feed/visibility-button'
 import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
@@ -46,6 +47,7 @@ interface CardVisibility {
   proverbe: boolean
   news: boolean
   f1: boolean
+  citation: boolean
 }
 
 interface CardConfig {
@@ -68,6 +70,7 @@ const HIDDEN_CARD_COLORS: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 
   portailWikipedia: 'indigo',
   proverbe: 'emerald',
   f1: 'rose',
+  citation: 'amber',
 }
 
 const CARD_DISPLAY_NAMES: Record<string, string> = {
@@ -83,6 +86,7 @@ const CARD_DISPLAY_NAMES: Record<string, string> = {
   portailWikipedia: 'portail_wikipedia_tab',
   proverbe: 'proverbe_tab',
   f1: 'f1_tab',
+  citation: 'citation_tab',
 }
 
 const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null, userId: string | undefined, hasUserId: boolean) => React.ReactElement | null> = {
@@ -127,6 +131,9 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
   ),
   f1: (config, _, userId) => (
     <F1Card onToggle={config.toggle} isVisible={config.isVisible} userId={userId} />
+  ),
+  citation: (config, _, userId) => (
+    <CitationCard onToggle={config.toggle} isVisible={config.isVisible} userId={userId} />
   ),
 }
 
@@ -176,7 +183,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const isAllSelected = allTopics.length > 0 && followedIdsSet.size === allTopics.length
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
-    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, portailWikipedia: true, proverbe: true, news: true, f1: true, pixabayActiveCategory: 'bird',
+    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, portailWikipedia: true, proverbe: true, news: true, f1: true, citation: true, pixabayActiveCategory: 'bird',
   })
 
   const lastSyncedRef = useRef<string | null>(null)
@@ -258,6 +265,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     { key: 'portailWikipedia', visKey: 'portailWikipedia', field: 'portailWikipediaCardVisible' },
     { key: 'proverbe', visKey: 'proverbe', field: 'proverbeCardVisible' },
     { key: 'f1', visKey: 'f1', field: 'f1CardVisible', extraCheck: () => hasUserId },
+    { key: 'citation', visKey: 'citation', field: 'citationCardVisible' },
   ]
 
   const cardConfigs: CardConfig[] = useMemo(() =>

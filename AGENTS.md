@@ -99,6 +99,10 @@ Every new card source must include these files/patterns:
 - Add `{source}CardVisible` to user select
 - Add `{source}` to visibility object
 
+### `src/app/api/user-card-visibility/route.ts`
+- Add `{source}CardVisible` to GET `select` object
+- Add `{source}CardVisible` to POST `validFields` array
+
 ### `src/app/(main)/favoris/page.tsx`
 - Add `{source}FavoritesCount` query
 - Pass to `FavorisPageClient`

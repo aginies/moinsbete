@@ -51,6 +51,7 @@ export default async function AdminPage() {
     latestF1,
     latestSaviezVous,
     latestPortailWiki,
+    latestCitation,
   ] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
     prisma.topic.count(),
@@ -71,10 +72,12 @@ export default async function AdminPage() {
       newsTotal: bigint
       newsExpired: bigint
       f1Total: bigint
-      f1Expired: bigint
-      portailWikipediaTotal: bigint
-      portailWikipediaExpired: bigint
-    }>>`
+f1Expired: bigint
+       portailWikipediaTotal: bigint
+       portailWikipediaExpired: bigint
+       citationTotal: bigint
+       citationExpired: bigint
+     }>>`
       SELECT
         (SELECT COUNT(*) FROM CachedCnrsArticle) as cnrsTotal,
         (SELECT COUNT(*) FROM CachedCnrsArticle WHERE datetime(expiresAt) < datetime('now')) as cnrsExpired,
@@ -88,8 +91,10 @@ export default async function AdminPage() {
         (SELECT COUNT(*) FROM CachedNewsArticle WHERE datetime(expiresAt) < datetime('now')) as newsExpired,
         (SELECT COUNT(*) FROM CachedF1Article) as f1Total,
         (SELECT COUNT(*) FROM CachedF1Article WHERE datetime(expiresAt) < datetime('now')) as f1Expired,
-        (SELECT COUNT(*) FROM CachedWikipediaPortalArticle) as portailWikipediaTotal,
-        (SELECT COUNT(*) FROM CachedWikipediaPortalArticle WHERE datetime(expiresAt) < datetime('now')) as portailWikipediaExpired
+(SELECT COUNT(*) FROM CachedWikipediaPortalArticle) as portailWikipediaTotal,
+         (SELECT COUNT(*) FROM CachedWikipediaPortalArticle WHERE datetime(expiresAt) < datetime('now')) as portailWikipediaExpired,
+         (SELECT COUNT(*) FROM CachedCitationArticle) as citationTotal,
+         (SELECT COUNT(*) FROM CachedCitationArticle WHERE datetime(expiresAt) < datetime('now')) as citationExpired
     `,
     prisma.saviezVousFact.count(),
     prisma.bookmark.count({
@@ -124,6 +129,7 @@ export default async function AdminPage() {
     prisma.cachedF1Article.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
     prisma.saviezVousFact.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
     prisma.cachedWikipediaPortalArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
+    prisma.cachedCitationArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
   ])
 
   const stats = cacheStats[0]
@@ -141,6 +147,8 @@ export default async function AdminPage() {
   const f1ExpiredCount = Number(stats.f1Expired)
   const portailWikipediaCount = Number(stats.portailWikipediaTotal)
   const portailWikipediaExpiredCount = Number(stats.portailWikipediaExpired)
+  const citationCount = Number(stats.citationTotal)
+  const citationExpiredCount = Number(stats.citationExpired)
 
   const formatScrapedAt = (date: Date | null) => {
     if (!date) return null
@@ -190,6 +198,9 @@ export default async function AdminPage() {
         portailWikipediaArticles: portailWikipediaCount,
         portailWikipediaExpired: portailWikipediaExpiredCount,
         portailWikipediaScrapedAt: formatScrapedAt(latestPortailWiki?.scrapedAt ?? null),
+        citationArticles: citationCount,
+        citationExpired: citationExpiredCount,
+        citationScrapedAt: formatScrapedAt(latestCitation?.scrapedAt ?? null),
       }}
       users={adminUsers}
     />

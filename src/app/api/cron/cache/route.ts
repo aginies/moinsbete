@@ -6,6 +6,7 @@ import { scrapeAndCacheNews } from '@/scripts/cache-news'
 import { scrapeAndCacheSaviezVousImages } from '@/scripts/cache-saviez-vous-images'
 import { scrapeAndCacheF1 } from '@/scripts/cache-f1'
 import { scrapeAndCachePortailWikipedia } from '@/scripts/cache-portail-wikipedia'
+import { scrapeAndCacheCitation } from '@/scripts/cache-citation'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 
 const CRON_SECRET = process.env.CRON_SECRET || ''
@@ -79,17 +80,21 @@ export async function GET(request: NextRequest) {
     await scrapeAndCacheF1()
     results.f1 = 'ok'
 
-    console.log('[cron] Step 6/8: Scraping Portail Wikipédia...')
+    console.log('[cron] Step 6/9: Scraping Portail Wikipédia...')
     await scrapeAndCachePortailWikipedia()
     results.portailWiki = 'ok'
 
-    console.log('[cron] Step 7/8: Cleanup...')
+    console.log('[cron] Step 7/9: Scraping Wikiquote...')
+    await scrapeAndCacheCitation()
+    results.citation = 'ok'
+
+    console.log('[cron] Step 8/9: Cleanup...')
     const counts = await cleanupExpired()
-    results.cleanup = `cnrs:${counts.cnrs},radio:${counts.radio},wiki:${counts.wiki},wikiLoves:${counts.wikiLoves},news:${counts.news},f1:${counts.f1},portailWiki:${counts.portailWikipedia}`
+    results.cleanup = `cnrs:${counts.cnrs},radio:${counts.radio},wiki:${counts.wiki},wikiLoves:${counts.wikiLoves},news:${counts.news},f1:${counts.f1},portailWiki:${counts.portailWikipedia},citation:${counts.citation}`
     const newsMaxAge = await cleanupNewsByMaxAge(5)
     results.newsMaxAge = newsMaxAge > 0 ? `maxage:${newsMaxAge}` : ''
 
-    console.log('[cron] Step 7/7: Resolving Saviez-vous images...')
+    console.log('[cron] Step 9/9: Resolving Saviez-vous images...')
     await scrapeAndCacheSaviezVousImages()
     results.saviezvous = 'ok'
     
