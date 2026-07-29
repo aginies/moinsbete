@@ -151,7 +151,6 @@ function IdeaBookmarkItem({
   t: ReturnType<typeof useTranslations>
 }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = userFavoriteIds.IDEA.has(bookmark.idea.id)
   const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
@@ -183,11 +182,7 @@ function IdeaBookmarkItem({
   }
 
   return (
-    <div
-      className="group relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="group relative">
       <CompactIdeaCard idea={idea} />
       <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
         <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
@@ -219,7 +214,7 @@ function IdeaBookmarkItem({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
             onClick={() => {
               if (bookmark.resourceType === 'IDEA' && bookmark.resourceId) {
                 unshareResourceFromLobby('IDEA', bookmark.resourceId).then(r => {
@@ -261,7 +256,6 @@ function SaviezVousBookmarkItem({
   t: ReturnType<typeof useTranslations>
 }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.SAVIEZ_VOUS.has(bookmark.resourceId) : false
   const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
@@ -288,11 +282,7 @@ function SaviezVousBookmarkItem({
   }
 
   return (
-    <div
-      className="group relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="group relative">
       <SaviezVousCard
         id={bookmark.saviezFact.id}
         text={bookmark.saviezFact.text}
@@ -342,7 +332,7 @@ function SaviezVousBookmarkItem({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
             onClick={() => {
               bookmark.resourceId && unshareResourceFromLobby('SAVIEZ_VOUS', bookmark.resourceId).then(r => {
                 if (r?.error) toast.error(r.error)
@@ -377,7 +367,6 @@ function WikiImageBookmarkItem({
   t: ReturnType<typeof useTranslations>
 }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.IMAGE_DU_JOUR.has(bookmark.resourceId) : false
@@ -406,11 +395,7 @@ function WikiImageBookmarkItem({
   }
 
   return (
-    <div
-      className="group relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="group relative">
       <div className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-50 p-4 dark:border-teal-700 dark:from-teal-950/30 dark:to-emerald-950/30">
         <div className="mb-2 flex items-center gap-2">
           <Camera className="h-4 w-4 text-teal-600" />
@@ -478,7 +463,7 @@ function WikiImageBookmarkItem({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
             onClick={() => {
               bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
                 if (r?.error) toast.error(r.error)
@@ -520,7 +505,6 @@ function WikiLovesBookmarkItem({
   t: ReturnType<typeof useTranslations>
 }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.IMAGE_WIKILOVES.has(bookmark.resourceId) : false
@@ -550,11 +534,7 @@ function WikiLovesBookmarkItem({
   }
 
   return (
-    <div
-      className="group relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="group relative">
       <div className="rounded-xl border-2 border-indigo-800 bg-gradient-to-br from-indigo-50 to-emerald-50 p-4 dark:border-indigo-900 dark:from-indigo-950/30 dark:to-emerald-950/30">
         <div className="mb-2 flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-white" />
@@ -630,7 +610,7 @@ function WikiLovesBookmarkItem({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
             onClick={() => {
               bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
                 if (r?.error) toast.error(r.error)
@@ -672,7 +652,6 @@ function NewsBookmarkItem({
   t: ReturnType<typeof useTranslations>
 }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.NEWS.has(bookmark.resourceId) : false
   const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
@@ -701,11 +680,7 @@ function NewsBookmarkItem({
   }
 
   return (
-    <div
-      className="group relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="group relative">
       <div className="rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30">
         <div className="mb-2 flex items-center gap-2">
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
@@ -789,7 +764,7 @@ function NewsBookmarkItem({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
             onClick={() => {
               bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
                 if (r?.error) toast.error(r.error)
@@ -824,7 +799,6 @@ function WikiMediaBookmarkItem({
   t: ReturnType<typeof useTranslations>
 }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.IMAGE_WIKIMEDIA.has(bookmark.resourceId) : false
@@ -854,11 +828,7 @@ function WikiMediaBookmarkItem({
   }
 
   return (
-    <div
-      className="group relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="group relative">
       <div className="rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-4 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30">
         <div className="mb-2 flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-white" />
@@ -934,7 +904,7 @@ function WikiMediaBookmarkItem({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
             onClick={() => {
               bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
                 if (r?.error) toast.error(r.error)
@@ -976,7 +946,6 @@ function ProverbeBookmarkItem({
   t: ReturnType<typeof useTranslations>
 }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.PROVERBE.has(bookmark.resourceId) : false
   const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
@@ -1006,11 +975,7 @@ function ProverbeBookmarkItem({
   }
 
   return (
-    <div
-      className="group relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="group relative">
       <div className="rounded-xl border-2 border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 p-4 dark:border-emerald-700 dark:from-emerald-950/20 dark:to-green-950/20">
         <div className="mb-2 flex items-center gap-2">
           <Quote className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
@@ -1085,7 +1050,7 @@ function ProverbeBookmarkItem({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
             onClick={() => {
               bookmark.resourceId && unshareResourceFromLobby('PROVERBE', bookmark.resourceId).then(r => {
                 if (r?.error) toast.error(r.error)
@@ -1120,7 +1085,6 @@ function PortailWikipediaBookmarkItem({
   t: ReturnType<typeof useTranslations>
 }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
   const [showFullImage, setShowFullImage] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.PORTAIL_WIKIPEDIA.has(bookmark.resourceId) : false
@@ -1149,11 +1113,7 @@ function PortailWikipediaBookmarkItem({
   }
 
   return (
-    <div
-      className="group relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="group relative">
       <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 to-violet-50 p-4 dark:border-indigo-700 dark:from-indigo-950/30 dark:to-violet-950/30">
         <div className="mb-2 flex items-center gap-2">
           <Languages className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
@@ -1223,7 +1183,7 @@ function PortailWikipediaBookmarkItem({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
             onClick={() => {
               bookmark.resourceId && unshareResourceFromLobby('PORTAIL_WIKIPEDIA', bookmark.resourceId).then(r => {
                 if (r?.error) toast.error(r.error)
@@ -1265,7 +1225,6 @@ function CitationBookmarkItem({
   t: ReturnType<typeof useTranslations>
 }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.CITATION.has(bookmark.resourceId) : false
   const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
@@ -1294,11 +1253,7 @@ function CitationBookmarkItem({
   }
 
   return (
-    <div
-      className="group relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="group relative">
       <div className="rounded-xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50 p-4 dark:border-amber-700 dark:from-amber-950/20 dark:to-yellow-950/20">
         <div className="mb-2 flex items-center gap-2">
           <Quote className="h-4 w-4 text-amber-700 dark:text-amber-300" />
@@ -1370,7 +1325,7 @@ function CitationBookmarkItem({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-7 w-7 p-0 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
             onClick={() => {
               bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
                 if (r?.error) toast.error(r.error)
