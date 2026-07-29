@@ -319,7 +319,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   return (
     <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
       <CardNavBar
-        cards={orderedConfigs.map(c => ({
+        cards={visibleCards.map(c => ({
           key: c.key,
           label: CARD_DISPLAY_NAMES[c.key] ? t(CARD_DISPLAY_NAMES[c.key]) : c.key,
           color: HIDDEN_CARD_COLORS[c.key] || 'teal',
