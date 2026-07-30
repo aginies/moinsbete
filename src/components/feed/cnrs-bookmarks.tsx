@@ -59,7 +59,7 @@ export function CnrsBookmarks({ userId, onRemoveComplete, searchQuery }: CnrsBoo
                   src={sanitizeUrl(item.imageUrl, '')}
                   alt={item.title}
                   loading="lazy"
-                  className="w-full h-32 object-cover transition-opacity hover:opacity-90"
+                  className="max-w-full transition-opacity hover:opacity-90 rounded-xl"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none'
                   }}

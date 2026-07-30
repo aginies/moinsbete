@@ -59,7 +59,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
   showBookmark = true,
   showRefresh = true,
   showShare = true,
-  imageHeight = 'h-48',
+  imageHeight = 'h-64',
   swipeable = false,
   onToggle,
   enableAutoRefresh = false,

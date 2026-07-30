@@ -58,7 +58,7 @@ export function RadioFranceFavorites({ userId, onRemoveComplete, searchQuery }: 
                   src={sanitizeUrl(item.image, '')}
                   alt={item.title}
                   loading="lazy"
-                  className="w-full h-32 object-cover transition-opacity hover:opacity-90"
+                  className="max-w-full transition-opacity hover:opacity-90 rounded-xl"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none'
                   }}

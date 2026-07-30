@@ -196,7 +196,7 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
               src={article.imageUrl}
               alt={article.title}
               loading="lazy"
-              className="w-full h-80 object-cover transition-opacity hover:opacity-90"
+              className="w-full h-[28rem] object-cover transition-opacity hover:opacity-90"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none'
               }}

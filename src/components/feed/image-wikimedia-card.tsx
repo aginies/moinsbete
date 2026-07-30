@@ -225,7 +225,7 @@ function ImageWikimediaCardInner({
             src={img.imageUrl}
             alt={img.titre}
             loading="lazy"
-            className={`w-full transition-opacity ${largeImage ? 'h-[40vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-56 object-cover pointer-events-none hover:opacity-90'}`}
+            className={`w-full transition-opacity ${largeImage ? 'h-[40vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-64 object-cover pointer-events-none hover:opacity-90'}`}
             onLoad={() => {}}
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />

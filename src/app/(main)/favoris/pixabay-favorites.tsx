@@ -35,7 +35,7 @@ function PixabayFavoriteItem({ item, onRemove }: PixabayFavoriteItemProps) {
               src={sanitizeUrl(item.thumbnailUrl, '')}
               alt="Pixabay video thumbnail"
               loading="lazy"
-              className="w-full h-32 object-cover transition-opacity hover:opacity-90"
+              className="max-w-full transition-opacity hover:opacity-90 rounded-xl"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />
             <div className="absolute inset-0 flex items-center justify-center">

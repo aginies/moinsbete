@@ -56,7 +56,7 @@ function SaviezVousFavoriteItem({ item, onRemove, onShowFullImage, isShared, onS
               src={sanitizeUrl(item.imageFilename, '')}
               alt="Illustration"
               loading="lazy"
-              className="w-full h-32 object-contain transition-opacity hover:opacity-90 bg-neutral-100 dark:bg-neutral-800"
+              className="max-w-full object-contain transition-opacity hover:opacity-90 bg-neutral-100 dark:bg-neutral-800 rounded-xl"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none'
               }}

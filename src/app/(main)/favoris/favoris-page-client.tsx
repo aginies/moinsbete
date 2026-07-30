@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote, Trash2, Trophy, Globe } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote, Trash2, Trophy, Globe, Download } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import Link from 'next/link'
@@ -35,6 +35,7 @@ import { useItemShare } from '@/components/feed/use-item-share'
 import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby } from '@/actions/lobby-share-actions'
 import { toast } from 'sonner'
 import { SearchResults } from '@/components/lobby/search-results'
+import { useTranslations } from 'next-intl'
 
 interface FavorisPageClientProps {
   ideas: CompactIdea[]
@@ -81,6 +82,7 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
 
 export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, portailWikipediaCount, proverbeFavoritesCount, newsFavoritesCount, f1FavoritesCount, citationFavoritesCount }: FavorisPageClientProps) {
   const router = useRouter()
+  const t = useTranslations('feed')
   const [activeTab, setActiveTab] = useState<Tab>('idees')
   const [previousTab, setPreviousTab] = useState<Tab | null>(null)
   const hasInitialSet = useRef(false)
@@ -652,23 +654,35 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
   return (
     <>
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Rechercher dans les favoris..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 pr-10"
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md p-0 text-muted-foreground hover:text-foreground"
-            onClick={() => setSearchQuery('')}
+      <div className="relative mb-4 flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Rechercher dans les favoris..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-10"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md p-0 text-muted-foreground hover:text-foreground"
+              onClick={() => setSearchQuery('')}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        {userId && (
+          <a
+            href="/api/favorites/export"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-primary hover:text-primary/90 hover:bg-muted rounded-lg transition-colors"
+            title={t('export_html_title')}
           >
-            <X className="h-4 w-4" />
-          </button>
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">{t('export_html')}</span>
+          </a>
         )}
       </div>
 

@@ -249,7 +249,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
             src={image?.imageUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
             alt={image?.description || 'Image'}
             loading="lazy"
-            className={`w-full transition-opacity ${largeImage ? 'h-[28vh] object-cover bg-neutral-100 dark:bg-neutral-800' : mediumImage ? 'h-[38vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-56 object-cover pointer-events-none hover:opacity-90'}`}
+            className={`w-full transition-opacity ${largeImage ? 'h-[40vh] object-cover bg-neutral-100 dark:bg-neutral-800' : mediumImage ? 'h-[38vh] object-cover bg-neutral-100 dark:bg-neutral-800' : fullImage ? 'max-h-[60vh] object-contain bg-neutral-100 dark:bg-neutral-800' : 'h-64 object-cover pointer-events-none hover:opacity-90'}`}
             onLoad={() => setIsImageLoaded(true)}
             onError={() => setImageError(true)}
           />

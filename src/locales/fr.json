@@ -465,7 +465,9 @@
     "filter_news": "Filtres",
     "clear_search": "Effacer la recherche",
     "change_documentary": "Changer de documentaire",
-    "refresh_content": "Rafraîchir"
+    "refresh_content": "Rafraîchir",
+    "export_html": "Exporter HTML",
+    "export_html_title": "Exporter vos favoris en HTML"
   },
   "about": {
     "title": "MoinsBête",

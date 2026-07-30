@@ -423,6 +423,8 @@
     "clear_search": "Clear search",
     "change_documentary": "Change documentary",
     "refresh_content": "Refresh",
+    "export_html": "Export HTML",
+    "export_html_title": "Export your favorites as HTML",
     "etymology": "Étimologie",
     "followed_topics": "Sujits suivis",
     "hidden_toggle": "Masqué — cliquer pour afficher",
