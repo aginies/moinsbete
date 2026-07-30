@@ -35,17 +35,15 @@ export function NavbarInner({ session }: NavbarInnerProps) {
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 w-full items-center">
-          <div className="mx-auto flex h-14 items-center md:max-w-4xl md:px-6">
-            <div className="flex items-center gap-2">
-              <Link href="/sujets" className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-primary" />
-                <span className="font-heading font-bold text-lg">MoinsBête</span>
-              </Link>
-            </div>
+        <div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between px-4 md:px-6">
+          <div className="flex items-center gap-2">
+            <Link href="/sujets" className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <span className="font-heading font-bold text-lg">MoinsBête</span>
+            </Link>
           </div>
 
-          <div className="flex items-center gap-2 px-4 md:pr-6">
+          <div className="flex items-center gap-2">
             {session?.user && <SearchButton />}
             {session?.user && (
               <Link href="/lobby">
