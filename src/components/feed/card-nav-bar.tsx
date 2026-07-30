@@ -43,7 +43,15 @@ export function CardNavBar({ cards, enabled }: CardNavBarProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [lastHideTime, setLastHideTime] = useState(0)
+  const [isDesktop, setIsDesktop] = useState(false)
   const observerRef = useRef<IntersectionObserver | null>(null)
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 768)
+    checkDesktop()
+    window.addEventListener('resize', checkDesktop)
+    return () => window.removeEventListener('resize', checkDesktop)
+  }, [])
 
   useEffect(() => {
     const allKeys = new Set(cards.map(c => c.key))
@@ -149,45 +157,46 @@ export function CardNavBar({ cards, enabled }: CardNavBarProps) {
   }, [visibleKeys, cards])
 
   const offscreenCards = useMemo(() => {
-    return cards
-      .filter(card => !visibleKeys.has(card.key) && !excludedKeys.has(card.key))
-      .slice(0, MAX_PILLS)
-  }, [cards, visibleKeys, excludedKeys])
+    const filtered = cards.filter(card => !visibleKeys.has(card.key) && !excludedKeys.has(card.key))
+    return isDesktop ? filtered : filtered.slice(0, MAX_PILLS)
+  }, [cards, visibleKeys, excludedKeys, isDesktop])
 
   if (!enabled || cards.length === 0) return null
 
   return (
     <div
-      className={`fixed top-[56px] left-0 right-0 z-40 md:hidden backdrop-blur-md bg-white/70 dark:bg-black/70 border-b border-border/30 py-1.5 px-3 transition-all duration-300 ${
+      className={`fixed top-[56px] left-0 right-0 z-40 backdrop-blur-md bg-white/70 dark:bg-black/70 border-b border-border/30 py-1.5 transition-all duration-300 ${
         isVisible && offscreenCards.length > 0 ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
       }`}
     >
-      <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
-        {offscreenCards.map(card => {
-          const Icon = CARD_ICONS[card.key] || Lightbulb
-          const colors = COLOR_MAP[card.color] || COLOR_MAP.teal
-          const shortLabel = (() => {
-            const label = card.label.split(' ').slice(0, 2).join(' ')
-            if (card.key === 'f1') return 'F1'
-            if (card.key === 'portailLexical') return 'Lexical'
-            if (card.key === 'portailWikipedia') return 'Wikipedia'
-            if (card.key === 'wikiloves') return 'Loves'
-            if (card.key === 'saviezVous') return 'Anecdote'
-            if (card.key === 'radioFrance') return 'RadioF'
-            return label
-          })()
+      <div className="mx-auto w-full max-w-4xl px-3 md:px-6">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+          {offscreenCards.map(card => {
+            const Icon = CARD_ICONS[card.key] || Lightbulb
+            const colors = COLOR_MAP[card.color] || COLOR_MAP.teal
+            const shortLabel = (() => {
+              const label = card.label.split(' ').slice(0, 2).join(' ')
+              if (card.key === 'f1') return 'F1'
+              if (card.key === 'portailLexical') return 'Lexical'
+              if (card.key === 'portailWikipedia') return 'Wikipedia'
+              if (card.key === 'wikiloves') return 'Loves'
+              if (card.key === 'saviezVous') return 'Anecdote'
+              if (card.key === 'radioFrance') return 'RadioF'
+              return label
+            })()
 
-          return (
-            <button
-              key={card.key}
-              onClick={() => handleCardClick(card.key)}
-              className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-[9px] font-medium whitespace-nowrap min-w-[44px] ${colors.bg} ${colors.text} ${colors.darkBg} ${colors.darkText} border border-current/20 hover:border-current/40 transition-colors`}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              <span>{shortLabel}</span>
-            </button>
-          )
-        })}
+            return (
+              <button
+                key={card.key}
+                onClick={() => handleCardClick(card.key)}
+                className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-[9px] font-medium whitespace-nowrap min-w-[44px] ${colors.bg} ${colors.text} ${colors.darkBg} ${colors.darkText} border border-current/20 hover:border-current/40 transition-colors`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span>{shortLabel}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

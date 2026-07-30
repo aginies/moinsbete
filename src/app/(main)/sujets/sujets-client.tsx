@@ -295,7 +295,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
 
   if (!orderLoaded) {
     return (
-      <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6">
+    <div className="mx-auto w-full px-0 py-4 md:max-w-4xl md:p-6 md:pt-16">
         <div className="space-y-4 sm:space-y-6 mb-4 sm:mb-6">
           {[1, 2, 3].map(i => (
             <Skeleton key={i} className="h-48 w-full rounded-2xl" />
