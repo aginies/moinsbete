@@ -391,7 +391,7 @@ export const F1Card = React.memo(function F1CardInner({
                             src={data.image.imageUrl.replace(/\/\d+px-/, '/1280px-')}
                             alt={data.image.caption}
                             loading="lazy"
-                            className="w-full h-80 object-cover hover:opacity-90 transition-opacity"
+                            className="w-full h-[28rem] object-cover hover:opacity-90 transition-opacity"
                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                           />
                         </div>
