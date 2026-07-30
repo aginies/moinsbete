@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db'
-import { sleep, cleanupExpired } from '@/lib/cache-helpers'
+import { sleep } from '@/lib/cache-helpers'
 
 const WIKIQUOTE_API = 'https://fr.wikiquote.org/w/api.php'
 
@@ -330,7 +330,6 @@ export async function scrapeAndCacheCitation(): Promise<void> {
   }
   console.log(`  Auteurs: ${authorParsed.length} pages from ${authorPageMap.size} categories`)
 
-  await cleanupExpired()
   console.log(`  ✅ Citation cache updated (+${totalCreated} new, ${totalUpdated} updated)`)
 }
 
