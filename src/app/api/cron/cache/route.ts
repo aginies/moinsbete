@@ -90,7 +90,12 @@ export async function GET(request: NextRequest) {
 
     console.log('[cron] Step 8/9: Cleanup...')
     const counts = await cleanupExpired()
-    results.cleanup = `cnrs:${counts.cnrs},radio:${counts.radio},wiki:${counts.wiki},wikiLoves:${counts.wikiLoves},news:${counts.news},f1:${counts.f1},portailWiki:${counts.portailWikipedia},citation:${counts.citation}`
+    const citationSkipped = counts.citation === 0
+    let cleanupParts = [`cnrs:${counts.cnrs}`, `radio:${counts.radio}`, `wiki:${counts.wiki}`, `wikiLoves:${counts.wikiLoves}`, `news:${counts.news}`, `f1:${counts.f1}`, `portailWiki:${counts.portailWikipedia}`]
+    if (!citationSkipped) {
+      cleanupParts.push(`citation:${counts.citation}`)
+    }
+    results.cleanup = cleanupParts.join(',')
     const newsMaxAge = await cleanupNewsByMaxAge(5)
     results.newsMaxAge = newsMaxAge > 0 ? `maxage:${newsMaxAge}` : ''
 

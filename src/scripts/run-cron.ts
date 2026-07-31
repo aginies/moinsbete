@@ -4,6 +4,7 @@ import { scrapeAndCacheWikipediaImages } from './cache-wikipedia-image'
 import { scrapeAndCacheNews } from './cache-news'
 import { scrapeAndCacheSaviezVousImages } from './cache-saviez-vous-images'
 import { scrapeAndCacheF1 } from './cache-f1'
+import { scrapeAndCacheCitation } from './cache-citation'
 import { prisma } from '@/lib/db'
 
 async function run() {
@@ -18,6 +19,7 @@ async function run() {
     await scrapeAndCacheWikipediaImages(1)
     await scrapeAndCacheSaviezVousImages()
     await scrapeAndCacheF1()
+    await scrapeAndCacheCitation()
 
     console.log(`\n═══════════════════════════════════════`)
     console.log(`[cron] Cache update completed successfully`)

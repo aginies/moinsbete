@@ -244,7 +244,7 @@ export async function scrapeAndCacheCitation(): Promise<void> {
   console.log('📜 Scraping Wikiquote...')
 
   const now = new Date()
-  const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
   let totalCreated = 0
   let totalUpdated = 0
 
