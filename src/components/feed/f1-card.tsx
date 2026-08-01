@@ -385,7 +385,7 @@ export const F1Card = React.memo(function F1CardInner({
                       {data.image.imageUrl && (
                         <div
                           className="cursor-pointer"
-                          onClick={() => data.image && setExpandedImage(data.image.imageUrl)}
+                          onClick={() => data.image && setExpandedImage(data.image.imageUrl.replace(/\/\d+px-/, '/1280px-'))}
                         >
                           <img
                             src={data.image.imageUrl.replace(/\/\d+px-/, '/1280px-')}
