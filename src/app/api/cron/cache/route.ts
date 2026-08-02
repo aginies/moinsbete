@@ -7,6 +7,7 @@ import { scrapeAndCacheSaviezVousImages } from '@/scripts/cache-saviez-vous-imag
 import { scrapeAndCacheF1 } from '@/scripts/cache-f1'
 import { scrapeAndCachePortailWikipedia } from '@/scripts/cache-portail-wikipedia'
 import { scrapeAndCacheCitation } from '@/scripts/cache-citation'
+import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexical'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 
 const CRON_SECRET = process.env.CRON_SECRET || ''
@@ -99,9 +100,13 @@ export async function GET(request: NextRequest) {
     const newsMaxAge = await cleanupNewsByMaxAge(5)
     results.newsMaxAge = newsMaxAge > 0 ? `maxage:${newsMaxAge}` : ''
 
-    console.log('[cron] Step 9/9: Resolving Saviez-vous images...')
+    console.log('[cron] Step 9/10: Resolving Saviez-vous images...')
     await scrapeAndCacheSaviezVousImages()
     results.saviezvous = 'ok'
+
+    console.log('[cron] Step 10/10: Scraping Portail Lexical Word of the Day...')
+    await scrapeAndCachePortailLexicalWotd()
+    results.portailLexical = 'ok'
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
     console.log(`[cron] Cache update completed in ${duration}s`)

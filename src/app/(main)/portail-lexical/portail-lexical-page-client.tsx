@@ -81,7 +81,16 @@ async function fetchWordDetails(word: string): Promise<PortailLexicalWord | null
   }
 }
 
-export function PortailLexicalPageClient() {
+interface HistoricalWord {
+  date: string
+  word: string
+}
+
+interface PortailLexicalPageClientProps {
+  historicalWords?: HistoricalWord[]
+}
+
+export function PortailLexicalPageClient({ historicalWords = [] }: PortailLexicalPageClientProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -375,6 +384,38 @@ export function PortailLexicalPageClient() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-amber-500" />
+        </div>
+      )}
+
+      {historicalWords && historicalWords.length > 0 && (
+        <div className="mt-8">
+          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
+            <CardHeader
+              icon={<BookOpen className="h-4 w-4 text-amber-950" />}
+              iconBgColor="bg-amber-500"
+              iconDarkColor="dark:bg-amber-600"
+              title="Historique des mots du jour"
+              titleColor="text-amber-800"
+              titleDarkColor="dark:text-amber-300"
+            />
+            <div className="mt-4 flex flex-wrap gap-2">
+              {historicalWords.map((item, i) => {
+                const shareUrl = `https://www.portail-lexical.fr/definition/${encodeURIComponent(item.word)}`
+                return (
+                  <Link
+                    key={i}
+                    href={shareUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-200 bg-white text-sm font-semibold text-amber-900 hover:text-amber-600 hover:border-amber-400 dark:border-amber-800 dark:bg-gray-900 dark:text-amber-100 dark:hover:text-amber-300 dark:hover:border-amber-600 transition-all shadow-sm hover:shadow"
+                  >
+                    {item.word}
+                    <ExternalLink className="h-3 w-3 text-amber-500 hover:text-amber-600 dark:hover:text-amber-300 flex-shrink-0" />
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>

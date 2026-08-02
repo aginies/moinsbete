@@ -443,6 +443,15 @@ model SharedLobbyBookmark {
   @@index([userId, resourceType])
 }
 
+model PortailLexicalMotDuJour {
+  id        String   @id @default(cuid())
+  word      String
+  date      String   @unique // Format YYYY-MM-DD
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
 enum UserRole {
   USER
   ADMIN
