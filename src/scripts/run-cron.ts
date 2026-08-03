@@ -5,6 +5,7 @@ import { scrapeAndCacheNews } from './cache-news'
 import { scrapeAndCacheSaviezVousImages } from './cache-saviez-vous-images'
 import { scrapeAndCacheF1 } from './cache-f1'
 import { scrapeAndCacheCitation } from './cache-citation'
+import { scrapeAndCachePortailLexicalWotd } from './cache-portail-lexical'
 import { prisma } from '@/lib/db'
 
 async function run() {
@@ -20,6 +21,7 @@ async function run() {
     await scrapeAndCacheSaviezVousImages()
     await scrapeAndCacheF1()
     await scrapeAndCacheCitation()
+    await scrapeAndCachePortailLexicalWotd()
 
     console.log(`\n═══════════════════════════════════════`)
     console.log(`[cron] Cache update completed successfully`)
