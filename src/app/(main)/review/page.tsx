@@ -1,5 +1,7 @@
 import { getSession } from '@/lib/auth'
 import { FlashcardPageClient } from './flashcard-page-client'
+import { LexicalPageClient } from './lexical-page-client'
+import ReviewPageClient from './review-page-client'
 
 export default async function ReviewPage({
   searchParams,
@@ -24,9 +26,6 @@ export default async function ReviewPage({
   const currentPage = Math.max(1, parseInt((await searchParams).page || '1', 10))
 
   return (
-    <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-4xl md:p-6">
-      <h1 className="mb-6 text-2xl font-heading font-bold">Révision</h1>
-      <FlashcardPageClient currentPage={currentPage} />
-    </div>
+    <ReviewPageClient currentPage={currentPage} />
   )
 }

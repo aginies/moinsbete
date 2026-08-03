@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
 
 const PORTAIL_LEXICAL_BASE = 'https://www.portail-lexical.fr'
 
@@ -226,6 +227,37 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Word not found' }, { status: 404 })
     }
     return NextResponse.json(details)
+  }
+
+  if (action === 'history') {
+    const limit = Math.min(parseInt(searchParams.get('limit') || '365') || 365, 365)
+    const cursor = searchParams.get('cursor') || undefined
+
+    const where: { date: { lt?: string } } = {} as { date: { lt?: string } }
+    if (cursor) {
+      where.date = { lt: cursor }
+    }
+
+    const [words, total] = await Promise.all([
+      prisma.portailLexicalMotDuJour.findMany({
+        where,
+        orderBy: { date: 'desc' },
+        take: limit + 1,
+        select: { word: true, date: true },
+      }),
+      prisma.portailLexicalMotDuJour.count({
+        where,
+      }),
+    ])
+
+    const hasMore = words.length > limit
+    const resultWords = words.slice(0, limit)
+
+    return NextResponse.json({
+      words: resultWords,
+      total,
+      hasMore,
+    })
   }
 
   // Default: return word of the day

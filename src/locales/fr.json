@@ -469,6 +469,15 @@
     "export_html": "Exporter HTML",
     "export_html_title": "Exporter vos favoris en HTML"
   },
+  "review": {
+    "lexical": "Lexique",
+    "no_lexical_words": "Aucun mot à réviser aujourd'hui",
+    "come_back_later_lexical": "Ajoutez des mots à vos favoris pour les réviser ici",
+    "click_to_reveal": "Cliquez pour révéler",
+    "view_on_portail": "Voir sur Portail Lexical",
+    "word": "Mot",
+    "of": "sur"
+  },
   "about": {
     "title": "MoinsBête",
     "subtitle": "Remplacez le scroll infini par l'apprentissage rapide",

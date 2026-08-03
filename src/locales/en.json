@@ -469,6 +469,15 @@
     "word_of_day": "Mot du jour",
     "zoom_out": "Dézoomer"
   },
+  "review": {
+    "lexical": "Lexical",
+    "no_lexical_words": "No words to review today",
+    "come_back_later_lexical": "Add words to your favorites to review them here",
+    "click_to_reveal": "Click to reveal",
+    "view_on_portail": "View on Portail Lexical",
+    "word": "Word",
+    "of": "of"
+  },
   "about": {
     "title": "MoinsBête",
     "subtitle": "Replace infinite scroll with rapid learning",

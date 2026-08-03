@@ -83,7 +83,7 @@ function IdeaShareButton({ idea }: { idea: CompactIdea }) {
 export function FavorisPageClient({ ideas, userId, currentPage, totalPages, total, radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, portailWikipediaCount, proverbeFavoritesCount, newsFavoritesCount, f1FavoritesCount, citationFavoritesCount }: FavorisPageClientProps) {
   const router = useRouter()
   const t = useTranslations('feed')
-  const [activeTab, setActiveTab] = useState<Tab>('idees')
+  const [activeTab, setActiveTab] = useState<Tab>(portailLexicalCount > 0 ? 'portail-lexical' : 'idees')
   const [previousTab, setPreviousTab] = useState<Tab | null>(null)
   const hasInitialSet = useRef(false)
   const initialTabSetRef = useRef(false)
@@ -442,8 +442,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     return `/favoris?page=${page}`
   }, [])
 
-   const tabConfig: TabConfig[] = useMemo(() => [
-      { id: 'idees', label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount },
+    const tabConfig: TabConfig[] = useMemo(() => [
+      ...(derivedIdeasCount > 0 ? [{ id: 'idees' as Tab, label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount }] : []),
       { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
       { id: 'image-wikimedia', label: 'Wikimedia', Icon: BookOpen, count: wikimediaCount },
        { id: 'image-wikiloves', label: 'Wiki Loves', Icon: Earth, count: wikilovesCount },
@@ -456,13 +456,14 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
        { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
         { id: 'news', label: 'NEWS', Icon: Newspaper, count: newsCount },
 { id: 'f1', label: 'F1', Icon: Trophy, count: f1Count },
-         { id: 'citation', label: 'Citations', Icon: Quote, count: citationCount },
-       ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, portailWikiCount, proverbeCount, saviezVousCount, radioCount, cnrsCount, newsCount, f1Count, citationCount])
+          { id: 'citation', label: 'Citations', Icon: Quote, count: citationCount },
+        ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, portailWikiCount, proverbeCount, saviezVousCount, radioCount, cnrsCount, newsCount, f1Count, citationCount])
 
-  const sortedTabs = useMemo(() =>
-    [...tabConfig].sort((a, b) => b.count - a.count),
-    [tabConfig]
-  )
+  const sortedTabs = useMemo(() => {
+    const lexical = tabConfig.find(t => t.id === 'portail-lexical')
+    const others = tabConfig.filter(t => t.id !== 'portail-lexical').sort((a, b) => b.count - a.count)
+    return lexical ? [lexical, ...others] : others
+  }, [tabConfig])
 
   const searchResults = useMemo(() => {
     if (!searchQuery?.trim()) return []
