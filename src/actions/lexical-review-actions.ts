@@ -283,17 +283,13 @@ export async function removeLexicalFromSrs(bookmarkId: string) {
 }
 
 export async function fetchWordDefinitions(word: string): Promise<WordDefinitions | null> {
-  console.log('[fetchWordDefinitions] Fetching for word:', word)
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/portail-lexical?action=word&word=${encodeURIComponent(word)}`, {
       signal: AbortSignal.timeout(15000),
       cache: 'no-store',
     })
-    console.log('[fetchWordDefinitions] Response status:', res.status)
     const data = await res.json()
-    console.log('[fetchWordDefinitions] Response data:', JSON.stringify(data).substring(0, 500))
     if (data.error) {
-      console.log('[fetchWordDefinitions] Error from API:', data.error)
       return null
     }
     const result = {
@@ -302,7 +298,6 @@ export async function fetchWordDefinitions(word: string): Promise<WordDefinition
       etymologie: data.etymologie || '',
       concordance: data.concordance || [],
     }
-    console.log('[fetchWordDefinitions] Result:', JSON.stringify(result).substring(0, 500))
     return result
   } catch (err) {
     console.error('[fetchWordDefinitions] Fetch error:', err)
