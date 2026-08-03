@@ -42,7 +42,6 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
   const isHistorical = !word.isBookmarked
 
   useEffect(() => {
-    console.log('[LexicalFlashcard] Loading definitions for:', word.word)
     setFlipped(false)
     setRating(null)
     setDefinitions(null)
@@ -50,7 +49,6 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
     setDefinitionsLoading(true)
     fetchWordDefinitions(word.word)
       .then(defs => {
-        console.log('[LexicalFlashcard] Definitions loaded:', defs)
         if (defs) {
           setDefinitions(defs)
         } else {
@@ -74,12 +72,10 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
 
   const handleRetry = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation()
-    console.log('[LexicalFlashcard] Retrying...')
     setDefinitionsError(null)
     setDefinitionsLoading(true)
     try {
       const defs = await fetchWordDefinitions(word.word)
-      console.log('[LexicalFlashcard] Retry result:', defs)
       if (defs) {
         setDefinitions(defs)
       } else {
