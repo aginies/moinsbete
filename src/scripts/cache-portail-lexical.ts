@@ -51,3 +51,5 @@ export async function scrapeAndCachePortailLexicalWotd() {
     console.error('  ⚠️ Error caching Portail Lexical wotd:', error)
   }
 }
+
+scrapeAndCachePortailLexicalWotd()
