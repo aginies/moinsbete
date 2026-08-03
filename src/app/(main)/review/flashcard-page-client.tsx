@@ -63,7 +63,7 @@ export function FlashcardPageClient({ currentPage }: FlashcardPageClientProps) {
   const hasMore = page * 10 < total
 
   return (
-    <div className="mx-auto w-full px-4 py-4 md:max-w-4xl md:p-6">
+    <div className="mx-auto w-full px-4 py-4 md:max-w-6xl md:p-6">
       <FlashcardList
         ideas={displayedIdeas}
         total={total}

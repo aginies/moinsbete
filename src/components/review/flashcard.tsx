@@ -126,12 +126,7 @@ export function Flashcard({ idea, currentIndex, total, onRemoved, onNext, onPrev
   }, [handleFlip, handleRating, onNext, onPrev, rating, loading])
 
   return (
-    <div className="flex flex-col items-center">
-      {/* Progress indicator */}
-      <div className="mb-4 text-sm text-muted-foreground">
-        Carte {currentIndex + 1}/{total}
-      </div>
-
+    <div className="flex w-full flex-col items-center">
       {/* Flashcard container with perspective */}
       <div
         className="relative w-full cursor-pointer"
@@ -144,12 +139,12 @@ export function Flashcard({ idea, currentIndex, total, onRemoved, onNext, onPrev
           style={{
             transformStyle: 'preserve-3d',
             transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-            minHeight: '400px',
+            minHeight: '500px',
           }}
         >
           {/* Front face (question) */}
           <div
-            className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border bg-card p-8 shadow-sm"
+            className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border bg-card p-6 shadow-sm"
             style={{ backfaceVisibility: 'hidden' }}
           >
             <h2 className="mb-4 text-2xl font-bold text-center leading-tight">
@@ -177,7 +172,7 @@ export function Flashcard({ idea, currentIndex, total, onRemoved, onNext, onPrev
 
           {/* Back face (answer) */}
           <div
-            className="absolute inset-0 flex flex-col rounded-2xl border bg-card p-8 shadow-sm"
+            className="absolute inset-0 flex flex-col rounded-2xl border bg-card p-6 shadow-sm"
             style={{
               backfaceVisibility: 'hidden',
               transform: 'rotateY(180deg)',
@@ -243,6 +238,10 @@ export function Flashcard({ idea, currentIndex, total, onRemoved, onNext, onPrev
         >
           ← Précédent
         </Button>
+
+        <span className="text-sm text-muted-foreground">
+          Carte {currentIndex + 1}/{total}
+        </span>
 
         <TooltipProvider>
           <Tooltip content="Passer — revoir demain" side="top">

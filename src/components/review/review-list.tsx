@@ -16,7 +16,7 @@ export function ReviewList({ ideas, total, loading, currentPage, onPageChange, o
 
   if (loading) {
     return (
-      <div className="space-y-4">
+    <div className="w-full space-y-4">
         {[1, 2, 3].map(i => (
           <div
             key={i}

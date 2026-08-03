@@ -177,10 +177,7 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
   }, [handleFlip, handleRating, onNext, onPrev, rating, loading])
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="mb-4 text-sm text-muted-foreground">
-        Mot {currentIndex + 1}/{total}
-      </div>
+    <div className="flex w-full flex-col items-center">
 
       <div
         className="relative w-full cursor-pointer"
@@ -192,11 +189,11 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
           style={{
             transformStyle: 'preserve-3d',
             transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-            minHeight: '400px',
+            minHeight: '500px',
           }}
         >
           <div
-            className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border bg-card p-8 shadow-sm"
+            className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border bg-card p-6 shadow-sm"
             style={{ backfaceVisibility: 'hidden' }}
           >
             <h2 className="mb-4 text-4xl font-bold text-center leading-tight text-amber-900 dark:text-amber-100">
@@ -223,7 +220,7 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
           </div>
 
           <div
-            className="absolute inset-0 flex flex-col rounded-2xl border bg-card p-8 shadow-sm"
+            className="absolute inset-0 flex flex-col rounded-2xl border bg-card p-6 shadow-sm"
             style={{
               backfaceVisibility: 'hidden',
               transform: 'rotateY(180deg)',
@@ -398,6 +395,10 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
         >
           ← Précédent
         </Button>
+
+        <span className="text-sm text-muted-foreground">
+          Mot {currentIndex + 1}/{total}
+        </span>
 
         {isBookmarked && (
           <TooltipProvider>

@@ -82,7 +82,7 @@ export function ReviewCard({ idea, onRemoved }: ReviewCardProps) {
   }
 
   return (
-    <div className={`rounded-lg border bg-card p-4 transition-all duration-300 ${rating ? 'opacity-50 scale-95' : ''}`}>
+    <div className={`w-full rounded-lg border bg-card p-4 transition-all duration-300 ${rating ? 'opacity-50 scale-95' : ''}`}>
       <div className="mb-2 flex items-start justify-between gap-2">
         <h3 className="font-semibold leading-tight">{idea.title}</h3>
         <div className="flex gap-1">

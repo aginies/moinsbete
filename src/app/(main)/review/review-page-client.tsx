@@ -13,7 +13,7 @@ export default function ReviewPageClient({ currentPage }: ReviewPageClientProps)
   const [activeTab, setActiveTab] = useState<'ideas' | 'lexical'>('ideas')
 
   return (
-    <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-4xl md:p-6">
+    <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-6xl md:p-6">
       <h1 className="mb-6 text-2xl font-heading font-bold">Révision</h1>
       
       <div className="mb-6 flex gap-2">

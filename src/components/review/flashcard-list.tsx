@@ -35,7 +35,7 @@ export function FlashcardList({ ideas, total, loading, onIdeaRemoved }: Flashcar
     return (
       <div className="flex flex-col items-center py-8">
         <Skeleton className="mb-4 h-6 w-32" />
-        <Skeleton className="h-[400px] w-full max-w-2xl rounded-2xl border bg-card" />
+        <Skeleton className="h-[400px] w-full max-w-3xl rounded-2xl border bg-card" />
         <div className="mt-6 flex gap-3">
           <Skeleton className="h-10 w-24" />
           <Skeleton className="h-10 w-10" />
@@ -61,7 +61,7 @@ export function FlashcardList({ ideas, total, loading, onIdeaRemoved }: Flashcar
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex w-full flex-col items-center">
       <Flashcard
         idea={displayedIdea}
         currentIndex={currentIndex}
