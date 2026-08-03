@@ -54,3 +54,7 @@ npx prisma studio
 - **shadcn ^4.12** - Composants UI
 - **Lucide React** - Icônes
 - **Custom auth** (NextAuth v5 adapter) - Authentification
+- **next-intl** - i18n (fr/en locales)
+- **next-auth** - Authentication
+- **sonner** - Toast notifications
+- **react-beautiful-dnd** - Drag-to-reorder (card ordering)

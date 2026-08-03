@@ -13,27 +13,33 @@
 | Modèle | Description |
 |--------|-------------|
 | **Idea** | Idées bite-sized (titre + contenu + takeaway) |
-| **Source** | Sources (Wikipédia articles) |
+| **Source** | Sources (Wikipédia, livres, articles, podcasts) |
 | **Topic** | Sujets de connaissance |
 | **IdeaTopic** | Association Idea ↔ Topic (1 par idée) |
-| **SaviezVousFact** | Faits "Le saviez-vous" |
+| **SaviezVousFact** | Faits "Le saviez-vous" (static, no TTL) |
+| **PortailLexicalMotDuJour** | Mot du jour (date unique, no TTL) |
 | **Collection** | Collections d'idées |
-| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN, enabled, lastLogin, lastVisited) |
-| **Bookmark** | Bookmarks utilisateur |
+| **User** | Utilisateurs (email, hash mot de passe, role: USER/ADMIN, enabled, lastLogin, lastVisited, card visibility booleans, cardOrder JSON) |
+| **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
+| **UserWikiLovesTopic** | Catégories Wiki Loves actives par utilisateur |
+| **UserSuggestion** | Suggestions utilisateur |
+| **SuggestionComment** | Commentaires sur suggestions utilisateur |
+| **Bookmark** | Bookmarks utilisateur (SRS: easeFactor, reviewCount, nextReviewAt) |
 | **ViewedIdea** | Historique de consultation |
 | **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) |
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) |
 | **PasswordResetToken** | Tokens de réinitialisation de mot de passe |
 | **SharedLobbyBookmark** | Favoris partagés dans le lobby |
-| **CachedConfig** | Config cachée (proverbes, global card visibility, card order) |
+| **CachedConfig** | Config cachée (proverbes JSON, global card visibility, card order) |
 | **CachedCnrsArticle** | Articles CNRS en cache (TTL: 24h) |
 | **CachedRadioEpisode** | Épisodes Radio France en cache (TTL: 24h) |
 | **CachedWikipediaImage** | Images Wikipédia en cache (TTL: 30 jours) |
 | **CachedWikiLovesImage** | Images Wiki Loves en cache (TTL: 30 jours, source: MONUMENTS/EARTH) |
 | **CachedNewsArticle** | Actualités NEWS en cache (TTL: 24h, source: FreeNewsAPI) |
-| **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
-| **CachedF1Article** | Articles F1 en cache |
-| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache |
+| **CachedF1Article** | Articles F1 en cache (TTL: 24h) |
+| **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache (TTL: 7 jours) |
+| **CachedCitationArticle** | Citations Wikiquote en cache (TTL: 24h) |
+| **SourceTopic** | Junction Source ↔ Topic |
 
 ## Gestion de la base de données
 

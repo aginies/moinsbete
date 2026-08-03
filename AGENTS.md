@@ -17,44 +17,69 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Adding a New Card
 
-Every new card source must include these files/patterns:
+Every new card source must include these files/patterns. Current codebase has **13 card sources**: `saviezVous`, `wikipedia`, `cnrs`, `radioFrance`, `news`, `wikimedia`, `wikiloves`, `pixabay`, `portailLexical`, `portailWikipedia`, `proverbe`, `f1`, `citation`.
 
 ## 1. Prisma Schema (`prisma/schema.prisma`)
+
+### Standard cache model (TTL-based):
 - Add `Cached{Source}Article` model with: `id`, `title`, `description`, `url`, `imageUrl`, `source`, `category`, `publishedAt`, `scrapedAt`, `expiresAt`
 - Add `{SOURCE}_NEWS` to `BookmarkType` enum
 - Add `{source}CardVisible` boolean to `User` model
 
+### Non-cache model (no TTL):
+- Some sources use different models: `PortailLexicalMotDuJour` (id, word, date unique, createdAt), `SaviezVousFact` (static facts), proverbes stored in `CachedConfig` as JSON value under key `proverbes_all`
+
 ## 2. Data Layer
-- `src/lib/{source}-bookmark.ts` - Bookmark manager with `createBookmarkManager()`
-- `src/actions/{source}-bookmark-actions.ts` - Server actions (`toggle{Source}FavoriteAction`, `get{Source}FavoritesAction`, `is{Source}FavoriteAction`)
+
+### Full bookmark support (standard pattern):
+- `src/lib/{source}-bookmark.ts` - Bookmark manager using `createBookmarkManager()` factory from `@/lib/bookmark-manager`
+  - Export `{source}Manager` (instance), `get{Source}Favorites`, `get{Source}FavoritesCount`
+  - Define `{Source}FavoriteDoc` interface with `id` field
+  - Pass `mapMeta` function that transforms DB `meta` JSON + `resourceId` into typed doc
+- `src/actions/{source}-bookmark-actions.ts` - Server actions using `createBookmarkActions()` factory from `@/actions/bookmark-manager`
+  - Export `toggle{Source}FavoriteAction`, `get{Source}FavoritesAction`, `is{Source}FavoriteAction`
+
+### Simple bookmark support (no manager):
+- `useSimpleBookmarkToggle` hook from `@/hooks/use-bookmark-toggle` with `toggleBookmarkAction` from `@/actions/bookmark-actions`
+- Used by: portail lexical, proverbe (partial)
+
+### Static data fallback:
 - `src/data/{source}.json` - Static JSON fallback (10 articles per category)
 
 ## 3. API Route (`src/app/api/{source}/route.ts`)
-- `GET` endpoint with rate limiting
+
+- `GET` endpoint with rate limiting (30 req/min via `checkRateLimit`)
 - Query params: `?categories=cat1,cat2` (multi-select), `?exclude=url`
 - Priority: DB cache → JSON fallback
 - Return random batch (10-20 articles)
 - Support category filtering
 
 ## 4. Cache Script (`src/scripts/cache-{source}.ts`)
+
 - Fetch from external API
-- Upsert to DB with 6h TTL
-- Run via cron (3x daily: 6:00, 12:00, 18:00)
+- Upsert to DB with 6h TTL (or source-specific TTL)
+- Run via `/api/cron/cache` (10 sequential steps, not 3x daily)
 - Export `scrapeAndCache{Source}()` function
 
+### Cron step ordering:
+1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image → 5. F1 → 6. Portail Wikipédia → 7. Wikiquote → 8. Cleanup (8 cache models) → 9. Saviez-vous → 10. Portail Lexical (WOTD)
+
+### Auth: token (`x-cron-token` header or `?token=` param) OR IP whitelist (`ALLOWED_IPS` in `cache-helpers.ts` with CIDR support)
+
 ## 5. Card Component (`src/components/feed/{source}-card.tsx`)
+
 - `'use client'` component
 - Props: `onToggle`, `userId`, `showToggle`, `isVisible`
 - State: `articles`, `loading`, `error`, `selectedCategories`, `favorites`
 - Features:
   - Scrollable list (maxHeight 700px for 20 items)
   - Category selector (multi-select toggle)
-  - Bookmark per article (inline handler, not useSimpleBookmarkToggle in loop)
-  - Share button
+  - Bookmark per article (inline handler, not `useSimpleBookmarkToggle` in loop)
+  - Share button (or `ShareToLobbyButton`)
   - Visibility toggle button (eye-off icon)
   - Refresh button
   - Error state handling
-- Use `useCardVisibility` hook for show/hide
+- Use `CardVisibilityGuard` wrapper for show/hide logic
 - Use `useItemShare` for sharing
 - Tab labels MUST use locale keys (not hardcoded):
   ```ts
@@ -69,99 +94,158 @@ Every new card source must include these files/patterns:
 - Reuse existing components first: `CardVisibilityGuard`, `useAutoRefresh`, `useItemShare`, `PaginatedFavoritesList`, `useFavoritesList`, `createBookmarkManager`, `createBookmarkActions`
 
 ## 5b. Reusable Components (check before creating new ones)
-- `CardVisibilityGuard` — show/hide wrapper with eye-off button
+
+- `CardVisibilityGuard` — show/hide wrapper with hydration-safe mount check
+- `CardNavBar` — fixed top bar showing offscreen card shortcuts, auto-hides on scroll, uses IntersectionObserver
+- `VisibilityButton` — styled button for hidden cards (9 color variants)
 - `useAutoRefresh` — periodic data reload hook
 - `useItemShare` — share functionality hook
-- `PaginatedFavoritesList` + `useFavoritesList` — favorites list
-- `createBookmarkManager()` — bookmark manager factory
-- `createBookmarkActions()` — server actions factory
+- `PaginatedFavoritesList<T>` — generic paginated favorites with search, PAGE_SIZE=10, accent normalization, localStorage fallback
+- `useFavoritesList` — hook for `PaginatedFavoritesList`
+- `createBookmarkManager()` — bookmark manager factory with `mapMeta` function
+- `createBookmarkActions()` — server actions factory (wraps lib manager with session extraction)
 - `ShareButton` — standalone share button component
-- `useSimpleBookmarkToggle` — simple bookmark state hook (for single-item cards)
+- `ShareToLobbyButton` — share to lobby button (replaces inline share for some sources)
+- `useSimpleBookmarkToggle` — simple bookmark state hook (for single-item cards without full bookmark manager)
+- `SearchResults` — component for favoris search results display
 
-## 6. Favorites Page (`src/app/(main)/favoris/{source}-favorites.tsx`)
+## 6. Favorites Page
+
+### Per-source favorites component (`src/app/(main)/favoris/{source}-favorites.tsx` or `src/components/feed/{source}-bookmarks.tsx`):
 - Import `PaginatedFavoritesList` + `useFavoritesList`
 - Props: `userId`, `onRemoveComplete`, `searchQuery`
 - Render bookmarked items with images, links, remove button
 - Empty state with description
+- For image sources: add `sharedIds` + `onShareToggle` + `isSharing` props for lobby sharing
+
+### Favoris page server component (`src/app/(main)/favoris/page.tsx`):
+- Raw SQL count query: `SELECT type, COUNT(*) FROM Bookmark WHERE userId = ? GROUP BY type`
+- Map counts to 13 `BookmarkType` values
+- Query bookmarked ideas with ideaTopics and source includes
+- Pass all 14 count props to client
+
+### Favoris page client component (`src/app/(main)/favoris/favoris-page-client.tsx`):
+- 14 tabs: `idees`, `image-du-jour`, `saviez-vous`, `image-wikimedia`, `image-wikiloves`, `image-pixabay`, `portail-lexical`, `portail-wikipedia`, `proverbe`, `radio-france`, `cnrs-news`, `news`, `f1`, `citation`
+- `tabConfig` array with `TabConfig` interface (id, label, Icon, count)
+- `sortedTabs` = tabs sorted by count descending
+- `searchResults` computed from searchQuery + all tab counts
+- `activeTab` management with search (switches to 'results' tab when searching)
+- Optimistic count updates via `handleXxxRemove` callbacks
+- `useEffect` sync from server counts to local state
+- Individual `<TabsContent>` for each source
 
 ## 7. Integration Files
 
 ### `src/app/(main)/sujets/sujets-client.tsx`
-- Import card component
-- Add `{source}` to `CardVisibility` interface
-- Add to default visibility object
-- Add to default cardOrder array
-- Add `toggle{Source}` callback
-- Add card config to `cardConfigs` array
-- Add to useMemo dependency array
+- `CardVisibility` interface with 13 boolean fields + `pixabayActiveCategory`
+- `CardConfig` interface: `{ key, isVisible, isGloballyVisible, toggle }`
+- `CARD_RENDERERS` record: 13 key → renderer function mappings
+- `cardDefinitions` array: 13 entries mapping key → visKey → DB field name, optional `extraCheck` for userId-gated cards
+- `cardConfigs`: computed from `cardDefinitions` with visibility + global visibility + extra checks
+- `orderedConfigs`: sorted by user's `cardOrder` JSON (from `/api/user-card-order`), falls back to `CARD_DEFAULT_ORDER`
+- `visibleCards` / `hiddenCards` split
+- `CardNavBar` for visible card shortcuts (IntersectionObserver-based)
+- Hidden card shortcuts in grid (only shows cards visible globally)
+- `toggleVisibility` callback with rate-limited POST to `/api/user-card-visibility`
+- `HIDDEN_CARD_COLORS` record: 9 color variants per card key
+- `CARD_DISPLAY_NAMES` record: locale key per card key
 
 ### `src/app/(main)/sujets/page.tsx`
-- Add `{source}CardVisible` to user select
-- Add `{source}` to visibility object
+- Query user for all 13 visibility fields + `cardNavBarEnabled` + `following` + `hasSeenSplash`
+- Map to `CardVisibility` interface
+- Pass `globalVisibility` from `getGlobalCardVisibility()` action
+- Pass `cardNavBarEnabled` prop
 
 ### `src/app/api/user-card-visibility/route.ts`
-- Add `{source}CardVisible` to GET `select` object
-- Add `{source}CardVisible` to POST `validFields` array
+- GET: returns all visibility fields, optional `?field=` param for single field
+- POST: updates single field, rate limited (30/min), validates against `validFields` array
+- `validFields` includes: all `{source}CardVisible` booleans + `cnrsNewsEnabled` + `imagePixabayShowCategories` + `imagePixabayActiveCategory` + `imageWikimediaShowCategories` + `imageWikiLovesShowCategories` + `cardNavBarEnabled`
+
+### `src/app/api/user-card-order/route.ts`
+- GET: returns user's `cardOrder` JSON array
+- POST: updates user's `cardOrder` JSON array
+- Falls back to `CARD_DEFAULT_ORDER` constant if no order set
 
 ### `src/app/(main)/favoris/page.tsx`
-- Add `{source}FavoritesCount` query
+- Raw SQL `SELECT type, COUNT(*) FROM Bookmark WHERE userId = ? GROUP BY type`
+- Map all 14 `BookmarkType` values to count props
 - Pass to `FavorisPageClient`
 
 ### `src/app/(main)/favoris/favoris-page-client.tsx`
-- Import `{source}Favorites`
-- Add `{source}FavoritesCount` to props interface
-- Add `{source}-news` to `Tab` type
-- Add count state + sync useEffect
-- Add `handle{Source}Remove` callback
-- Add tab config to `tabConfig`
-- Add to search results placeholder
-- Add `<TabsContent value="{source}-news">`
+- 14 tabs with `Tab` type union
+- `tabConfig` array with `TabConfig` interface
+- `sortedTabs` sorted by count descending
+- `searchResults` computed with accent normalization
+- `activeTab` + `previousTabRef` for search/restore flow
+- `handleXxxRemove` callbacks for optimistic count updates
+- `useEffect` sync from server counts
+- Individual `<TabsContent>` for each source
+- Share state loading for image sources (SAVIEZ_VOUS, IMAGE_DU_JOUR, IMAGE_WIKILOVES, IMAGE_WIKIMEDIA, PROVERBE)
 
 ### `src/app/admin/admin-content.tsx`
-- Add to `cardConfigs` array
-- Add `{source}Articles` and `{source}Expired` to `AdminStats` interface
-- Add StatCard in stats tab
-- Add expired items in cleanup tab
-- Update Dialog count
+- `AdminStats` interface with all source stats (articles, expired, scrapedAt)
+- 5 tabs: stats, users, cartes, cleanup, cache
+- `cardConfigs` array: 13 entries mapping key → labelKey → icon
+- `CartesTab` with `CardToggle` per card (calls `updateGlobalCardVisibility()`)
+- `CacheTab` with `CacheSource` interface, individual refresh + refresh all
+- `StatCard` component with optional sublabel for expired count
+- `UserRow` component with toggle/delete actions
+- Cleanup dialog with total expired count
+- News clear + freenewsapi clear dialogs
+- Language switcher dropdown
 
 ### `src/app/admin/page.tsx`
-- Add `{source}Count` and `{source}ExpiredCount` queries
-- Pass to `AdminContent`
+- Raw SQL query for all 8 cache models (total + expired)
+- Individual `findFirst` queries for latest scrapedAt per source
+- `prisma.saviezVousFact.count()` for static facts
+- `prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } })` for proverbe count
+- Pass formatted stats to `AdminContent`
 
 ### `src/app/api/cron/cache/route.ts`
-- Import `scrapeAndCache{Source}`
-- Add step in GET handler
-- Add to cleanup results
+- 10 sequential steps with step numbering
+- Auth: token OR IP whitelist (including CIDR matching)
+- Cleanup step: calls `cleanupExpired()` + `cleanupNewsByMaxAge(5)`
+- Returns `{ ok, results, duration, ip }`
+- Portail lexical step uses upsert-by-date (no TTL)
 
 ### `src/lib/cache-helpers.ts`
-- Add cleanup for `{source}Article` in `cleanupExpired()`
+- `cleanupExpired()` deletes from 8 cache models: CNRS, Radio, Wiki, WikiLoves, News, F1, PortailWiki, Citation
+- Returns counts object
+- `ALLOWED_CRON_IPS` + `isAllowedIp()` with CIDR support
+- Helper functions: `getValidCachedCnrsArticles`, `getValidCachedRadioEpisodes`, `getValidCachedWikipediaImages`, `upsertWikipediaImages`, `sleep`, `clearAllNewsArticles`, `clearFreenewsapiArticles`, `cleanupNewsByMaxAge(days)`
 
 ## 8. Locales (`src/locales/{fr,en}.json`)
+
 - `feed.{source}`: Display name (e.g., "NEWS")
 - `feed.read_article`: "Read article" / "Lire l'article"
 - `feed.{source}_tab`: Tab label (e.g., "Formula 1")
 - **Tab keys** (one per tab in the card): `feed.{source}_tab_{name}` (e.g., `feed.f1_tab_actualites`, `feed.f1_tab_image`)
 - `feed.{source}`: About section name
 - `feed.{source}_desc`: About section description
-- `feed.{source}_articles`: Admin stat label
-- `feed.{source}_expired`: Admin expired label
+- Admin stat labels: `feed.{source}_articles`, `feed.{source}_expired`
 
 ## 9. Environment
-- `.env`: Add `FREE_NEWS_API_KEY` (or relevant API key)
-- `.env.example`: Add placeholder
+- `.env`: Add `CRON_SECRET`, `FREE_NEWS_API_KEY` (or relevant API key)
+- `.env.example`: Add placeholders
 
 ## Checklist
 - [ ] Prisma schema updated + migration applied
-- [ ] Data layer (bookmark + actions)
+- [ ] Data layer: bookmark manager (or simple toggle) + server actions (or simple action)
 - [ ] API route with cache fallback
-- [ ] Cache script with TTL
+- [ ] Cache script with TTL (or upsert logic for non-cache models)
 - [ ] Card component (scrollable, multi-select, bookmark, share, refresh)
-- [ ] Favorites page
-- [ ] Sujets integration (visibility, toggle, card config)
-- [ ] Favoris integration (count, tab, search)
-- [ ] Admin integration (stats, cleanup, toggle)
+- [ ] CardVisibilityGuard wrapper
+- [ ] Favorites page component (PaginatedFavoritesList or simple)
+- [ ] Favoris page: add tab, count prop, handleRemove callback, TabsContent
+- [ ] Sujets integration: CARD_RENDERERS entry, cardDefinitions entry, HIDDEN_CARD_COLORS entry, CARD_DISPLAY_NAMES entry
+- [ ] Sujets page: add visibility field to user select
+- [ ] user-card-visibility route: add field to validFields + GET select
+- [ ] Admin: AdminStats fields, StatCard in stats tab, cardConfig entry, CacheTab entry (if cache model), cleanup entry (if expiresAt), page.tsx query
+- [ ] Favoris server page: add count from raw SQL GROUP BY
 - [ ] Locales (en + fr)
 - [ ] .env + .env.example
+- [ ] Cron: add step in /api/cron/cache/route.ts (if cache model)
+- [ ] cache-helpers.ts: add to cleanupExpired() (if cache model)
 - [ ] Build passes
 - [ ] Tests pass
 
@@ -180,3 +264,14 @@ Every new card source must include these files/patterns:
 - Locale: get from `cookies()` in server component, pass as `locale` prop through component tree
 - i18n: use `useTranslations('namespace')` from `next-intl` for all user-facing strings. Add keys to `src/locales/fr.json` and `src/locales/en.json`
 - Prefer cross-links between pages over duplicating content
+- Card visibility: two-layer system — per-user (`CardVisibility` interface on `User` model) + global (`CachedConfig` table, read via `getGlobalCardVisibility()` action)
+- Card order: user-customizable via `cardOrder` JSON field on `User` model, fetched from `/api/user-card-order`, falls back to `CARD_DEFAULT_ORDER` constant
+- Favorites counts: use raw SQL `GROUP BY type` in server component for efficiency
+- Search: use `normalizeAccents()` utility for accent-insensitive search across all tabs
+- Optimistic updates: decrement count state in `handleXxxRemove` callbacks before DB operation completes
+- Card NavBar: uses IntersectionObserver to track visible cards, hides offscreen cards, shows max 7 pills on mobile
+- Share to lobby: `ShareToLobbyButton` component with `shareResourceToLobby`/`unshareResourceFromLobby` actions, shared state loaded via `/api/lobby/shared-resources`
+- Image sources (wikimedia, wikiloves): user preferences stored in `UserWikimediaTopic`/`UserWikiLovesTopic` models, categories toggled via `imageWikimediaShowCategories`/`imageWikiLovesShowCategories` on `User` model
+- Pixabay: user preferences in `imagePixabayShowCategories`, `imagePixabayActiveCategory` on `User` model
+- Saviez-vous: static facts from `SaviezVousFact` model (no TTL, no cache), fetched via `getRandomFact()`
+- Proverbe: stored in `CachedConfig` as JSON value under key `proverbes_all`, no separate cache model

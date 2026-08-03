@@ -199,6 +199,26 @@ EOF
 npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
 SELECT COUNT(*) FROM "CachedWikiLovesImage" WHERE "expiresAt" < datetime('now');
 EOF
+
+# Actualités NEWS expirées
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedNewsArticle" WHERE "expiresAt" < datetime('now');
+EOF
+
+# Articles F1 expirés
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedF1Article" WHERE "expiresAt" < datetime('now');
+EOF
+
+# Articles Portail Wikipédia expirés
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedWikipediaPortalArticle" WHERE "expiresAt" < datetime('now');
+EOF
+
+# Citations Wikiquote expirées
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedCitationArticle" WHERE "expiresAt" < datetime('now');
+EOF
 ```
 
 ## Cache: forcer le refresh
@@ -225,8 +245,8 @@ npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
 SELECT key, value FROM "CachedConfig" WHERE key = 'cartes_global_visibility';
 EOF
 
-# Réinitialiser à toutes visibles (true) — inclut news
+# Réinitialiser à toutes visibles (true)
 npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
-UPDATE "CachedConfig" SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"proverbe":true,"news":true}' WHERE key = 'cartes_global_visibility';
+UPDATE "CachedConfig" SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"portailWikipedia":true,"proverbe":true,"news":true,"f1":true,"citation":true}' WHERE key = 'cartes_global_visibility';
 EOF
 ```
