@@ -199,7 +199,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   }, [initialVisibility, syncKey])
 
   const hasUserId = !!userId
-  const [cardOrder, setCardOrder] = useState<string[]>(() => hasUserId ? [] : ['saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news', 'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'portailWikipedia', 'proverbe'])
+  const [cardOrder, setCardOrder] = useState<string[]>(() => hasUserId ? [] : CARD_DEFAULT_ORDER)
   const [orderLoaded, setOrderLoaded] = useState(!hasUserId)
 
   useEffect(() => {
