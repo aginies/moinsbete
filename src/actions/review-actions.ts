@@ -114,6 +114,10 @@ export async function recordReview(bookmarkId: string, rating: SrsRating) {
       return { error: 'Signet non trouvé' }
     }
 
+    if (bookmark.userId !== session.user.id) {
+      return { error: 'Accès non autorisé' }
+    }
+
     const { nextReviewAt, newEaseFactor, newReviewCount } = calculateNextReview(
       bookmark.easeFactor,
       rating,
@@ -145,6 +149,14 @@ export async function skipIdea(bookmarkId: string) {
   }
 
   try {
+    const bookmark = await prisma.bookmark.findUnique({
+      where: { id: bookmarkId },
+    })
+
+    if (!bookmark || bookmark.userId !== session.user.id) {
+      return { error: 'Signet non trouvé' }
+    }
+
     await prisma.bookmark.update({
       where: { id: bookmarkId },
       data: {
@@ -166,6 +178,14 @@ export async function removeFromSrs(bookmarkId: string) {
   }
 
   try {
+    const bookmark = await prisma.bookmark.findUnique({
+      where: { id: bookmarkId },
+    })
+
+    if (!bookmark || bookmark.userId !== session.user.id) {
+      return { error: 'Signet non trouvé' }
+    }
+
     await prisma.bookmark.update({
       where: { id: bookmarkId },
       data: {

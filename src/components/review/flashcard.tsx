@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { recordReview, skipIdea, removeFromSrs } from '@/actions/review-actions'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipProvider } from '@/components/ui/tooltip'
@@ -34,15 +34,19 @@ export function Flashcard({ idea, currentIndex, total, onRemoved, onNext, onPrev
   const [flipped, setFlipped] = useState(false)
   const [rating, setRating] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const ratingRef = useRef(rating)
+  const loadingRef = useRef(loading)
+  ratingRef.current = rating
+  loadingRef.current = loading
 
   const handleFlip = useCallback(() => {
-    if (!rating && !loading) {
+    if (!ratingRef.current && !loadingRef.current) {
       setFlipped(prev => !prev)
     }
-  }, [rating, loading])
+  }, [])
 
-  const handleRating = async (r: string) => {
-    if (rating || loading) return
+  const handleRating = useCallback(async (r: string) => {
+    if (ratingRef.current || loadingRef.current) return
     setLoading(true)
     setRating(r)
 
@@ -55,7 +59,7 @@ export function Flashcard({ idea, currentIndex, total, onRemoved, onNext, onPrev
     } finally {
       setLoading(false)
     }
-  }
+  }, [idea.bookmark.id, idea.id, onRemoved])
 
   const handleSkip = async () => {
     if (loading) return
@@ -85,7 +89,6 @@ export function Flashcard({ idea, currentIndex, total, onRemoved, onNext, onPrev
     }
   }
 
-  // Keyboard shortcuts
   useEffect(() => {
     setFlipped(false)
     setRating(null)
@@ -93,7 +96,7 @@ export function Flashcard({ idea, currentIndex, total, onRemoved, onNext, onPrev
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (rating || loading) return
+      if (ratingRef.current || loadingRef.current) return
 
       switch (e.key) {
         case ' ':
@@ -123,7 +126,7 @@ export function Flashcard({ idea, currentIndex, total, onRemoved, onNext, onPrev
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handleFlip, handleRating, onNext, onPrev, rating, loading])
+  }, [handleFlip, handleRating, onNext, onPrev])
 
   return (
     <div className="flex w-full flex-col items-center">

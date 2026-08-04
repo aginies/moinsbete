@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { calculateNextReview, getInitialNextReviewAt, type SrsRating } from '@/lib/srs'
+import { fetchWordDetails } from '@/lib/portail-lexical'
 
 export interface DueWord {
   id: string
@@ -216,6 +217,10 @@ export async function recordLexicalReview(bookmarkId: string, rating: SrsRating)
       return { error: 'Signet non trouvé' }
     }
 
+    if (bookmark.userId !== session.user.id) {
+      return { error: 'Accès non autorisé' }
+    }
+
     const { nextReviewAt, newEaseFactor, newReviewCount } = calculateNextReview(
       bookmark.easeFactor,
       rating,
@@ -247,6 +252,14 @@ export async function skipLexicalWord(bookmarkId: string) {
   }
 
   try {
+    const bookmark = await prisma.bookmark.findUnique({
+      where: { id: bookmarkId },
+    })
+
+    if (!bookmark || bookmark.userId !== session.user.id) {
+      return { error: 'Signet non trouvé' }
+    }
+
     await prisma.bookmark.update({
       where: { id: bookmarkId },
       data: {
@@ -268,6 +281,14 @@ export async function removeLexicalFromSrs(bookmarkId: string) {
   }
 
   try {
+    const bookmark = await prisma.bookmark.findUnique({
+      where: { id: bookmarkId },
+    })
+
+    if (!bookmark || bookmark.userId !== session.user.id) {
+      return { error: 'Signet non trouvé' }
+    }
+
     await prisma.bookmark.update({
       where: { id: bookmarkId },
       data: {
@@ -284,21 +305,16 @@ export async function removeLexicalFromSrs(bookmarkId: string) {
 
 export async function fetchWordDefinitions(word: string): Promise<WordDefinitions | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/portail-lexical?action=word&word=${encodeURIComponent(word)}`, {
-      signal: AbortSignal.timeout(15000),
-      cache: 'no-store',
-    })
-    const data = await res.json()
-    if (data.error) {
+    const details = await fetchWordDetails(word)
+    if (!details) {
       return null
     }
-    const result = {
-      tlfidefinitions: data.tlfidefinitions || [],
-      wiktionnaireDefinitions: data.wiktionnaireDefinitions || [],
-      etymologie: data.etymologie || '',
-      concordance: data.concordance || [],
+    return {
+      tlfidefinitions: details.tlfidefinitions,
+      wiktionnaireDefinitions: details.wiktionnaireDefinitions,
+      etymologie: details.etymologie,
+      concordance: details.concordance,
     }
-    return result
   } catch (err) {
     console.error('[fetchWordDefinitions] Fetch error:', err)
     return null

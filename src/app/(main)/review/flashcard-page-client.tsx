@@ -31,22 +31,17 @@ export function FlashcardPageClient({ currentPage }: FlashcardPageClientProps) {
     }
   }, [])
 
-  const [loadedPage, setLoadedPage] = useState(page)
   const loadedPageRef = useRef(page)
 
-  // Load on initial mount
   useEffect(() => {
     loadIdeas(page)
     loadedPageRef.current = page
-    setLoadedPage(page)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load on page change
   useEffect(() => {
     if (page !== loadedPageRef.current) {
       loadIdeas(page)
       loadedPageRef.current = page
-      setLoadedPage(page)
     }
   }, [page, loadIdeas])
 
@@ -75,7 +70,7 @@ export function FlashcardPageClient({ currentPage }: FlashcardPageClientProps) {
         <div className="mt-8 flex justify-center">
           <Button
             variant="outline"
-            onClick={() => handlePageChange(currentPage + 1)}
+            onClick={() => handlePageChange(page + 1)}
           >
             Charger plus d'idées
           </Button>

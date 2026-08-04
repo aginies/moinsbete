@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { recordLexicalReview, skipLexicalWord, removeLexicalFromSrs, fetchWordDefinitions, type LexicalReviewWord, type DueWord, type WordDefinitions } from '@/actions/lexical-review-actions'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipProvider } from '@/components/ui/tooltip'
@@ -38,6 +38,11 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
   const [definitions, setDefinitions] = useState<WordDefinitions | null>(null)
   const [definitionsLoading, setDefinitionsLoading] = useState(false)
   const [definitionsError, setDefinitionsError] = useState<string | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const ratingRef = useRef(rating)
+  const loadingRef = useRef(loading)
+  ratingRef.current = rating
+  loadingRef.current = loading
   const isBookmarked = word.isBookmarked
   const isHistorical = !word.isBookmarked
 
@@ -47,28 +52,40 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
     setDefinitions(null)
     setDefinitionsError(null)
     setDefinitionsLoading(true)
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
     fetchWordDefinitions(word.word)
       .then(defs => {
-        if (defs) {
-          setDefinitions(defs)
-        } else {
-          setDefinitionsError("Impossible de charger les définitions")
+        if (!controller.signal.aborted) {
+          if (defs) {
+            setDefinitions(defs)
+          } else {
+            setDefinitionsError("Impossible de charger les définitions")
+          }
         }
       })
       .catch(err => {
-        console.error('[LexicalFlashcard] Fetch error:', err)
-        setDefinitionsError("Erreur de connexion")
+        if (!controller.signal.aborted) {
+          console.error('[LexicalFlashcard] Fetch error:', err)
+          setDefinitionsError("Erreur de connexion")
+        }
       })
       .finally(() => {
-        setDefinitionsLoading(false)
+        if (!controller.signal.aborted) {
+          setDefinitionsLoading(false)
+        }
       })
-  }, [word.word])
+    return () => {
+      controller.abort()
+    }
+  }, [word.id])
 
   const handleFlip = useCallback(() => {
-    if (!rating && !loading) {
+    if (!ratingRef.current && !loadingRef.current) {
       setFlipped(prev => !prev)
     }
-  }, [rating, loading])
+  }, [])
 
   const handleRetry = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -88,8 +105,9 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
     }
   }, [word.word])
 
-  const handleRating = async (r: string) => {
-    if (rating || loading || !isBookmarked) return
+  const bookmarkId = word.isBookmarked ? word.bookmark.id : undefined
+  const handleRating = useCallback(async (r: string) => {
+    if (ratingRef.current || loadingRef.current || !isBookmarked) return
     setLoading(true)
     setRating(r)
 
@@ -102,7 +120,7 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
     } finally {
       setLoading(false)
     }
-  }
+  }, [isBookmarked, bookmarkId, word.id, onRemoved])
 
   const handleSkip = async () => {
     if (loading) return
@@ -137,14 +155,8 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
   }
 
   useEffect(() => {
-    setFlipped(false)
-    setRating(null)
-    setDefinitions(null)
-  }, [word.id])
-
-  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (rating || loading) return
+      if (ratingRef.current || loadingRef.current) return
 
       switch (e.key) {
         case ' ':
@@ -174,7 +186,7 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handleFlip, handleRating, onNext, onPrev, rating, loading])
+  }, [handleFlip, handleRating, onNext, onPrev])
 
   return (
     <div className="flex w-full flex-col items-center">

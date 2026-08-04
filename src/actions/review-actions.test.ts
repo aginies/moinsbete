@@ -60,6 +60,17 @@ describe('recordReview', () => {
     expect(result).toEqual({ error: 'Signet non trouvé' })
   })
 
+  it('returns error when bookmark belongs to another user', async () => {
+    const { getServerSession } = await import('next-auth/next')
+    vi.mocked(getServerSession).mockResolvedValue(mockSession)
+
+    const { prisma } = await import('@/lib/db')
+    vi.mocked(prisma.bookmark.findUnique).mockResolvedValue({ ...mockBookmark, userId: 'other-user' })
+
+    const result = await recordReview('bm-1', 'good')
+    expect(result).toEqual({ error: 'Accès non autorisé' })
+  })
+
   it('updates bookmark with good rating', async () => {
     const { getServerSession } = await import('next-auth/next')
     vi.mocked(getServerSession).mockResolvedValue(mockSession)
@@ -136,6 +147,7 @@ describe('skipIdea', () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession)
 
     const { prisma } = await import('@/lib/db')
+    vi.mocked(prisma.bookmark.findUnique).mockResolvedValue(mockBookmark)
     vi.mocked(prisma.bookmark.update).mockResolvedValue({ ...mockBookmark })
 
     const result = await skipIdea('bm-1')
@@ -146,5 +158,16 @@ describe('skipIdea', () => {
         nextReviewAt: expect.any(Date),
       }),
     })
+  })
+
+  it('returns error when bookmark belongs to another user', async () => {
+    const { getServerSession } = await import('next-auth/next')
+    vi.mocked(getServerSession).mockResolvedValue(mockSession)
+
+    const { prisma } = await import('@/lib/db')
+    vi.mocked(prisma.bookmark.findUnique).mockResolvedValue({ ...mockBookmark, userId: 'other-user' })
+
+    const result = await skipIdea('bm-1')
+    expect(result).toEqual({ error: 'Signet non trouvé' })
   })
 })

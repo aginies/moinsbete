@@ -70,7 +70,7 @@ export function LexicalPageClient({ currentPage }: LexicalPageClientProps) {
         <div className="mt-8 flex justify-center">
           <Button
             variant="outline"
-            onClick={() => handlePageChange(currentPage + 1)}
+            onClick={() => handlePageChange(page + 1)}
           >
             Charger plus de mots
           </Button>
