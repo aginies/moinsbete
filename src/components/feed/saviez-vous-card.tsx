@@ -151,7 +151,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     resetDep: fact.id,
   })
 
-  const resolvedImageFilename = fact.imageFilename || imageFilename
+  const resolvedImageFilename = fact.imageFilename
   const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError && !isRefreshing
 
   const cachedImageUrl = useMemo(() => {
