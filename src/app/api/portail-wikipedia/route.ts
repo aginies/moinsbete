@@ -30,30 +30,6 @@ function getRandomArticles(count: number): ArticleData[] {
   return result
 }
 
-function shuffleArray<T>(array: T[]): T[] {
-  const arr = [...array]
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[arr[i], arr[j]] = [arr[j], arr[i]]
-  }
-  return arr
-}
-
-function extractArticlesFromHtml(html: string): string[] {
-  const articles: string[] = []
-  const regex = /\[\[([^\[\]|]+?)\]\]/g
-  let match
-  const seen = new Set<string>()
-  while ((match = regex.exec(html)) !== null) {
-    const title = match[1]
-    if (!seen.has(title)) {
-      seen.add(title)
-      articles.push(title)
-    }
-  }
-  return articles
-}
-
 async function fetchArticleDetails(titles: string[]): Promise<ArticleData[]> {
   if (titles.length === 0) return []
 
@@ -146,22 +122,28 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 
-    // Try DB cache first
     const totalCached = await prisma.cachedWikipediaPortalArticle.count({
       where: { expiresAt: { gte: new Date() } },
     })
 
-    if (totalCached > 0) {
-      const allArticles = await prisma.cachedWikipediaPortalArticle.findMany({
+    if (totalCached >= count) {
+      const skip = Math.floor(Math.random() * Math.max(totalCached - count + 1, 0))
+      const articles = await prisma.cachedWikipediaPortalArticle.findMany({
+        where: { expiresAt: { gte: new Date() } },
+        select: { id: true, title: true, extract: true, imageUrl: true, pageUrl: true },
+        skip,
+        take: count,
+      })
+      if (articles.length > 0) {
+        return NextResponse.json(articles)
+      }
+    } else if (totalCached > 0) {
+      const articles = await prisma.cachedWikipediaPortalArticle.findMany({
         where: { expiresAt: { gte: new Date() } },
         select: { id: true, title: true, extract: true, imageUrl: true, pageUrl: true },
       })
-
-      if (allArticles.length >= count) {
-        const shuffled = shuffleArray(allArticles as ArticleData[])
-        return NextResponse.json(shuffled.slice(0, count))
-      } else if (allArticles.length > 0) {
-        return NextResponse.json(allArticles as ArticleData[])
+      if (articles.length > 0) {
+        return NextResponse.json(articles)
       }
     }
 
