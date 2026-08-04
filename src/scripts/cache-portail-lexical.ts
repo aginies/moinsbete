@@ -23,26 +23,17 @@ export async function scrapeAndCachePortailLexicalWotd() {
     if (data && data.form) {
       const today = new Date().toISOString().split('T')[0]
       const word = data.form.trim()
-      
-      const existing = await prisma.portailLexicalMotDuJour.findUnique({
-        where: { date: today }
+
+      const result = await prisma.portailLexicalMotDuJour.upsert({
+        where: { date: today },
+        create: { date: today, word },
+        update: { word },
       })
 
-      if (existing) {
-        if (existing.word !== word) {
-          await prisma.portailLexicalMotDuJour.update({
-            where: { date: today },
-            data: { word }
-          })
-          console.log(`  ✅ Updated word of the day for ${today}: "${word}" (was "${existing.word}")`)
-        } else {
-          console.log(`  ℹ️ Word of the day for ${today} is already up to date: "${word}"`)
-        }
+      if (result.word === word) {
+        console.log(`  ℹ️ Word of the day for ${today} is already up to date: "${word}"`)
       } else {
-        await prisma.portailLexicalMotDuJour.create({
-          data: { date: today, word }
-        })
-        console.log(`  ✅ Saved new word of the day for ${today}: "${word}"`)
+        console.log(`  ✅ Saved word of the day for ${today}: "${word}"`)
       }
     } else {
       console.error('  ⚠️ Invalid response format from Portail Lexical API:', data)
