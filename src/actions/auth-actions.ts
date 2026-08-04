@@ -63,11 +63,11 @@ export async function registerAction(formData: {
     return { error: 'Cet email est déjà utilisé' }
   }
 
-  if (process.env.TURNSTILE_SECRET_KEY && !cfToken) {
+  if (process.env.CAPACITOR !== 'true' && process.env.TURNSTILE_SECRET_KEY && !cfToken) {
     return { error: 'Vérification humaine requise.' }
   }
 
-  if (process.env.TURNSTILE_SECRET_KEY && cfToken) {
+  if (process.env.CAPACITOR !== 'true' && process.env.TURNSTILE_SECRET_KEY && cfToken) {
     const remoteIp = await getClientIpFromHeaders()
     const turnstileSuccess = await verifyTurnstile(cfToken, remoteIp)
     if (!turnstileSuccess) {

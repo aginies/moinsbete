@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MoinsBête</string>
+    <string name="title_activity_main">MoinsBête</string>
+    <string name="package_name">com.moinsbete.app</string>
+    <string name="custom_url_scheme">com.moinsbete.app</string>
+</resources>

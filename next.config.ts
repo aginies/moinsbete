@@ -87,7 +87,7 @@ export default withPWA({
   dest: 'public',
   register: false,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
+  disable: process.env.NODE_ENV === 'development' || process.env.CAPACITOR === 'true',
   workbox: {
     navigateFallback: undefined,
     navigateFallbackDenyList: [/^\/api\//],
