@@ -132,7 +132,7 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
                 <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
               <h3 className="text-sm font-bold uppercase tracking-wide text-purple-800 dark:text-purple-300">
-                Docs Radio France
+                {t('radio_docs')}
               </h3>
             </div>
             <div className="flex items-center gap-6">
@@ -203,7 +203,7 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-purple-700 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-200 hover:underline"
               >
-                Écouter sur Radio France
+                {t('listen_on_radio')}
                 <ExternalLink className="h-3 w-3" />
               </Link>
             </>

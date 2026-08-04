@@ -146,7 +146,7 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
               <Newspaper className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
             <h3 className="text-sm font-bold uppercase tracking-wide text-green-800 dark:text-green-300">
-              Actualité CNRS
+              {t('cnrs_news')}
             </h3>
           </div>
           <div className="flex items-center gap-6">
@@ -225,7 +225,7 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
               onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 hover:underline"
             >
-              Lire l&apos;article sur CNRS Le Journal
+              {t('read_article_cnrs')}
               <ExternalLink className="h-3 w-3" />
             </Link>
           </>
