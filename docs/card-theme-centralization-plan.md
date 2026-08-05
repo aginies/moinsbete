@@ -179,27 +179,35 @@ Rewrite Tailwind classes to `var(--card-*)`. Bigger change, enables runtime them
 
 ### New types (`src/lib/card-theme.ts`)
 
-- `CardShape`: `'rounded' | 'square' | 'pill'` — border radius
-- `CardBorderStyle`: `'solid' | 'thin' | 'dashed' | 'double' | 'none'` — border style
-- `CardShadow`: `'none' | 'sm' | 'md' | 'lg' | 'xl'` — hover shadow
+- `CardShape`: `'square' | 'slight' | 'default' | 'round' | 'pill'` — border radius (5 options)
+- `CardBorderStyle`: `'none' | 'thin' | 'medium' | 'thick' | 'dashed' | 'dotted' | 'double'` — border style (7 options)
+- `CardShadow`: `'none' | 'sm' | 'default' | 'md' | 'lg' | 'xl' | '2xl' | 'inner'` — shadow (8 options, dark-mode aware)
 - `CardCompact`: `'default' | 'compact' | 'tight'` — padding density
 
 ### Class maps
 
 | Map | Values |
 |-----|--------|
-| `CARD_SHAPES` | `rounded-xl`, `rounded-none`, `rounded-2xl` |
-| `CARD_BORDER_STYLES` | `border-2`, `border`, `border-2 border-dashed`, `border-4 border-double`, `''` |
-| `CARD_SHADOWS` | `''`, `hover:shadow-sm`, `hover:shadow-md`, `hover:shadow-lg`, `hover:shadow-xl` |
+| `CARD_SHAPES` | `rounded-none`, `rounded-sm`, `rounded-lg`, `rounded-xl`, `rounded-2xl` |
+| `CARD_BORDER_STYLES` | `''`, `border`, `border-2`, `border-4`, `border-2 border-dashed`, `border-2 border-dotted`, `border-4 border-double` |
+| `CARD_SHADOWS` | `shadow-none`, `shadow-sm`, `shadow`, `shadow-md`, `shadow-lg`, `shadow-xl`, `shadow-2xl`, `shadow-inner` — all with `shadow-black/X` / `dark:shadow-white/X` color |
 | `CARD_COMPACTIONS` | `p-3 sm:p-5`, `p-2 sm:p-3`, `p-1.5 sm:p-2` |
+
+### Dark mode shadows
+
+Shadows use explicit color: black tint (light mode), white tint (dark mode). Size grows on hover. Example (`md`):
+
+```
+shadow-md shadow-black/10 dark:shadow-white/10 hover:shadow-lg hover:shadow-black/15 dark:hover:shadow-white/15
+```
 
 ### CardShell props (new)
 
 ```tsx
 <CardShell
   color="green"
-  shape="square"        // default: 'rounded'
-  borderStyle="thin"    // default: 'solid'
+  shape="square"        // default: 'round'
+  borderStyle="thin"    // default: 'medium'
   shadow="lg"           // default: 'md'
   compact="compact"     // default: 'default'
 >
@@ -229,12 +237,22 @@ Config accepts `shape`, `borderStyle`, `shadow`, `compact`. Passed to `CardShell
 // Square, thin border, no shadow, compact
 <CardShell color="green" shape="square" borderStyle="thin" shadow="none" compact="compact">
 
-// Pill shape, dashed border
-<CardShell color="amber" shape="pill" borderStyle="dashed">
+// Pill shape, dotted border, lg shadow
+<CardShell color="amber" shape="pill" borderStyle="dotted" shadow="lg">
 
 // Image card with custom layout
 <BaseImageCard config={{ ..., shape: 'pill', borderStyle: 'dashed', compact: 'compact' }} />
 ```
+
+### Tester page
+
+`/test-layouts` — preview all variants:
+
+| Section | Cards | Fixed props |
+|---------|-------|-------------|
+| Shape | 5 (square → pill) | border: medium, shadow: md |
+| Border | 7 (none → double) | shape: round, shadow: md |
+| Shadow | 8 (none → inner) | shape: round, border: medium |
 
 ### Files changed
 
@@ -244,6 +262,7 @@ Config accepts `shape`, `borderStyle`, `shadow`, `compact`. Passed to `CardShell
 | `src/components/feed/card-shell.tsx` | 4 new props, dynamic class composition |
 | `src/components/feed/card-header.tsx` | `compact` prop, scaled sizes |
 | `src/components/feed/base-image-card.tsx` | Layout passthrough via config |
+| `src/app/(main)/test-layouts/page.tsx` | Tester page |
 
 ### Breaking changes
 

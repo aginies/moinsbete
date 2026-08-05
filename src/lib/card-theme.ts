@@ -1,6 +1,6 @@
-export type CardShape = 'rounded' | 'square' | 'pill'
-export type CardBorderStyle = 'solid' | 'thin' | 'dashed' | 'double' | 'none'
-export type CardShadow = 'none' | 'sm' | 'md' | 'lg' | 'xl'
+export type CardShape = 'square' | 'slight' | 'default' | 'round' | 'pill'
+export type CardBorderStyle = 'none' | 'thin' | 'medium' | 'thick' | 'dashed' | 'dotted' | 'double'
+export type CardShadow = 'none' | 'sm' | 'default' | 'md' | 'lg' | 'xl' | '2xl' | 'inner'
 export type CardCompact = 'default' | 'compact' | 'tight'
 
 export interface CardLayout {
@@ -11,32 +11,39 @@ export interface CardLayout {
 }
 
 export const DEFAULT_CARD_LAYOUT: CardLayout = {
-  shape: 'rounded',
-  borderStyle: 'solid',
+  shape: 'round',
+  borderStyle: 'medium',
   shadow: 'md',
   compact: 'default',
 }
 
 export const CARD_SHAPES: Record<CardShape, string> = {
-  rounded: 'rounded-xl',
   square: 'rounded-none',
+  slight: 'rounded-sm',
+  default: 'rounded-lg',
+  round: 'rounded-xl',
   pill: 'rounded-2xl',
 }
 
 export const CARD_BORDER_STYLES: Record<CardBorderStyle, string> = {
-  solid: 'border-2',
-  thin: 'border',
-  dashed: 'border-2 border-dashed',
-  double: 'border-4 border-double',
   none: '',
+  thin: 'border',
+  medium: 'border-2',
+  thick: 'border-4',
+  dashed: 'border-2 border-dashed',
+  dotted: 'border-2 border-dotted',
+  double: 'border-4 border-double',
 }
 
 export const CARD_SHADOWS: Record<CardShadow, string> = {
-  none: '',
-  sm: 'hover:shadow-sm',
-  md: 'hover:shadow-md',
-  lg: 'hover:shadow-lg',
-  xl: 'hover:shadow-xl',
+  none: 'shadow-none',
+  sm: 'shadow-sm shadow-black/5 dark:shadow-white/5 hover:shadow-md hover:shadow-black/10 dark:hover:shadow-white/10',
+  default: 'shadow shadow-black/5 dark:shadow-white/5 hover:shadow-md hover:shadow-black/10 dark:hover:shadow-white/10',
+  md: 'shadow-md shadow-black/10 dark:shadow-white/10 hover:shadow-lg hover:shadow-black/15 dark:hover:shadow-white/15',
+  lg: 'shadow-lg shadow-black/15 dark:shadow-white/15 hover:shadow-xl hover:shadow-black/20 dark:hover:shadow-white/20',
+  xl: 'shadow-xl shadow-black/20 dark:shadow-white/20 hover:shadow-2xl hover:shadow-black/25 dark:hover:shadow-white/25',
+  '2xl': 'shadow-2xl shadow-black/25 dark:shadow-white/25',
+  inner: 'shadow-inner shadow-black/5 dark:shadow-white/5',
 }
 
 export const CARD_COMPACTIONS: Record<CardCompact, string> = {
