@@ -294,16 +294,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
               <SwipeBackgroundCard
                 title="saviez-vous ?"
                 icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
-                iconBgColor="bg-blue-400"
-                iconDarkColor="dark:bg-blue-600"
-                titleColor="text-blue-800"
-                titleDarkColor="dark:text-blue-300"
-                borderColor="border-blue-300"
-                borderDarkColor="dark:border-blue-700"
-                bgGradient="bg-gradient-to-br from-blue-50 to-cyan-50"
-                bgGradientDark="dark:from-blue-950/30 dark:to-cyan-950/30"
-                textColor="text-blue-900"
-                textDarkColor="dark:text-blue-100"
+                color="blue"
               >
                 <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
                   {decodeHtmlEntities(nextFact.text)}

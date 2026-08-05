@@ -310,16 +310,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
               <SwipeBackgroundCard
                 title="Image du jour"
                 icon={<Camera className="h-4 w-4 text-teal-950" />}
-                iconBgColor="bg-teal-400"
-                iconDarkColor="dark:bg-teal-600"
-                titleColor="text-teal-800"
-                titleDarkColor="dark:text-teal-300"
-                borderColor="border-teal-300"
-                borderDarkColor="dark:border-teal-700"
-                bgGradient="bg-gradient-to-br from-teal-50 to-emerald-50"
-                bgGradientDark="dark:from-teal-950/30 dark:to-emerald-950/30"
-                textColor="text-teal-900"
-                textDarkColor="dark:text-teal-100"
+                color="teal"
               >
                 {nextImage.imageUrl && (
                   <div className="mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 h-48">

@@ -360,7 +360,7 @@ export const CitationCard = React.memo(function CitationCardInner({
                 <div className={'flex h-8 w-8 items-center justify-center rounded-full ' + c.iconBg + ' ' + c.iconBgDark}>
                   <Quote className={'h-4 w-4 text-white ' + c.iconForeground} />
                 </div>
-                <h3 className={'text-sm font-bold uppercase tracking-wide transition-colors ' + c.title + ' hover:text-amber-600 ' + c.titleDark + ' dark:hover:text-amber-400'}>
+                <h3 className={'text-sm font-bold uppercase tracking-wide transition-colors ' + c.title + ' ' + c.linkHover + ' ' + c.titleDark + ' ' + c.linkHoverDark}>
                   {t('citation_tab')}
                 </h3>
               </Link>
@@ -458,7 +458,7 @@ export const CitationCard = React.memo(function CitationCardInner({
                               <img
                                 src={item.imageUrl}
                                 alt={item.author}
-                                className="h-16 w-16 rounded-full object-cover border-2 border-amber-200 dark:border-amber-700"
+                                className={'h-16 w-16 rounded-full object-cover border-2 ' + c.imageBorder + ' ' + c.imageBorderDark}
                                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                               />
                             </div>
@@ -507,12 +507,12 @@ export const CitationCard = React.memo(function CitationCardInner({
                     <div className="mb-3">
                       <button
                          onClick={() => setShowThemeFilters(!showThemeFilters)}
-                         className={'flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' hover:bg-amber-100 ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' dark:hover:bg-amber-900/40'}
-                       >
-                        <Filter className="h-3 w-3" />
-                        {t('filter_categories')}
-                        {selectedThemes.length > 0 && (
-                          <span className="ml-1 inline-flex items-center justify-center h-4 w-4 rounded-full bg-amber-500 text-white text-[9px]">
+                         className={'flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' ' + c.hoverBg + ' ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' ' + c.hoverBgDark}
+                        >
+                         <Filter className="h-3 w-3" />
+                         {t('filter_categories')}
+                         {selectedThemes.length > 0 && (
+                           <span className={'ml-1 inline-flex items-center justify-center h-4 w-4 rounded-full text-white text-[9px] ' + c.actionFilled + ' ' + c.actionFilledDark}>
                             {selectedThemes.length}
                           </span>
                         )}
@@ -523,7 +523,7 @@ export const CitationCard = React.memo(function CitationCardInner({
                             <button
                               key={cat}
                               onClick={() => toggleTheme(cat)}
-  className={'px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + (selectedThemes.includes(cat) ? ('bg-amber-200 border-amber-400 text-amber-900 dark:bg-amber-800 dark:border-amber-600 dark:text-amber-100') : (c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' hover:bg-amber-100 ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' dark:hover:bg-amber-900/40'))}
+  className={'px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + (selectedThemes.includes(cat) ? (c.pillSelectedBg + ' ' + c.pillSelectedBorder + ' ' + c.pillSelectedText + ' ' + c.pillSelectedBgDark + ' ' + c.pillSelectedBorderDark + ' ' + c.pillSelectedTextDark) : (c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' ' + c.hoverBg + ' ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' ' + c.hoverBgDark))}
                             >
                               {cat}
                             </button>
@@ -569,12 +569,12 @@ export const CitationCard = React.memo(function CitationCardInner({
                     <div className="mb-3">
                      <button
                          onClick={() => setShowAuteurFilters(!showAuteurFilters)}
-                         className={'flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' hover:bg-amber-100 ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' dark:hover:bg-amber-900/40'}
-                       >
-                        <Filter className="h-3 w-3" />
-                        {t('filter_categories')}
-                        {selectedAuteurs.length > 0 && (
-                          <span className="ml-1 inline-flex items-center justify-center h-4 w-4 rounded-full bg-amber-500 text-white text-[9px]">
+                         className={'flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' ' + c.hoverBg + ' ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' ' + c.hoverBgDark}
+                        >
+                         <Filter className="h-3 w-3" />
+                         {t('filter_categories')}
+                         {selectedAuteurs.length > 0 && (
+                           <span className={'ml-1 inline-flex items-center justify-center h-4 w-4 rounded-full text-white text-[9px] ' + c.actionFilled + ' ' + c.actionFilledDark}>
                             {selectedAuteurs.length}
                           </span>
                         )}
@@ -585,7 +585,7 @@ export const CitationCard = React.memo(function CitationCardInner({
                             <button
                               key={cat}
                               onClick={() => toggleAuteur(cat)}
- className={'px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + (selectedAuteurs.includes(cat) ? ('bg-amber-200 border-amber-400 text-amber-900 dark:bg-amber-800 dark:border-amber-600 dark:text-amber-100') : (c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' hover:bg-amber-100 ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' dark:hover:bg-amber-900/40'))}
+ className={'px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + (selectedAuteurs.includes(cat) ? (c.pillSelectedBg + ' ' + c.pillSelectedBorder + ' ' + c.pillSelectedText + ' ' + c.pillSelectedBgDark + ' ' + c.pillSelectedBorderDark + ' ' + c.pillSelectedTextDark) : (c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' ' + c.hoverBg + ' ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' ' + c.hoverBgDark))}
                             >
                               {cat}
                             </button>
