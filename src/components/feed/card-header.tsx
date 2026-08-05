@@ -27,6 +27,7 @@ interface CardHeaderProps {
   children?: React.ReactNode
   enableAutoRefresh?: boolean
   storageKey?: string
+  compact?: boolean
 }
 
 export function CardHeader({
@@ -45,9 +46,16 @@ export function CardHeader({
   children,
   enableAutoRefresh = false,
   storageKey = 'card_auto',
+  compact = false,
 }: CardHeaderProps) {
   const t = useTranslations('feed')
   const c = getTheme(color)
+  const iconSize = compact ? 'h-5 w-5' : 'h-8 w-8'
+  const titleClass = compact ? 'text-xs' : 'text-sm'
+  const marginClass = compact ? 'mb-2' : 'mb-3'
+  const iconSizeSmall = compact ? 'h-3.5 w-3.5' : 'h-4 w-4 sm:h-5 sm:w-5'
+  const iconSizeTiny = compact ? 'h-3 w-3' : 'h-3.5 w-3.5'
+  const gapClass = compact ? 'gap-1' : 'gap-2'
   const [isActive, setIsActive] = React.useState(() => {
     if (!enableAutoRefresh) return false
     const stored = localStorage.getItem(`${storageKey}_auto_active`)
@@ -109,22 +117,22 @@ export function CardHeader({
   }, [timeLeft, enableAutoRefresh, isActive, loading, intervalValue, onRefresh])
 
   return (
-    <div className="mb-3 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div className={`flex h-8 w-8 items-center justify-center rounded-full ${c.iconBg} ${c.iconBgDark}`}>
+    <div className={`${marginClass} flex items-center justify-between`}>
+      <div className={`flex items-center ${gapClass}`}>
+        <div className={`flex ${iconSize} items-center justify-center rounded-full ${c.iconBg} ${c.iconBgDark}`}>
           {icon}
         </div>
         {showLink && linkHref ? (
-          <Link href={linkHref} className={`text-sm font-bold uppercase tracking-wide ${c.title} hover:underline ${c.titleDark}`}>
+          <Link href={linkHref} className={`${titleClass} font-bold uppercase tracking-wide ${c.title} hover:underline ${c.titleDark}`}>
             {title}
           </Link>
         ) : (
-          <h3 className={`text-sm font-bold uppercase tracking-wide ${c.title} ${c.titleDark}`}>
+          <h3 className={`${titleClass} font-bold uppercase tracking-wide ${c.title} ${c.titleDark}`}>
             {title}
           </h3>
         )}
       </div>
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className={`flex items-center ${gapClass} sm:gap-3`}>
         {enableAutoRefresh && onRefresh && (
           <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/20 px-2 py-0.5 shadow-sm">
             <button
@@ -140,7 +148,7 @@ export function CardHeader({
               title={isActive ? t('pause') : t('play')}
               aria-label={isActive ? t('pause') : t('play')}
             >
-              {isActive ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 fill-current" />}
+              {isActive ? <Pause className={iconSizeTiny} /> : <Play className={`${iconSizeTiny} fill-current`} />}
             </button>
             <div className="flex items-center">
               <select
@@ -179,7 +187,7 @@ export function CardHeader({
             title={t('hide_card')}
             aria-label={t('hide_card')}
           >
-            <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+            <EyeOff className={iconSizeSmall} />
           </button>
         )}
         {showRefresh && onRefresh && (
@@ -193,7 +201,7 @@ export function CardHeader({
             title={t('refresh_content')}
             aria-label={t('refresh_content')}
           >
-            <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`${iconSizeSmall} ${loading ? 'animate-spin' : ''}`} />
           </button>
         )}
         {extraActions}

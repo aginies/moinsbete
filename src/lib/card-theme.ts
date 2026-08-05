@@ -1,3 +1,50 @@
+export type CardShape = 'rounded' | 'square' | 'pill'
+export type CardBorderStyle = 'solid' | 'thin' | 'dashed' | 'double' | 'none'
+export type CardShadow = 'none' | 'sm' | 'md' | 'lg' | 'xl'
+export type CardCompact = 'default' | 'compact' | 'tight'
+
+export interface CardLayout {
+  shape: CardShape
+  borderStyle: CardBorderStyle
+  shadow: CardShadow
+  compact: CardCompact
+}
+
+export const DEFAULT_CARD_LAYOUT: CardLayout = {
+  shape: 'rounded',
+  borderStyle: 'solid',
+  shadow: 'md',
+  compact: 'default',
+}
+
+export const CARD_SHAPES: Record<CardShape, string> = {
+  rounded: 'rounded-xl',
+  square: 'rounded-none',
+  pill: 'rounded-2xl',
+}
+
+export const CARD_BORDER_STYLES: Record<CardBorderStyle, string> = {
+  solid: 'border-2',
+  thin: 'border',
+  dashed: 'border-2 border-dashed',
+  double: 'border-4 border-double',
+  none: '',
+}
+
+export const CARD_SHADOWS: Record<CardShadow, string> = {
+  none: '',
+  sm: 'hover:shadow-sm',
+  md: 'hover:shadow-md',
+  lg: 'hover:shadow-lg',
+  xl: 'hover:shadow-xl',
+}
+
+export const CARD_COMPACTIONS: Record<CardCompact, string> = {
+  default: 'p-3 sm:p-5',
+  compact: 'p-2 sm:p-3',
+  tight: 'p-1.5 sm:p-2',
+}
+
 export type CardColorName = 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald' | 'indigo'
 
 export interface CardTheme {
@@ -904,4 +951,20 @@ export function getTheme(color: CardColorName): CardTheme {
 
 export function getCardColor(key: CardKey): CardColorName {
   return CARD_COLORS[key]
+}
+
+export function getShapeClasses(shape: CardShape): string {
+  return CARD_SHAPES[shape]
+}
+
+export function getBorderStyleClasses(borderStyle: CardBorderStyle): string {
+  return CARD_BORDER_STYLES[borderStyle]
+}
+
+export function getShadowClasses(shadow: CardShadow): string {
+  return CARD_SHADOWS[shadow]
+}
+
+export function getCompactionClasses(compact: CardCompact): string {
+  return CARD_COMPACTIONS[compact]
 }

@@ -18,7 +18,7 @@ import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import type { BookmarkType } from '@/generated/client'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
-import type { CardColorName } from '@/lib/card-theme'
+import type { CardColorName, CardShape, CardBorderStyle, CardShadow, CardCompact } from '@/lib/card-theme'
 import { getTheme } from '@/lib/card-theme'
 
 interface BaseImage {
@@ -56,6 +56,10 @@ interface BaseImageCardConfig<TTopic> {
   shareTextRights: string
   settingsButtonTitle: string
   onSettingsClick: () => void
+  shape?: CardShape
+  borderStyle?: CardBorderStyle
+  shadow?: CardShadow
+  compact?: CardCompact
 }
 
 interface BaseImageCardProps<TTopic> {
@@ -117,6 +121,10 @@ export function BaseImageCard<TTopic>({
     shareTextRights,
     settingsButtonTitle,
     onSettingsClick,
+    shape,
+    borderStyle,
+    shadow,
+    compact,
   } = config
 
   const t = useTranslations('feed')
@@ -253,19 +261,20 @@ export function BaseImageCard<TTopic>({
   const handleToggleVisibility = showToggle ? onToggle : undefined
 
   const cardContent = (
-    <CardShell color={color}>
-     <CardHeader
-        color={color}
-        icon={icon}
-        title={title}
-        linkHref={linkHref}
-        showToggle={false}
-        showRefresh={false}
-        onRefresh={loadImage}
-        loading={loading}
-        shareOptions={shareOptions}
-        enableAutoRefresh={enableAutoRefresh}
-        storageKey={storageKey}
+   <CardShell color={color} shape={shape} borderStyle={borderStyle} shadow={shadow} compact={compact}>
+      <CardHeader
+         color={color}
+         icon={icon}
+         title={title}
+         linkHref={linkHref}
+         showToggle={false}
+         showRefresh={false}
+         onRefresh={loadImage}
+         loading={loading}
+         shareOptions={shareOptions}
+         enableAutoRefresh={enableAutoRefresh}
+         storageKey={storageKey}
+         compact={compact !== 'default'}
         extraActions={
           <div className="flex items-center gap-2 sm:gap-3">
             {handleToggleVisibility && (

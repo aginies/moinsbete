@@ -173,6 +173,84 @@ Rewrite Tailwind classes to `var(--card-*)`. Bigger change, enables runtime them
 
 ---
 
+## Phase 7: Card Layout Variants (DONE)
+
+**Completed.** Added layout control to `CardShell` and `CardHeader`.
+
+### New types (`src/lib/card-theme.ts`)
+
+- `CardShape`: `'rounded' | 'square' | 'pill'` — border radius
+- `CardBorderStyle`: `'solid' | 'thin' | 'dashed' | 'double' | 'none'` — border style
+- `CardShadow`: `'none' | 'sm' | 'md' | 'lg' | 'xl'` — hover shadow
+- `CardCompact`: `'default' | 'compact' | 'tight'` — padding density
+
+### Class maps
+
+| Map | Values |
+|-----|--------|
+| `CARD_SHAPES` | `rounded-xl`, `rounded-none`, `rounded-2xl` |
+| `CARD_BORDER_STYLES` | `border-2`, `border`, `border-2 border-dashed`, `border-4 border-double`, `''` |
+| `CARD_SHADOWS` | `''`, `hover:shadow-sm`, `hover:shadow-md`, `hover:shadow-lg`, `hover:shadow-xl` |
+| `CARD_COMPACTIONS` | `p-3 sm:p-5`, `p-2 sm:p-3`, `p-1.5 sm:p-2` |
+
+### CardShell props (new)
+
+```tsx
+<CardShell
+  color="green"
+  shape="square"        // default: 'rounded'
+  borderStyle="thin"    // default: 'solid'
+  shadow="lg"           // default: 'md'
+  compact="compact"     // default: 'default'
+>
+```
+
+Replaces hardcoded `rounded-xl border-2` with dynamic lookups. All defaults match existing look — zero visual change for current cards.
+
+### CardHeader compact mode
+
+`compact` prop scales down header:
+
+| Element | Default | Compact |
+|---------|---------|---------|
+| Icon | `h-8 w-8` | `h-5 w-5` |
+| Title | `text-sm` | `text-xs` |
+| Margin | `mb-3` | `mb-2` |
+| Action icons | `h-4 w-4 sm:h-5 sm:w-5` | `h-3.5 w-3.5` |
+| Play/Pause | `h-3.5 w-3.5` | `h-3 w-3` |
+
+### BaseImageCard passthrough
+
+Config accepts `shape`, `borderStyle`, `shadow`, `compact`. Passed to `CardShell` and `CardHeader` (compact derived: `compact !== 'default'`).
+
+### Usage examples
+
+```tsx
+// Square, thin border, no shadow, compact
+<CardShell color="green" shape="square" borderStyle="thin" shadow="none" compact="compact">
+
+// Pill shape, dashed border
+<CardShell color="amber" shape="pill" borderStyle="dashed">
+
+// Image card with custom layout
+<BaseImageCard config={{ ..., shape: 'pill', borderStyle: 'dashed', compact: 'compact' }} />
+```
+
+### Files changed
+
+| File | Change |
+|------|--------|
+| `src/lib/card-theme.ts` | +4 types, +1 interface, +4 class maps, +4 helper functions |
+| `src/components/feed/card-shell.tsx` | 4 new props, dynamic class composition |
+| `src/components/feed/card-header.tsx` | `compact` prop, scaled sizes |
+| `src/components/feed/base-image-card.tsx` | Layout passthrough via config |
+
+### Breaking changes
+
+None. All props default to current behavior.
+
+---
+
 ## Questions / Decisions Needed
 
 1. **Scope** — Phase 1-5 only (Tailwind centralized) or also Phase 6 (CSS variables)?
