@@ -75,7 +75,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
   const t = useTranslations('feed')
   const [showFr, setShowFr] = useState(true)
   const [showEn, setShowEn] = useState(initialShowEn ?? false)
-  const [showFilter, setShowFilter] = useState(true)
+  const [showFilter, setShowFilter] = useState(false)
   const [image, setImage] = useState<ImageData | null>(() => {
     if (typeof sessionStorage === 'undefined') return null
     const saved = sessionStorage.getItem('wikipedia_image')
