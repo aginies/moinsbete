@@ -9,6 +9,7 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('react', () => {
   let stateVal: any
+  let refVal: any = { current: undefined }
   return {
     useState: (initial: any) => {
       stateVal = initial
@@ -17,6 +18,10 @@ vi.mock('react', () => {
     useCallback: (fn: any) => fn,
     useEffect: (fn: any) => {
       fn()
+    },
+    useRef: (initial: any) => {
+      refVal.current = initial
+      return refVal
     },
   }
 })
@@ -56,6 +61,8 @@ describe('useCardVisibility', () => {
       userId: 'user-1',
       initialShow: false,
     })
-    expect(global.fetch).not.toHaveBeenCalled()
+    const calls = (global.fetch as any).mock.calls
+    const visibilityCalls = calls.filter((call: string[]) => call[0]?.includes('user-card-visibility'))
+    expect(visibilityCalls).toHaveLength(0)
   })
 })

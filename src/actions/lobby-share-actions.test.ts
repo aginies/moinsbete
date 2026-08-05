@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Prisma } from '@/generated/client'
+import { prisma } from '@/lib/db'
 
 const mockSession = {
   user: { id: 'user-1', email: 'user@test.com', name: 'User', role: 'USER' as const },
@@ -147,7 +148,6 @@ describe('lobby-share-actions — shareToLobby', () => {
   })
 
   it('returns error when bookmark not found', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.bookmark.findUnique).mockResolvedValue(null)
 
     const { shareToLobby } = await import('@/actions/lobby-share-actions')
@@ -157,7 +157,6 @@ describe('lobby-share-actions — shareToLobby', () => {
   })
 
   it('returns error when already shared to community', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.bookmark.findUnique).mockResolvedValue({
       id: 'bm-1', ideaId: 'idea-1', resourceId: null,
       type: 'IDEA' as any, userId: 'user-1',
@@ -175,7 +174,6 @@ describe('lobby-share-actions — shareToLobby', () => {
   })
 
   it('creates many for new users only, dedups existing', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.bookmark.findUnique).mockResolvedValue({
       id: 'bm-1', ideaId: 'idea-1', resourceId: null,
       type: 'IDEA' as any, userId: 'user-1',
@@ -211,7 +209,6 @@ describe('lobby-share-actions — shareToLobby', () => {
   })
 
   it('sends email to recipients with emailNotificationsEnabled=true', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.bookmark.findUnique).mockResolvedValue({
       id: 'bm-1', ideaId: 'idea-1', resourceId: null,
       type: 'IDEA' as any, userId: 'user-1',
@@ -254,7 +251,6 @@ describe('lobby-share-actions — unshareFromLobby', () => {
   })
 
   it('admin deletes any user share (no userId filter)', async () => {
-    const { prisma } = await import('@/lib/db')
     (vi.mocked(prisma.sharedLobbyBookmark.deleteMany) as any).mockImplementation(async (args) => {
       expect(args).toEqual({ where: { ideaId: 'idea-1', userId: 'user-1' } })
       return { count: 1 }
@@ -267,7 +263,6 @@ describe('lobby-share-actions — unshareFromLobby', () => {
   })
 
   it('regular user deletes only own shares', async () => {
-    const { prisma } = await import('@/lib/db')
     (vi.mocked(prisma.sharedLobbyBookmark.deleteMany) as any).mockImplementation(async (args) => {
       expect(args).toEqual({ where: { ideaId: 'idea-1', userId: 'user-1' } })
       return { count: 1 }
@@ -280,7 +275,6 @@ describe('lobby-share-actions — unshareFromLobby', () => {
   })
 
   it('deletes by ideaId + sharedWithUserId when specified', async () => {
-    const { prisma } = await import('@/lib/db')
     (vi.mocked(prisma.sharedLobbyBookmark.deleteMany) as any).mockImplementation(async (args) => {
       expect(args).toEqual({ where: { ideaId: 'idea-1', sharedWithUserId: 'target-user', userId: 'user-1' } })
       return { count: 1 }
@@ -307,7 +301,6 @@ describe('lobby-share-actions — shareResourceToLobby', () => {
   })
 
   it('returns error when already shared', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: null, resourceId: 'resource-1',
       resourceType: 'SAVIEZ_VOUS', createdAt: new Date(), meta: null, sharedWithUserId: null,
@@ -319,7 +312,6 @@ describe('lobby-share-actions — shareResourceToLobby', () => {
   })
 
   it('validates meta: all-string keys/values allowed', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.sharedLobbyBookmark.create).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: null, resourceId: 'resource-1',
@@ -335,7 +327,6 @@ describe('lobby-share-actions — shareResourceToLobby', () => {
   })
 
   it('rejects meta with non-string value (number)', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.sharedLobbyBookmark.create).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: null, resourceId: 'resource-1',
@@ -351,7 +342,6 @@ describe('lobby-share-actions — shareResourceToLobby', () => {
   })
 
   it('rejects meta with non-string value (array)', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.sharedLobbyBookmark.create).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: null, resourceId: 'resource-1',
@@ -367,7 +357,6 @@ describe('lobby-share-actions — shareResourceToLobby', () => {
   })
 
   it('rejects meta with non-string value (null)', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.sharedLobbyBookmark.create).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: null, resourceId: 'resource-1',
@@ -383,7 +372,6 @@ describe('lobby-share-actions — shareResourceToLobby', () => {
   })
 
   it('rejects meta with key > 50 chars', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.sharedLobbyBookmark.create).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: null, resourceId: 'resource-1',
@@ -401,7 +389,6 @@ describe('lobby-share-actions — shareResourceToLobby', () => {
   })
 
   it('rejects meta with value > 200 chars', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.sharedLobbyBookmark.create).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: null, resourceId: 'resource-1',
@@ -419,7 +406,6 @@ describe('lobby-share-actions — shareResourceToLobby', () => {
   })
 
   it('creates community share when no recipientIds', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.sharedLobbyBookmark.create).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: null, resourceId: 'resource-1',
@@ -433,7 +419,6 @@ describe('lobby-share-actions — shareResourceToLobby', () => {
   })
 
   it('creates many for recipientIds', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.sharedLobbyBookmark.createMany).mockResolvedValue({ count: 2 })
     vi.mocked((await import('next/cache')).revalidatePath).mockImplementation(() => {})
@@ -452,7 +437,6 @@ describe('lobby-share-actions — unshareResourceFromLobby', () => {
   })
 
   it('admin deletes all shares for resource', async () => {
-    const { prisma } = await import('@/lib/db')
     (vi.mocked(prisma.sharedLobbyBookmark.deleteMany) as any).mockImplementation(async (args) => {
       expect(args).toEqual({ where: { resourceId: 'resource-1', resourceType: 'SAVIEZ_VOUS', userId: 'user-1' } })
       return { count: 2 }
@@ -465,7 +449,6 @@ describe('lobby-share-actions — unshareResourceFromLobby', () => {
   })
 
   it('regular user deletes only own shares', async () => {
-    const { prisma } = await import('@/lib/db')
     (vi.mocked(prisma.sharedLobbyBookmark.deleteMany) as any).mockImplementation(async (args) => {
       expect(args).toEqual({ where: { resourceId: 'resource-1', resourceType: 'SAVIEZ_VOUS', userId: 'user-1' } })
       return { count: 1 }
@@ -478,7 +461,6 @@ describe('lobby-share-actions — unshareResourceFromLobby', () => {
   })
 
   it('deletes specific sharedWithUserId when provided', async () => {
-    const { prisma } = await import('@/lib/db')
     (vi.mocked(prisma.sharedLobbyBookmark.deleteMany) as any).mockImplementation(async (args) => {
       expect(args).toEqual({ where: { resourceId: 'resource-1', resourceType: 'SAVIEZ_VOUS', sharedWithUserId: 'target-user', userId: 'user-1' } })
       return { count: 1 }
@@ -498,7 +480,6 @@ describe('lobby-share-actions — isSharedToLobby / isSharedResourceToLobby', ()
   })
 
   it('isSharedToLobby returns true when share exists', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: 'idea-1', resourceId: null,
       resourceType: '', createdAt: new Date(), meta: null, sharedWithUserId: null,
@@ -510,7 +491,6 @@ describe('lobby-share-actions — isSharedToLobby / isSharedResourceToLobby', ()
   })
 
   it('isSharedToLobby returns false when no share', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
 
     const { isSharedToLobby } = await import('@/actions/lobby-share-actions')
@@ -519,7 +499,6 @@ describe('lobby-share-actions — isSharedToLobby / isSharedResourceToLobby', ()
   })
 
   it('isSharedResourceToLobby returns true when share exists', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: null, resourceId: 'resource-1',
       resourceType: 'SAVIEZ_VOUS', createdAt: new Date(), meta: null, sharedWithUserId: null,
@@ -531,7 +510,6 @@ describe('lobby-share-actions — isSharedToLobby / isSharedResourceToLobby', ()
   })
 
   it('isSharedResourceToLobby returns false when no share', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
 
     const { isSharedResourceToLobby } = await import('@/actions/lobby-share-actions')
@@ -540,7 +518,6 @@ describe('lobby-share-actions — isSharedToLobby / isSharedResourceToLobby', ()
   })
 
   it('returns shareToCommunity=false for private shares only', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: 'idea-1', resourceId: null,
       resourceType: '', createdAt: new Date(), meta: null, sharedWithUserId: 'user-2',
@@ -552,7 +529,6 @@ describe('lobby-share-actions — isSharedToLobby / isSharedResourceToLobby', ()
   })
 
   it('returns shareToCommunity=true when any share has null sharedWithUserId', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: 'idea-1', resourceId: null,
       resourceType: '', createdAt: new Date(), meta: null, sharedWithUserId: null,
@@ -564,7 +540,6 @@ describe('lobby-share-actions — isSharedToLobby / isSharedResourceToLobby', ()
   })
 
   it('returns false when no shares', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue(null)
 
     const { isSharedToLobby } = await import('@/actions/lobby-share-actions')
@@ -586,7 +561,6 @@ describe('lobby-share-actions — favorites integration', () => {
   })
 
   it('addToFavoritesFromLobby calls toggleBookmark and adds', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: 'idea-1', resourceId: null,
       resourceType: '', createdAt: new Date(), meta: null, sharedWithUserId: null,
@@ -601,7 +575,6 @@ describe('lobby-share-actions — favorites integration', () => {
   })
 
   it('returns alreadyBookmarked when toggle returns bookmarked=false', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findFirst).mockResolvedValue({
       id: 'slbm-1', userId: 'user-1', ideaId: 'idea-1', resourceId: null,
       resourceType: '', createdAt: new Date(), meta: null, sharedWithUserId: null,
@@ -640,7 +613,6 @@ describe('lobby-share-actions — getSharedWithMe', () => {
   })
 
   it('returns bookmarks shared to current user', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findMany).mockResolvedValue([
       {
         id: 'slbm-1', userId: 'user-2', ideaId: 'idea-1', resourceId: null,
@@ -654,7 +626,6 @@ describe('lobby-share-actions — getSharedWithMe', () => {
   })
 
   it('returns empty bookmarks when nothing shared to user', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.sharedLobbyBookmark.findMany).mockResolvedValue([])
 
     const { getSharedWithMe } = await import('@/actions/lobby-share-actions')
@@ -670,7 +641,6 @@ describe('lobby-share-actions — user discovery', () => {
   })
 
   it('getAllUsers excludes current user and returns enabled users', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: 'user-2', email: 'user2@test.com', displayName: 'User2' } as any,
       { id: 'user-3', email: 'user3@test.com', displayName: 'User3' } as any,
@@ -682,7 +652,6 @@ describe('lobby-share-actions — user discovery', () => {
   })
 
   it('searchUsers matches displayName contains', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: 'user-2', email: 'user2@test.com', displayName: 'Tester' } as any,
     ])
@@ -693,7 +662,6 @@ describe('lobby-share-actions — user discovery', () => {
   })
 
   it('searchUsers matches email contains', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: 'user-2', email: 'user@example.com', displayName: 'User' } as any,
     ])
@@ -704,7 +672,6 @@ describe('lobby-share-actions — user discovery', () => {
   })
 
   it('searchUsers returns empty when no matches', async () => {
-    const { prisma } = await import('@/lib/db')
     vi.mocked(prisma.user.findMany).mockResolvedValue([])
 
     const { searchUsers } = await import('@/actions/lobby-share-actions')
