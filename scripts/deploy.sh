@@ -237,13 +237,12 @@ npx prisma generate
 fix_column_rename
 add_column_if_missing f1CardVisible User 1
 add_column_if_missing citationCardVisible User 1
+add_column_if_missing wikipediaImageShowEn User 0
 fix_weak_password
 
 log "Applying schema with db push..."
 cd "$DEST"
 npx prisma db push 2>&1 | tail -3 || log "db push failed, continuing..."
-
-resolve_legacy_migrations
 
 resolve_legacy_migrations
 apply_pending_migrations
