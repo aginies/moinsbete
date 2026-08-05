@@ -334,6 +334,78 @@ src/components/
 └── ui/                                  # Composants shadcn/ui
 ```
 
+## Cartes feed — layout variants
+
+`CardShell` accepte 4 props de layout pour customiser l'apparence:
+
+| Prop | Type | Défaut | Valeurs |
+|------|------|--------|---------|
+| `shape` | `CardShape` | `'round'` | `'square'`, `'slight'`, `'default'`, `'round'`, `'pill'` |
+| `borderStyle` | `CardBorderStyle` | `'medium'` | `'none'`, `'thin'`, `'medium'`, `'thick'`, `'dashed'`, `'dotted'`, `'double'` |
+| `shadow` | `CardShadow` | `'md'` | `'none'`, `'sm'`, `'default'`, `'md'`, `'lg'`, `'xl'`, `'2xl'`, `'inner'` |
+| `compact` | `CardCompact` | `'default'` | `'default'`, `'compact'`, `'tight'` |
+
+### Shape (rayon de bordure)
+
+| Valeur | Classe |
+|--------|--------|
+| `square` | `rounded-none` |
+| `slight` | `rounded-sm` |
+| `default` | `rounded-lg` |
+| `round` | `rounded-xl` |
+| `pill` | `rounded-2xl` |
+
+### Border (style de bordure)
+
+| Valeur | Classe |
+|--------|--------|
+| `none` | — |
+| `thin` | `border` (1px) |
+| `medium` | `border-2` (2px) |
+| `thick` | `border-4` (4px) |
+| `dashed` | `border-2 border-dashed` |
+| `dotted` | `border-2 border-dotted` |
+| `double` | `border-4 border-double` |
+
+### Shadow (ombre)
+
+Tous les shadows utilisent une couleur explicite: noir (light) / blanc (dark). La taille croît au hover.
+
+| Valeur | Classe base |
+|--------|------------|
+| `none` | `shadow-none` |
+| `sm` | `shadow-sm` → hover `shadow-md` |
+| `default` | `shadow` → hover `shadow-md` |
+| `md` | `shadow-md` → hover `shadow-lg` |
+| `lg` | `shadow-lg` → hover `shadow-xl` |
+| `xl` | `shadow-xl` → hover `shadow-2xl` |
+| `2xl` | `shadow-2xl` |
+| `inner` | `shadow-inner` |
+
+### Compact (densité de padding)
+
+| Valeur | Classe |
+|--------|--------|
+| `default` | `p-3 sm:p-5` |
+| `compact` | `p-2 sm:p-3` |
+| `tight` | `p-1.5 sm:p-2` |
+
+Mode compact sur `CardHeader`: réduit tailles d'icône (`h-5`), titre (`text-xs`), marge (`mb-2`).
+
+### Exemples
+
+```tsx
+// Carré, bordure fine, compact
+<CardShell color="green" shape="square" borderStyle="thin" compact="compact">
+
+// Pill, bordure pointillée, grosse ombre
+<CardShell color="amber" shape="pill" borderStyle="dotted" shadow="lg">
+```
+
+### Tester
+
+`/test-layouts` — page de prévisualisation de tous les variants.
+
 ## Structure des scripts
 
 ```
