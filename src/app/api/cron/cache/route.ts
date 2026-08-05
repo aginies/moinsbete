@@ -61,35 +61,35 @@ export async function GET(request: NextRequest) {
   const results: Record<string, string> = {}
   
   try {
-    console.log('[cron] Step 1/6: Scraping CNRS...')
+    console.log('[cron] Step 1/10: Scraping CNRS...')
     await scrapeAndCacheCnrs()
     results.cnrs = 'ok'
     
-    console.log('[cron] Step 2/6: Scraping Radio France...')
+    console.log('[cron] Step 2/10: Scraping Radio France...')
     await scrapeAndCacheRadioEpisodes()
     results.radio = 'ok'
     
-    console.log('[cron] Step 3/6: Scraping News...')
+    console.log('[cron] Step 3/10: Scraping News...')
     await scrapeAndCacheNews()
     results.news = 'ok'
     
-    console.log('[cron] Step 4/7: Scraping Wikipedia Image...')
+    console.log('[cron] Step 4/10: Scraping Wikipedia Image...')
     await scrapeAndCacheWikipediaImages()
     results.wiki = 'ok'
     
-    console.log('[cron] Step 5/7: Scraping F1 portal...')
+    console.log('[cron] Step 5/10: Scraping F1 portal...')
     await scrapeAndCacheF1()
     results.f1 = 'ok'
 
-    console.log('[cron] Step 6/9: Scraping Portail Wikipédia...')
+    console.log('[cron] Step 6/10: Scraping Portail Wikipédia...')
     await scrapeAndCachePortailWikipedia()
     results.portailWiki = 'ok'
 
-    console.log('[cron] Step 7/9: Scraping Wikiquote...')
+    console.log('[cron] Step 7/10: Scraping Wikiquote...')
     await scrapeAndCacheCitation()
     results.citation = 'ok'
 
-    console.log('[cron] Step 8/9: Cleanup...')
+    console.log('[cron] Step 8/10: Cleanup...')
     const counts = await cleanupExpired()
     const citationSkipped = counts.citation === 0
     let cleanupParts = [`cnrs:${counts.cnrs}`, `radio:${counts.radio}`, `wiki:${counts.wiki}`, `wikiLoves:${counts.wikiLoves}`, `news:${counts.news}`, `f1:${counts.f1}`, `portailWiki:${counts.portailWikipedia}`]

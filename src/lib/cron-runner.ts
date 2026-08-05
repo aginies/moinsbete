@@ -18,9 +18,9 @@ async function runCron() {
   console.log(`[cron] Running cache cron at ${new Date().toISOString()}...`)
   
   try {
-    const res = await fetch(API_URL, {
-      headers: { 'X-Forwarded-For': '127.0.0.1' },
-    })
+    const url = new URL(API_URL)
+    if (process.env.CRON_SECRET) url.searchParams.set('token', process.env.CRON_SECRET)
+    const res = await fetch(url.toString())
     
     if (res.ok) {
       const data = await res.json()

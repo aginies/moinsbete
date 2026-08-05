@@ -32,7 +32,6 @@ interface SujetsClientProps {
   userId?: string
   initialVisibility?: CardVisibility
   globalVisibility?: Record<string, boolean>
-  csrfToken: string
   cardNavBarEnabled?: boolean
 }
 
@@ -124,11 +123,11 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
   ),
 }
 
-async function updateCardVisibility(field: string, value: boolean, csrfToken: string) {
+async function updateCardVisibility(field: string, value: boolean) {
   await fetch('/api/user-card-visibility', {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ field, value }),
   }).catch(() => {})
 }
@@ -146,24 +145,9 @@ async function fetchCardOrder(userId: string): Promise<string[]> {
   return CARD_DEFAULT_ORDER
 }
 
-export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, globalVisibility, csrfToken: initialCsrfToken, cardNavBarEnabled = true }: SujetsClientProps) {
-  const [csrfToken, setCsrfToken] = useState(initialCsrfToken || '')
+export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, userId, initialVisibility, globalVisibility, cardNavBarEnabled = true }: SujetsClientProps) {
   const router = useRouter()
   const t = useTranslations('feed')
-
-  const csrfLoadedRef = useRef(false)
-
-  useEffect(() => {
-    if (csrfLoadedRef.current || csrfToken) return
-    csrfLoadedRef.current = true
-
-    const loadCsrf = async () => {
-      const { getCsrfToken } = await import('next-auth/react')
-      const token = await getCsrfToken()
-      if (token) setCsrfToken(token)
-    }
-    loadCsrf()
-  }, [])
 
   const [followedIds, setFollowedIds] = useState<string[]>(initialFollowedIds)
   const followedIdsSet = useMemo(() => new Set(followedIds), [followedIds])
@@ -200,7 +184,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     setVisibility(prev => {
       const next = !prev[key]
       if (userId) {
-        updateCardVisibility(field, next, csrfToken)
+        updateCardVisibility(field, next)
           .then(() => {
             router.refresh()
           })
@@ -208,7 +192,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       }
       return { ...prev, [key]: next }
     })
-  }, [userId, csrfToken, router])
+  }, [userId, router])
 
   const toggleCacheRef = useRef<Map<string, () => void>>(new Map())
 

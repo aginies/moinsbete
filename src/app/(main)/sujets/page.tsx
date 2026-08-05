@@ -131,7 +131,6 @@ export default async function SujetsPage() {
         userId={userId}
         initialVisibility={initialVisibility}
         globalVisibility={globalVisibility}
-        csrfToken=""
         cardNavBarEnabled={cardNavBarEnabled}
       />
     </>
