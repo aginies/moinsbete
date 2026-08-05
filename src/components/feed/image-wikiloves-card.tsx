@@ -117,10 +117,6 @@ function ImageWikiLovesCardInner({
     }
   }, [userId])
 
-  const cardClassName = fullImage
-    ? 'rounded-xl border-2 border-indigo-800 bg-gradient-to-br from-indigo-50 to-emerald-50 p-3 sm:p-5 dark:border-indigo-900 dark:from-indigo-950/30 dark:to-emerald-950/30'
-    : 'rounded-xl border-2 border-indigo-800 bg-gradient-to-br from-indigo-50 to-emerald-50 p-3 sm:p-5 dark:border-indigo-900 dark:from-indigo-950/30 dark:to-emerald-950/30 cursor-pointer hover:shadow-md transition-shadow'
-
   return (
     <>
       <BaseImageCard
@@ -128,13 +124,9 @@ function ImageWikiLovesCardInner({
           resourceType: 'IMAGE_WIKILOVES',
           fetchFn: fetchRandomImage,
           defaultTopics: DEFAULT_TOPICS,
-          cardClassName,
           icon: <Camera className="h-4 w-4 text-indigo-950" />,
-          iconBgColor: 'bg-indigo-400',
-          iconDarkColor: 'dark:bg-indigo-500',
           title: 'Wiki Loves',
-          titleColor: 'text-indigo-800',
-          titleDarkColor: 'dark:text-indigo-300',
+          color: 'indigo',
           linkHref: showLink ? '/image-wikiloves' : undefined,
           enableAutoRefresh,
           storageKey,

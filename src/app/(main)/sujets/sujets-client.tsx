@@ -21,6 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CARD_DEFAULT_ORDER } from '@/lib/constants'
+import { CARD_COLORS } from '@/lib/card-theme'
 import { CardNavBar } from '@/components/feed/card-nav-bar'
 import { useTranslations } from 'next-intl'
 
@@ -57,22 +58,6 @@ interface CardConfig {
   isVisible: boolean
   isGloballyVisible: boolean
   toggle: () => void
-}
-
-const HIDDEN_CARD_COLORS: Record<string, 'teal' | 'blue' | 'purple' | 'amber' | 'green' | 'rose' | 'orange' | 'emerald' | 'indigo'> = {
-  saviezVous: 'blue',
-  wikipedia: 'teal',
-  cnrs: 'green',
-  radioFrance: 'purple',
-  news: 'blue',
-  wikimedia: 'rose',
-  wikiloves: 'indigo',
-  pixabay: 'amber',
-  portailLexical: 'amber',
-  portailWikipedia: 'indigo',
-  proverbe: 'emerald',
-  f1: 'rose',
-  citation: 'amber',
 }
 
 const CARD_DISPLAY_NAMES: Record<string, string> = {
@@ -322,7 +307,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         cards={visibleCards.map(c => ({
           key: c.key,
           label: CARD_DISPLAY_NAMES[c.key] ? t(CARD_DISPLAY_NAMES[c.key]) : c.key,
-          color: HIDDEN_CARD_COLORS[c.key] || 'teal',
+          color: (CARD_COLORS[c.key as keyof typeof CARD_COLORS] ?? 'teal') as string,
         }))}
         enabled={cardNavBarEnabled}
       />
@@ -340,7 +325,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
         {hiddenCards.map(card => (
           <div key={card.key} className="h-full">
-            {card.toggle && <VisibilityButton color={HIDDEN_CARD_COLORS[card.key] || 'teal'} label={CARD_DISPLAY_NAMES[card.key] ? t(CARD_DISPLAY_NAMES[card.key]) : card.key} onClick={card.toggle} />}
+            {card.toggle && <VisibilityButton color={CARD_COLORS[card.key as keyof typeof CARD_COLORS] || 'teal'} label={CARD_DISPLAY_NAMES[card.key] ? t(CARD_DISPLAY_NAMES[card.key]) : card.key} onClick={card.toggle} />}
           </div>
         ))}
       </div>

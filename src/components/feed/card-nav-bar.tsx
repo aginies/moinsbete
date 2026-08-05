@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Lightbulb, Camera, Newspaper, Mic, Globe, BookOpen, Languages, Quote, Trophy, Video } from 'lucide-react'
+import { getTheme, type CardColorName } from '@/lib/card-theme'
 
 interface CardNavBarProps {
   cards: { key: string; label: string; color: string }[]
@@ -22,18 +23,6 @@ const CARD_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
   proverbe: Quote,
   f1: Trophy,
   citation: Quote,
-}
-
-const COLOR_MAP: Record<string, { bg: string; text: string; darkBg: string; darkText: string }> = {
-  teal: { bg: 'bg-teal-500/10', text: 'text-teal-700', darkBg: 'dark:bg-teal-500/20', darkText: 'dark:text-teal-300' },
-  blue: { bg: 'bg-blue-500/10', text: 'text-blue-700', darkBg: 'dark:bg-blue-500/20', darkText: 'dark:text-blue-300' },
-  purple: { bg: 'bg-purple-500/10', text: 'text-purple-700', darkBg: 'dark:bg-purple-500/20', darkText: 'dark:text-purple-300' },
-  amber: { bg: 'bg-amber-500/10', text: 'text-amber-700', darkBg: 'dark:bg-amber-500/20', darkText: 'dark:text-amber-300' },
-  green: { bg: 'bg-green-500/10', text: 'text-green-700', darkBg: 'dark:bg-green-500/20', darkText: 'dark:text-green-300' },
-  rose: { bg: 'bg-rose-500/10', text: 'text-rose-700', darkBg: 'dark:bg-rose-500/20', darkText: 'dark:text-rose-300' },
-  orange: { bg: 'bg-orange-500/10', text: 'text-orange-700', darkBg: 'dark:bg-orange-500/20', darkText: 'dark:text-orange-300' },
-  emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-700', darkBg: 'dark:bg-emerald-500/20', darkText: 'dark:text-emerald-300' },
-  indigo: { bg: 'bg-indigo-500/10', text: 'text-indigo-700', darkBg: 'dark:bg-indigo-500/20', darkText: 'dark:text-indigo-300' },
 }
 
 const MAX_PILLS = 7
@@ -173,7 +162,7 @@ export function CardNavBar({ cards, enabled }: CardNavBarProps) {
         <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           {offscreenCards.map(card => {
             const Icon = CARD_ICONS[card.key] || Lightbulb
-            const colors = COLOR_MAP[card.color] || COLOR_MAP.teal
+            const colors = getTheme(card.color as CardColorName)
             const shortLabel = (() => {
               const label = card.label.split(' ').slice(0, 2).join(' ')
               if (card.key === 'f1') return 'F1'
@@ -189,7 +178,7 @@ export function CardNavBar({ cards, enabled }: CardNavBarProps) {
               <button
                 key={card.key}
                 onClick={() => handleCardClick(card.key)}
-                className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-[9px] font-medium whitespace-nowrap min-w-[44px] ${colors.bg} ${colors.text} ${colors.darkBg} ${colors.darkText} border border-current/20 hover:border-current/40 transition-colors`}
+                className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-[9px] font-medium whitespace-nowrap min-w-[44px] ${colors.navBg} ${colors.navText} ${colors.navBgDark} ${colors.navTextDark} border border-current/20 hover:border-current/40 transition-colors`}
               >
                 <Icon className="h-3.5 w-3.5" />
                 <span>{shortLabel}</span>

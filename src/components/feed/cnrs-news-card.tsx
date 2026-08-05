@@ -10,6 +10,8 @@ import { toggleCnrsFavoriteAction, isCnrsFavoriteAction } from '@/actions/cnrs-b
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { CardVisibilityGuard } from './card-visibility-guard'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { useTranslations } from 'next-intl'
 
 interface CnrsNewsCardProps {
@@ -26,22 +28,22 @@ interface CnrsArticle {
   date: string
 }
 
-const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string; darkBorder: string; darkBg: string; darkText: string }> = {
-  'Vivant': { border: 'border-green-400', bg: 'bg-green-100', text: 'text-green-800', darkBorder: 'dark:border-green-700', darkBg: 'dark:bg-green-900/40', darkText: 'dark:text-green-300' },
-  'Matière': { border: 'border-purple-400', bg: 'bg-purple-100', text: 'text-purple-800', darkBorder: 'dark:border-purple-700', darkBg: 'dark:bg-purple-900/40', darkText: 'dark:text-purple-300' },
-  'Numérique': { border: 'border-blue-400', bg: 'bg-blue-100', text: 'text-blue-800', darkBorder: 'dark:border-blue-700', darkBg: 'dark:bg-blue-900/40', darkText: 'dark:text-blue-300' },
-  'Sociétés': { border: 'border-amber-400', bg: 'bg-amber-100', text: 'text-amber-800', darkBorder: 'dark:border-amber-700', darkBg: 'dark:bg-amber-900/40', darkText: 'dark:text-amber-300' },
-  'Terre': { border: 'border-teal-400', bg: 'bg-teal-100', text: 'text-teal-800', darkBorder: 'dark:border-teal-700', darkBg: 'dark:bg-teal-900/40', darkText: 'dark:text-teal-300' },
-  'Univers': { border: 'border-indigo-400', bg: 'bg-indigo-100', text: 'text-indigo-800', darkBorder: 'dark:border-indigo-700', darkBg: 'dark:bg-indigo-900/40', darkText: 'dark:text-indigo-300' },
-  'actualite': { border: 'border-green-400', bg: 'bg-green-100', text: 'text-green-800', darkBorder: 'dark:border-green-700', darkBg: 'dark:bg-green-900/40', darkText: 'dark:text-green-300' },
-  'presse': { border: 'border-blue-400', bg: 'bg-blue-100', text: 'text-blue-800', darkBorder: 'dark:border-blue-700', darkBg: 'dark:bg-blue-900/40', darkText: 'dark:text-blue-300' },
-  'lejournal': { border: 'border-purple-400', bg: 'bg-purple-100', text: 'text-purple-800', darkBorder: 'dark:border-purple-700', darkBg: 'dark:bg-purple-900/40', darkText: 'dark:text-purple-300' },
-  'images': { border: 'border-amber-400', bg: 'bg-amber-100', text: 'text-amber-800', darkBorder: 'dark:border-amber-700', darkBg: 'dark:bg-amber-900/40', darkText: 'dark:text-amber-300' },
-  'videos': { border: 'border-red-400', bg: 'bg-red-100', text: 'text-red-800', darkBorder: 'dark:border-red-700', darkBg: 'dark:bg-red-900/40', darkText: 'dark:text-red-300' },
-  'diaporamas': { border: 'border-cyan-400', bg: 'bg-cyan-100', text: 'text-cyan-800', darkBorder: 'dark:border-cyan-700', darkBg: 'dark:bg-cyan-900/40', darkText: 'dark:text-cyan-300' },
-  'bibliotheque': { border: 'border-orange-400', bg: 'bg-orange-100', text: 'text-orange-800', darkBorder: 'dark:border-orange-700', darkBg: 'dark:bg-orange-900/40', darkText: 'dark:text-orange-300' },
-  'Sciences': { border: 'border-green-400', bg: 'bg-green-100', text: 'text-green-800', darkBorder: 'dark:border-green-700', darkBg: 'dark:bg-green-900/40', darkText: 'dark:text-green-300' },
-  '': { border: 'border-gray-400', bg: 'bg-gray-100', text: 'text-gray-800', darkBorder: 'dark:border-gray-700', darkBg: 'dark:bg-gray-900/40', darkText: 'dark:text-gray-300' },
+const CATEGORY_COLOR_MAP: Record<string, 'green' | 'purple' | 'blue' | 'amber' | 'teal' | 'indigo' | 'orange' | 'rose'> = {
+  'Vivant': 'green',
+  'Matière': 'purple',
+  'Numérique': 'blue',
+  'Sociétés': 'amber',
+  'Terre': 'teal',
+  'Univers': 'indigo',
+  'actualite': 'green',
+  'presse': 'blue',
+  'lejournal': 'purple',
+  'images': 'amber',
+  'videos': 'rose',
+  'diaporamas': 'teal',
+  'bibliotheque': 'orange',
+  'Sciences': 'green',
+  '': 'green',
 }
 
 async function fetchRandomArticle(): Promise<CnrsArticle | null> {
@@ -60,6 +62,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
 
 function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsCardProps) {
   const t = useTranslations('feed')
+  const c = getTheme('green')
   const [article, setArticle] = useState<CnrsArticle | null>(() => {
     if (typeof sessionStorage === 'undefined') return null
     const saved = sessionStorage.getItem('cnrs_article')
@@ -105,7 +108,8 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
     }
   }, [article])
 
-  const categoryStyle = article ? CATEGORY_COLORS[article.category] || { border: 'border-gray-400', bg: 'bg-gray-100', text: 'text-gray-800', darkBorder: 'dark:border-gray-700', darkBg: 'dark:bg-gray-900/40', darkText: 'dark:text-gray-300' } : null
+  const categoryColor = article ? CATEGORY_COLOR_MAP[article.category] || 'green' : 'green'
+  const cat = article ? getTheme(categoryColor) : null
 
   const { isPending, handleBookmark } = useSimpleBookmarkToggle({
     resourceId: article?.link,
@@ -137,15 +141,13 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
       buttonColor="green"
       label="Afficher Actualité CNRS"
     >
-      <div
-        className="flex h-full flex-col rounded-xl border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 p-3 sm:p-5 dark:border-green-700 dark:from-green-950/30 dark:to-emerald-950/30 hover:shadow-md transition-shadow"
-      >
+      <CardShell color="green" className="flex h-full flex-col">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 dark:bg-green-600">
-              <Newspaper className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+            <div className={`flex h-8 w-8 items-center justify-center rounded-full ${c.iconBg} ${c.iconBgDark}`}>
+              <Newspaper className={`h-4 w-4 sm:h-5 sm:w-5 ${c.iconForeground}`} />
             </div>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-green-800 dark:text-green-300">
+            <h3 className={`text-sm font-bold uppercase tracking-wide ${c.title} ${c.titleDark}`}>
               {t('cnrs_news')}
             </h3>
           </div>
@@ -156,14 +158,14 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
                   e.stopPropagation()
                   onToggle()
                 }}
-                className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 transition-colors"
+                className={`${c.action} ${c.actionHover} ${c.actionDark} ${c.actionHoverDark} transition-colors`}
                 title={t('hide_card')}
                 aria-label={t('hide_card')}
               >
                 <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}
-            <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400 cursor-pointer transition-transform hover:scale-110 ${loading ? 'animate-spin' : ''}`} onClick={(e) => { e.stopPropagation(); loadArticle() }} />
+            <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${c.action} ${c.actionDark} cursor-pointer transition-transform hover:scale-110 ${loading ? 'animate-spin' : ''}`} onClick={(e) => { e.stopPropagation(); loadArticle() }} />
             {article && (
               <button
                 onClick={(e) => {
@@ -171,11 +173,11 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
                   handleBookmark()
                 }}
                 disabled={isPending}
-                className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 transition-colors disabled:opacity-50"
+                className={`${c.action} ${c.actionHover} ${c.actionDark} ${c.actionHoverDark} transition-colors disabled:opacity-50`}
                 title={isFavorite ? t('remove_favorite') : t('add_favorite')}
                 aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
               >
-                <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-green-600 dark:text-green-400' : 'text-green-600 dark:text-green-400'}`} />
+                <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark}`} />
               </button>
             )}
             <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
@@ -183,15 +185,15 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
         </div>
 
         {error && !loading && (
-          <div className="mb-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-100/50 p-3 dark:border-green-800 dark:bg-green-900/20">
-            <p className="text-xs text-green-700 dark:text-green-300">
+          <div className={`mb-3 flex items-center gap-2 rounded-lg border ${c.errorBorder} ${c.errorBg} p-3 ${c.errorBorderDark} ${c.errorBgDark}`}>
+            <p className={`text-xs ${c.errorText} ${c.errorTextDark}`}>
               Impossible de charger l&apos;article. Cliquez pour réessayer.
             </p>
           </div>
         )}
 
         {article?.imageUrl && (
-          <div className="mb-3 overflow-hidden rounded-lg border border-green-200 dark:border-green-800">
+          <div className={`mb-3 overflow-hidden rounded-lg border ${c.imageBorder} ${c.imageBorderDark}`}>
             <img
               src={article.imageUrl}
               alt={article.title}
@@ -206,13 +208,13 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
 
         {article && (
           <>
-            <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">
+            <p className={`text-sm font-semibold ${c.bodyBold} ${c.bodyBoldDark} mb-2`}>
               {article.title}
             </p>
 
-            {article.category && categoryStyle && (
+            {article.category && cat && (
               <div className="mb-3">
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${categoryStyle.border} ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.darkBorder} ${categoryStyle.darkBg} ${categoryStyle.darkText}`}>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${cat.pillBorder} ${cat.pillBg} ${cat.pillText} ${cat.pillBorderDark} ${cat.pillBgDark} ${cat.pillTextDark}`}>
                   {article.category}
                 </span>
               </div>
@@ -223,14 +225,14 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 hover:underline"
+              className={`inline-flex items-center gap-1 text-xs ${c.link} ${c.linkHover} ${c.linkDark} ${c.linkHoverDark} hover:underline`}
             >
               {t('read_article_cnrs')}
               <ExternalLink className="h-3 w-3" />
             </Link>
           </>
         )}
-      </div>
+      </CardShell>
     </CardVisibilityGuard>
   )
 }

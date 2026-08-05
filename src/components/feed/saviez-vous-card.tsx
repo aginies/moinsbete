@@ -11,6 +11,8 @@ import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
@@ -183,18 +185,14 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
 
   const absX = Math.abs(dragX)
   const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
+  const c = getTheme('blue')
 
   const cardContent = (
-    <div
-      className="rounded-xl border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-cyan-50 p-3 sm:p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-cyan-950/30 hover:shadow-md transition-shadow"
-    >
+    <CardShell color="blue">
       <CardHeader
-        icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
-        iconBgColor="bg-blue-400"
-        iconDarkColor="dark:bg-blue-600"
+        color="blue"
+        icon={<Lightbulb className={'h-4 w-4 ' + c.iconForeground} />}
         title="saviez-vous ?"
-        titleColor="text-blue-800"
-        titleDarkColor="dark:text-blue-300"
         linkHref={showLink ? (linkAs || '/le-saviez-vous') : undefined}
         showToggle={showToggle}
         onToggle={onToggle}
@@ -211,12 +209,12 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
             type="button"
             onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
             disabled={isPending || !fact}
-            className="rounded-full p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all disabled:opacity-50"
+            className={'rounded-full p-1.5 ' + c.hoverBg + ' ' + c.hoverBgDark + ' transition-all disabled:opacity-50'}
             title={isFavorite ? t('remove_favorite') : t('add_favorite')}
             aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
           >
             <Bookmark
-              className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`}
+              className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)}
             />
             </button>
           </div>
@@ -225,7 +223,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
 
       {hasImage && (
         <div
-          className="mb-3 cursor-pointer overflow-hidden rounded-lg border border-blue-200 dark:border-blue-800"
+          className={'mb-3 cursor-pointer overflow-hidden rounded-lg border ' + c.imageBorder + ' ' + c.imageBorderDark}
           onClick={(e) => {
             e.stopPropagation()
             setShowFullImage(true)
@@ -243,7 +241,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         </div>
       )}
 
-      <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
+      <p className={'text-sm leading-relaxed ' + c.body + ' ' + c.bodyDark}>
         {decodeHtmlEntities(fact.text)}
       </p>
       {fact.sourceUrl && (
@@ -253,14 +251,14 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
+            className={'inline-flex items-center gap-1 text-xs ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark + ' hover:underline'}
           >
             <ExternalLink className="h-3 w-3" />
             Source: Wikipédia
           </Link>
         </div>
       )}
-    </div>
+    </CardShell>
   )
 
   return (

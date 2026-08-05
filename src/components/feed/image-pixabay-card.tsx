@@ -5,6 +5,8 @@ import { BookOpen, ExternalLink, Bookmark, Filter, EyeOff, RefreshCw, Play, Maxi
 import Link from 'next/link'
 import { useItemShare } from './use-item-share'
 import { CardHeader } from './card-header'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { usePixabayActiveCategory } from '@/hooks/use-pixabay-active-category'
@@ -230,18 +232,14 @@ function ImagePixabayCardInner({
   })
 
   const shareOptions = video ? { onClick: handleShare, copied, shareUrl } : undefined
+  const c = getTheme('orange')
 
   const cardContent = (
-    <div
-      className="rounded-xl border-2 border-amber-800 bg-gradient-to-br from-amber-50 to-yellow-50 p-3 sm:p-5 dark:border-amber-900 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow"
-    >
+    <CardShell color="orange">
       <CardHeader
-        icon={<BookOpen className="h-4 w-4 text-white" />}
-        iconBgColor="bg-amber-700"
-        iconDarkColor="dark:bg-amber-800"
+        color="orange"
+        icon={<BookOpen className={'h-4 w-4 ' + c.iconForeground} />}
         title="Pixabay Videos"
-        titleColor="text-amber-800"
-        titleDarkColor="dark:text-amber-300"
         linkHref={showLink ? '/image-pixabay' : undefined}
         showToggle={false}
         showRefresh={false}
@@ -256,7 +254,7 @@ function ImagePixabayCardInner({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onToggle?.() }}
-                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors mr-2 sm:mr-4"
+                className={'mr-2 sm:mr-4 ' + c.title + ' hover:bg-current/10 transition-colors ' + c.titleDark}
                 title={t('hide_card')}
                 aria-label={t('hide_card')}
               >
@@ -266,22 +264,22 @@ function ImagePixabayCardInner({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); loadVideo() }}
-              className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors"
+              className={c.title + ' hover:bg-current/10 transition-colors ' + c.titleDark}
               title={t('refresh_content')}
               aria-label={t('refresh_content')}
             >
-              <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={'h-4 w-4 sm:h-5 sm:w-5 ' + (loading ? 'animate-spin' : '')} />
             </button>
             {video && (
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
                 disabled={isPending}
-                className="text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 transition-colors disabled:opacity-50 ml-2 sm:ml-4"
+                className={'ml-2 sm:ml-4 ' + c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors disabled:opacity-50'}
                 title={isFavorite ? t('remove_favorite') : t('add_favorite')}
                 aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
               >
-                <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-800 dark:text-amber-300'}`} />
+                <Bookmark className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)} />
               </button>
             )}
           </div>
@@ -294,11 +292,11 @@ function ImagePixabayCardInner({
             <button
               key={category.id}
               onClick={(e) => { e.stopPropagation(); handleCategorySelect(category.id) }}
-              className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+              className={'px-2.5 py-1 text-xs rounded-full border transition-colors ' + (
                 activeCategory === category.id
                   ? 'bg-amber-600 text-white border-amber-600'
-                  : 'bg-white dark:bg-neutral-800 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:border-amber-400'
-              }`}
+                  : 'bg-white dark:bg-neutral-800 ' + c.headingSecondary + ' ' + c.headingSecondaryDark + ' border-amber-200 dark:border-amber-800 hover:border-amber-400'
+              )}
             >
               {category.icon} {category.label}
             </button>
@@ -307,8 +305,8 @@ function ImagePixabayCardInner({
       )}
 
       {error && !loading && (
-        <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-100/50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
-          <p className="text-xs text-amber-700 dark:text-amber-300">
+        <div className={'mb-3 flex items-center gap-2 rounded-lg border ' + c.errorBorder + ' ' + c.errorBg + ' p-3 ' + c.errorBorderDark + ' ' + c.errorBgDark}>
+          <p className={'text-xs ' + c.errorText + ' ' + c.errorTextDark}>
             Impossible de charger la vidéo. Cliquez pour réessayer.
           </p>
         </div>
@@ -319,7 +317,7 @@ function ImagePixabayCardInner({
       )}
 
       {video && !loading && (
-        <div className={`mb-3 overflow-hidden rounded-lg border border-amber-200 dark:border-amber-800 relative ${fullImage ? 'cursor-default' : 'cursor-pointer'}`}>
+        <div className={'mb-3 overflow-hidden rounded-lg border ' + c.imageBorder + ' ' + c.imageBorderDark + ' relative ' + (fullImage ? 'cursor-default' : 'cursor-pointer')}>
           <video
             key={video.videoUrl}
             ref={videoRef}
@@ -382,16 +380,16 @@ function ImagePixabayCardInner({
 
       {video && (
         <>
-          <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">
+          <p className={'text-sm font-semibold ' + c.bodyBold + ' ' + c.bodyBoldDark + ' mb-1'}>
             Pixabay Video
           </p>
           {video.author && (
-            <p className="text-xs text-amber-700 dark:text-amber-300 mb-1">
+            <p className={'text-xs ' + c.headingSecondary + ' ' + c.headingSecondaryDark + ' mb-1'}>
               Par <Link href={video.authorProfileUrl} target="_blank" rel="noopener noreferrer" className="hover:underline" onClick={(e) => e.stopPropagation()}>{video.author}</Link>
             </p>
           )}
           {video.tags && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mb-2">
+            <p className={'text-xs ' + c.muted + ' ' + c.mutedDark + ' mb-2'}>
               {video.tags.split(',').slice(0, 5).map(tag => tag.trim()).filter(Boolean).join(' · ')}
             </p>
           )}
@@ -401,7 +399,7 @@ function ImagePixabayCardInner({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-xs text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200 hover:underline"
+              className={'inline-flex items-center gap-1 text-xs ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark + ' hover:underline'}
             >
               Voir sur Pixabay
               <ExternalLink className="h-3 w-3" />
@@ -409,7 +407,7 @@ function ImagePixabayCardInner({
           )}
         </>
       )}
-    </div>
+    </CardShell>
   )
 
   return (

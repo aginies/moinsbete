@@ -169,12 +169,9 @@ export function PortailLexicalPageClient({ historicalWords = [] }: PortailLexica
       <div className="mb-6">
         <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
           <CardHeader
+            color="amber"
             icon={<Languages className="h-4 w-4 text-amber-950" />}
-            iconBgColor="bg-amber-500"
-            iconDarkColor="dark:bg-amber-600"
             title="Recherche portail lexical"
-            titleColor="text-amber-800"
-            titleDarkColor="dark:text-amber-300"
           />
 
           <form onSubmit={handleSearch} className="mt-4 relative">
@@ -391,12 +388,9 @@ export function PortailLexicalPageClient({ historicalWords = [] }: PortailLexica
         <div className="mt-8">
           <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
             <CardHeader
+              color="amber"
               icon={<BookOpen className="h-4 w-4 text-amber-950" />}
-              iconBgColor="bg-amber-500"
-              iconDarkColor="dark:bg-amber-600"
               title="Historique des mots du jour"
-              titleColor="text-amber-800"
-              titleDarkColor="dark:text-amber-300"
             />
             <div className="mt-4 flex flex-wrap gap-2">
               {historicalWords.map((item, i) => {

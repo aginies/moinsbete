@@ -7,6 +7,8 @@ import { sanitizeUrl } from '@/lib/utils'
 import { decodeHtmlEntities } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { CardVisibilityGuard } from './card-visibility-guard'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { CardHeader } from './card-header'
@@ -53,6 +55,7 @@ async function fetchWordOfTheDay(): Promise<PortailLexicalWord | null> {
 
 function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: PortailLexicalCardProps) {
   const t = useTranslations('feed')
+  const c = getTheme('amber')
   const [word, setWord] = useState<PortailLexicalWord | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -110,34 +113,31 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
       buttonColor="amber"
       label="Afficher Lexique"
     >
-      {loading && !word ? (
+     {loading && !word ? (
         <div className="mb-4 sm:mb-6">
-          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-3 sm:p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30">
+          <CardShell color="amber">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 dark:bg-amber-600">
-                  <Languages className="h-4 w-4 text-amber-950" />
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full ${c.iconBg} ${c.iconBgDark}`}>
+                  <Languages className={`h-4 w-4 ${c.iconForeground}`} />
                 </div>
-                <h3 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">
+                <h3 className={`text-sm font-bold uppercase tracking-wide ${c.title} ${c.titleDark}`}>
                   Portail Lexical — Mot du jour
                 </h3>
               </div>
             </div>
             <div className="flex items-center justify-center py-8">
-              <RefreshCw className="h-6 w-6 animate-spin text-amber-500" />
+              <RefreshCw className={`h-6 w-6 animate-spin ${c.action}`} />
             </div>
-          </div>
+          </CardShell>
         </div>
       ) : (
         <div className="mb-4 sm:mb-6">
-          <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-3 sm:p-5 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow">
+          <CardShell color="amber">
             <CardHeader
-              icon={<Languages className="h-4 w-4 text-amber-950" />}
-              iconBgColor="bg-amber-500"
-              iconDarkColor="dark:bg-amber-600"
+              color="amber"
+              icon={<Languages className={"h-4 w-4 " + c.iconForeground} />}
               title="Portail Lexical — Mot du jour"
-              titleColor="text-amber-800"
-              titleDarkColor="dark:text-amber-300"
               linkHref="/portail-lexical"
               showToggle={showToggle}
               onToggle={onToggle}
@@ -145,24 +145,24 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
               loading={loading}
               shareOptions={word ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
                extraActions={word ? (
-               <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                  disabled={isPending || loading}
-                  className="rounded-full p-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all disabled:opacity-50"
-                  title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                  aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                <button
+                   type="button"
+                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                   disabled={isPending || loading}
+                   className={`rounded-full p-1.5 ${c.hoverBg} ${c.hoverBgDark} transition-all disabled:opacity-50`}
+                   title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                   aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
                 >
                      <Bookmark
-                       className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-amber-600 dark:text-amber-400' : 'text-amber-600 dark:text-amber-400'}`}
+                       className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark}`}
                      />
                   </button>
                 ) : undefined}
             />
 
             {error && !loading && (
-              <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-100/50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
-                <p className="text-xs text-amber-700 dark:text-amber-300">
+              <div className={`mb-3 flex items-center gap-2 rounded-lg border ${c.errorBorder} ${c.errorBg} p-3 ${c.errorBorderDark} ${c.errorBgDark}`}>
+                <p className={`text-xs ${c.errorText} ${c.errorTextDark}`}>
                   Impossible de charger le mot. Cliquez pour réessayer.
                 </p>
               </div>
@@ -171,34 +171,34 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
             {word && (
               <>
                 <div className="mb-3">
-                  <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                  <h3 className={`text-2xl font-bold ${c.bodyBold} ${c.bodyBoldDark}`}>
                     {word.form}
                   </h3>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${c.pillBorder} ${c.pillBg} ${c.pillText} ${c.pillBorderDark} ${c.pillBgDark} ${c.pillTextDark}`}>
                       {word.full_pos}
                     </span>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${c.pillBg} ${c.bodyBold} ${c.pillBgDark} ${c.bodyBoldDark}`}>
                       Mot du jour
                     </span>
                     {word.ipa && (
-                          <span className="text-xs text-amber-600 dark:text-amber-400 font-mono">
+                          <span className={`text-xs ${c.muted} ${c.mutedDark} font-mono`}>
                             /{word.ipa}/
                           </span>
                         )}
                       </div>
                 </div>
 
-                <p className="text-sm leading-relaxed text-amber-800 dark:text-amber-200 mb-3">
+                <p className={`text-sm leading-relaxed ${c.body} ${c.bodyDark} mb-3`}>
                   {word.description}
                 </p>
 
                 {word.tlfidefinitions.length > 0 && (
                   <div className="mb-3">
-                    <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400 mb-2">
+                    <h4 className={`text-xs font-semibold uppercase tracking-wide ${c.headingSecondary} ${c.headingSecondaryDark} mb-2`}>
                       Définition (TLFi)
                     </h4>
-                    <ol className="space-y-2 list-decimal list-inside text-sm text-amber-800 dark:text-amber-200">
+                    <ol className={`space-y-2 list-decimal list-inside text-sm ${c.body} ${c.bodyDark}`}>
                       {word.tlfidefinitions.map((def, i) => (
                         <li key={i} className="leading-relaxed">{def}</li>
                       ))}
@@ -208,10 +208,10 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
 
                 {word.wiktionnaireDefinitions.length > 0 && (
                   <div className="mb-3">
-                    <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400 mb-2">
+                    <h4 className={`text-xs font-semibold uppercase tracking-wide ${c.headingSecondary} ${c.headingSecondaryDark} mb-2`}>
                       Wiktionnaire
                     </h4>
-                    <ol className="space-y-2 list-decimal list-inside text-sm text-amber-800 dark:text-amber-200">
+                    <ol className={`space-y-2 list-decimal list-inside text-sm ${c.body} ${c.bodyDark}`}>
                       {word.wiktionnaireDefinitions.map((def, i) => (
                         <li key={i} className="leading-relaxed">{def}</li>
                       ))}
@@ -221,10 +221,10 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
 
                 {word.etymologie && (
                   <div className="mb-3">
-                    <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400 mb-2">
+                    <h4 className={`text-xs font-semibold uppercase tracking-wide ${c.headingSecondary} ${c.headingSecondaryDark} mb-2`}>
                       Étymologie
                     </h4>
-                    <p className="text-sm leading-relaxed text-amber-800 dark:text-amber-200 whitespace-pre-wrap">
+                    <p className={`text-sm leading-relaxed ${c.body} ${c.bodyDark} whitespace-pre-wrap`}>
                       {word.etymologie}
                     </p>
                   </div>
@@ -232,19 +232,19 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
 
                 {word.concordance.length > 0 && (
                   <div className="mb-3">
-                    <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400 mb-2">
+                    <h4 className={`text-xs font-semibold uppercase tracking-wide ${c.headingSecondary} ${c.headingSecondaryDark} mb-2`}>
                       Exemples littéraires
                     </h4>
                     <div className="space-y-2">
                        {word.concordance.slice(0, 2).map((ex, i) => (
-                        <blockquote key={i} className="border-l-2 border-amber-300 dark:border-amber-700 pl-3 text-sm italic text-amber-700 dark:text-amber-300">
-                          <p className="leading-relaxed text-amber-700 dark:text-amber-300">
+                        <blockquote key={i} className={`border-l-2 ${c.pillBorder} dark:${c.pillBorderDark} pl-3 text-sm italic ${c.headingSecondary} ${c.headingSecondaryDark}`}>
+                          <p className={`leading-relaxed ${c.headingSecondary} ${c.headingSecondaryDark}`}>
                             <span className="mr-1">{"\u201C"}</span>{decodeHtmlEntities(ex.left)}{' '}
-                            <strong className="not-italic text-amber-900 dark:text-amber-100">{decodeHtmlEntities(ex.matching)}</strong>{' '}
+                            <strong className={`not-italic ${c.bodyBold} ${c.bodyBoldDark}`}>{decodeHtmlEntities(ex.matching)}</strong>{' '}
                             {decodeHtmlEntities(ex.right)}
                             <span className="ml-1">{"\u201D"}</span>
                           </p>
-                          <footer className="text-xs not-italic mt-1 text-amber-600 dark:text-amber-400">
+                          <footer className={`text-xs not-italic mt-1 ${c.muted} ${c.mutedDark}`}>
                             — {ex.name}, <em>{ex.title}</em> ({ex.date})
                           </footer>
                         </blockquote>
@@ -259,7 +259,7 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1 text-xs text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200 hover:underline"
+                    className={`inline-flex items-center gap-1 text-xs ${c.link} ${c.linkHover} ${c.linkDark} ${c.linkHoverDark} hover:underline`}
                   >
                     Voir sur Portail Lexical
                     <ExternalLink className="h-3 w-3" />
@@ -267,7 +267,7 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
                 </div>
               </>
             )}
-          </div>
+          </CardShell>
         </div>
       )}
     </CardVisibilityGuard>

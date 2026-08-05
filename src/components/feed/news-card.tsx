@@ -9,6 +9,8 @@ import { useItemShare } from './use-item-share'
 import { toggleNewsFavoriteAction, isNewsFavoriteAction, isNewsFavoriteBatchAction } from '@/actions/news-bookmark-actions'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardVisibilityGuard } from './card-visibility-guard'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { useTranslations } from 'next-intl'
 
 export interface NewsArticle {
@@ -117,6 +119,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string, que
 
 function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
   const t = useTranslations('feed')
+  const c = getTheme('blue')
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -137,7 +140,7 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
   })
   const favoritesCheckedRef = useRef(false)
 
-  const scrollHeight = infiniteScroll ? (maxHeight || '800px') : undefined
+  const scrollHeight = infiniteScroll ? (maxHeight || '800px') : (maxHeight || '700px')
 
   const loadCountRef = useRef(0)
 
@@ -289,18 +292,18 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
       buttonColor="blue"
       label="Afficher NEWS"
     >
-      <div className={`flex flex-col overflow-hidden rounded-xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-3 sm:p-5 dark:border-blue-700 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-md transition-shadow ${infiniteScroll ? 'overflow-visible' : ''}`} style={{ maxHeight: infiniteScroll ? undefined : (maxHeight || '700px') }}>
-          <div className="mb-3 flex items-center justify-between">
+      <CardShell color="blue" className="overflow-visible">
+          <div className={'sticky top-0 z-10 mb-3 flex items-center justify-between ' + c.shellBgGradient + ' ' + c.shellBgGradientDark}>
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-600">
-                <Newspaper className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+              <div className={'flex h-8 w-8 items-center justify-center rounded-full ' + c.iconBg + ' ' + c.iconBgDark}>
+                <Newspaper className={'h-4 w-4 sm:h-5 sm:w-5 text-white ' + c.iconForeground} />
               </div>
               {linkHref ? (
-                <Link href={linkHref} className="text-sm font-bold uppercase tracking-wide text-blue-800 hover:underline dark:text-blue-300 dark:hover:text-blue-100">
+                <Link href={linkHref} className={'text-sm font-bold uppercase tracking-wide hover:underline ' + c.title + ' ' + c.titleDark}>
                   NEWS
                 </Link>
               ) : (
-                <h3 className="text-sm font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300">
+                <h3 className={'text-sm font-bold uppercase tracking-wide ' + c.title + ' ' + c.titleDark}>
                   NEWS
                 </h3>
               )}
@@ -308,14 +311,14 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
             <div className="flex items-center gap-4">
               {showToggle && onToggle && (
              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onToggle()
-                }}
-                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
-                title={t('hide_card')}
-                aria-label={t('hide_card')}
-              >
+                 onClick={(e) => {
+                   e.stopPropagation()
+                   onToggle()
+                 }}
+                 className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
+                 title={t('hide_card')}
+                 aria-label={t('hide_card')}
+               >
                   <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               )}
@@ -326,13 +329,13 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                   setShowCategories(next)
                   localStorage.setItem(NEWS_FILTER_STORAGE_KEY, String(next))
                 }}
-                className={`h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 cursor-pointer transition-transform hover:scale-110 ${showCategories ? 'rotate-180' : ''}`}
+                className={'h-4 w-4 sm:h-5 sm:w-5 cursor-pointer transition-transform hover:scale-110 ' + c.action + ' ' + c.actionDark + ' ' + (showCategories ? 'rotate-180' : '')}
                 title={t('filter_news')}
                 aria-label={t('filter_news')}
               >
                 <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
-              <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 cursor-pointer transition-transform hover:scale-110 ${loading ? 'animate-spin' : ''}`} onClick={(e) => { e.stopPropagation(); handleRefresh() }} />
+              <RefreshCw className={'h-4 w-4 sm:h-5 sm:w-5 cursor-pointer transition-transform hover:scale-110 ' + c.action + ' ' + c.actionDark + ' ' + (loading ? 'animate-spin' : '')} onClick={(e) => { e.stopPropagation(); handleRefresh() }} />
             </div>
           </div>
 
@@ -344,11 +347,7 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                   <button
                     key={key}
                     onClick={() => handleCategoryChange(key)}
-                    className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-colors ${
-                      isSelected
-                        ? 'border-blue-500 bg-blue-500 text-white dark:border-blue-400 dark:bg-blue-600 dark:text-white'
-                        : 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900/40'
-                    }`}
+                  className={'inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-colors ' + (isSelected ? ('border-blue-500 bg-blue-500 text-white dark:border-blue-400 dark:bg-blue-600 dark:text-white') : (c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' hover:bg-blue-100 ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' dark:hover:bg-blue-900/40'))}
                   >
                     <Icon className="h-3 w-3" />
                     {t(labelKey)}
@@ -365,13 +364,13 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
               placeholder="Rechercher dans les actualités..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-10 h-10 rounded-lg border border-blue-200 bg-white/80 text-sm text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-100 dark:placeholder:text-blue-500 dark:focus:ring-blue-600"
+              className={'w-full pl-10 pr-10 h-10 rounded-lg border text-sm placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 ' + c.pillBorder + ' bg-white/80 ' + c.bodyBold + ' dark:' + c.pillBorderDark + ' dark:bg-blue-950/30 dark:text-blue-100 dark:placeholder:text-blue-500'}
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-400 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400"
+                className={'absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark}
                 aria-label={t('clear_search')}
               >
                 <X className="h-4 w-4" />
@@ -380,8 +379,8 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
           </div>
 
           {error && !loading && (
-            <div className="mb-3 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-100/50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
-              <p className="text-xs text-blue-700 dark:text-blue-300">
+           <div className={'mb-3 flex items-center gap-2 rounded-lg border p-3 ' + c.errorBorder + ' ' + c.errorBg + ' ' + c.errorBorderDark + ' ' + c.errorBgDark}>
+               <p className={'text-xs ' + c.errorText + ' ' + c.errorTextDark}>
                 Impossible de charger les articles. Cliquez pour réessayer.
               </p>
             </div>
@@ -411,10 +410,10 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                     <div
                       ref={virtualizer.measureElement}
                       data-index={virtualItem.index}
-                      className="mb-4 rounded-lg border border-blue-200 bg-white/60 p-4 dark:border-blue-800 dark:bg-blue-950/20 hover:bg-white/80 dark:hover:bg-blue-950/40 transition-colors"
+                      className={'mb-4 rounded-lg border p-4 hover:bg-white/80 transition-colors ' + c.itemBorder + ' ' + c.itemBg + ' ' + c.itemBorderDark + ' ' + c.itemBgDark + ' dark:hover:bg-blue-950/40'}
                     >
                       {article.imageUrl && (
-                        <div className="mb-3 overflow-hidden rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className={'mb-3 overflow-hidden rounded-lg border ' + c.imageBorder + ' ' + c.imageBorderDark}>
                           <img
                             src={sanitizeUrl(article.imageUrl, '')}
                             alt={article.title}
@@ -431,7 +430,7 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${categoryStyle.border} ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.darkBorder} ${categoryStyle.darkBg} ${categoryStyle.darkText}`}>
                           {getCategoryLabel(article.category, t)}
                         </span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-blue-200 bg-blue-50 text-blue-700 ml-2 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
+                        <span className={'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ml-2 ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark}>
                           {article.source}
                         </span>
                       </div>
@@ -440,12 +439,12 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                         {article.formattedPublishedAt}
                       </div>
 
-                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                      <h4 className={'text-sm font-semibold mb-2 ' + c.bodyBold + ' ' + c.bodyBoldDark}>
                         {article.title}
                       </h4>
 
                       {article.description && (
-                        <p className="text-xs leading-relaxed text-blue-700 dark:text-blue-300 mb-3 line-clamp-2">
+                        <p className={'text-xs leading-relaxed mb-3 line-clamp-2 ' + c.body + ' ' + c.bodyDark}>
                           {article.description}
                         </p>
                       )}
@@ -456,14 +455,14 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                             href={sanitizeUrl(article.url)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
+                            className={'inline-flex items-center gap-1 text-xs hover:underline ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark}
                             onClick={(e) => e.stopPropagation()}
                           >
                             {t('read_article')}
                             <ExternalLink className="h-3 w-3" />
                           </Link>
                         ) : (
-                          <span className="text-xs text-blue-400 dark:text-blue-500">
+                          <span className={'text-xs ' + c.muted + ' ' + c.mutedDark}>
                             {t('no_direct_link')}
                           </span>
                         )}
@@ -474,11 +473,11 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                               e.stopPropagation()
                               handleBookmark(article, isFav)
                             }}
-                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
+                            className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
                             title={isFav ? t('remove_favorite') : t('add_favorite')}
                             aria-label={isFav ? t('remove_favorite') : t('add_favorite')}
                           >
-                            <Bookmark className={`h-4 w-4 ${isFav ? 'fill-current text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`} />
+                            <Bookmark className={'h-4 w-4 ' + (isFav ? ('fill-current ' + c.actionFilled + ' ' + c.actionFilledDark) : (c.action + ' ' + c.actionDark))} />
                           </button>
                         </div>
                       </div>
@@ -498,33 +497,33 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
 
           {infiniteScroll && loading && (
             <div className="flex justify-center py-4">
-              <RefreshCw className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-spin" />
+                <RefreshCw className={'h-4 w-4 animate-spin ' + c.action + ' ' + c.actionDark} />
             </div>
           )}
 
           {infiniteScroll && !hasMore && hasLoaded && (
-            <p className="text-center text-xs text-blue-400 dark:text-blue-500 py-4">
+            <p className={'text-center text-xs py-4 ' + c.muted + ' ' + c.mutedDark}>
               {t('no_more_articles')}
             </p>
           )}
 
           {infiniteScroll && !hasMore && !hasLoaded && articles.length === 0 && !error && (
-            <p className="text-center text-xs text-blue-400 dark:text-blue-500 py-4">
+            <p className={'text-center text-xs py-4 ' + c.muted + ' ' + c.mutedDark}>
               {t('no_more_articles')}
             </p>
           )}
 
           {!infiniteScroll && loading && articles.length > 0 && (
             <div className="mt-3 flex justify-center">
-              <RefreshCw className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-spin" />
+                <RefreshCw className={'h-4 w-4 animate-spin ' + c.action + ' ' + c.actionDark} />
             </div>
           )}
 
-          <div className="mt-3 text-center text-xs text-blue-500 dark:text-blue-400/60">
+          <div className={'mt-3 text-center text-xs ' + c.muted + ' dark:text-blue-400/60'}>
             Powered by <Link href="https://freenewsapi.io" target="_blank" rel="noopener noreferrer" className="hover:underline">freenewsapi.io</Link>
-       </div>
-      </div>
-    </CardVisibilityGuard>
+     </div>
+       </CardShell>
+     </CardVisibilityGuard>
   )
 }
 export const NewsCard = React.memo(NewsCardInner)

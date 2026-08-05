@@ -5,6 +5,8 @@ import { Languages, ExternalLink, RefreshCw, Bookmark, Share2 } from 'lucide-rea
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { CardVisibilityGuard } from './card-visibility-guard'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { isPortailWikipediaFavoriteBatchAction } from '@/actions/portail-wikipedia-bookmark-actions'
 import { CardHeader } from './card-header'
@@ -40,6 +42,7 @@ async function fetchArticles(count: number): Promise<PortailWikipediaArticle[]> 
 
 function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = true }: PortailWikipediaCardProps) {
   const t = useTranslations('feed')
+  const c = getTheme('indigo')
   const [articles, setArticles] = useState<PortailWikipediaArticle[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -143,22 +146,19 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
     >
       {loading && articles.length === 0 ? (
         <div className="mb-4 sm:mb-6">
-          <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 to-violet-50 p-3 sm:p-5 dark:border-indigo-700 dark:from-indigo-950/30 dark:to-violet-950/30">
+          <CardShell color="indigo">
             <div className="flex items-center justify-center py-8">
-              <RefreshCw className="h-6 w-6 animate-spin text-indigo-500" />
+              <RefreshCw className={'h-6 w-6 animate-spin ' + c.action} />
             </div>
-          </div>
+          </CardShell>
         </div>
       ) : (
         <div className="mb-4 sm:mb-6">
-          <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 to-violet-50 p-3 sm:p-5 dark:border-indigo-700 dark:from-indigo-950/30 dark:to-violet-950/30 hover:shadow-md transition-shadow">
+          <CardShell color="indigo">
             <CardHeader
-              icon={<Languages className="h-4 w-4 text-indigo-950" />}
-              iconBgColor="bg-indigo-500"
-              iconDarkColor="dark:bg-indigo-600"
+              color="indigo"
+              icon={<Languages className={'h-4 w-4 ' + c.iconForeground} />}
               title="Portail Wikipédia"
-              titleColor="text-indigo-800"
-              titleDarkColor="dark:text-indigo-300"
               linkHref="/portail-wikipedia"
               showToggle={showToggle}
               onToggle={onToggle}
@@ -168,8 +168,8 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
             />
 
             {error && !loading && (
-              <div className="mb-3 flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-100/50 p-3 dark:border-indigo-800 dark:bg-indigo-900/20">
-                <p className="text-xs text-indigo-700 dark:text-indigo-300">
+              <div className={'mb-3 flex items-center gap-2 rounded-lg border ' + c.errorBorder + ' ' + c.errorBg + ' p-3 ' + c.errorBorderDark + ' ' + c.errorBgDark}>
+                <p className={'text-xs ' + c.errorText + ' ' + c.errorTextDark}>
                   {t('no_article_loaded')}
                 </p>
               </div>
@@ -179,11 +179,11 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
               {articles.map((article, index) => (
                 <div
                   key={article.id}
-                  className="rounded-lg border border-indigo-200 bg-white/50 p-4 dark:border-indigo-800 dark:bg-indigo-950/20 transition-all hover:bg-white/80 dark:hover:bg-indigo-900/30"
+                  className={'rounded-lg border ' + c.itemBorder + ' ' + c.itemBg + ' p-4 ' + c.itemBorderDark + ' ' + c.itemBgDark + ' transition-all ' + c.itemHover + ' ' + c.itemHoverDark}
                 >
                   <div className="flex items-start gap-3">
                     {article.imageUrl && (
-                      <div className="flex-shrink-0 w-20 h-20 overflow-hidden rounded-md border border-indigo-200 dark:border-indigo-800">
+                      <div className={'flex-shrink-0 w-20 h-20 overflow-hidden rounded-md border ' + c.imageBorder + ' ' + c.imageBorderDark}>
                         <img
                           src={article.imageUrl}
                           alt={article.title}
@@ -196,11 +196,11 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 truncate">
+                      <h4 className={'text-sm font-semibold ' + c.bodyBold + ' ' + c.bodyBoldDark + ' truncate'}>
                         {article.title}
                       </h4>
                       {article.extract && (
-                        <p className="mt-1 text-xs leading-relaxed text-indigo-700 dark:text-indigo-300 line-clamp-3">
+                        <p className={'mt-1 text-xs leading-relaxed ' + c.headingSecondary + ' ' + c.headingSecondaryDark + ' line-clamp-3'}>
                           {article.extract}
                         </p>
                       )}
@@ -210,7 +210,7 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-200 hover:underline"
+                          className={'inline-flex items-center gap-1 text-xs ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark + ' hover:underline'}
                         >
                           {t('read_article')}
                           <ExternalLink className="h-3 w-3" />
@@ -223,11 +223,11 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
                               e.stopPropagation()
                               handleBookmark(article, favorites.has(article.pageUrl))
                             }}
-                            className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-200 transition-colors"
+                            className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
                             title={favorites.has(article.pageUrl) ? t('remove_favorite') : t('add_favorite')}
                             aria-label={favorites.has(article.pageUrl) ? t('remove_favorite') : t('add_favorite')}
                           >
-                            <Bookmark className={`h-4 w-4 ${favorites.has(article.pageUrl) ? 'fill-current text-indigo-600 dark:text-indigo-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
+                            <Bookmark className={'h-4 w-4 ' + (favorites.has(article.pageUrl) ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)} />
                           </button>
                           <button
                             type="button"
@@ -235,7 +235,7 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
                               e.stopPropagation()
                               handleItemShare(article)
                             }}
-                            className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-200 transition-colors"
+                            className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
                             title={t('share')}
                             aria-label={t('share')}
                           >
@@ -248,7 +248,7 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
                 </div>
               ))}
             </div>
-          </div>
+          </CardShell>
         </div>
       )}
     </CardVisibilityGuard>

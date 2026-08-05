@@ -104,12 +104,9 @@ export function PortailWikipediaPageClient() {
       <div className="mb-6">
         <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 to-violet-50 p-5 dark:border-indigo-700 dark:from-indigo-950/30 dark:to-violet-950/30">
           <CardHeader
+            color="indigo"
             icon={<Globe className="h-4 w-4 text-indigo-950" />}
-            iconBgColor="bg-indigo-500"
-            iconDarkColor="dark:bg-indigo-600"
             title="Recherche Portail Wikipédia"
-            titleColor="text-indigo-800"
-            titleDarkColor="dark:text-indigo-300"
           />
 
           <form onSubmit={handleSearch} className="mt-4 relative">

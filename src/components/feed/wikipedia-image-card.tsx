@@ -10,6 +10,8 @@ import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { ImageLoading } from './image-loading'
 import { CardVisibilityGuard } from './card-visibility-guard'
@@ -148,6 +150,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
   }, [isVisible, image, loading, error, loadImage])
 
   const hasImage = isValidUrl(image?.imageUrl ?? '') && !imageError
+  const c = getTheme('teal')
 
   const shareImageId = image ? generateImageId(image.fileUrl, image.date) : ''
   const encodedData = image ? encodeImageToUrl({ imageUrl: image.imageUrl, description: image.description, fileUrl: image.fileUrl, date: image.date }) : ''
@@ -179,25 +182,20 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
   const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
 
   const cardContent = (
-    <div
-      className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-50 p-3 sm:p-5 dark:border-teal-700 dark:from-teal-950/30 dark:to-emerald-950/30 hover:shadow-md transition-shadow"
-    >
-      <CardHeader
-         icon={<Camera className="h-4 w-4 text-teal-950" />}
-         iconBgColor="bg-teal-400"
-         iconDarkColor="dark:bg-teal-600"
+    <CardShell color="teal">
+     <CardHeader
+         color="teal"
+         icon={<Camera className={'h-4 w-4 ' + c.iconForeground} />}
          title="Image du jour"
-         titleColor="text-teal-800"
-         titleDarkColor="dark:text-teal-300"
          linkHref={showLink ? '/image-du-jour' : undefined}
          showToggle={showToggle}
          onToggle={onToggle}
          onRefresh={loadImage}
          loading={loading || (image?.imageUrl ? !isImageLoaded : false)}
-          shareOptions={{ onClick: handleShare, copied, shareUrl }}
-          enableAutoRefresh={enableAutoRefresh}
-          storageKey={storageKey}
-            extraActions={
+         shareOptions={{ onClick: handleShare, copied, shareUrl }}
+         enableAutoRefresh={enableAutoRefresh}
+         storageKey={storageKey}
+         extraActions={
             image && showBookmark && (
               <div className="flex items-center gap-2">
                 <ShareToLobbyButton resourceId={image.fileUrl} resourceType="IMAGE_DU_JOUR" meta={{ imageUrl: image.imageUrl, description: image.description, fileUrl: image.fileUrl, date: image.date }} />
@@ -205,12 +203,12 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
                   type="button"
                   onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
                   disabled={isPending}
-                  className="rounded-full p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all disabled:opacity-50"
+                  className={'rounded-full p-1.5 ' + c.hoverBg + ' ' + c.hoverBgDark + ' transition-all disabled:opacity-50'}
                   title={isFavorite ? t('remove_favorite') : t('add_favorite')}
                   aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
                 >
                   <Bookmark
-                    className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-teal-600 dark:text-teal-400' : 'text-teal-600 dark:text-teal-400'}`}
+                    className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)}
                   />
                 </button>
               </div>
@@ -219,9 +217,9 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
       />
 
       {error && !loading && (
-        <div className="mb-3 flex items-center gap-2 rounded-lg border border-teal-200 bg-teal-100/50 p-3 dark:border-teal-800 dark:bg-teal-900/20">
-          <AlertCircle className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-          <p className="text-xs text-teal-700 dark:text-teal-300">
+        <div className={'mb-3 flex items-center gap-2 rounded-lg border ' + c.errorBorder + ' ' + c.errorBg + ' p-3 ' + c.errorBorderDark + ' ' + c.errorBgDark}>
+          <AlertCircle className={'h-4 w-4 ' + c.action + ' ' + c.actionDark} />
+          <p className={'text-xs ' + c.errorText + ' ' + c.errorTextDark}>
             {rateLimitError || "Impossible de charger l&apos;image. Cliquez pour réessayer."}
           </p>
         </div>
@@ -229,16 +227,16 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
 
       {loading && image?.imageUrl && (
         <ImageLoading
-          borderColor="border-teal-200"
-          borderDarkColor="dark:border-teal-800"
-          iconColor="text-teal-400"
-          iconDarkColor="dark:text-teal-400"
+          borderColor={c.imageBorder}
+          borderDarkColor={c.imageBorderDark}
+          iconColor={c.action}
+          iconDarkColor={c.actionDark}
         />
       )}
 
       {hasImage && !loading && (
         <div
-          className={`mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 cursor-pointer`}
+          className={'mb-3 overflow-hidden rounded-lg border ' + c.imageBorder + ' ' + c.imageBorderDark + ' cursor-pointer'}
           onClick={(e) => {
             e.stopPropagation()
             setShowFullImage(true)
@@ -258,7 +256,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
       )}
 
       {image && (
-        <p className="text-sm leading-relaxed text-teal-900 dark:text-teal-100">
+        <p className={'text-sm leading-relaxed ' + c.body + ' ' + c.bodyDark}>
           {image.description}
         </p>
       )}
@@ -269,14 +267,14 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 text-xs text-teal-700 hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-200 hover:underline"
+            className={'inline-flex items-center gap-1 text-xs ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark + ' hover:underline'}
           >
             <ExternalLink className="h-3 w-3" />
             Voir sur Wikimedia Commons
           </Link>
         </div>
       )}
-    </div>
+    </CardShell>
   )
 
   return (

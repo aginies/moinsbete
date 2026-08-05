@@ -5,14 +5,12 @@ import Link from 'next/link'
 import { EyeOff, RefreshCw, Play, Pause } from 'lucide-react'
 import { ShareButton } from './share-button'
 import { useTranslations } from 'next-intl'
+import { getTheme, type CardColorName } from '@/lib/card-theme'
 
 interface CardHeaderProps {
   icon: React.ReactNode
-  iconBgColor: string
-  iconDarkColor: string
+  color: CardColorName
   title: string
-  titleColor: string
-  titleDarkColor: string
   linkHref?: string
   showLink?: boolean
   showToggle?: boolean
@@ -33,11 +31,8 @@ interface CardHeaderProps {
 
 export function CardHeader({
   icon,
-  iconBgColor,
-  iconDarkColor,
+  color,
   title,
-  titleColor,
-  titleDarkColor,
   linkHref,
   showLink = true,
   showToggle = true,
@@ -52,6 +47,7 @@ export function CardHeader({
   storageKey = 'card_auto',
 }: CardHeaderProps) {
   const t = useTranslations('feed')
+  const c = getTheme(color)
   const [isActive, setIsActive] = React.useState(() => {
     if (!enableAutoRefresh) return false
     const stored = localStorage.getItem(`${storageKey}_auto_active`)
@@ -78,7 +74,6 @@ export function CardHeader({
   const initializedRef = useRef(false)
   const justRefreshedRef = useRef(false)
 
-  // Start/stop timer and reset on toggle
   React.useEffect(() => {
     if (!enableAutoRefresh || !isActive || !onRefresh) return
 
@@ -100,7 +95,6 @@ export function CardHeader({
     return () => clearInterval(timer)
   }, [enableAutoRefresh, isActive, onRefresh, loading, intervalValue])
 
-  // Handle timeLeft reaching 0
   React.useEffect(() => {
     if (!enableAutoRefresh || !isActive || loading || !onRefresh) return
     if (timeLeft > 0) return
@@ -117,15 +111,15 @@ export function CardHeader({
   return (
     <div className="mb-3 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <div className={`flex h-8 w-8 items-center justify-center rounded-full ${iconBgColor} ${iconDarkColor}`}>
+        <div className={`flex h-8 w-8 items-center justify-center rounded-full ${c.iconBg} ${c.iconBgDark}`}>
           {icon}
         </div>
         {showLink && linkHref ? (
-          <Link href={linkHref} className={`text-sm font-bold uppercase tracking-wide ${titleColor} hover:underline ${titleDarkColor}`}>
+          <Link href={linkHref} className={`text-sm font-bold uppercase tracking-wide ${c.title} hover:underline ${c.titleDark}`}>
             {title}
           </Link>
         ) : (
-          <h3 className={`text-sm font-bold uppercase tracking-wide ${titleColor} ${titleDarkColor}`}>
+          <h3 className={`text-sm font-bold uppercase tracking-wide ${c.title} ${c.titleDark}`}>
             {title}
           </h3>
         )}
@@ -142,7 +136,7 @@ export function CardHeader({
                   return next
                 })
               }}
-              className={`${titleColor} hover:bg-current/10 transition-colors flex items-center`}
+              className={`${c.title} hover:bg-current/10 transition-colors flex items-center`}
               title={isActive ? t('pause') : t('play')}
               aria-label={isActive ? t('pause') : t('play')}
             >
@@ -181,7 +175,7 @@ export function CardHeader({
               e.stopPropagation()
               onToggle()
             }}
-            className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors mr-2 sm:mr-4`}
+            className={`${c.title} ${c.titleDark} hover:bg-current/10 transition-colors mr-2 sm:mr-4`}
             title={t('hide_card')}
             aria-label={t('hide_card')}
           >
@@ -195,7 +189,7 @@ export function CardHeader({
               onRefresh()
               setTimeLeft(intervalValue)
             }}
-            className={`${titleColor} ${titleDarkColor} hover:bg-current/10 transition-colors cursor-pointer`}
+            className={`${c.title} ${c.titleDark} hover:bg-current/10 transition-colors cursor-pointer`}
             title={t('refresh_content')}
             aria-label={t('refresh_content')}
           >

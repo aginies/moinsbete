@@ -9,12 +9,15 @@ import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
 import { CardVisibilityGuard } from './card-visibility-guard'
+import { CardShell } from './card-shell'
 import { ImageLoading } from './image-loading'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import type { BookmarkType } from '@/generated/client'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
+import type { CardColorName } from '@/lib/card-theme'
+import { getTheme } from '@/lib/card-theme'
 
 interface BaseImage {
   docid: string
@@ -33,13 +36,9 @@ interface BaseImageCardConfig<TTopic> {
   resourceId?: string
   fetchFn: (topicIds: string | undefined) => Promise<BaseImage | null>
   defaultTopics: TTopic[]
-  cardClassName: string
   icon: React.ReactNode
-  iconBgColor: string
-  iconDarkColor: string
   title: string
-  titleColor: string
-  titleDarkColor: string
+  color: CardColorName
   linkHref?: string
   enableAutoRefresh?: boolean
   storageKey?: string
@@ -100,13 +99,9 @@ export function BaseImageCard<TTopic>({
   const {
     resourceType,
     fetchFn,
-    cardClassName,
     icon,
-    iconBgColor,
-    iconDarkColor,
     title,
-    titleColor,
-    titleDarkColor,
+    color,
     linkHref,
     enableAutoRefresh = false,
     storageKey,
@@ -123,6 +118,7 @@ export function BaseImageCard<TTopic>({
   } = config
 
   const t = useTranslations('feed')
+  const c = getTheme(color)
   const imageStorageKey = storageKey ? `base_image_${storageKey}` : 'base_image'
 
   const [image, setImage] = useState<BaseImage | null>(() => {
@@ -228,16 +224,11 @@ export function BaseImageCard<TTopic>({
   const handleToggleVisibility = showToggle ? onToggle : undefined
 
   const cardContent = (
-    <div
-      className={`${cardClassName}`}
-    >
-      <CardHeader
+    <CardShell color={color}>
+     <CardHeader
+        color={color}
         icon={icon}
-        iconBgColor={iconBgColor}
-        iconDarkColor={iconDarkColor}
         title={title}
-        titleColor={titleColor}
-        titleDarkColor={titleDarkColor}
         linkHref={linkHref}
         showToggle={false}
         showRefresh={false}
@@ -252,7 +243,7 @@ export function BaseImageCard<TTopic>({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleToggleVisibility() }}
-                className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
+                className={`${c.title} rounded-full p-1.5 hover:bg-current/10 transition-all`}
                 title={t('hide_card')}
                 aria-label={t('hide_card')}
               >
@@ -262,28 +253,28 @@ export function BaseImageCard<TTopic>({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); loadImage() }}
-                className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
+                className={`${c.title} rounded-full p-1.5 hover:bg-current/10 transition-all`}
                 title={t('refresh_content')}
                 aria-label={t('refresh_content')}
               >
                 <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
              {image && (
-               <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                  disabled={isPending}
-                  className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
-                  title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                  aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                <button
+                   type="button"
+                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                   disabled={isPending}
+                   className={`${c.title} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
+                   title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                   aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
                 >
-                 <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current' : ''}`} />
-               </button>
-             )}
-             {image && config.resourceType && (
-               <ShareToLobbyButton resourceId={image.docid} resourceType={config.resourceType} meta={{ titre: image.titre, auteur: image.auteur, imageUrl: image.imageUrl, link: image.link, droits: image.droits }} />
-             )}
-          </div>
+                  <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current' : ''}`} />
+                </button>
+              )}
+              {image && config.resourceType && (
+                <ShareToLobbyButton resourceId={image.docid} resourceType={config.resourceType} meta={{ titre: image.titre, auteur: image.auteur, imageUrl: image.imageUrl, link: image.link, droits: image.droits }} />
+              )}
+           </div>
         }
       />
 
@@ -326,7 +317,7 @@ export function BaseImageCard<TTopic>({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onSettingsClick() }}
-              className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
+              className={`${c.title} rounded-full p-1.5 hover:bg-current/10 transition-all`}
               title={settingsButtonTitle}
               aria-label={settingsButtonTitle}
             >
@@ -337,7 +328,7 @@ export function BaseImageCard<TTopic>({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onToggleCategories() }}
-              className={`${titleColor} rounded-full p-1.5 hover:bg-current/10 transition-all`}
+              className={`${c.title} rounded-full p-1.5 hover:bg-current/10 transition-all`}
               title={showCategories ? t('hide_categories') : t('show_categories')}
               aria-label={showCategories ? t('hide_categories') : t('show_categories')}
             >
@@ -346,7 +337,7 @@ export function BaseImageCard<TTopic>({
           )}
         </div>
       )}
-    </div>
+    </CardShell>
   )
 
   const renderCard = () => {

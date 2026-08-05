@@ -11,6 +11,8 @@ import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardHeader } from './card-header'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { useTranslations } from 'next-intl'
 
 export interface Proverbe {
@@ -60,6 +62,7 @@ function ProverbeCardInner({
   linkHref
 }: ProverbeCardProps) {
   const t = useTranslations('feed')
+  const c = getTheme('emerald')
   const [internalProverbe, setInternalProverbe] = useState<Proverbe | null>(null)
   const [internalLoading, setInternalLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -134,14 +137,11 @@ function ProverbeCardInner({
       label="Afficher Proverbe"
     >
       <div className="mb-4 sm:mb-6">
-        <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-green-50 p-3 sm:p-5 dark:border-emerald-700 dark:from-emerald-950/30 dark:to-green-950/30 hover:shadow-md transition-shadow">
+        <CardShell color="emerald">
           <CardHeader
-            icon={<Quote className="h-4 w-4 text-emerald-950" />}
-            iconBgColor="bg-emerald-500"
-            iconDarkColor="dark:bg-emerald-600"
+            color="emerald"
+            icon={<Quote className={"h-4 w-4 " + c.iconForeground} />}
             title={title || "Proverbe aléatoire"}
-            titleColor="text-emerald-800"
-            titleDarkColor="dark:text-emerald-300"
             linkHref={linkHref !== undefined ? (linkHref || undefined) : "/proverbes"}
             showToggle={showToggle}
             onToggle={onToggle}
@@ -156,12 +156,12 @@ function ProverbeCardInner({
                   type="button"
                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
                   disabled={isPending || loading}
-                  className="rounded-full p-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all disabled:opacity-50"
+                  className={`rounded-full p-1.5 ${c.hoverBg} ${c.hoverBgDark} transition-all disabled:opacity-50`}
                   title={isFavorite ? t('remove_favorite') : t('add_favorite')}
                   aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
                 >
                   <Bookmark
-                    className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-emerald-600 dark:text-emerald-400' : 'text-emerald-600 dark:text-emerald-400'}`}
+                    className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark}`}
                   />
                 </button>
               </div>
@@ -169,8 +169,8 @@ function ProverbeCardInner({
           />
 
           {error && !loading && (
-            <div className="mb-3 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-100/50 p-3 dark:border-emerald-800 dark:bg-emerald-900/20">
-              <p className="text-xs text-emerald-700 dark:text-emerald-300">
+            <div className={`mb-3 flex items-center gap-2 rounded-lg border ${c.errorBorder} ${c.errorBg} p-3 ${c.errorBorderDark} ${c.errorBgDark}`}>
+              <p className={`text-xs ${c.errorText} ${c.errorTextDark}`}>
                 Impossible de charger le proverbe. Cliquez pour réessayer.
               </p>
             </div>
@@ -179,29 +179,29 @@ function ProverbeCardInner({
           {proverbe && (
             <>
               <div className="mb-4 text-center">
-                <p className="text-xl font-bold text-emerald-900 dark:text-emerald-100 leading-relaxed italic">
+                <p className={`text-xl font-bold ${c.bodyBold} ${c.bodyBoldDark} leading-relaxed italic`}>
                    &quot;{proverbe.text}&quot;
                 </p>
               </div>
 
               <div className="mb-3">
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${c.pillBorder} ${c.pillBg} ${c.pillText} ${c.pillBorderDark} ${c.pillBgDark} ${c.pillTextDark}`}>
                   {proverbe.source}
                 </span>
               </div>
 
               {proverbe.signification && (
-                <p className="text-sm leading-relaxed text-emerald-800 dark:text-emerald-200 mb-3">
+                <p className={`text-sm leading-relaxed ${c.body} ${c.bodyDark} mb-3`}>
                   {proverbe.signification}
                 </p>
               )}
 
               {proverbe.etymologie && (
                 <div className="mb-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400 mb-2">
+                  <h4 className={`text-xs font-semibold uppercase tracking-wide ${c.headingSecondary} ${c.headingSecondaryDark} mb-2`}>
                     Étymologie
                   </h4>
-                  <p className="text-sm leading-relaxed text-emerald-800 dark:text-emerald-200 whitespace-pre-wrap">
+                  <p className={`text-sm leading-relaxed ${c.body} ${c.bodyDark} whitespace-pre-wrap`}>
                     {proverbe.etymologie}
                   </p>
                 </div>
@@ -209,10 +209,10 @@ function ProverbeCardInner({
 
               {proverbe.definitions && proverbe.definitions.length > 0 && (
                 <div className="mb-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400 mb-2">
+                  <h4 className={`text-xs font-semibold uppercase tracking-wide ${c.headingSecondary} ${c.headingSecondaryDark} mb-2`}>
                     Définitions
                   </h4>
-                  <ol className="space-y-1 list-decimal list-inside text-sm text-emerald-800 dark:text-emerald-200">
+                  <ol className={`space-y-1 list-decimal list-inside text-sm ${c.body} ${c.bodyDark}`}>
                     {proverbe.definitions.map((def, i) => (
                       <li key={i} className="leading-relaxed">{def}</li>
                     ))}
@@ -227,20 +227,20 @@ function ProverbeCardInner({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-200 hover:underline"
+                    className={`inline-flex items-center gap-1 text-xs ${c.link} ${c.linkHover} ${c.linkDark} ${c.linkHoverDark} hover:underline`}
                   >
                     Voir sur Wiktionnaire
                     <ExternalLink className="h-3 w-3" />
                   </Link>
                 ) : (
-                  <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                  <span className={`text-xs ${c.muted} ${c.mutedDark}`}>
                     Pas de Page Wiktionnaire
                   </span>
                 )}
               </div>
             </>
           )}
-        </div>
+        </CardShell>
       </div>
     </CardVisibilityGuard>
   )

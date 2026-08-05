@@ -8,6 +8,8 @@ import { ShareButton } from './share-button'
 import { sanitizeUrl } from '@/lib/utils'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { CardVisibilityGuard } from './card-visibility-guard'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { toggleRadioFavoriteAction, isRadioFavoriteAction } from '@/actions/radio-bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useTranslations } from 'next-intl'
@@ -43,6 +45,7 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
 
 function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCardProps) {
   const t = useTranslations('feed')
+  const c = getTheme('purple')
   const [doc, setDoc] = useState<RadioFranceDoc | null>(() => {
     if (typeof sessionStorage === 'undefined') return initialDoc || null
     const saved = sessionStorage.getItem('radio_france_doc')
@@ -125,20 +128,20 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
       label="Afficher Docs Radio France"
     >
       <div className="mb-4 sm:mb-6">
-        <div className="rounded-xl border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-violet-50 p-3 sm:p-5 dark:border-purple-700 dark:from-purple-950/30 dark:to-violet-950/30 hover:shadow-md transition-shadow">
+        <CardShell color="purple">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 dark:bg-purple-600">
-                <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+              <div className={'flex h-8 w-8 items-center justify-center rounded-full ' + c.iconBg + ' ' + c.iconBgDark}>
+                <Lightbulb className={'h-4 w-4 sm:h-5 sm:w-5 ' + c.iconForeground} />
               </div>
-              <h3 className="text-sm font-bold uppercase tracking-wide text-purple-800 dark:text-purple-300">
+              <h3 className={'text-sm font-bold uppercase tracking-wide ' + c.title + ' ' + c.titleDark}>
                 {t('radio_docs')}
               </h3>
             </div>
             <div className="flex items-center gap-6">
                <button
                 onClick={onToggle || (() => {})}
-                className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors"
+                className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
                title={t('hide_card')}
                aria-label={t('hide_card')}
              >
@@ -149,16 +152,16 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
                title={t('change_documentary')}
                aria-label={t('change_documentary')}
              >
-               <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400 ${loading ? 'animate-spin' : ''}`} />
+               <RefreshCw className={'h-4 w-4 sm:h-5 sm:w-5 ' + c.action + ' ' + c.actionDark + ' ' + (loading ? 'animate-spin' : '')} />
              </button>
              <button
                onClick={handleBookmark}
                disabled={isPending}
-               className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 transition-colors disabled:opacity-50"
+               className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors disabled:opacity-50'}
                title={isFavorite ? t('remove_favorite') : t('add_favorite')}
                aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
              >
-               <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current text-purple-600 dark:text-purple-400' : 'text-purple-600 dark:text-purple-400'}`} />
+               <Bookmark className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)} />
              </button>
              <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
             </div>
@@ -167,7 +170,7 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
           {doc && (
             <>
               {doc.image && (
-                <div className="mb-3 overflow-hidden rounded-lg border border-purple-200 dark:border-purple-800">
+                <div className={'mb-3 overflow-hidden rounded-lg border ' + c.imageBorder + ' ' + c.imageBorderDark}>
                   <img
                     src={sanitizeUrl(doc.image, '')}
                     alt={doc.title}
@@ -180,20 +183,20 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
                 </div>
               )}
 
-              <p className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+              <p className={'text-sm font-semibold ' + c.bodyBold + ' ' + c.bodyBoldDark + ' mb-2'}>
                 {doc.title}
               </p>
 
               <div className="mb-3">
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-purple-200 bg-purple-100 text-purple-800 dark:border-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                <span className={'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark}>
                   {doc.radio}
                 </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-purple-200 bg-purple-100 text-purple-800 dark:border-purple-700 dark:bg-purple-900/40 dark:text-purple-300 ml-2">
+                <span className={'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' ml-2'}>
                   {doc.section}
                 </span>
               </div>
 
-              <p className="text-sm leading-relaxed text-purple-800 dark:text-purple-200 mb-3">
+              <p className={'text-sm leading-relaxed ' + c.body + ' ' + c.bodyDark + ' mb-3'}>
                 {doc.description}
               </p>
 
@@ -201,14 +204,14 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
                 href={sanitizeUrl(doc.url)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-purple-700 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-200 hover:underline"
+                className={'inline-flex items-center gap-1 text-xs ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark + ' hover:underline'}
               >
                 {t('listen_on_radio')}
                 <ExternalLink className="h-3 w-3" />
               </Link>
             </>
           )}
-        </div>
+        </CardShell>
       </div>
     </CardVisibilityGuard>
   )

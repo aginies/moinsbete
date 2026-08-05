@@ -146,10 +146,6 @@ function ImageWikimediaCardInner({
     }
   }, [userId, refreshTopics])
 
-  const cardClassName = fullImage
-    ? 'rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-3 sm:p-5 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30'
-    : 'rounded-xl border-2 border-rose-800 bg-gradient-to-br from-rose-50 to-red-50 p-3 sm:p-5 dark:border-rose-900 dark:from-rose-950/30 dark:to-red-950/30 cursor-pointer hover:shadow-md transition-shadow'
-
   return (
     <>
       <BaseImageCard
@@ -157,13 +153,9 @@ function ImageWikimediaCardInner({
           resourceType: 'IMAGE_WIKIMEDIA',
           fetchFn: fetchRandomImage,
           defaultTopics: DEFAULT_TOPICS,
-          cardClassName,
           icon: <Camera className="h-4 w-4 text-rose-950" />,
-          iconBgColor: 'bg-rose-400',
-          iconDarkColor: 'dark:bg-rose-500',
           title: 'Wikimedia',
-          titleColor: 'text-rose-800',
-          titleDarkColor: 'dark:text-rose-300',
+          color: 'rose',
           linkHref: showLink ? '/image-wikimedia' : undefined,
           enableAutoRefresh,
           storageKey,

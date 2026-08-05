@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardVisibilityGuard } from './card-visibility-guard'
+import { CardShell } from './card-shell'
+import { getTheme } from '@/lib/card-theme'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { toggleCitationFavoriteAction } from '@/actions/citation-bookmark-actions'
 import { useTranslations } from 'next-intl'
@@ -83,27 +85,28 @@ function CitationItemRow({
   onToggleFavorite: (id: string, current: boolean) => void
 }) {
   const t = useTranslations('feed')
+  const c = getTheme('amber')
 
   return (
-    <div className="p-3 rounded-lg bg-white/50 dark:bg-black/20 border border-amber-100 dark:border-amber-900/30 hover:bg-white dark:hover:bg-black/30 transition-colors">
+    <div className={'p-3 rounded-lg border hover:bg-white dark:hover:bg-black/30 transition-colors ' + c.itemBg + ' ' + c.itemBgDark + ' ' + c.itemBorder + ' ' + c.itemBorderDark + ' ' + c.itemHover + ' ' + c.itemHoverDark}>
       <div className="flex items-start gap-3">
-        <Quote className="h-4 w-4 text-amber-500 flex-shrink-0 mt-1" />
+        <Quote className={'h-4 w-4 flex-shrink-0 mt-1 ' + c.action + ' ' + c.actionDark} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-amber-900 dark:text-amber-100 leading-relaxed italic">
+          <p className={'text-sm leading-relaxed italic ' + c.bodyBold + ' ' + c.bodyBoldDark}>
             &quot;{item.text}&quot;
           </p>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+            <span className={'text-xs font-semibold ' + c.body + ' ' + c.bodyDark}>
               {item.author}
             </span>
             {item.source && (
-              <span className="text-xs text-amber-500 dark:text-amber-400">
+              <span className={'text-xs ' + c.muted + ' ' + c.mutedDark}>
                 - {item.source}
               </span>
             )}
           </div>
           <div className="flex items-center gap-2 mt-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+            <span className={'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark}>
               {item.category}
             </span>
             <Link
@@ -111,7 +114,7 @@ function CitationItemRow({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-[10px] text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 hover:underline"
+              className={'text-[10px] hover:underline ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark}
             >
               {t('read_citation')}
             </Link>
@@ -121,10 +124,10 @@ function CitationItemRow({
           <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, ...(item.source && { source: item.source }), url: item.wikiUrl, category: item.category }} />
           <button
             onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id, isFavorite) }}
-            className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
+            className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
             title={isFavorite ? t('remove_favorite') : t('add_favorite')}
           >
-            <Bookmark className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+            <Bookmark className={'h-4 w-4 ' + (isFavorite ? 'fill-current' : '')} />
           </button>
         </div>
       </div>
@@ -140,6 +143,7 @@ export const CitationCard = React.memo(function CitationCardInner({
   searchQuery,
 }: CitationCardProps) {
   const t = useTranslations('feed')
+  const c = getTheme('amber')
   const [activeTab, setActiveTab] = useState('auteurs')
 
   // Daily state
@@ -347,16 +351,16 @@ export const CitationCard = React.memo(function CitationCardInner({
       label="Afficher Citations"
     >
       <div className="mb-4 sm:mb-6">
-        <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 p-0 dark:border-amber-700 dark:from-amber-950/30 dark:to-yellow-950/30 hover:shadow-md transition-shadow overflow-hidden">
-          <div className="px-5 pt-4 pb-2 flex items-center justify-between border-b border-amber-200 dark:border-amber-800">
+        <CardShell color="amber" noPadding>
+          <div className={'px-5 pt-4 pb-2 flex items-center justify-between border-b ' + c.headerBorder + ' ' + c.headerBorderDark}>
 <Link
                 href="/citations"
                 className="flex items-center gap-2"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 dark:bg-amber-600">
-                  <Quote className="h-4 w-4 text-white" />
+                <div className={'flex h-8 w-8 items-center justify-center rounded-full ' + c.iconBg + ' ' + c.iconBgDark}>
+                  <Quote className={'h-4 w-4 text-white ' + c.iconForeground} />
                 </div>
-                <h3 className="text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+                <h3 className={'text-sm font-bold uppercase tracking-wide transition-colors ' + c.title + ' hover:text-amber-600 ' + c.titleDark + ' dark:hover:text-amber-400'}>
                   {t('citation_tab')}
                 </h3>
               </Link>
@@ -364,7 +368,7 @@ export const CitationCard = React.memo(function CitationCardInner({
               {showToggle && onToggle && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onToggle() }}
-                  className="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 transition-colors mr-2 sm:mr-4"
+                  className={'transition-colors mr-2 sm:mr-4 ' + c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark}
                   title={t('hide_card')}
                   aria-label={t('hide_card')}
                 >
@@ -373,11 +377,11 @@ export const CitationCard = React.memo(function CitationCardInner({
               )}
               <button
                 onClick={handleRefresh}
-                className="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 transition-colors"
+                className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
                 title={t('refresh_content')}
                 aria-label={t('refresh_content')}
               >
-                <svg className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className={'h-4 w-4 sm:h-5 sm:w-5 ' + (loading ? 'animate-spin' : '')} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
@@ -387,7 +391,7 @@ export const CitationCard = React.memo(function CitationCardInner({
           <div className="px-2 pt-2">
             {isSearching ? (
             <div className="p-4">
-              <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">
+              <p className={'text-xs mb-3 ' + c.muted + ' ' + c.mutedDark}>
                 {searchResults.length > 0
                   ? `${searchResults.length} résultat${searchResults.length > 1 ? 's' : ''} pour "${searchQuery}"`
                   : t('no_search_results')}
@@ -405,19 +409,19 @@ export const CitationCard = React.memo(function CitationCardInner({
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Quote className="h-8 w-8 mx-auto mb-2 text-amber-400" />
+                  <Quote className={'h-8 w-8 mx-auto mb-2 ' + c.muted + ' ' + c.mutedDark} />
                   <p className="text-sm text-muted-foreground">Aucune citation trouvée</p>
                 </div>
               )}
             </div>
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full gap-0">
-              <TabsList className="w-full h-auto bg-transparent p-0 gap-0 border-b border-amber-200 dark:border-amber-800 rounded-none">
+              <TabsList className={'w-full h-auto bg-transparent p-0 gap-0 border-b rounded-none ' + c.headerBorder + ' ' + c.headerBorderDark}>
                 {TABS.map(tab => (
                   <TabsTrigger
                     key={tab.key}
                     value={tab.key}
-                    className={`flex-1 h-auto px-3 py-2 text-xs font-medium data-[state=active]:bg-amber-100 dark:data-[state=active]:bg-amber-900/30 data-[state=active]:text-amber-800 dark:data-[state=active]:text-amber-300 data-[state=active]:border-b-2 data-[state=active]:border-amber-600 dark:data-[state=active]:border-amber-500 rounded-none border-b-2 border-transparent`}
+                    className={'flex-1 h-auto px-3 py-2 text-xs font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:' + c.tabActiveBg + ' dark:data-[state=active]:' + c.tabActiveBgDark.slice(6) + ' data-[state=active]:' + c.tabActiveText + ' dark:data-[state=active]:' + c.tabActiveTextDark.slice(6) + ' data-[state=active]:' + c.tabActiveBorder + ' dark:data-[state=active]:' + c.tabActiveBorderDark.slice(6)}
                   >
                     <tab.icon className="h-3 w-3 mr-1" />
                     <span className="hidden sm:inline">{t(tab.label)}</span>
@@ -431,24 +435,24 @@ export const CitationCard = React.memo(function CitationCardInner({
                 <TabsContent value="dujour" className="mt-0">
                   {error && !dailyData && !loading ? (
                     <div className="text-center py-8">
-                      <p className="text-sm text-amber-600 dark:text-amber-400">
+                      <p className={'text-sm ' + c.errorText + ' ' + c.errorTextDark}>
                         Impossible de charger la citation du jour.
                       </p>
                     </div>
                   ) : loading && !dailyData ? (
                     <div className="animate-pulse space-y-3">
-                      <div className="h-6 w-3/4 bg-amber-200 dark:bg-amber-800 rounded" />
-                      <div className="h-4 w-1/2 bg-amber-200 dark:bg-amber-800 rounded" />
+                      <div className={'h-6 w-3/4 rounded ' + c.skeletonBg + ' ' + c.skeletonBgDark} />
+                      <div className={'h-4 w-1/2 rounded ' + c.skeletonBg + ' ' + c.skeletonBgDark} />
                     </div>
                   ) : !dailyData?.citations?.[0] ? (
                     <div className="text-center py-8">
-                      <Sparkles className="h-8 w-8 mx-auto mb-2 text-amber-400" />
+                      <Sparkles className={'h-8 w-8 mx-auto mb-2 ' + c.muted + ' ' + c.mutedDark} />
                       <p className="text-sm text-muted-foreground">Aucune citation du jour disponible</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {dailyData.citations.map(item => (
-                        <div key={item.id} className="p-5 rounded-lg bg-white/60 dark:bg-black/20 border border-amber-200 dark:border-amber-800">
+                        <div key={item.id} className={'p-5 rounded-lg border ' + c.itemBg + ' ' + c.itemBgDark + ' ' + c.itemBorder + ' ' + c.itemBorderDark}>
                           {item.imageUrl && (
                             <div className="flex justify-center mb-3">
                               <img
@@ -459,15 +463,15 @@ export const CitationCard = React.memo(function CitationCardInner({
                               />
                             </div>
                           )}
-                          <p className="text-lg text-center text-amber-900 dark:text-amber-100 leading-relaxed italic">
+                          <p className={'text-lg text-center leading-relaxed italic ' + c.bodyBold + ' ' + c.bodyBoldDark}>
                             &quot;{item.text}&quot;
                           </p>
                           <div className="flex items-center justify-center gap-2 mt-3">
-                            <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                            <span className={'text-sm font-semibold ' + c.body + ' ' + c.bodyDark}>
                               {item.author}
                             </span>
                             {item.source && (
-                              <span className="text-xs text-amber-500 dark:text-amber-400">
+                              <span className={'text-xs ' + c.muted + ' ' + c.mutedDark}>
                                 • {item.source}
                               </span>
                             )}
@@ -478,14 +482,14 @@ export const CitationCard = React.memo(function CitationCardInner({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="text-xs text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 hover:underline"
+                                className={'text-xs hover:underline ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark}
                               >
                                 {t('read_citation')}
                               </Link>
        <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, ...(item.source && { source: item.source }), url: item.wikiUrl, category: item.category }} />
                               <button
                                 onClick={(e) => { e.stopPropagation(); handleBookmark(item.id, allFavorites.has(item.id)) }}
-                                className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
+                                className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
                                 title={allFavorites.has(item.id) ? t('remove_favorite') : t('add_favorite')}
                               >
                                 <Bookmark className={`h-4 w-4 ${allFavorites.has(item.id) ? 'fill-current' : ''}`} />
@@ -502,9 +506,9 @@ export const CitationCard = React.memo(function CitationCardInner({
                   {themeCategories.length > 0 && (
                     <div className="mb-3">
                       <button
-                        onClick={() => setShowThemeFilters(!showThemeFilters)}
-                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/40 transition-colors"
-                      >
+                         onClick={() => setShowThemeFilters(!showThemeFilters)}
+                         className={'flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' hover:bg-amber-100 ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' dark:hover:bg-amber-900/40'}
+                       >
                         <Filter className="h-3 w-3" />
                         {t('filter_categories')}
                         {selectedThemes.length > 0 && (
@@ -519,11 +523,7 @@ export const CitationCard = React.memo(function CitationCardInner({
                             <button
                               key={cat}
                               onClick={() => toggleTheme(cat)}
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ${
-                                selectedThemes.includes(cat)
-                                  ? 'bg-amber-200 border-amber-400 text-amber-900 dark:bg-amber-800 dark:border-amber-600 dark:text-amber-100'
-                                  : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/40'
-                              }`}
+  className={'px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + (selectedThemes.includes(cat) ? ('bg-amber-200 border-amber-400 text-amber-900 dark:bg-amber-800 dark:border-amber-600 dark:text-amber-100') : (c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' hover:bg-amber-100 ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' dark:hover:bg-amber-900/40'))}
                             >
                               {cat}
                             </button>
@@ -534,19 +534,19 @@ export const CitationCard = React.memo(function CitationCardInner({
                   )}
                   {error && !themesData && !loading ? (
                     <div className="text-center py-8">
-                      <p className="text-sm text-amber-600 dark:text-amber-400">
+                      <p className={'text-sm ' + c.errorText + ' ' + c.errorTextDark}>
                         Impossible de charger les citations.
                       </p>
                     </div>
                   ) : loading && !themesData ? (
                     <div className="space-y-3 py-4">
                       {[1, 2, 3].map(i => (
-                        <div key={i} className="animate-pulse h-20 bg-amber-200 dark:bg-amber-800 rounded-lg" />
+                        <div key={i} className={'animate-pulse h-20 rounded-lg ' + c.skeletonBg + ' ' + c.skeletonBgDark} />
                       ))}
                     </div>
                   ) : !displayThemes.length ? (
                     <div className="text-center py-8">
-                      <BookOpen className="h-8 w-8 mx-auto mb-2 text-amber-400" />
+                      <BookOpen className={'h-8 w-8 mx-auto mb-2 ' + c.muted + ' ' + c.mutedDark} />
                       <p className="text-sm text-muted-foreground">Aucune citation disponible</p>
                     </div>
                   ) : (
@@ -567,10 +567,10 @@ export const CitationCard = React.memo(function CitationCardInner({
                 <TabsContent value="auteurs" className="mt-0">
                   {auteurCategories.length > 0 && (
                     <div className="mb-3">
-                      <button
-                        onClick={() => setShowAuteurFilters(!showAuteurFilters)}
-                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/40 transition-colors"
-                      >
+                     <button
+                         onClick={() => setShowAuteurFilters(!showAuteurFilters)}
+                         className={'flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' hover:bg-amber-100 ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' dark:hover:bg-amber-900/40'}
+                       >
                         <Filter className="h-3 w-3" />
                         {t('filter_categories')}
                         {selectedAuteurs.length > 0 && (
@@ -585,11 +585,7 @@ export const CitationCard = React.memo(function CitationCardInner({
                             <button
                               key={cat}
                               onClick={() => toggleAuteur(cat)}
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ${
-                                selectedAuteurs.includes(cat)
-                                  ? 'bg-amber-200 border-amber-400 text-amber-900 dark:bg-amber-800 dark:border-amber-600 dark:text-amber-100'
-                                  : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/40'
-                              }`}
+ className={'px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ' + (selectedAuteurs.includes(cat) ? ('bg-amber-200 border-amber-400 text-amber-900 dark:bg-amber-800 dark:border-amber-600 dark:text-amber-100') : (c.pillBorder + ' ' + c.pillBg + ' ' + c.pillText + ' hover:bg-amber-100 ' + c.pillBorderDark + ' ' + c.pillBgDark + ' ' + c.pillTextDark + ' dark:hover:bg-amber-900/40'))}
                             >
                               {cat}
                             </button>
@@ -600,19 +596,19 @@ export const CitationCard = React.memo(function CitationCardInner({
                   )}
                   {error && !auteursData && !loading ? (
                     <div className="text-center py-8">
-                      <p className="text-sm text-amber-600 dark:text-amber-400">
+                      <p className={'text-sm ' + c.errorText + ' ' + c.errorTextDark}>
                         Impossible de charger les citations.
                       </p>
                     </div>
                   ) : loading && !auteursData ? (
                     <div className="space-y-3 py-4">
                       {[1, 2, 3].map(i => (
-                        <div key={i} className="animate-pulse h-20 bg-amber-200 dark:bg-amber-800 rounded-lg" />
+                        <div key={i} className={'animate-pulse h-20 rounded-lg ' + c.skeletonBg + ' ' + c.skeletonBgDark} />
                       ))}
                     </div>
                   ) : !displayAuteurs.length ? (
                     <div className="text-center py-8">
-                      <User className="h-8 w-8 mx-auto mb-2 text-amber-400" />
+                      <User className={'h-8 w-8 mx-auto mb-2 ' + c.muted + ' ' + c.mutedDark} />
                       <p className="text-sm text-muted-foreground">Aucune citation disponible</p>
                     </div>
                   ) : (
@@ -630,9 +626,9 @@ export const CitationCard = React.memo(function CitationCardInner({
                 </TabsContent>
               </div>
             </Tabs>
-          )}
+         )}
           </div>
-        </div>
+        </CardShell>
       </div>
     </CardVisibilityGuard>
   )
