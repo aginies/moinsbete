@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { scrapeAndCacheCnrs } from '@/scripts/cache-cnrs'
 import { scrapeAndCacheRadioEpisodes } from '@/scripts/cache-radio-france'
 import { scrapeAndCacheWikipediaImages } from '@/scripts/cache-wikipedia-image'
+import { scrapeAndCacheWikipediaImagesEN } from '@/scripts/cache-wikipedia-image-en'
 import { scrapeAndCacheNews } from '@/scripts/cache-news'
 import { scrapeAndCacheSaviezVousImages } from '@/scripts/cache-saviez-vous-images'
 import { scrapeAndCacheF1 } from '@/scripts/cache-f1'
@@ -73,23 +74,27 @@ export async function GET(request: NextRequest) {
     await scrapeAndCacheNews()
     results.news = 'ok'
     
-    console.log('[cron] Step 4/10: Scraping Wikipedia Image...')
+    console.log('[cron] Step 4/11: Scraping Wikipedia Image (FR)...')
     await scrapeAndCacheWikipediaImages()
     results.wiki = 'ok'
-    
-    console.log('[cron] Step 5/10: Scraping F1 portal...')
+
+    console.log('[cron] Step 5/11: Scraping Wikipedia Image (EN)...')
+    await scrapeAndCacheWikipediaImagesEN()
+    results.wikiEn = 'ok'
+
+    console.log('[cron] Step 6/11: Scraping F1 portal...')
     await scrapeAndCacheF1()
     results.f1 = 'ok'
 
-    console.log('[cron] Step 6/10: Scraping Portail Wikipédia...')
+    console.log('[cron] Step 7/11: Scraping Portail Wikipédia...')
     await scrapeAndCachePortailWikipedia()
     results.portailWiki = 'ok'
 
-    console.log('[cron] Step 7/10: Scraping Wikiquote...')
+    console.log('[cron] Step 8/11: Scraping Wikiquote...')
     await scrapeAndCacheCitation()
     results.citation = 'ok'
 
-    console.log('[cron] Step 8/10: Cleanup...')
+    console.log('[cron] Step 9/11: Cleanup...')
     const counts = await cleanupExpired()
     const citationSkipped = counts.citation === 0
     let cleanupParts = [`cnrs:${counts.cnrs}`, `radio:${counts.radio}`, `wiki:${counts.wiki}`, `wikiLoves:${counts.wikiLoves}`, `news:${counts.news}`, `f1:${counts.f1}`, `portailWiki:${counts.portailWikipedia}`]
@@ -100,11 +105,11 @@ export async function GET(request: NextRequest) {
     const newsMaxAge = await cleanupNewsByMaxAge(5)
     results.newsMaxAge = newsMaxAge > 0 ? `maxage:${newsMaxAge}` : ''
 
-    console.log('[cron] Step 9/10: Resolving Saviez-vous images...')
+    console.log('[cron] Step 10/11: Resolving Saviez-vous images...')
     await scrapeAndCacheSaviezVousImages()
     results.saviezvous = 'ok'
 
-    console.log('[cron] Step 10/10: Scraping Portail Lexical Word of the Day...')
+    console.log('[cron] Step 11/11: Scraping Portail Lexical Word of the Day...')
     await scrapeAndCachePortailLexicalWotd()
     results.portailLexical = 'ok'
     

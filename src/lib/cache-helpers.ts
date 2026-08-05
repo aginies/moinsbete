@@ -79,18 +79,19 @@ export async function getValidCachedWikipediaImages() {
 }
 
 
-export async function upsertWikipediaImages(images: Array<{ imageUrl: string; description: string; fileUrl: string; date: string; archive: string }>) {
+export async function upsertWikipediaImages(images: Array<{ imageUrl: string; description: string; fileUrl: string; date: string; archive: string; language?: string }>) {
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
-  
+
   for (const image of images) {
+    const lang = image.language || 'fr'
     await prisma.cachedWikipediaImage.upsert({
-      where: { imageUrl_date: { imageUrl: image.imageUrl, date: image.date } },
-      update: { ...image, scrapedAt: now, expiresAt },
-      create: { ...image, scrapedAt: now, expiresAt },
+      where: { imageUrl_date_language: { imageUrl: image.imageUrl, date: image.date, language: lang } },
+      update: { ...image, language: lang, scrapedAt: now, expiresAt },
+      create: { ...image, language: lang, scrapedAt: now, expiresAt },
     })
   }
-  
+
   return images.length
 }
 

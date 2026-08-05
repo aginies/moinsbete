@@ -22,6 +22,7 @@ model User {
   updatedAt                    DateTime              @updatedAt
   cnrsNewsEnabled              Boolean               @default(true)
   wikipediaImageCardVisible    Boolean               @default(true)
+  wikipediaImageShowEn         Boolean               @default(false)
   saviezVousCardVisible        Boolean               @default(true)
   radioFranceCardVisible       Boolean               @default(true)
   imageWikimediaCardVisible    Boolean               @default(true)
@@ -305,11 +306,13 @@ model CachedWikipediaImage {
   fileUrl     String
   date        String
   archive     String
+  language    String   @default("fr")
   scrapedAt   DateTime @default(now())
   expiresAt   DateTime
 
-  @@unique([imageUrl, date])
+  @@unique([imageUrl, date, language])
   @@index([expiresAt])
+  @@index([language])
 }
 
 model CachedConfig {

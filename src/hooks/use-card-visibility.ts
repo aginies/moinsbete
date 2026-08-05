@@ -34,6 +34,7 @@ const DB_FIELD_MAP: Record<string, string> = {
   cnrs_news_enabled: 'cnrsNewsEnabled',
   proverbe_card_visible: 'proverbeCardVisible',
   f1_card_visible: 'f1CardVisible',
+  wikipedia_image_show_en: 'wikipediaImageShowEn',
 }
 
 interface UseCardVisibilityOptions {

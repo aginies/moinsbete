@@ -356,13 +356,13 @@ export async function fetchPortailLexical(): Promise<PortailLexicalWord | null> 
 export async function fetchWikipediaImage(): Promise<WikipediaImageData | null> {
   const now = new Date()
   const totalCached = await prisma.cachedWikipediaImage.count({
-    where: { expiresAt: { gte: now } },
+    where: { expiresAt: { gte: now }, language: 'fr' },
   })
 
   if (totalCached > 0) {
     const randomOffset = Math.floor(Math.random() * totalCached)
     const doc = await prisma.cachedWikipediaImage.findFirst({
-      where: { expiresAt: { gte: now } },
+      where: { expiresAt: { gte: now }, language: 'fr' },
       skip: randomOffset,
     })
 

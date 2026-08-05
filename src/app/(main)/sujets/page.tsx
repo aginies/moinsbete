@@ -46,6 +46,7 @@ export default async function SujetsPage() {
           following: { select: { id: true } },
           saviezVousCardVisible: true,
           wikipediaImageCardVisible: true,
+          wikipediaImageShowEn: true,
           radioFranceCardVisible: true,
           imageWikimediaCardVisible: true,
           imageWikiLovesCardVisible: true,
@@ -67,6 +68,7 @@ export default async function SujetsPage() {
         visibility: u ? {
           saviezVous: u.saviezVousCardVisible ?? true,
           wikipedia: u.wikipediaImageCardVisible ?? true,
+          wikipediaShowEn: u.wikipediaImageShowEn ?? false,
           radioFrance: u.radioFranceCardVisible ?? true,
           wikimedia: u.imageWikimediaCardVisible ?? true,
           wikiloves: u.imageWikiLovesCardVisible ?? true,

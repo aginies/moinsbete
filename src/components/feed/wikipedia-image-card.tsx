@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { Camera, ExternalLink, AlertCircle, Bookmark } from 'lucide-react'
+import { Camera, ExternalLink, AlertCircle, Bookmark, Filter } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl, sanitizeUrl, generateImageId } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
@@ -40,11 +40,16 @@ interface WikipediaImageCardProps {
   enableAutoRefresh?: boolean
   storageKey?: string
   isVisible?: boolean
+  wikipediaImageShowEn?: boolean
 }
 
-async function fetchRandomImage(): Promise<{ data: ImageData | null; error: string | null }> {
+async function fetchRandomImage(showFr: boolean, showEn: boolean): Promise<{ data: ImageData | null; error: string | null }> {
   try {
-    const res = await fetch('/api/wikipedia-image', { signal: AbortSignal.timeout(8000) })
+    const params = new URLSearchParams()
+    if (showFr) params.set('lang', 'fr')
+    if (showEn) params.set('lang', params.get('lang') ? `${params.get('lang')},en` : 'en')
+    const url = `/api/wikipedia-image?${params.toString()}`
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
     const data = await res.json()
     if (data.error) return { data: null, error: data.error }
     return { data, error: null }
@@ -65,8 +70,12 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
   enableAutoRefresh = false,
   storageKey = 'image_du_jour',
   isVisible,
+  wikipediaImageShowEn: initialShowEn,
 }: WikipediaImageCardProps) {
   const t = useTranslations('feed')
+  const [showFr, setShowFr] = useState(true)
+  const [showEn, setShowEn] = useState(initialShowEn ?? false)
+  const [showFilter, setShowFilter] = useState(true)
   const [image, setImage] = useState<ImageData | null>(() => {
     if (typeof sessionStorage === 'undefined') return null
     const saved = sessionStorage.getItem('wikipedia_image')
@@ -81,14 +90,14 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
   const [showFullImage, setShowFullImage] = useState(false)
 
   const prefetchNextImage = useCallback(async () => {
-    const { data, error } = await fetchRandomImage()
+    const { data, error } = await fetchRandomImage(showFr, showEn)
     if (data) {
       setNextImage(data)
     }
     if (error) {
       setRateLimitError(error)
     }
-  }, [])
+  }, [showFr, showEn])
 
   const loadImage = useCallback(async () => {
     if (loading) return
@@ -104,7 +113,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
       setError(false)
       setImageError(false)
       setRateLimitError(null)
-      const { data: newImage, error } = await fetchRandomImage()
+      const { data: newImage, error } = await fetchRandomImage(showFr, showEn)
       if (newImage) {
         setImage(newImage)
         sessionStorage.setItem('wikipedia_image', JSON.stringify(newImage))
@@ -117,9 +126,26 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
       }
       setLoading(false)
     }
-  }, [loading, nextImage])
+  }, [loading, nextImage, showFr, showEn])
 
   useAutoRefresh('imageDuJour', loadImage)
+
+  const handleToggleLang = useCallback(async (lang: 'fr' | 'en') => {
+    const nextFr = lang === 'fr' ? !showFr : showFr
+    const nextEn = lang === 'en' ? !showEn : showEn
+    if (!nextFr && !nextEn) return
+    setShowFr(nextFr)
+    setShowEn(nextEn)
+    try {
+      await fetch('/api/user-card-visibility', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ field: 'wikipediaImageShowEn', value: nextEn }),
+      })
+    } catch (err) {
+      console.error('Failed to toggle language filter:', err)
+    }
+  }, [showFr, showEn])
 
   const {
     bind,
@@ -234,6 +260,33 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
         />
       )}
 
+      {showFilter && (
+        <div className="mb-3 flex gap-1.5 flex-wrap">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleToggleLang('fr') }}
+            className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+              showFr
+                ? 'bg-teal-600 text-white border-teal-600'
+                : 'bg-white dark:bg-neutral-800 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800 hover:border-teal-400'
+            }`}
+          >
+            FR
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleToggleLang('en') }}
+            className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+              showEn
+                ? 'bg-teal-600 text-white border-teal-600'
+                : 'bg-white dark:bg-neutral-800 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800 hover:border-teal-400'
+            }`}
+          >
+            EN
+          </button>
+        </div>
+      )}
+
       {hasImage && !loading && (
         <div
           className={'mb-3 overflow-hidden rounded-lg border ' + c.imageBorder + ' ' + c.imageBorderDark + ' cursor-pointer'}
@@ -260,7 +313,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
           {image.description}
         </p>
       )}
-      {image && (
+       {image && (
         <div className="mt-3">
           <Link
             href={sanitizeUrl(image.fileUrl)}
@@ -274,6 +327,18 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
           </Link>
         </div>
       )}
+
+      <div className="flex items-center justify-end gap-2 mt-3">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setShowFilter(prev => !prev) }}
+          className={'rounded-full p-1.5 ' + c.hoverBg + ' ' + c.hoverBgDark + ' transition-all'}
+          title={showFilter ? t('hide_categories') : t('show_categories')}
+          aria-label={showFilter ? t('hide_categories') : t('show_categories')}
+        >
+          <Filter className={`h-4 w-4 sm:h-5 sm:w-5 ${showFilter ? 'fill-current' : ''}`} />
+        </button>
+      </div>
     </CardShell>
   )
 

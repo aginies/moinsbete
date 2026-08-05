@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
       where: { id: session.user.id },
       select: {
         wikipediaImageCardVisible: true,
+        wikipediaImageShowEn: true,
         saviezVousCardVisible: true,
         radioFranceCardVisible: true,
         imageWikimediaCardVisible: true,
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest) {
 
     const validFields = [
       'wikipediaImageCardVisible',
+      'wikipediaImageShowEn',
       'saviezVousCardVisible',
       'radioFranceCardVisible',
       'imageWikimediaCardVisible',

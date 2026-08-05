@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { getSession } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
@@ -94,15 +95,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 
+    const session = await getSession()
+    const langParam = request.nextUrl.searchParams.get('lang')
+    let languages: string[]
+    if (langParam) {
+      languages = langParam.split(',').filter(Boolean)
+    } else if (session?.user) {
+      const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { wikipediaImageShowEn: true } })
+      languages = user?.wikipediaImageShowEn ? ['fr', 'en'] : ['fr']
+    } else {
+      languages = ['fr']
+    }
+
     // Try cache first
     const totalCached = await prisma.cachedWikipediaImage.count({
-      where: { expiresAt: { gte: new Date() } },
+      where: {
+        expiresAt: { gte: new Date() },
+        language: { in: languages },
+      },
     })
 
     if (totalCached > 0) {
       const randomOffset = Math.floor(Math.random() * totalCached)
       const randomEntry = await prisma.cachedWikipediaImage.findFirst({
-        where: { expiresAt: { gte: new Date() } },
+        where: {
+          expiresAt: { gte: new Date() },
+          language: { in: languages },
+        },
         skip: randomOffset,
       })
 
@@ -116,7 +135,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Cache empty — scrape fresh (fallback)
+    // Cache empty — scrape fresh (fallback, FR only)
     const usedArchives = new Set<string>()
     const maxRetries = 5
     let entries: ImageEntry[] = []

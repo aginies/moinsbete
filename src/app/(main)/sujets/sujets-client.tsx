@@ -38,6 +38,7 @@ interface SujetsClientProps {
 interface CardVisibility {
   saviezVous: boolean
   wikipedia: boolean
+  wikipediaShowEn: boolean
   radioFrance: boolean
   wikimedia: boolean
   wikiloves: boolean
@@ -75,15 +76,15 @@ const CARD_DISPLAY_NAMES: Record<string, string> = {
   citation: 'citation_tab',
 }
 
-const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null, userId: string | undefined, hasUserId: boolean) => React.ReactElement | null> = {
+const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null, userId: string | undefined, hasUserId: boolean, visibility: CardVisibility | undefined) => React.ReactElement | null> = {
   saviezVous: (config, fact) => {
     if (!fact) return null
     return (
       <SaviezVousCard id={fact.id} text={fact.text} sourceUrl={fact.sourceUrl} imageFilename={fact.imageFilename} onToggle={config.toggle} isVisible={config.isVisible} linkAs={`/le-saviez-vous?factId=${fact.id}`} />
     )
   },
-  wikipedia: (config) => (
-    <WikipediaImageCard onToggle={config.toggle} mediumImage isVisible={config.isVisible} />
+  wikipedia: (config, _, __, ___, vis) => (
+    <WikipediaImageCard onToggle={config.toggle} mediumImage isVisible={config.isVisible} wikipediaImageShowEn={(vis as any)?.wikipediaShowEn ?? false} />
   ),
   cnrs: (config) => (
     <CnrsNewsCard onToggle={config.toggle} isVisible={config.isVisible} />
@@ -154,7 +155,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const isAllSelected = allTopics.length > 0 && followedIdsSet.size === allTopics.length
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
-    saviezVous: true, wikipedia: true, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, portailWikipedia: true, proverbe: true, news: true, f1: true, citation: true, pixabayActiveCategory: 'bird',
+    saviezVous: true, wikipedia: true, wikipediaShowEn: false, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, portailWikipedia: true, proverbe: true, news: true, f1: true, citation: true, pixabayActiveCategory: 'bird',
   })
 
   const lastSyncedRef = useRef<string | null>(null)
@@ -301,7 +302,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         if (!renderer) return null
         return (
           <div key={card.key} className="mb-4 sm:mb-6" id={card.key}>
-            {renderer(card, saviezVousFact, userId, hasUserId)}
+            {renderer(card, saviezVousFact, userId, hasUserId, visibility)}
           </div>
         )
       })}

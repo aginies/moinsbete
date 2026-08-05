@@ -10,8 +10,8 @@ interface ImageEntry {
 }
 
 const MONTHS = [
-  'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-  'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre',
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ]
 
 const START_YEAR = 2016
@@ -19,21 +19,17 @@ const END_YEAR = 2026
 
 function extractEntries(html: string, archive: string): ImageEntry[] {
   const entries: ImageEntry[] = []
-  const h2Regex = /<h2[^>]*>([\s\S]*?)<\/h2>/gi
-  let h2Match: RegExpExecArray | null
 
-  while ((h2Match = h2Regex.exec(html)) !== null) {
-    const h2Content = h2Match[1]
-    const dateMatch = h2Content.match(/(\d{1,2}(?:er)?\s+[a-zàâæçéèêëîïôœùûüÿ]+(?:\s+[a-zàâæçéèêëîïôœùûüÿ]+)?\s+\d{4})/i)
-    if (!dateMatch) continue
+  const datePattern = /<span class="anchor nowrap" id="(\d+)"><b>(.+?)<\/b><\/span>/g
+  let dateMatch: RegExpExecArray | null
 
-    const date = dateMatch[1].replace(/<[^>]*>/g, '').trim()
-    // Search in a larger context after the h2 tag
-    const afterH2 = html.slice(h2Match.index + h2Match[0].length, h2Match.index + h2Match[0].length + 5000)
+  while ((dateMatch = datePattern.exec(html)) !== null) {
+    const date = dateMatch[2].trim()
+    const afterDate = html.slice(dateMatch.index + dateMatch[0].length, dateMatch.index + dateMatch[0].length + 5000)
 
-    const imgSrcMatch = afterH2.match(/src="(\/\/upload\.wikimedia\.org[^"]+)"/)
-    const imgAltMatch = afterH2.match(/alt="([^"]+)"/)
-    const fileHrefMatch = afterH2.match(/href="\/wiki\/Fichier:([^"]+)"/)
+    const imgSrcMatch = afterDate.match(/src="(\/\/upload\.wikimedia\.org[^"]+)"/)
+    const imgAltMatch = afterDate.match(/alt="([^"]+)"/)
+    const fileHrefMatch = afterDate.match(/href="\/wiki\/File:([^"]+)"/)
 
     if (imgSrcMatch && imgAltMatch && fileHrefMatch) {
       let imageUrl = `https:${imgSrcMatch[1]}`
@@ -43,8 +39,8 @@ function extractEntries(html: string, archive: string): ImageEntry[] {
 
       entries.push({
         imageUrl,
-        description: imgAltMatch[1].replace(/\s*\([^)]*définition réelle[^)]*\)/, '').trim(),
-        fileUrl: `https://fr.wikipedia.org/wiki/Fichier:${fileHrefMatch[1]}`,
+        description: imgAltMatch[1].trim(),
+        fileUrl: `https://en.wikipedia.org/wiki/File:${fileHrefMatch[1]}`,
         date,
         archive,
       })
@@ -59,18 +55,18 @@ function extractEntries(html: string, archive: string): ImageEntry[] {
 async function fetchArchive(archiveName: string): Promise<ImageEntry[] | null> {
   try {
     const data = await fetch(
-      `https://fr.wikipedia.org/w/api.php?action=parse&page=Wikip%C3%A9dia:Image_du_jour/${encodeURIComponent(archiveName)}&prop=text&format=json`,
+      `https://en.wikipedia.org/w/api.php?action=parse&page=Wikipedia:Picture_of_the_day/${encodeURIComponent(archiveName)}&prop=text&format=json`,
       {
         headers: { 'User-Agent': 'moinsbete/1.0 (https://moinsbete.guibo.com; bot-traffic@wikimedia.org)' },
         signal: AbortSignal.timeout(15000),
       }
     )
-    
+
     if (!data.ok) return null
-    
+
     const json = await data.json()
     if (!json?.parse?.text?.['*']) return null
-    
+
     return extractEntries(json.parse.text['*'], archiveName)
   } catch {
     return null
@@ -90,28 +86,26 @@ function nameToMonth(name: string): { month: number; year: number } | null {
   return { month: monthIdx, year }
 }
 
-export async function scrapeAndCacheWikipediaImages(count: number = 1): Promise<void> {
-  console.log('📸 Scraping Wikipedia Image du Jour...')
-  
-  // Get last fetched month from config
-  const config = await prisma.cachedConfig.findUnique({ where: { key: 'lastFetchedWikipediaMonth' } })
+export async function scrapeAndCacheWikipediaImagesEN(count: number = 1): Promise<void> {
+  console.log('📸 Scraping Wikipedia (EN) Picture of the Day...')
+
+  const config = await prisma.cachedConfig.findUnique({ where: { key: 'lastFetchedWikipediaMonth_en' } })
   let lastFetched: { month: number; year: number } | null = null
-  
+
   if (config?.value) {
     lastFetched = nameToMonth(config.value)
   }
-  
+
   if (!lastFetched || lastFetched.year > END_YEAR || (lastFetched.year === END_YEAR && lastFetched.month >= 11)) {
     lastFetched = { month: 0, year: START_YEAR }
   }
-  
+
   let totalImages = 0
-  
+
   for (let i = 0; i < count; i++) {
-    // Calculate next month
     let nextMonth: number
     let nextYear: number
-    
+
     if (lastFetched) {
       nextMonth = lastFetched.month + 1
       nextYear = lastFetched.year
@@ -119,73 +113,71 @@ export async function scrapeAndCacheWikipediaImages(count: number = 1): Promise<
       nextMonth = 0
       nextYear = START_YEAR
     }
-    
+
     if (nextMonth > 11) {
       nextMonth = 0
       nextYear++
     }
-    
-    // If we've gone past END_YEAR, reset to START_YEAR
+
     if (nextYear > END_YEAR) {
       nextMonth = 0
       nextYear = START_YEAR
     }
-    
+
     const archiveName = monthToName(nextMonth, nextYear)
-    
+
     if (i > 0) {
       console.log(`  Fetching: ${archiveName}`)
     }
-    
+
     const entries = await fetchArchive(archiveName)
-    
+
     if (entries && entries.length > 0) {
       console.log(`  ${archiveName}: ${entries.length} images`)
-      
+
       const now2 = new Date()
       const expiresAt = new Date(now2.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
-      
- const upserts = entries.map(image => ({
-    where: { imageUrl_date_language: { imageUrl: image.imageUrl, date: image.date, language: 'fr' } },
-    update: { ...image, language: 'fr', scrapedAt: now2, expiresAt },
-    create: { ...image, language: 'fr', scrapedAt: now2, expiresAt },
-  }))
-  await prisma.$transaction(upserts.map(u => 
-    prisma.cachedWikipediaImage.upsert(u)
-  ))
-      
+
+      const upserts = entries.map(image => ({
+        where: { imageUrl_date_language: { imageUrl: image.imageUrl, date: image.date, language: 'en' } },
+        update: { ...image, language: 'en', scrapedAt: now2, expiresAt },
+        create: { ...image, language: 'en', scrapedAt: now2, expiresAt },
+      }))
+      await prisma.$transaction(upserts.map(u =>
+        prisma.cachedWikipediaImage.upsert(u)
+      ))
+
       totalImages += entries.length
-      
-      // Update last fetched month
+
       await prisma.cachedConfig.upsert({
-        where: { key: 'lastFetchedWikipediaMonth' },
+        where: { key: 'lastFetchedWikipediaMonth_en' },
         update: { value: archiveName },
-        create: { key: 'lastFetchedWikipediaMonth', value: archiveName },
+        create: { key: 'lastFetchedWikipediaMonth_en', value: archiveName },
       })
     } else {
-      console.log(`  ${archiveName}: aucune donnée`)
+      console.log(`  ${archiveName}: no data`)
     }
-    
+
     lastFetched = { month: nextMonth, year: nextYear }
-    
+
     if (i < count - 1) {
       await sleep(3000)
     }
   }
-  
+
   if (totalImages > 0) {
-    console.log(`  ✅ ${totalImages} images upserted au total`)
+    console.log(`  ✅ ${totalImages} images upserted (EN)`)
   }
-  
+
   await cleanupExpired()
 }
 
-if (process.argv[1]?.includes('cache-wikipedia-image')) {
+if (process.argv[1]?.includes('cache-wikipedia-image-en')) {
   const monthsArg = process.argv.includes('--months')
     ? parseInt(process.argv[process.argv.indexOf('--months') + 1], 10)
     : 1
-  
-  scrapeAndCacheWikipediaImages(monthsArg || 1)
+
+  scrapeAndCacheWikipediaImagesEN(monthsArg || 1)
     .then(() => {
       console.log('Done!')
       process.exit(0)
