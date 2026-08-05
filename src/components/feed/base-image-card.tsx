@@ -8,9 +8,11 @@ import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { ImageLightbox } from './image-lightbox'
 import { ImageHint } from './image-hint'
+import { SwipeBackgroundCard } from './swipe-background-card'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { CardShell } from './card-shell'
 import { ImageLoading } from './image-loading'
+import { isValidUrl } from '@/lib/utils'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import type { BookmarkType } from '@/generated/client'
@@ -126,6 +128,7 @@ export function BaseImageCard<TTopic>({
     const saved = sessionStorage.getItem(imageStorageKey)
     return saved ? JSON.parse(saved) : null
   })
+  const [nextImage, setNextImage] = useState<BaseImage | null>(null)
   const [loading, setLoading] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [error, setError] = useState(false)
@@ -133,7 +136,26 @@ export function BaseImageCard<TTopic>({
   const [isFavorite, setIsFavorite] = useState(false)
   const checkedImageIdsRef = useRef<Set<string>>(new Set())
 
+  const prefetchNextImage = useCallback(async () => {
+    const activeTopicIds = topics.filter((t: any) => t.active).map((t: any) => t.id)
+    const data = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined)
+    if (data) {
+      setNextImage(data)
+    }
+  }, [fetchFn, topics])
+
   const loadImage = useCallback(async () => {
+    if (nextImage) {
+      setImage(nextImage)
+      setNextImage(null)
+      setError(false)
+      setIsImageLoaded(true)
+      onImageLoaded()
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(imageStorageKey, JSON.stringify(nextImage))
+      }
+      return
+    }
     setLoading(true)
     setError(false)
     setIsImageLoaded(false)
@@ -152,7 +174,7 @@ export function BaseImageCard<TTopic>({
       sessionStorage.removeItem(imageStorageKey)
     }
     setLoading(false)
-  }, [fetchFn, topics, imageStorageKey])
+  }, [fetchFn, topics, imageStorageKey, nextImage])
 
   useAutoRefresh(storageKey || 'base', loadImage)
 
@@ -199,12 +221,16 @@ export function BaseImageCard<TTopic>({
   const {
     bind,
     containerRef,
+    dragX,
     swipeStyle,
     isDragging,
     prefersReducedMotion,
+    prevHintOpacity,
+    nextHintOpacity,
   } = useSwipeGesture({
     onSwipeLeft: loadImage,
     onSwipeRight: loadImage,
+    onDragStart: prefetchNextImage,
     onRefresh: loadImage,
     swipeable,
     resetDep: image?.imageUrl,
@@ -214,6 +240,9 @@ export function BaseImageCard<TTopic>({
     setShowFullImage(show)
     onShowFullImageChange?.(show)
   }, [onShowFullImageChange])
+
+  const absX = Math.abs(dragX)
+  const bgOpacity = isDragging && absX > 0 ? Math.min(0.2 + (absX / 200) * 0.8, 1) : 0
 
   if (!image && !loading) {
     return null
@@ -344,6 +373,39 @@ export function BaseImageCard<TTopic>({
     if (swipeable) {
       return (
         <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()} suppressHydrationWarning>
+          {prevHintOpacity > 0 && (
+            <div
+              className="pointer-events-none absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-green-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
+              style={{ opacity: prevHintOpacity }}
+            >
+              ← Précédent
+            </div>
+          )}
+
+          {nextHintOpacity > 0 && (
+            <div
+              className="pointer-events-none absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-blue-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
+              style={{ opacity: nextHintOpacity }}
+            >
+              Suivant →
+            </div>
+          )}
+
+          {nextImage && bgOpacity > 0 && (
+            <SwipeBackgroundCard
+              title={title}
+              icon={icon}
+              color={color}
+            >
+              {nextImage.imageUrl && (
+                <div className={`mb-3 overflow-hidden rounded-lg border ${imageBorderClass} h-48`}>
+                  {renderImage(nextImage)}
+                </div>
+              )}
+              {renderMetadata(nextImage)}
+            </SwipeBackgroundCard>
+          )}
+
           <div
             className={`w-full relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
             style={swipeStyle}
