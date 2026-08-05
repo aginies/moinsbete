@@ -82,7 +82,7 @@ function WikimediaFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSh
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
-        <ShareToLobbyButton resourceId={item.docid} resourceType="IMAGE_WIKIMEDIA" />
+        <ShareToLobbyButton resourceId={item.docid} resourceType="IMAGE_WIKIMEDIA" meta={{ titre: item.titre, auteur: item.auteur, imageUrl: item.imageUrl, link: item.link, droits: item.droits }} />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"

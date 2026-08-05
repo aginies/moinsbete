@@ -159,10 +159,9 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const citationIds = citationBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = proverbeConfig ? JSON.parse(proverbeConfig.value) : []
 
-    const [saviezFacts, wikiImages, wikiMediaImages, wikiLovesImages, cachedNewsArticles, cachedPortailWikiArticles, cachedCitationArticles] = await prisma.$transaction([
+    const [saviezFacts, wikiImages, wikiLovesImages, cachedNewsArticles, cachedPortailWikiArticles, cachedCitationArticles] = await prisma.$transaction([
       prisma.saviezVousFact.findMany({ where: saviezIds.length > 0 ? { id: { in: saviezIds } } : {} }),
       prisma.cachedWikipediaImage.findMany({ where: imageIds.length > 0 ? { fileUrl: { in: imageIds } } : {} }),
-      prisma.cachedWikiLovesImage.findMany({ where: wikiMediaIds.length > 0 ? { docid: { in: wikiMediaIds }, source: 'EARTH' } : {} }),
       prisma.cachedWikiLovesImage.findMany({ where: wikiLovesIds.length > 0 ? { docid: { in: wikiLovesIds } } : {} }),
       prisma.cachedNewsArticle.findMany({ where: newsIds.length > 0 ? { url: { in: newsIds } } : {} }),
       prisma.cachedWikipediaPortalArticle.findMany({ where: portailWikiIds.length > 0 ? { id: { in: portailWikiIds } } : {} }),
@@ -181,7 +180,6 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const saviezMap = new Map(saviezFacts.map((f: SaviezVousFact) => [f.id, f]))
     const imageMap = new Map<string, CachedWikipediaImage>()
     wikiImages.forEach((i: CachedWikipediaImage) => imageMap.set(i.fileUrl, i))
-    const wikiMediaMap = new Map(wikiMediaImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
     const wikiLovesMap = new Map(wikiLovesImages.map((i: CachedWikiLovesImage) => [i.docid, i]))
     const newsMap = new Map(cachedNewsArticles.map((a: { url: string; title: string; description: string | null; imageUrl: string | null; source: string; category: string }) => [a.url, a]))
     const portailWikiMap = new Map(cachedPortailWikiArticles.map((a: { id: string; title: string; extract: string; imageUrl: string | null; pageUrl: string }) => [a.id, a]))
@@ -277,8 +275,8 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
         return { ...bookmark, wikiImage: image as CachedWikipediaImage | null }
       }
       if (bookmark.resourceType === 'IMAGE_WIKIMEDIA' && bookmark.resourceId) {
-        let image = wikiMediaMap.get(bookmark.resourceId)
-        if (!image && bookmark.meta) {
+        let image = null as CachedWikiLovesImage | null
+        if (bookmark.meta) {
           try {
             const m = typeof bookmark.meta === 'string' ? JSON.parse(bookmark.meta) : bookmark.meta
             if (typeof m === 'object' && m !== null && 'imageUrl' in m) {
