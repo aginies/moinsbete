@@ -21,7 +21,9 @@ if (!globalForPrisma.prisma) {
   prisma.$executeRawUnsafe('PRAGMA busy_timeout=5000;').catch(() => {})
 }
 
-globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
 
 if (typeof window === 'undefined') {
   const shutdown = async (signal: string) => {
