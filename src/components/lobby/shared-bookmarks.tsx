@@ -1309,6 +1309,21 @@ function InsoliteBookmarkItem({
             <Bookmark className="h-4 w-4" />
           </button>
         )}
+        {(currentUserId === bookmark.user.id || isAdmin) && bookmark.resourceId && (
+          <button
+            type="button"
+            onClick={() => {
+              unshareResourceFromLobby('INSOLITE', bookmark.resourceId!).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
+            }}
+            className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/40 transition-all"
+            title="Retirer du lobby"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   )
