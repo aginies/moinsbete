@@ -30,16 +30,19 @@ Les idées bookmarkées entrent dans un cycle de **révision par répétition es
 ```
 moinsbete/
 ├── prisma/
-│   ├── schema.prisma          # Modèle de données
+│   ├── schema.prisma          # Modèle de données (36 modèles)
 │   ├── migrations/            # Migrations Prisma
 │   └── seed.ts                # Création des topics racine
 ├── src/
-│   ├── lib/                   # db, auth, llm, utils, rate-limiter, srs
-│   ├── app/                   # Pages + API routes (incl. /review)
-│   ├── components/            # IdeaCard, Feed, Search, Review, feed cards (News, Proverbe, etc.)
-│   └── scripts/               # seed-ideas, generate-ideas, ingest-wikipedia
+│   ├── lib/                   # db, auth, llm, utils, rate-limiter, srs, bookmarks
+│   ├── app/                   # Pages + API routes (incl. /review, /admin, /lobby)
+│   ├── components/            # IdeaCard, Feed, Review, feed cards (14 sources)
+│   ├── scripts/               # seed-ideas, generate-ideas, ingest-wikipedia, cache-*
+│   ├── actions/               # Server actions (auth, bookmarks, favorites, cron)
+│   ├── hooks/                 # use-card-visibility, use-bookmark-toggle, etc.
+│   └── locales/               # i18n fr/en
 ├── docs/                      # Documentation détaillée
-├── scripts/                   # scrape-saviez-vous, update
+├── scripts/                   # scrape-saviez-vous, update, deploy, install
 ├── .env                       # Variables d'environnement
 └── next.config.ts             # Config Next.js
 ```
@@ -70,6 +73,38 @@ NEXTAUTH_URL="http://localhost:3000"
 
 Voir [docs/CONFIGURATION.md](./CONFIGURATION.md) pour le détail.
 
+## Fonctionnalités
+
+### Cartes feed (14 sources)
+- **Le Saviez-vous** — Faits surprenants de Wikipédia
+- **Wikipedia Image** — Image du jour Wikipédia
+- **CNRS News** — Articles de recherche CNRS
+- **Radio France** — Épisodes radio
+- **NEWS** — Actualités multi-sources
+- **Wikimedia / Wiki Loves / Pixabay** — Images libres de droits
+- **Portail Lexical** — Mot du jour
+- **Portail Wikipédia** — Articles du portail
+- **Proverbe** — Proverbes du monde
+- **Formule 1** — Actualités F1
+- **Citation** — Citations Wikiquote
+- **Articles insolites** — Faits surprenants de Wikipédia (1 par jour)
+
+### Système de révision
+- Bookmarks avec révision espacée (SRS)
+- Plan d'apprentissage avec streak tracking
+- Historique de consultation
+
+### Fonctionnalités sociales
+- Lobby de partage (partager des bookmarks avec d'autres utilisateurs)
+- Favoris personnels et partagés
+- Export HTML des favoris
+
+### Admin
+- Dashboard avec stats par source
+- Gestion des utilisateurs
+- Nettoyage des items expirés
+- Refresh individuel ou global du cache
+
 ## Commandes principales
 
 | Commande | Description |
@@ -77,10 +112,12 @@ Voir [docs/CONFIGURATION.md](./CONFIGURATION.md) pour le détail.
 | `npm run dev` | Serveur de développement |
 | `npm run build` | Build de production |
 | `npx prisma studio` | Interface DB |
+| `npm test` | Exécuter tous les tests (359 tests) |
 | `npx tsx src/scripts/seed-ideas.ts` | Seed manuel |
 | `npx tsx src/scripts/generate-ideas.ts` | Génération LLM |
 | `npx tsx scripts/scrape-saviez-vous.ts` | Scraper Wikipédia |
-| `npx tsx scripts/update-images.ts` | Mettre à jour les images |
+| `npm run cache:all` | Lancer tous les caches |
+| `npm run cache:insolite:enrich` | Enrichir images insolites |
 
 ## Déploiement
 
@@ -92,7 +129,7 @@ Voir [docs/DEVELOPMENT.md](./DEVELOPMENT.md) pour ajouter des topics, générer 
 
 ## Tests
 
-247 tests sur 25 fichiers (vitest).
+359 tests sur 31 fichiers (vitest).
 
 ```bash
 npm test              # Exécuter tous les tests
