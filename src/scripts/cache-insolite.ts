@@ -149,21 +149,29 @@ export async function scrapeAndCacheInsolite(): Promise<{ newCount: number; upda
     return { newCount: 0, updatedCount: 0, deletedCount: 0, totalCount: 0 }
   }
   
-  // Enrich first 5 articles with images from their individual pages
-  const enrichCount = Math.min(5, entries.length)
-  const enrichedEntries = entries.slice(0, enrichCount)
-  const imageResults = await Promise.all(
-    enrichedEntries.map(entry => fetchArticleImage(entry.url))
-  )
+  // Enrich all articles with images from their individual pages
+  const batchSize = 10
+  let totalEnriched = 0
   
-  for (let i = 0; i < enrichCount; i++) {
-    if (imageResults[i]) {
-      entries[i].imageUrl = imageResults[i]
+  for (let i = 0; i < entries.length; i += batchSize) {
+    const batch = entries.slice(i, i + batchSize)
+    const imageResults = await Promise.all(
+      batch.map(entry => fetchArticleImage(entry.url))
+    )
+    
+    for (let j = 0; j < batch.length; j++) {
+      if (imageResults[j]) {
+        entries[i + j].imageUrl = imageResults[j]
+        totalEnriched++
+      }
+    }
+    
+    if (i + batchSize < entries.length) {
+      await sleep(1000)
     }
   }
   
-  const imageCount = imageResults.filter(Boolean).length
-  console.log(`  Enriched ${imageCount}/${enrichCount} articles with images from article pages`)
+  console.log(`  Enriched ${totalEnriched}/${entries.length} articles with images from article pages`)
   
   const now = new Date()
   const expiresAt = new Date(now.getTime() + TTL_MS)
