@@ -23,6 +23,7 @@
 | **CachedF1Article** | Articles F1 en cache (TTL: 24h) |
 | **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache (TTL: 7 jours) |
 | **CachedCitationArticle** | Citations Wikiquote en cache (TTL: 24h) |
+| **CachedInsoliteArticle** | Articles insolites en cache (TTL: 24h) |
 | **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
 | **UserWikiLovesTopic** | Catégories Wiki Loves actives par utilisateur |
 | **SaviezVousFact** | Faits "Le saviez-vous" (static, no TTL) |
@@ -170,11 +171,12 @@ npx tsx scripts/insert_saviez_vous.ts
 | `cache-citation.ts` | Citations Wikiquote | 24h | Quotidien |
 | `cache-portail-lexical.ts` | Mot du jour Portail Lexical | None (upsert-by-date) | Quotidien |
 | `cache-saviez-vous-images.ts` | Images Le saviez-vous | None (static) | Quotidien |
+| `cache-insolite.ts` | Articles insolites | 24h | 6h (rapide) / 7j (enrich) |
 
 `npm run cache:all` lance cache-cnrs, cache-radio-france, cache-wikipedia-image + cleanup (pas scrape-wikiloves, pas cache-news).
 
-Cron `/api/cron/cache` (10 étapes séquentielles):
-1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image → 5. F1 → 6. Portail Wikipédia → 7. Wikiquote → 8. Cleanup (8 cache models) → 9. Saviez-vous → 10. Portail Lexical (WOTD)
+Cron `/api/cron/cache` (12 étapes séquentielles):
+1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image FR → 5. Wikipedia Image EN → 6. F1 → 7. Portail Wikipédia → 8. Wikiquote → 9. Cleanup (9 cache models) → 10. Saviez-vous images → 11. Portail Lexical (WOTD) → 12. Insolite (rapide, --enrich via npm run cache:insolite:enrich)
 
 ```bash
 # Lancer tous les caches (sans wikiloves, sans news)
@@ -191,6 +193,10 @@ npx tsx src/scripts/cache-portail-wikipedia.ts
 npx tsx src/scripts/cache-citation.ts
 npx tsx src/scripts/cache-portail-lexical.ts
 npx tsx src/scripts/cache-saviez-vous-images.ts
+npx tsx src/scripts/cache-insolite.ts
+
+# Avec enrichissement complet des images
+npm run cache:insolite:enrich
 
 # Nettoyer les items expirés
 npx tsx src/scripts/cleanup-cached.ts

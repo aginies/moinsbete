@@ -45,6 +45,7 @@
 | `/api/citation` | GET | Citations Wikiquote | 30/min IP |
 | `/api/portail-wikipedia` | GET | Articles Portail Wikipédia | 30/min IP |
 | `/api/portail-lexical` | GET | Mot du jour Portail Lexical | 30/min IP |
+| `/api/insolite` | GET | Articles insolites (1/jour) | 30/min IP |
 | `/api/card-visibility` | GET | Global card visibility (admin) | — |
 | `/api/user-card-visibility` | GET/POST | Toggle user card visibility (session auth) | 30/min user |
 | `/api/user-card-order` | GET/POST | Get/set user card order (CSRF) | — |
@@ -98,10 +99,10 @@ Rôle `ADMIN` requis pour accéder à `/admin` et aux routes API admin.
 
 ### Onglets admin
 
-1. **Stats** — Compteurs par modèle DB + items expirés (13 cartes feed)
+1. **Stats** — Compteurs par modèle DB + items expirés (14 cartes feed)
 2. **Users** — Liste utilisateurs avec toggle enabled/disabled
-3. **Cartes** — Toggle global visibility par carte feed (13 cartes)
-4. **Cleanup** — Suppression des items expirés (8 cache models)
+3. **Cartes** — Toggle global visibility par carte feed (14 cartes)
+4. **Cleanup** — Suppression des items expirés (9 cache models)
 5. **Cache** — Refresh individuel par source (8 sources) + refresh all
 
 ### Cartes feed — visibilité globale
@@ -123,6 +124,7 @@ Stockée dans `CachedConfig` avec key `cartes_global_visibility` (JSON).
 | Proverbe | `proverbe` | — | CachedConfig JSON |
 | Citation | `citation` | 24h | Wikiquote scraper |
 | Formule 1 | `f1` | 24h | F1 scraper |
+| Articles insolites | `insolite` | 24h | Wikipedia Articles insolites scraper |
 
 ### Cartes feed — visibilité par utilisateur
 
@@ -136,19 +138,19 @@ Champs `User`:
 - `imageWikimediaCardVisible`, `imageWikiLovesCardVisible`, `imagePixabayCardVisible`
 - `imageWikimediaShowCategories`, `imageWikiLovesShowCategories`, `imagePixabayShowCategories`, `imagePixabayActiveCategory`
 - `portailLexicalCardVisible`, `portailWikipediaCardVisible`, `proverbeCardVisible`
-- `newsCardVisible`, `f1CardVisible`, `citationCardVisible`
+- `newsCardVisible`, `f1CardVisible`, `citationCardVisible`, `insoliteCardVisible`
 - `cardNavBarEnabled`
 
 ### Card ordering
 
 Ordre des cartes configurable par utilisateur via `cardOrder` JSON field sur `User` model.
 Fonctionne via `/api/user-card-order` (GET/POST).
-Fallback: `CARD_DEFAULT_ORDER` constant (13 cartes).
+Fallback: `CARD_DEFAULT_ORDER` constant (14 cartes).
 Accessible dans `/mon-compte` avec drag-to-reorder.
 
 ### Nettoyage
 
-Le cleanup supprime les items expirés de la DB (8 cache models):
+Le cleanup supprime les items expirés de la DB (9 cache models):
 
 | Modèle | Condition d'expiration |
 |--------|----------------------|
@@ -160,6 +162,7 @@ Le cleanup supprime les items expirés de la DB (8 cache models):
 | `CachedF1Article` | `expiresAt < now` |
 | `CachedWikipediaPortalArticle` | `expiresAt < now` |
 | `CachedCitationArticle` | `expiresAt < now` |
+| `CachedInsoliteArticle` | `expiresAt < now` |
 
 **Non-cache models** (pas d'expiration):
 - `SaviezVousFact` — static facts, no TTL
@@ -307,6 +310,7 @@ src/components/
 │   ├── f1-card.tsx                      # Carte Formule 1
 │   ├── citation-card.tsx                # Carte Citation Wikiquote
 │   ├── news-card.tsx                    # Carte NEWS
+│   ├── insolite-card.tsx                # Carte Articles insolites
 │   ├── idea-card.tsx                    # Carte d'idée (full + compact)
 │   ├── swipeable-idea-detail.tsx        # Détail swipeable (mobile)
 │   ├── feed.tsx                         # Feed avec infinite scroll
@@ -428,5 +432,6 @@ src/scripts/
 ├── cache-portail-lexical.ts         # Mot du jour Portail Lexical (upsert-by-date)
 ├── cache-saviez-vous-images.ts      # Cache images Le saviez-vous
 ├── cache-portail-lexical.test.ts    # Tests portail lexical
+├── cache-insolite.ts                # Cache Articles insolites (TTL: 24h)
 └── cleanup-cached.ts                # Nettoyage items expirés
 ```
