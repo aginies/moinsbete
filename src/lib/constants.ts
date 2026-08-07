@@ -25,6 +25,6 @@ export const RATE_LIMIT_ERROR_MESSAGE = 'Trop de demandes. Réessayez dans 60 se
 export const MAX_URL_LENGTH = 2048
 
 export const CARD_DEFAULT_ORDER = [
-  'saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news',
-  'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'portailWikipedia', 'proverbe', 'f1', 'citation', 'insolite'
+  'insolite', 'saviezVous', 'wikipedia', 'cnrs', 'radioFrance', 'news',
+  'wikimedia', 'wikiloves', 'pixabay', 'portailLexical', 'portailWikipedia', 'proverbe', 'f1', 'citation'
 ]
