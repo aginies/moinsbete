@@ -126,7 +126,9 @@ export async function pickAndSaveTodayInsoliteArticle(date: string): Promise<Ins
 
   const unseen = validArticles.filter(a => !shownIds.has(a.id))
   const pool = unseen.length > 0 ? unseen : validArticles
-  const article = pool[Math.floor(Math.random() * pool.length)]
+  const articlesWithImage = pool.filter(a => a.imageUrl)
+  const articlePool = articlesWithImage.length > 0 ? articlesWithImage : pool
+  const article = articlePool[Math.floor(Math.random() * articlePool.length)]
 
   if (!article) return null
 
