@@ -76,6 +76,21 @@ export async function pickAndSaveTodayInsoliteArticle(date: string): Promise<Ins
     try {
       const parsed = JSON.parse(config.value)
       shownCount = parsed.shownCount || 0
+      // Return the same article if already picked today
+      if (parsed.selectedId) {
+        const article = await prisma.cachedInsoliteArticle.findUnique({
+          where: { id: parsed.selectedId },
+        })
+        if (article && article.expiresAt >= new Date()) {
+          return {
+            id: article.id,
+            title: article.title,
+            description: article.description || '',
+            url: article.url,
+            imageUrl: article.imageUrl,
+          }
+        }
+      }
     } catch {
       shownCount = 0
     }
@@ -119,6 +134,7 @@ export async function pickAndSaveTodayInsoliteArticle(date: string): Promise<Ins
   const newValue = JSON.stringify({
     shownCount: shownIds.size + (unseen.length > 0 ? 1 : 0),
     shownIds: newShownIds.slice(-100),
+    selectedId: article.id,
   })
 
   await prisma.cachedConfig.upsert({

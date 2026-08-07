@@ -29,6 +29,56 @@ async function fetchPage(): Promise<string> {
   return text
 }
 
+function extractInfoboxImage(html: string): string | null {
+  // Try infobox table first
+  const infoboxMatch = html.match(/<table[^>]*class="[^"]*infobox[^"]*"[^>]*>([\s\S]*?)<\/table>/i)
+  if (infoboxMatch) {
+    const imgMatch = infoboxMatch[1].match(/<img[^>]*src="(\/\/upload\.wikimedia\.org[^"]+)"/i)
+    if (imgMatch) {
+      let imageUrl = `https:${imgMatch[1]}`
+      if (imageUrl.includes('/thumb/') || imageUrl.includes('/thumb/')) {
+        imageUrl = imageUrl.replace(/\/\d+px-/, '/1280px-')
+      }
+      return imageUrl
+    }
+  }
+  
+  // Fallback: first image in mw-parser-output with upload.wikimedia.org
+  const parserMatch = html.match(/<div[^>]*class="[^"]*mw-parser-output[^"]*"[^>]*>([\s\S]*?)<\/div>/i)
+  if (parserMatch) {
+    const imgMatch = parserMatch[1].match(/<img[^>]*src="(\/\/upload\.wikimedia\.org[^"]+)"/i)
+    if (imgMatch) {
+      let imageUrl = `https:${imgMatch[1]}`
+      if (imageUrl.includes('/thumb/') || imageUrl.includes('/thumb/')) {
+        imageUrl = imageUrl.replace(/\/\d+px-/, '/1280px-')
+      }
+      return imageUrl
+    }
+  }
+  
+  return null
+}
+
+async function fetchArticleImage(url: string): Promise<string | null> {
+  try {
+    const pageName = url.replace('https://fr.wikipedia.org/wiki/', '')
+    const apiUrl = `https://fr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(pageName)}&prop=text&format=json`
+    const res = await fetch(apiUrl, {
+      headers: {
+        'User-Agent': 'moinsbete/1.0 (https://moinsbete.app)',
+        'Accept': 'application/json',
+      },
+      signal: AbortSignal.timeout(15000),
+    })
+    if (!res.ok) return null
+    const json = await res.json()
+    if (!json?.parse?.text?.['*']) return null
+    return extractInfoboxImage(json.parse.text['*'])
+  } catch {
+    return null
+  }
+}
+
 function extractArticles(html: string): InsoliteEntry[] {
   const entries: InsoliteEntry[] = []
   
@@ -98,6 +148,22 @@ export async function scrapeAndCacheInsolite(): Promise<{ newCount: number; upda
     console.log('  No articles found, skipping')
     return { newCount: 0, updatedCount: 0, deletedCount: 0, totalCount: 0 }
   }
+  
+  // Enrich first 5 articles with images from their individual pages
+  const enrichCount = Math.min(5, entries.length)
+  const enrichedEntries = entries.slice(0, enrichCount)
+  const imageResults = await Promise.all(
+    enrichedEntries.map(entry => fetchArticleImage(entry.url))
+  )
+  
+  for (let i = 0; i < enrichCount; i++) {
+    if (imageResults[i]) {
+      entries[i].imageUrl = imageResults[i]
+    }
+  }
+  
+  const imageCount = imageResults.filter(Boolean).length
+  console.log(`  Enriched ${imageCount}/${enrichCount} articles with images from article pages`)
   
   const now = new Date()
   const expiresAt = new Date(now.getTime() + TTL_MS)
