@@ -154,6 +154,8 @@ export async function scrapeAndCacheInsolite(): Promise<{ newCount: number; upda
   let totalEnriched = 0
   
   for (let i = 0; i < entries.length; i += batchSize) {
+    const batchNum = Math.floor(i / batchSize) + 1
+    const totalBatches = Math.ceil(entries.length / batchSize)
     const batch = entries.slice(i, i + batchSize)
     const imageResults = await Promise.all(
       batch.map(entry => fetchArticleImage(entry.url))
@@ -165,6 +167,8 @@ export async function scrapeAndCacheInsolite(): Promise<{ newCount: number; upda
         totalEnriched++
       }
     }
+    
+    console.log(`  Image batch ${batchNum}/${totalBatches}: ${totalEnriched}/${entries.length} enriched`)
     
     if (i + batchSize < entries.length) {
       await sleep(1000)
