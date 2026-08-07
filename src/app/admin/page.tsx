@@ -52,6 +52,8 @@ export default async function AdminPage() {
     latestSaviezVous,
     latestPortailWiki,
     latestCitation,
+    latestInsolite,
+    insoliteConfigCount,
   ] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
     prisma.topic.count(),
@@ -75,26 +77,30 @@ export default async function AdminPage() {
 f1Expired: bigint
        portailWikipediaTotal: bigint
        portailWikipediaExpired: bigint
-       citationTotal: bigint
-       citationExpired: bigint
-     }>>`
-      SELECT
-        (SELECT COUNT(*) FROM CachedCnrsArticle) as cnrsTotal,
-        (SELECT COUNT(*) FROM CachedCnrsArticle WHERE datetime(expiresAt) < datetime('now')) as cnrsExpired,
-        (SELECT COUNT(*) FROM CachedRadioEpisode) as radioTotal,
-        (SELECT COUNT(*) FROM CachedRadioEpisode WHERE datetime(expiresAt) < datetime('now')) as radioExpired,
-        (SELECT COUNT(*) FROM CachedWikipediaImage) as wikiImageTotal,
-        (SELECT COUNT(*) FROM CachedWikipediaImage WHERE datetime(expiresAt) < datetime('now')) as wikiImageExpired,
-        (SELECT COUNT(*) FROM CachedWikiLovesImage) as wikiLovesTotal,
-        (SELECT COUNT(*) FROM CachedWikiLovesImage WHERE datetime(expiresAt) < datetime('now')) as wikiLovesExpired,
-        (SELECT COUNT(*) FROM CachedNewsArticle) as newsTotal,
-        (SELECT COUNT(*) FROM CachedNewsArticle WHERE datetime(expiresAt) < datetime('now')) as newsExpired,
-        (SELECT COUNT(*) FROM CachedF1Article) as f1Total,
-        (SELECT COUNT(*) FROM CachedF1Article WHERE datetime(expiresAt) < datetime('now')) as f1Expired,
-(SELECT COUNT(*) FROM CachedWikipediaPortalArticle) as portailWikipediaTotal,
-         (SELECT COUNT(*) FROM CachedWikipediaPortalArticle WHERE datetime(expiresAt) < datetime('now')) as portailWikipediaExpired,
-         (SELECT COUNT(*) FROM CachedCitationArticle) as citationTotal,
-         (SELECT COUNT(*) FROM CachedCitationArticle WHERE datetime(expiresAt) < datetime('now')) as citationExpired
+        citationTotal: bigint
+        citationExpired: bigint
+        insoliteTotal: bigint
+        insoliteExpired: bigint
+      }>>`
+       SELECT
+         (SELECT COUNT(*) FROM CachedCnrsArticle) as cnrsTotal,
+         (SELECT COUNT(*) FROM CachedCnrsArticle WHERE datetime(expiresAt) < datetime('now')) as cnrsExpired,
+         (SELECT COUNT(*) FROM CachedRadioEpisode) as radioTotal,
+         (SELECT COUNT(*) FROM CachedRadioEpisode WHERE datetime(expiresAt) < datetime('now')) as radioExpired,
+         (SELECT COUNT(*) FROM CachedWikipediaImage) as wikiImageTotal,
+         (SELECT COUNT(*) FROM CachedWikipediaImage WHERE datetime(expiresAt) < datetime('now')) as wikiImageExpired,
+         (SELECT COUNT(*) FROM CachedWikiLovesImage) as wikiLovesTotal,
+         (SELECT COUNT(*) FROM CachedWikiLovesImage WHERE datetime(expiresAt) < datetime('now')) as wikiLovesExpired,
+         (SELECT COUNT(*) FROM CachedNewsArticle) as newsTotal,
+         (SELECT COUNT(*) FROM CachedNewsArticle WHERE datetime(expiresAt) < datetime('now')) as newsExpired,
+         (SELECT COUNT(*) FROM CachedF1Article) as f1Total,
+         (SELECT COUNT(*) FROM CachedF1Article WHERE datetime(expiresAt) < datetime('now')) as f1Expired,
+         (SELECT COUNT(*) FROM CachedWikipediaPortalArticle) as portailWikipediaTotal,
+          (SELECT COUNT(*) FROM CachedWikipediaPortalArticle WHERE datetime(expiresAt) < datetime('now')) as portailWikipediaExpired,
+          (SELECT COUNT(*) FROM CachedCitationArticle) as citationTotal,
+          (SELECT COUNT(*) FROM CachedCitationArticle WHERE datetime(expiresAt) < datetime('now')) as citationExpired,
+          (SELECT COUNT(*) FROM CachedInsoliteArticle) as insoliteTotal,
+          (SELECT COUNT(*) FROM CachedInsoliteArticle WHERE datetime(expiresAt) < datetime('now')) as insoliteExpired
     `,
     prisma.saviezVousFact.count(),
     prisma.bookmark.count({
@@ -130,6 +136,8 @@ f1Expired: bigint
     prisma.saviezVousFact.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
     prisma.cachedWikipediaPortalArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
     prisma.cachedCitationArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
+    prisma.cachedInsoliteArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
+    prisma.cachedConfig.count({ where: { key: { startsWith: 'insolite_' } } }),
   ])
 
   const stats = cacheStats[0]
@@ -147,8 +155,10 @@ f1Expired: bigint
   const f1ExpiredCount = Number(stats.f1Expired)
   const portailWikipediaCount = Number(stats.portailWikipediaTotal)
   const portailWikipediaExpiredCount = Number(stats.portailWikipediaExpired)
-  const citationCount = Number(stats.citationTotal)
-  const citationExpiredCount = Number(stats.citationExpired)
+   const citationCount = Number(stats.citationTotal)
+   const citationExpiredCount = Number(stats.citationExpired)
+   const insoliteCount = Number(stats.insoliteTotal)
+   const insoliteExpiredCount = Number(stats.insoliteExpired)
 
   const formatScrapedAt = (date: Date | null) => {
     if (!date) return null
@@ -198,10 +208,14 @@ f1Expired: bigint
         portailWikipediaArticles: portailWikipediaCount,
         portailWikipediaExpired: portailWikipediaExpiredCount,
         portailWikipediaScrapedAt: formatScrapedAt(latestPortailWiki?.scrapedAt ?? null),
-        citationArticles: citationCount,
-        citationExpired: citationExpiredCount,
-        citationScrapedAt: formatScrapedAt(latestCitation?.scrapedAt ?? null),
-      }}
+         citationArticles: citationCount,
+         citationExpired: citationExpiredCount,
+         citationScrapedAt: formatScrapedAt(latestCitation?.scrapedAt ?? null),
+         insoliteArticles: insoliteCount,
+         insoliteExpired: insoliteExpiredCount,
+          insoliteScrapedAt: formatScrapedAt(latestInsolite?.scrapedAt ?? null),
+          insoliteConfigCount: insoliteConfigCount,
+        }}
       users={adminUsers}
     />
   )

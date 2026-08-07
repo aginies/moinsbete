@@ -37,6 +37,7 @@ model User {
   f1CardVisible                Boolean               @default(true)
   proverbeCardVisible          Boolean               @default(true)
   citationCardVisible          Boolean               @default(true)
+  insoliteCardVisible          Boolean               @default(true)
   cardOrder                    Json?
   newsCardVisible              Boolean?              @default(true)
   cardNavBarEnabled            Boolean               @default(true)
@@ -401,6 +402,20 @@ model CachedCitationArticle {
   @@unique([author, text])
 }
 
+model CachedInsoliteArticle {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @default("")
+  url         String
+  imageUrl    String?
+  category    String?  @default("général")
+  scrapedAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+  @@index([category])
+}
+
 model UserSuggestion {
   id          String              @id @default(cuid())
   userId      String
@@ -489,4 +504,5 @@ enum BookmarkType {
   F1
   PORTAIL_WIKIPEDIA
   CITATION
+  INSOLITE
 }

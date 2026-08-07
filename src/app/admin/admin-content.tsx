@@ -12,13 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers, Trophy, BarChart3, Map } from 'lucide-react'
+import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers, Trophy, BarChart3, Map, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { clearAllNewsAction, clearFreenewsapiAction } from '@/actions/cleanup-actions'
-import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshPortailWikipedia, refreshAll } from '@/actions/cache-refresh-actions'
+import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshPortailWikipedia, refreshInsolite, refreshAll } from '@/actions/cache-refresh-actions'
 import type { RefreshResult } from '@/actions/cache-refresh-actions'
 import { toggleUserEnabled, deleteUser } from '@/actions/user-actions'
 import { updateGlobalCardVisibility } from '@/actions/card-actions'
@@ -61,6 +61,10 @@ export interface AdminStats {
   citationArticles: number
   citationExpired: number
   citationScrapedAt: string | null
+   insoliteArticles: number
+   insoliteExpired: number
+   insoliteScrapedAt: string | null
+   insoliteConfigCount: number
 }
 
 export interface AdminUser {
@@ -246,13 +250,24 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                label={t('feed.proverbes')}
                value={stats.proverbesCached}
              />
-             <StatCard
-               icon={<Quote className="h-5 w-5" />}
-               label={t('feed.citation_articles')}
-               value={stats.citationArticles}
-               sublabel={stats.citationExpired > 0 ? `${stats.citationExpired} ${t('feed.expired')}` : undefined}
-             />
-           </div>
+              <StatCard
+                icon={<Quote className="h-5 w-5" />}
+                label={t('feed.citation_articles')}
+                value={stats.citationArticles}
+                sublabel={stats.citationExpired > 0 ? `${stats.citationExpired} ${t('feed.expired')}` : undefined}
+              />
+              <StatCard
+                icon={<Sparkles className="h-5 w-5" />}
+                label={t('feed.insolite_articles')}
+                value={stats.insoliteArticles}
+                sublabel={stats.insoliteExpired > 0 ? `${stats.insoliteExpired} ${t('feed.expired')}` : undefined}
+              />
+              <StatCard
+                icon={<Sparkles className="h-5 w-5" />}
+                label={t('feed.insolite_seen_today')}
+                value={stats.insoliteConfigCount}
+              />
+            </div>
         </TabsContent>
 
         <TabsContent value="users">
@@ -361,7 +376,16 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                     <span className="font-medium text-destructive">{stats.citationExpired}</span>
                   </div>
                 )}
-                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && stats.f1Expired === 0 && stats.portailWikipediaExpired === 0 && stats.citationExpired === 0 && (
+                {stats.insoliteExpired > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-muted-foreground" />
+                      Articles insolites expirés
+                    </span>
+                    <span className="font-medium text-destructive">{stats.insoliteExpired}</span>
+                  </div>
+                )}
+                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && stats.f1Expired === 0 && stats.portailWikipediaExpired === 0 && stats.citationExpired === 0 && stats.insoliteExpired === 0 && (
                   <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
@@ -382,7 +406,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <DialogHeader>
                     <DialogTitle>Confirmer le nettoyage</DialogTitle>
                       <DialogDescription>
-                        Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired + stats.f1Expired + stats.portailWikipediaExpired + stats.citationExpired} éléments expirés ?
+                        Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired + stats.f1Expired + stats.portailWikipediaExpired + stats.citationExpired + stats.insoliteExpired} éléments expirés ?
                       </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -690,6 +714,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
   { key: 'proverbe', labelKey: 'feed.proverbe_tab', icon: <Podcast className="h-4 w-4" /> },
   { key: 'f1', labelKey: 'feed.f1_tab', icon: <Trophy className="h-4 w-4" /> },
   { key: 'citation', labelKey: 'feed.citation_tab', icon: <Quote className="h-4 w-4" /> },
+  { key: 'insolite', labelKey: 'feed.insolite_tab', icon: <Sparkles className="h-4 w-4" /> },
 ]
 
 function CartesTab() {
@@ -853,6 +878,14 @@ function CacheTab({ stats }: { stats: AdminStats }) {
       count: stats.portailWikipediaArticles,
       scrapedAt: stats.portailWikipediaScrapedAt,
       refreshFn: refreshPortailWikipedia,
+    },
+    {
+      key: 'insolite',
+      labelKey: adminT('cache_insolite'),
+      icon: <Sparkles className="h-4 w-4" />,
+      count: stats.insoliteArticles,
+      scrapedAt: stats.insoliteScrapedAt,
+      refreshFn: refreshInsolite,
     },
   ]
 

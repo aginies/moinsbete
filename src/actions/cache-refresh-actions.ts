@@ -9,6 +9,7 @@ import { scrapeAndCacheWikipediaImages } from '@/scripts/cache-wikipedia-image'
 import { scrapeAndCacheSaviezVousImages } from '@/scripts/cache-saviez-vous-images'
 import { scrapeAndCacheWikiLoves } from '@/scripts/scrape-wikiloves'
 import { scrapeAndCachePortailWikipedia } from '@/scripts/cache-portail-wikipedia'
+import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { cleanupExpired } from '@/lib/cache-helpers'
 
 export interface RefreshResult {
@@ -65,6 +66,10 @@ export async function refreshSaviezVous(): Promise<RefreshResult> {
 
 export async function refreshPortailWikipedia(): Promise<RefreshResult> {
   return executeRefresh('Portail Wikipédia', scrapeAndCachePortailWikipedia)
+}
+
+export async function refreshInsolite(): Promise<RefreshResult> {
+  return executeRefresh('Articles insolites', scrapeAndCacheInsolite)
 }
 
 export async function refreshAll(): Promise<RefreshResult> {

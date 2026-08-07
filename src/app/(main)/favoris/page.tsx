@@ -62,6 +62,7 @@ export default async function FavorisPage({
   const newsFavoritesCount = countMap.get('NEWS') ?? 0
   const f1FavoritesCount = countMap.get('F1') ?? 0
   const citationFavoritesCount = countMap.get('CITATION') ?? 0
+  const insoliteFavoritesCount = countMap.get('INSOLITE') ?? 0
 
   const [bookmarks] = await Promise.all([
     prisma.bookmark.findMany({
@@ -113,6 +114,7 @@ export default async function FavorisPage({
         newsFavoritesCount={newsFavoritesCount}
         f1FavoritesCount={f1FavoritesCount}
         citationFavoritesCount={citationFavoritesCount}
+        insoliteFavoritesCount={insoliteFavoritesCount}
       />
     </div>
   )

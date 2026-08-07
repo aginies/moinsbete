@@ -32,6 +32,7 @@ interface LobbyTabsProps {
     NEWS: Set<string>
     PORTAIL_WIKIPEDIA: Set<string>
     CITATION: Set<string>
+    INSOLITE: Set<string>
   }
 }
 
@@ -52,6 +53,7 @@ const TYPE_FILTERS: TypeFilter[] = [
   { value: 'NEWS', label: 'NEWS', icon: 'Newspaper' },
   { value: 'PORTAIL_WIKIPEDIA', label: 'Portail Wikipédia', icon: 'List' },
   { value: 'CITATION', label: 'Citations', icon: 'Quote' },
+  { value: 'INSOLITE', label: 'Insolite', icon: 'Sparkles' },
 ]
 
 export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks, sharedByMeBookmarks, currentUserId, isAdmin, totalPages, totalPagesSharedWithMe, totalPagesSharedByMe, currentPage, locale, userFavoriteIds }: LobbyTabsProps) {
@@ -146,7 +148,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation || (b as any).insoliteArticle)
   }, [sharedBookmarks, activeType, searchQuery])
 
   const filteredSharedWithMe = useMemo(() => {
@@ -203,7 +205,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation || (b as any).insoliteArticle)
   }, [sharedWithMeBookmarks, activeType, searchQuery])
 
   const filteredSharedByMe = useMemo(() => {
@@ -259,7 +261,7 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation || (b as any).insoliteArticle)
   }, [sharedByMeBookmarks, activeType, searchQuery])
 
   return (

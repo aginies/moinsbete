@@ -43,7 +43,7 @@ function ipToNumber(ip: string): number {
 
 export async function cleanupExpired() {
   const now = new Date()
-  const [cnrs, radio, wiki, wikiLoves, news, f1, portailWikipedia, citation] = await Promise.all([
+  const [cnrs, radio, wiki, wikiLoves, news, f1, portailWikipedia, citation, insolite] = await Promise.all([
     prisma.cachedCnrsArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedRadioEpisode.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedWikipediaImage.deleteMany({ where: { expiresAt: { lt: now } } }),
@@ -52,9 +52,10 @@ export async function cleanupExpired() {
     prisma.cachedF1Article.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedWikipediaPortalArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedCitationArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
+    prisma.cachedInsoliteArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
   ])
 
-  return { cnrs: cnrs.count, radio: radio.count, wiki: wiki.count, wikiLoves: wikiLoves.count, news: news.count, f1: f1.count, portailWikipedia: portailWikipedia.count, citation: citation.count }
+  return { cnrs: cnrs.count, radio: radio.count, wiki: wiki.count, wikiLoves: wikiLoves.count, news: news.count, f1: f1.count, portailWikipedia: portailWikipedia.count, citation: citation.count, insolite: insolite.count }
 }
 
 export async function getValidCachedCnrsArticles() {

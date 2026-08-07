@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List, Newspaper, Languages } from 'lucide-react'
+import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List, Newspaper, Languages, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -25,6 +25,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Image: ImageIcon,
   Earth: Earth,
   Quote: Quote,
+  Sparkles: Sparkles,
 }
 
 const handleUnshareError = (err: Error & { code?: string }) => {
@@ -107,6 +108,13 @@ interface SharedBookmark {
     wikiUrl: string
     imageUrl: string | null
   } | null
+  insoliteArticle?: {
+    id: string
+    title: string
+    description: string
+    url: string
+    imageUrl: string | null
+  } | null
   user: { id: string; displayName: string | null; email: string }
   sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }>
 }
@@ -126,6 +134,7 @@ interface SharedBookmarksProps {
     NEWS: Set<string>
     PORTAIL_WIKIPEDIA: Set<string>
     CITATION: Set<string>
+    INSOLITE: Set<string>
   }
   typeFilters?: { value: string; label: string; icon: string }[]
   activeType?: string
@@ -1209,6 +1218,102 @@ function PortailWikipediaBookmarkItem({
   )
 }
 
+function InsoliteBookmarkItem({
+  bookmark,
+  currentUserId,
+  isAdmin,
+  userFavoriteIds,
+  locale,
+  t,
+}: {
+  bookmark: SharedBookmark & { insoliteArticle: NonNullable<SharedBookmark['insoliteArticle']> }
+  currentUserId: string | null
+  isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
+}) {
+  const router = useRouter()
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.INSOLITE.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('INSOLITE', bookmark.resourceId, {
+        title: bookmark.insoliteArticle.title,
+        description: bookmark.insoliteArticle.description,
+        url: bookmark.insoliteArticle.url,
+        imageUrl: bookmark.insoliteArticle.imageUrl,
+      })
+      if (result.success) {
+        router.refresh()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
+
+  return (
+    <div className="group relative">
+      <div className="rounded-xl border-2 border-purple-300 bg-gradient-to-br from-purple-50 to-violet-50 p-4 dark:border-purple-700 dark:from-purple-950/20 dark:to-violet-950/20">
+        <div className="mb-2 flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-purple-700 dark:text-purple-300" />
+          <h4 className="text-sm font-bold uppercase tracking-wide text-purple-800 dark:text-purple-300">Insolite</h4>
+        </div>
+        <p className="text-lg font-bold text-purple-900 dark:text-purple-100 mb-2">
+          {bookmark.insoliteArticle.title}
+        </p>
+        {bookmark.insoliteArticle.description && (
+          <p className="text-sm text-purple-700 dark:text-purple-300 mb-2 line-clamp-3">
+            {bookmark.insoliteArticle.description}
+          </p>
+        )}
+        {bookmark.insoliteArticle.url && (
+          <Link
+            href={sanitizeUrl(bookmark.insoliteArticle.url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-purple-700 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-200 hover:underline"
+          >
+            Lire l'article
+            <ExternalLink className="h-3 w-3" />
+          </Link>
+        )}
+      </div>
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
+        <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
+          <User className="h-3 w-3" />
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
+        </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
+        {showBookmarkBtn && (
+          <button
+            type="button"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+            className="rounded-full p-1.5 text-purple-600 opacity-60 hover:opacity-100 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/40 transition-all"
+            title="Ajouter aux favoris"
+          >
+            <Bookmark className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function CitationBookmarkItem({
   bookmark,
   currentUserId,
@@ -1358,7 +1463,7 @@ export function SharedBookmarks({
   emptyMessage,
 }: SharedBookmarksProps) {
   const t = useTranslations('feed')
-  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.newsArticle || b.portailWikipediaArticle || b.proverbe || b.citation)
+  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.newsArticle || b.portailWikipediaArticle || b.proverbe || b.citation || b.insoliteArticle)
 
   const hasFilters = typeFilters.length > 0 || searchQuery
 
@@ -1441,6 +1546,9 @@ export function SharedBookmarks({
             }
             if (bookmark.citation) {
               return <CitationBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { citation: NonNullable<SharedBookmark['citation']>; sharedToCommunity?: boolean; sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
+            }
+            if (bookmark.insoliteArticle) {
+              return <InsoliteBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { insoliteArticle: NonNullable<SharedBookmark['insoliteArticle']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             return null
           })}

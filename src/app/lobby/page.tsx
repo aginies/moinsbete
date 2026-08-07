@@ -18,6 +18,7 @@ interface SharedBookmarkRaw extends SharedLobbyBookmark {
   newsArticle?: { id: string; title: string; description: string; imageUrl: string | null; source: string; category: string; url: string } | null
   portailWikipediaArticle?: { id: string; title: string; extract: string; imageUrl: string | null; pageUrl: string } | null
   citation?: CachedCitationArticle | null
+  insoliteArticle?: { id: string; title: string; description: string; url: string; imageUrl: string | null } | null
 }
 
 interface UserFavoriteIds {
@@ -31,6 +32,7 @@ interface UserFavoriteIds {
   NEWS: Set<string>
   PORTAIL_WIKIPEDIA: Set<string>
   CITATION: Set<string>
+  INSOLITE: Set<string>
 }
 
 const PAGE_SIZE = 20
@@ -60,16 +62,17 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       NEWS: new Set(),
       PORTAIL_WIKIPEDIA: new Set(),
       CITATION: new Set(),
+      INSOLITE: new Set(),
     }
     if (session?.user?.id) {
       const bookmarks = await prisma.bookmark.findMany({
         where: {
           userId: session.user.id,
-          type: { in: ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'CITATION'] },
+          type: { in: ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'CITATION', 'INSOLITE'] },
         },
         select: { resourceId: true, type: true },
       })
-      const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'PORTAIL_WIKIPEDIA'] as const
+      const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'PORTAIL_WIKIPEDIA', 'INSOLITE'] as const
       for (const bm of bookmarks) {
         if (bm.resourceId && knownTypes.includes(bm.type as typeof knownTypes[number])) {
           userFavoriteIds[bm.type as keyof UserFavoriteIds].add(bm.resourceId)
@@ -157,15 +160,18 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const portailWikiIds = portailWikiBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const citationBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'CITATION' && b.resourceId)
     const citationIds = citationBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
+    const insoliteBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'INSOLITE' && b.resourceId)
+    const insoliteIds = insoliteBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = proverbeConfig ? JSON.parse(proverbeConfig.value) : []
 
-    const [saviezFacts, wikiImages, wikiLovesImages, cachedNewsArticles, cachedPortailWikiArticles, cachedCitationArticles] = await prisma.$transaction([
+    const [saviezFacts, wikiImages, wikiLovesImages, cachedNewsArticles, cachedPortailWikiArticles, cachedCitationArticles, cachedInsoliteArticles] = await prisma.$transaction([
       prisma.saviezVousFact.findMany({ where: saviezIds.length > 0 ? { id: { in: saviezIds } } : {} }),
       prisma.cachedWikipediaImage.findMany({ where: imageIds.length > 0 ? { fileUrl: { in: imageIds } } : {} }),
       prisma.cachedWikiLovesImage.findMany({ where: wikiLovesIds.length > 0 ? { docid: { in: wikiLovesIds } } : {} }),
       prisma.cachedNewsArticle.findMany({ where: newsIds.length > 0 ? { url: { in: newsIds } } : {} }),
       prisma.cachedWikipediaPortalArticle.findMany({ where: portailWikiIds.length > 0 ? { id: { in: portailWikiIds } } : {} }),
       prisma.cachedCitationArticle.findMany({ where: citationIds.length > 0 ? { id: { in: citationIds } } : {} }),
+      prisma.cachedInsoliteArticle.findMany({ where: insoliteIds.length > 0 ? { id: { in: insoliteIds } } : {} }),
     ])
 
     const proverbeMap = new Map<string, typeof cachedProverbes[0]>()
@@ -184,6 +190,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const newsMap = new Map(cachedNewsArticles.map((a: { url: string; title: string; description: string | null; imageUrl: string | null; source: string; category: string }) => [a.url, a]))
     const portailWikiMap = new Map(cachedPortailWikiArticles.map((a: { id: string; title: string; extract: string; imageUrl: string | null; pageUrl: string }) => [a.id, a]))
     const citationMap = new Map(cachedCitationArticles.map((a: CachedCitationArticle) => [a.id, a]))
+    const insoliteMap = new Map(cachedInsoliteArticles.map((a: { id: string; title: string; description: string; url: string; imageUrl: string | null }) => [a.id, a]))
 
     const allBookmarks = [...sharedBookmarks, ...sharedWithMeBookmarks, ...sharedByMeBookmarks]
     const missingIdeaIds = [...new Set(
@@ -433,6 +440,29 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           }
         }
         return { ...bookmark, citation: citation as CachedCitationArticle | null }
+      }
+      if (bookmark.resourceType === 'INSOLITE' && bookmark.resourceId) {
+        let article = insoliteMap.get(bookmark.resourceId)
+        if (!article && bookmark.meta) {
+          let meta = bookmark.meta as JsonValue | null
+          if (typeof meta === 'string') {
+            try { meta = JSON.parse(meta) as JsonValue } catch { meta = {} }
+          }
+          if (typeof meta === 'object' && meta !== null && 'title' in meta) {
+            const m = meta as Record<string, unknown>
+            article = {
+              id: bookmark.resourceId,
+              title: (m.title || '') as string,
+              description: (m.description || '') as string,
+              url: (m.url || '') as string,
+              imageUrl: (m.imageUrl || null) as string | null,
+              category: 'général',
+              scrapedAt: new Date(),
+              expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            } as any
+          }
+        }
+        return { ...bookmark, insoliteArticle: article as any }
       }
       return bookmark
     }
