@@ -84,7 +84,7 @@ function InsoliteFavoriteItem({ item, onRemove, onShowFullImage, isShared, onSha
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={itemShareUrl} />
-        <ShareToLobbyButton resourceId={item.id} resourceType="INSOLITE" />
+        <ShareToLobbyButton resourceId={item.id} resourceType="INSOLITE" meta={{ title: item.title, description: item.description, url: item.url || '', imageUrl: item.imageUrl }} />
         <Link
           href={`/insolite/${item.id}`}
           className="rounded-full p-1.5 text-purple-600 opacity-60 hover:opacity-100 hover:text-purple-800 hover:bg-purple-100 dark:text-purple-400 dark:hover:text-purple-200 dark:hover:bg-purple-900/40 transition-all"
