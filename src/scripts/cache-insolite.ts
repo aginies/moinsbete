@@ -136,7 +136,7 @@ function extractArticles(html: string): InsoliteEntry[] {
   return entries
 }
 
-export async function scrapeAndCacheInsolite(): Promise<{ newCount: number; updatedCount: number; deletedCount: number; totalCount: number }> {
+export async function scrapeAndCacheInsolite(enrichImages: boolean = false): Promise<{ newCount: number; updatedCount: number; deletedCount: number; totalCount: number }> {
   console.log('📰 Scraping Articles insolites...')
   
   const html = await fetchPage()
@@ -149,33 +149,37 @@ export async function scrapeAndCacheInsolite(): Promise<{ newCount: number; upda
     return { newCount: 0, updatedCount: 0, deletedCount: 0, totalCount: 0 }
   }
   
-  // Enrich all articles with images from their individual pages
-  const batchSize = 10
-  let totalEnriched = 0
-  
-  for (let i = 0; i < entries.length; i += batchSize) {
-    const batchNum = Math.floor(i / batchSize) + 1
-    const totalBatches = Math.ceil(entries.length / batchSize)
-    const batch = entries.slice(i, i + batchSize)
-    const imageResults = await Promise.all(
-      batch.map(entry => fetchArticleImage(entry.url))
-    )
+  if (enrichImages) {
+    // Enrich all articles with images from their individual pages
+    const batchSize = 10
+    let totalEnriched = 0
     
-    for (let j = 0; j < batch.length; j++) {
-      if (imageResults[j]) {
-        entries[i + j].imageUrl = imageResults[j]
-        totalEnriched++
+    for (let i = 0; i < entries.length; i += batchSize) {
+      const batchNum = Math.floor(i / batchSize) + 1
+      const totalBatches = Math.ceil(entries.length / batchSize)
+      const batch = entries.slice(i, i + batchSize)
+      const imageResults = await Promise.all(
+        batch.map(entry => fetchArticleImage(entry.url))
+      )
+      
+      for (let j = 0; j < batch.length; j++) {
+        if (imageResults[j]) {
+          entries[i + j].imageUrl = imageResults[j]
+          totalEnriched++
+        }
+      }
+      
+      console.log(`  Image batch ${batchNum}/${totalBatches}: ${totalEnriched}/${entries.length} enriched`)
+      
+      if (i + batchSize < entries.length) {
+        await sleep(1000)
       }
     }
     
-    console.log(`  Image batch ${batchNum}/${totalBatches}: ${totalEnriched}/${entries.length} enriched`)
-    
-    if (i + batchSize < entries.length) {
-      await sleep(1000)
-    }
+    console.log(`  Enriched ${totalEnriched}/${entries.length} articles with images from article pages`)
+  } else {
+    console.log('  Skipping image enrichment (use --enrich for full enrichment)')
   }
-  
-  console.log(`  Enriched ${totalEnriched}/${entries.length} articles with images from article pages`)
   
   const now = new Date()
   const expiresAt = new Date(now.getTime() + TTL_MS)
@@ -239,7 +243,8 @@ export async function scrapeAndCacheInsolite(): Promise<{ newCount: number; upda
 }
 
 if (process.argv[2] === 'insolite') {
-  scrapeAndCacheInsolite()
+  const enrich = process.argv.includes('--enrich')
+  scrapeAndCacheInsolite(enrich)
     .then(() => {
       console.log('Done!')
       process.exit(0)
