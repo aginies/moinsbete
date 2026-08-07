@@ -37,6 +37,7 @@ const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
   { key: 'proverbe', label: 'Proverbe', icon: '🗣️' },
   { key: 'f1', label: 'Formula 1', icon: '🏎️' },
   { key: 'citation', label: 'Citations', icon: '💬' },
+  { key: 'insolite', label: 'Insolite', icon: '✨' },
 ]
 
 const DEFAULT_ORDER = CARD_DEFAULT_ORDER
