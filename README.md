@@ -1,12 +1,10 @@
 # MoinsBête — Apprentissage rapide en français
 
-Application de découverte de connaissances bite-sized : idées, sujets, sources Wikipédia, bookmarks, révision par répétition espacée et plan d'apprentissage.
+Application de découverte de connaissances bite-sized : idées, sujets, sources Wikipédia et bookmarks.
 
 ## Vue d'ensemble
 
 MoinsBête propose des idées courtes et actionnables issues de Wikipédia, générées par LLM ou écrites manuellement. Chaque idée contient un titre, un contenu explicatif et un takeaway actionnable.
-
-Les idées bookmarkées entrent dans un cycle de **révision par répétition espacée** (SRS) qui optimise la mémorisation à long terme.
 
 ## Démonstration
 
@@ -34,7 +32,7 @@ moinsbete/
 │   ├── migrations/            # Migrations Prisma
 │   └── seed.ts                # Création des topics racine
 ├── src/
-│   ├── lib/                   # db, auth, llm, utils, rate-limiter, srs, bookmarks
+│   ├── lib/                   # db, auth, llm, utils, rate-limiter, bookmarks
 │   ├── app/                   # Pages + API routes (incl. /admin, /lobby)
 │   ├── components/            # IdeaCard, Feed, feed cards (14 sources)
 │   ├── scripts/               # seed-ideas, generate-ideas, ingest-wikipedia, cache-*
@@ -59,7 +57,7 @@ npm run db:seed
 npm run dev
 ```
 
-Voir [docs/INSTALLATION.md](./INSTALLATION.md) pour les étapes complètes.
+Voir [docs/INSTALLATION.md](./docs/INSTALLATION.md) pour les étapes complètes.
 
 ## Configuration rapide
 
@@ -71,7 +69,7 @@ NEXTAUTH_SECRET="une-clé-aléatoire"
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
-Voir [docs/CONFIGURATION.md](./CONFIGURATION.md) pour le détail.
+Voir [docs/CONFIGURATION.md](./docs/CONFIGURATION.md) pour le détail.
 
 ## Fonctionnalités
 
@@ -88,11 +86,6 @@ Voir [docs/CONFIGURATION.md](./CONFIGURATION.md) pour le détail.
 - **Formule 1** — Actualités F1
 - **Citation** — Citations Wikiquote
 - **Articles insolites** — Faits surprenants de Wikipédia (1 par jour)
-
-### Système de révision
-- Bookmarks avec révision espacée (SRS)
-- Plan d'apprentissage avec streak tracking
-- Historique de consultation
 
 ### Fonctionnalités sociales
 - Lobby de partage (partager des bookmarks avec d'autres utilisateurs)
@@ -121,11 +114,11 @@ Voir [docs/CONFIGURATION.md](./CONFIGURATION.md) pour le détail.
 
 ## Déploiement
 
-Voir [docs/DEPLOYMENT.md](./DEPLOYMENT.md) pour l'installation sur Apache avec PM2.
+Voir [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) pour l'installation sur Apache avec PM2.
 
 ## Développement
 
-Voir [docs/DEVELOPMENT.md](./DEVELOPMENT.md) pour ajouter des topics, générer du contenu, et l'architecture des pages.
+Voir [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) pour ajouter des topics, générer du contenu, et l'architecture des pages.
 
 ## Tests
 
@@ -137,7 +130,7 @@ npm test -- --watch   # Mode watch
 ```
 
 Couverture :
-- `src/lib/` — utils, slugify, url validation, rate-limiter, csrf, auth, bookmark, feed-helpers, saviez-vous, view, srs, llm, radio-bookmark, image-url-encoder, constants
+- `src/lib/` — utils, slugify, url validation, rate-limiter, csrf, auth, bookmark, feed-helpers, saviez-vous, view, llm, radio-bookmark, image-url-encoder, constants
 - `src/actions/` — auth-actions, bookmark-actions, topic-actions, view-actions, review-actions
 - `src/scripts/` — seed-ideas data validation
 - `src/app/` — robots.txt, feed helpers, pagination, wikimedia-topics route
@@ -145,15 +138,15 @@ Couverture :
 
 ## Dépannage
 
-Voir [docs/TROUBLESHOOTING.md](./TROUBLESHOOTING.md) pour les problèmes courants.
+Voir [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) pour les problèmes courants.
 
 ## Base de données
 
-Voir [docs/DATABASE.md](./DATABASE.md) pour la gestion complète (backup, reset, diagnostics).
+Voir [docs/DATABASE.md](./docs/DATABASE.md) pour la gestion complète (backup, reset, diagnostics).
 
 ## Contenu
 
-Voir [docs/CONTENT.md](./CONTENT.md) pour les 3 pipelines de génération de contenu.
+Voir [docs/CONTENT.md](./docs/CONTENT.md) pour les 3 pipelines de génération de contenu.
 
 **Contact**: Pour réinitialiser votre mot de passe ou partager un retour, envoyez un email à [moinsbete@ginies.org](mailto:moinsbete@ginies.org).
 
