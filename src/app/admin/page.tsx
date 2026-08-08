@@ -84,9 +84,10 @@ export default async function AdminPage() {
   const stats = cacheStats[0]
   const latest = latestRow[0] ?? {}
 
-  const formatScrapedAt = (date: Date | null) => {
+  const formatScrapedAt = (date: Date | string | bigint | null) => {
     if (!date) return null
-    return new Date(date).toLocaleDateString('fr-FR', {
+    const d = typeof date === 'bigint' ? Number(date) : date
+    return new Date(d).toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
