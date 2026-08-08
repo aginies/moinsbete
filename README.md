@@ -6,7 +6,7 @@ Application de découverte de connaissances bite-sized : idées, sujets, sources
 
 MoinsBête propose des idées courtes et actionnables issues de Wikipédia, générées par LLM ou écrites manuellement. Chaque idée contient un titre, un contenu explicatif et un takeaway actionnable.
 
-Les idées bookmarkées entrent dans un cycle de **révision par répétition espacée** (SRS) qui optimise la mémorisation à long terme. Accédez à `/review` pour revoir les idées au moment optimal.
+Les idées bookmarkées entrent dans un cycle de **révision par répétition espacée** (SRS) qui optimise la mémorisation à long terme.
 
 ## Démonstration
 
@@ -35,8 +35,8 @@ moinsbete/
 │   └── seed.ts                # Création des topics racine
 ├── src/
 │   ├── lib/                   # db, auth, llm, utils, rate-limiter, srs, bookmarks
-│   ├── app/                   # Pages + API routes (incl. /review, /admin, /lobby)
-│   ├── components/            # IdeaCard, Feed, Review, feed cards (14 sources)
+│   ├── app/                   # Pages + API routes (incl. /admin, /lobby)
+│   ├── components/            # IdeaCard, Feed, feed cards (14 sources)
 │   ├── scripts/               # seed-ideas, generate-ideas, ingest-wikipedia, cache-*
 │   ├── actions/               # Server actions (auth, bookmarks, favorites, cron)
 │   ├── hooks/                 # use-card-visibility, use-bookmark-toggle, etc.
@@ -142,10 +142,6 @@ Couverture :
 - `src/scripts/` — seed-ideas data validation
 - `src/app/` — robots.txt, feed helpers, pagination, wikimedia-topics route
 - `src/hooks/` — use-card-visibility
-
-## Sécurité
-
-Voir [docs/SECURITY.md](./SECURITY.md) pour l'audit de sécurité, les rôles et le rate limiting.
 
 ## Dépannage
 
