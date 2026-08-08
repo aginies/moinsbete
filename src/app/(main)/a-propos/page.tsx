@@ -1,43 +1,9 @@
 import Link from 'next/link'
 import { BookOpen, ArrowLeft } from 'lucide-react'
-import { prisma } from '@/lib/db'
-import { CACHE_SOURCES } from '@/lib/admin-cache-config'
-
-async function getStats() {
-  const countSql = `SELECT\n        ${CACHE_SOURCES.map(s =>
-    `(SELECT COUNT(*) FROM ${s.model}) as "${s.statsArticles}"`
-  ).join(',\n        ')}`
-  const cacheStats = await prisma.$queryRawUnsafe<Record<string, bigint>[]>(countSql)
-
-  const [ideaCount, saviezVousCount, proverbeRow, citationCount, insoliteCount] = await Promise.all([
-    prisma.idea.count({ where: { isPublished: true } }),
-    prisma.saviezVousFact.count(),
-    prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } }),
-    prisma.cachedCitationArticle.count(),
-    prisma.cachedInsoliteArticle.count(),
-  ])
-
-  const stats = cacheStats[0]
-  const num = (k: string) => Number(stats[k] ?? BigInt(0))
-
-  return {
-    ideas: ideaCount,
-    cnrs: num('cnrsArticles'),
-    radio: num('radioEpisodes'),
-    news: num('newsArticles'),
-    f1: num('f1Articles'),
-    portailWiki: num('portailWikipediaArticles'),
-    wikiImages: num('wikiImages'),
-    wikiLoves: num('wikiLovesImages'),
-    saviezVous: saviezVousCount,
-    proverbes: proverbeRow ? (() => { try { return JSON.parse(proverbeRow.value).length } catch { return 0 } })() : 0,
-    citations: citationCount,
-    insolite: insoliteCount,
-  }
-}
+import { getAproposStats } from '@/actions/apropos-stats-actions'
 
 export default async function AproposPage() {
-  const stats = await getStats()
+  const stats = await getAproposStats()
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
       <Link
