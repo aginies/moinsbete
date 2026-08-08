@@ -1,7 +1,43 @@
 import Link from 'next/link'
 import { BookOpen, ArrowLeft } from 'lucide-react'
+import { prisma } from '@/lib/db'
+import { CACHE_SOURCES } from '@/lib/admin-cache-config'
 
-export default function AproposPage() {
+async function getStats() {
+  const countSql = `SELECT\n        ${CACHE_SOURCES.map(s =>
+    `(SELECT COUNT(*) FROM ${s.model}) as "${s.statsArticles}"`
+  ).join(',\n        ')}`
+  const cacheStats = await prisma.$queryRawUnsafe<Record<string, bigint>[]>(countSql)
+
+  const [ideaCount, saviezVousCount, proverbeRow, citationCount, insoliteCount] = await Promise.all([
+    prisma.idea.count({ where: { isPublished: true } }),
+    prisma.saviezVousFact.count(),
+    prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } }),
+    prisma.cachedCitationArticle.count(),
+    prisma.cachedInsoliteArticle.count(),
+  ])
+
+  const stats = cacheStats[0]
+  const num = (k: string) => Number(stats[k] ?? BigInt(0))
+
+  return {
+    ideas: ideaCount,
+    cnrs: num('cnrsArticles'),
+    radio: num('radioEpisodes'),
+    news: num('newsArticles'),
+    f1: num('f1Articles'),
+    portailWiki: num('portailWikipediaArticles'),
+    wikiImages: num('wikiImages'),
+    wikiLoves: num('wikiLovesImages'),
+    saviezVous: saviezVousCount,
+    proverbes: proverbeRow ? (() => { try { return JSON.parse(proverbeRow.value).length } catch { return 0 } })() : 0,
+    citations: citationCount,
+    insolite: insoliteCount,
+  }
+}
+
+export default async function AproposPage() {
+  const stats = await getStats()
   return (
     <div className="mx-auto w-full px-0 py-4 pb-20 md:max-w-2xl md:p-6">
       <Link
@@ -277,44 +313,52 @@ export default function AproposPage() {
           <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">En chiffres</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <div className="rounded-lg border border-border/60 p-4 text-center">
-              <div className="text-2xl font-bold text-primary">1 464</div>
+              <div className="text-2xl font-bold text-primary">{stats.ideas.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Idées publiées</div>
             </div>
             <div className="rounded-lg border border-border/60 p-4 text-center">
-              <div className="text-2xl font-bold text-primary">961</div>
+              <div className="text-2xl font-bold text-primary">{stats.cnrs.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Articles CNRS</div>
             </div>
             <div className="rounded-lg border border-border/60 p-4 text-center">
-              <div className="text-2xl font-bold text-primary">1 324</div>
+              <div className="text-2xl font-bold text-primary">{stats.radio.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Épisodes radio</div>
             </div>
             <div className="rounded-lg border border-border/60 p-4 text-center">
-              <div className="text-2xl font-bold text-primary">293</div>
+              <div className="text-2xl font-bold text-primary">{stats.news.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Articles NEWS</div>
             </div>
             <div className="rounded-lg border border-border/60 p-4 text-center">
-              <div className="text-2xl font-bold text-primary">17</div>
+              <div className="text-2xl font-bold text-primary">{stats.f1.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Articles F1</div>
             </div>
             <div className="rounded-lg border border-border/60 p-4 text-center">
-              <div className="text-2xl font-bold text-primary">5 443</div>
+              <div className="text-2xl font-bold text-primary">{stats.portailWiki.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Articles Portail Wikipédia</div>
             </div>
             <div className="rounded-lg border border-border/60 p-4 text-center">
-              <div className="text-2xl font-bold text-primary">3 559</div>
+              <div className="text-2xl font-bold text-primary">{stats.wikiImages.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Images Wikipédia</div>
             </div>
             <div className="rounded-lg border border-border/60 p-4 text-center">
-              <div className="text-2xl font-bold text-primary">125</div>
+              <div className="text-2xl font-bold text-primary">{stats.wikiLoves.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Images Wiki Loves</div>
             </div>
             <div className="rounded-lg border border-border/60 p-4 text-center">
-              <div className="text-2xl font-bold text-primary">7 770</div>
+              <div className="text-2xl font-bold text-primary">{stats.saviezVous.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Le saviez-vous ?</div>
             </div>
             <div className="rounded-lg border border-border/60 p-4 text-center col-span-2 sm:col-span-1">
-              <div className="text-2xl font-bold text-primary">5 557</div>
+              <div className="text-2xl font-bold text-primary">{stats.proverbes.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Proverbes</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">{stats.citations.toLocaleString('fr-FR')}</div>
+              <div className="text-sm text-muted-foreground">Citations</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">{stats.insolite.toLocaleString('fr-FR')}</div>
+              <div className="text-sm text-muted-foreground">Articles insolites</div>
             </div>
           </div>
         </section>
@@ -527,9 +571,6 @@ export default function AproposPage() {
                 GitHub
               </a>
               .
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Le dépôt est actuellement privé en attendant la résolution de quelques problèmes de sécurité.
             </p>
           </section>
 
