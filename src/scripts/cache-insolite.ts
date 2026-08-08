@@ -213,7 +213,6 @@ export async function scrapeAndCacheInsolite(enrichImages: boolean = false): Pro
     } else {
       await prisma.cachedInsoliteArticle.create({
         data: {
-          id: `insolite-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
           title: entry.title,
           description: entry.description,
           url: entry.url,

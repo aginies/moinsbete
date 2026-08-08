@@ -152,7 +152,15 @@ export const InsoliteCard = React.memo(function InsoliteCardInner({
         </div>
       )}
 
-      {article && (
+      {allSeen && !article && (
+        <div className="text-center py-4">
+          <p className={'text-sm ' + c.body + ' ' + c.bodyDark}>
+            {t('insolite_no_more_unseen')}
+          </p>
+        </div>
+      )}
+
+      {article && !allSeen && (
         <>
           <h2 className={'text-lg font-bold mb-2 ' + c.title + ' ' + c.titleDark}>
             {article.title}
@@ -179,15 +187,9 @@ export const InsoliteCard = React.memo(function InsoliteCardInner({
 
       {allSeen && article && (
         <div className="mt-4 text-center">
-          <p className={'text-xs ' + c.body + ' ' + c.bodyDark}>
-            {t('insolite_no_more_unseen')}
+          <p className={'text-xs italic ' + c.body + ' ' + c.bodyDark}>
+            {t('insolite_seen_today')}
           </p>
-          <Link
-            href="/sujets"
-            className={'inline-flex items-center gap-1 text-xs mt-1 ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark + ' hover:underline'}
-          >
-            {t('reload_page')}
-          </Link>
         </div>
       )}
     </CardShell>

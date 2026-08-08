@@ -10,6 +10,7 @@ import { scrapeAndCacheCitation } from '@/scripts/cache-citation'
 import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexical'
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
+import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
 
 const CRON_SECRET = process.env.CRON_SECRET || ''
 const ALLOWED_IPS = ['62.210.207.184', '127.0.0.1', '::1']
@@ -97,13 +98,21 @@ export async function GET(request: NextRequest) {
     console.log('[cron] Step 9/12: Cleanup...')
     const counts = await cleanupExpired()
     const citationSkipped = counts.citation === 0
+    const insoliteSkipped = counts.insolite === 0
     let cleanupParts = [`cnrs:${counts.cnrs}`, `radio:${counts.radio}`, `wiki:${counts.wiki}`, `wikiLoves:${counts.wikiLoves}`, `news:${counts.news}`, `f1:${counts.f1}`, `portailWiki:${counts.portailWikipedia}`]
     if (!citationSkipped) {
       cleanupParts.push(`citation:${counts.citation}`)
     }
+    if (!insoliteSkipped) {
+      cleanupParts.push(`insolite:${counts.insolite}`)
+    }
     results.cleanup = cleanupParts.join(',')
     const newsMaxAge = await cleanupNewsByMaxAge(5)
     results.newsMaxAge = newsMaxAge > 0 ? `maxage:${newsMaxAge}` : ''
+    const oldConfigCleaned = await cleanupOldInsoliteConfigs(30)
+    if (oldConfigCleaned > 0) {
+      results.insoliteConfigCleanup = `configs:${oldConfigCleaned}`
+    }
 
     console.log('[cron] Step 10/12: Resolving Saviez-vous images...')
     await scrapeAndCacheSaviezVousImages()

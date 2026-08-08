@@ -72,11 +72,54 @@ export async function pickAndSaveTodayInsoliteArticle(date: string): Promise<Ins
   })
 
   let shownCount = 0
+  let shownIds = new Set<string>()
+  let justReset = false
   if (config?.value) {
     try {
       const parsed = JSON.parse(config.value)
       shownCount = parsed.shownCount || 0
-      // Return the same article if already picked today
+      const ids = parsed.shownIds || []
+      for (const id of ids) {
+        shownIds.add(id)
+      }
+    } catch {
+      shownCount = 0
+    }
+  }
+
+  // Check if we need to reset the cycle
+  const totalValid = await getValidInsoliteArticleCount()
+  if (shownCount >= totalValid && totalValid > 0) {
+    await prisma.cachedConfig.delete({ where: { key: `${INSOLITE_PREFIX}${date}` } })
+    shownCount = 0
+    shownIds = new Set()
+    justReset = true
+  }
+
+  const validArticles = await prisma.cachedInsoliteArticle.findMany({
+    where: {
+      expiresAt: { gte: new Date() },
+    },
+  })
+
+  if (validArticles.length === 0) return null
+
+  // If just reset, pick a new article without saving (next call will start fresh)
+  if (justReset) {
+    const article = validArticles[Math.floor(Math.random() * validArticles.length)]
+    return {
+      id: article.id,
+      title: article.title,
+      description: article.description || '',
+      url: article.url,
+      imageUrl: article.imageUrl,
+    }
+  }
+
+  // Return the same article if already picked today
+  if (config?.value) {
+    try {
+      const parsed = JSON.parse(config.value)
       if (parsed.selectedId) {
         const article = await prisma.cachedInsoliteArticle.findUnique({
           where: { id: parsed.selectedId },
@@ -92,38 +135,11 @@ export async function pickAndSaveTodayInsoliteArticle(date: string): Promise<Ins
         }
       }
     } catch {
-      shownCount = 0
-    }
-  }
-
-  const totalValid = await getValidInsoliteArticleCount()
-
-  if (shownCount >= totalValid && totalValid > 0) {
-    await prisma.cachedConfig.delete({ where: { key: `${INSOLITE_PREFIX}${date}` } })
-    shownCount = 0
-  }
-
-  const validArticles = await prisma.cachedInsoliteArticle.findMany({
-    where: {
-      expiresAt: { gte: new Date() },
-    },
-  })
-
-  if (validArticles.length === 0) return null
-
-  const shownIds = new Set<string>()
-  if (config?.value) {
-    try {
-      const parsed = JSON.parse(config.value)
-      const ids = parsed.shownIds || []
-      for (const id of ids) {
-        shownIds.add(id)
-      }
-    } catch {
       // ignore
     }
   }
 
+  // Pick a new unseen article
   const unseen = validArticles.filter(a => !shownIds.has(a.id))
   const pool = unseen.length > 0 ? unseen : validArticles
   const article = pool[Math.floor(Math.random() * pool.length)]
@@ -133,7 +149,7 @@ export async function pickAndSaveTodayInsoliteArticle(date: string): Promise<Ins
   const newShownIds = [...shownIds, article.id]
   const newValue = JSON.stringify({
     shownCount: shownIds.size + (unseen.length > 0 ? 1 : 0),
-    shownIds: newShownIds.slice(-100),
+    shownIds: newShownIds,
     selectedId: article.id,
   })
 
