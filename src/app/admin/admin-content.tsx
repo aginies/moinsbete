@@ -135,7 +135,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
           <h1 className="text-2xl font-heading font-bold">{adminT('admin_title')}</h1>
         </div>
         <div className="flex items-center gap-3">
-            <Link href="/test-layout" passHref>
+            <Link href="/test-layouts" passHref>
               <Button variant="outline" size="sm">
                 Test Layout
               </Button>
