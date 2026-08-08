@@ -17,7 +17,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Adding a New Card
 
-Every new card source must include these files/patterns. Current codebase has **13 card sources**: `saviezVous`, `wikipedia`, `cnrs`, `radioFrance`, `news`, `wikimedia`, `wikiloves`, `pixabay`, `portailLexical`, `portailWikipedia`, `proverbe`, `f1`, `citation`.
+Every new card source must include these files/patterns. Current codebase has **14 card sources**: `saviezVous`, `wikipedia`, `cnrs`, `radioFrance`, `news`, `wikimedia`, `wikiloves`, `pixabay`, `portailLexical`, `portailWikipedia`, `proverbe`, `f1`, `citation`, `insolite`.
 
 ## 1. Prisma Schema (`prisma/schema.prisma`)
 
@@ -28,6 +28,7 @@ Every new card source must include these files/patterns. Current codebase has **
 
 ### Non-cache model (no TTL):
 - Some sources use different models: `PortailLexicalMotDuJour` (id, word, date unique, createdAt), `SaviezVousFact` (static facts), proverbes stored in `CachedConfig` as JSON value under key `proverbes_all`
+- Additional models: `SharedLobbyBookmark` (lobby sharing state), `UserWikimediaTopic` and `UserWikiLovesTopic` (image source category preferences)
 
 ## 2. Data Layer
 
@@ -36,7 +37,7 @@ Every new card source must include these files/patterns. Current codebase has **
   - Export `{source}Manager` (instance), `get{Source}Favorites`, `get{Source}FavoritesCount`
   - Define `{Source}FavoriteDoc` interface with `id` field
   - Pass `mapMeta` function that transforms DB `meta` JSON + `resourceId` into typed doc
-- `src/actions/{source}-bookmark-actions.ts` - Server actions using `createBookmarkActions()` factory from `@/actions/bookmark-manager`
+- `src/actions/{source}-bookmark-actions.ts` - Server actions using `createBookmarkManagerActions()` factory from `@/actions/bookmark-manager` (wrapped by `createBookmarkActions()` in `@/actions/bookmark-actions-factory`)
   - Export `toggle{Source}FavoriteAction`, `get{Source}FavoritesAction`, `is{Source}FavoriteAction`
 
 ### Simple bookmark support (no manager):
@@ -58,13 +59,13 @@ Every new card source must include these files/patterns. Current codebase has **
 
 - Fetch from external API
 - Upsert to DB with 6h TTL (or source-specific TTL)
-- Run via `/api/cron/cache` (10 sequential steps, not 3x daily)
+- Run via `/api/cron/cache` (12 sequential steps, not 3x daily)
 - Export `scrapeAndCache{Source}()` function
 
 ### Cron step ordering:
-1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image → 5. F1 → 6. Portail Wikipédia → 7. Wikiquote → 8. Cleanup (8 cache models) → 9. Saviez-vous → 10. Portail Lexical (WOTD)
+1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image (FR) → 5. Wikipedia Image (EN) → 6. F1 → 7. Portail Wikipédia → 8. Wikiquote (Citation) → 9. Cleanup (9 cache models) → 10. Saviez-vous images → 11. Portail Lexical (WOTD) → 12. Insolite
 
-### Auth: token (`x-cron-token` header or `?token=` param) OR IP whitelist (`ALLOWED_IPS` in `cache-helpers.ts` with CIDR support)
+### Auth: token (`x-cron-token` header or `?token=` param) OR IP whitelist (`ALLOWED_CRON_IPS` in `src/lib/ip.ts`, re-exported from `cache-helpers.ts`, with CIDR support)
 
 ## 5. Card Component (`src/components/feed/{source}-card.tsx`)
 
@@ -97,17 +98,19 @@ Every new card source must include these files/patterns. Current codebase has **
 
 - `CardVisibilityGuard` — show/hide wrapper with hydration-safe mount check
 - `CardNavBar` — fixed top bar showing offscreen card shortcuts, auto-hides on scroll, uses IntersectionObserver
-- `VisibilityButton` — styled button for hidden cards (9 color variants)
+- `VisibilityButton` — styled button for hidden cards (color from `CARD_COLORS` in `@/lib/card-theme`)
 - `useAutoRefresh` — periodic data reload hook
 - `useItemShare` — share functionality hook
+- `useAllSourceCounts` — hook that manages counts + remove handlers for all source tabs
 - `PaginatedFavoritesList<T>` — generic paginated favorites with search, PAGE_SIZE=10, accent normalization, localStorage fallback
 - `useFavoritesList` — hook for `PaginatedFavoritesList`
-- `createBookmarkManager()` — bookmark manager factory with `mapMeta` function
-- `createBookmarkActions()` — server actions factory (wraps lib manager with session extraction)
+- `createBookmarkManager()` — bookmark manager factory with `mapMeta` function (from `@/lib/bookmark-manager`)
+- `createBookmarkManagerActions()` — server actions factory (from `@/actions/bookmark-manager`)
+- `createBookmarkActions()` — thin wrapper around `createBookmarkManagerActions()` (from `@/actions/bookmark-actions-factory`)
 - `ShareButton` — standalone share button component
-- `ShareToLobbyButton` — share to lobby button (replaces inline share for some sources)
-- `useSimpleBookmarkToggle` — simple bookmark state hook (for single-item cards without full bookmark manager)
-- `SearchResults` — component for favoris search results display
+- `ShareToLobbyButton` — share to lobby button (from `@/components/lobby/share-tolobby-button`)
+- `useSimpleBookmarkToggle` — simple bookmark state hook (from `@/hooks/use-simple-bookmark-toggle`)
+- `SearchResults` — component for favoris search results display (from `@/components/lobby/search-results`)
 
 ## 6. Favorites Page
 
@@ -120,14 +123,15 @@ Every new card source must include these files/patterns. Current codebase has **
 
 ### Favoris page server component (`src/app/(main)/favoris/page.tsx`):
 - Raw SQL count query: `SELECT type, COUNT(*) FROM Bookmark WHERE userId = ? GROUP BY type`
-- Map counts to 13 `BookmarkType` values
+- Map counts to 14 `BookmarkType` values
 - Query bookmarked ideas with ideaTopics and source includes
 - Pass all 14 count props to client
 
 ### Favoris page client component (`src/app/(main)/favoris/favoris-page-client.tsx`):
-- 14 tabs: `idees`, `image-du-jour`, `saviez-vous`, `image-wikimedia`, `image-wikiloves`, `image-pixabay`, `portail-lexical`, `portail-wikipedia`, `proverbe`, `radio-france`, `cnrs-news`, `news`, `f1`, `citation`
-- `tabConfig` array with `TabConfig` interface (id, label, Icon, count)
-- `sortedTabs` = tabs sorted by count descending
+- 15 tabs: `idees`, `image-du-jour`, `saviez-vous`, `image-wikimedia`, `image-wikiloves`, `image-pixabay`, `portail-lexical`, `portail-wikipedia`, `proverbe`, `radio-france`, `cnrs-news`, `news`, `f1`, `citation`, `insolite` (+ `results` for search)
+- `tabConfig` array with `SourceTabConfig` interface (id, countKey, label, Icon, sourceDesc, component)
+- Uses `useAllSourceCounts` hook for counts + remove handlers
+- `sortedTabs` = `portail-lexical` pinned first, rest sorted by count descending
 - `searchResults` computed from searchQuery + all tab counts
 - `activeTab` management with search (switches to 'results' tab when searching)
 - Optimistic count updates via `handleXxxRemove` callbacks
@@ -137,33 +141,36 @@ Every new card source must include these files/patterns. Current codebase has **
 ## 7. Integration Files
 
 ### `src/app/(main)/sujets/sujets-client.tsx`
-- `CardVisibility` interface with 13 boolean fields + `pixabayActiveCategory`
+- `CardVisibility` interface with 14 boolean fields + `pixabayActiveCategory` + `wikipediaImageShowEn`
 - `CardConfig` interface: `{ key, isVisible, isGloballyVisible, toggle }`
-- `CARD_RENDERERS` record: 13 key → renderer function mappings
-- `cardDefinitions` array: 13 entries mapping key → visKey → DB field name, optional `extraCheck` for userId-gated cards
+- `CARD_RENDERERS` record: 14 key → renderer function mappings
+- `cardDefinitions` array: 14 entries mapping key → visKey → DB field name, optional `extraCheck` for userId-gated cards
 - `cardConfigs`: computed from `cardDefinitions` with visibility + global visibility + extra checks
 - `orderedConfigs`: sorted by user's `cardOrder` JSON (from `/api/user-card-order`), falls back to `CARD_DEFAULT_ORDER`
 - `visibleCards` / `hiddenCards` split
 - `CardNavBar` for visible card shortcuts (IntersectionObserver-based)
 - Hidden card shortcuts in grid (only shows cards visible globally)
 - `toggleVisibility` callback with rate-limited POST to `/api/user-card-visibility`
-- `HIDDEN_CARD_COLORS` record: 9 color variants per card key
+- `CARD_COLORS` from `@/lib/card-theme` for hidden card visibility button colors
 - `CARD_DISPLAY_NAMES` record: locale key per card key
 
 ### `src/app/(main)/sujets/page.tsx`
-- Query user for all 13 visibility fields + `cardNavBarEnabled` + `following` + `hasSeenSplash`
+- Query user for all 14 visibility fields + `wikipediaImageShowEn` + `cardNavBarEnabled` + `following` + `hasSeenSplash`
 - Map to `CardVisibility` interface
 - Pass `globalVisibility` from `getGlobalCardVisibility()` action
 - Pass `cardNavBarEnabled` prop
 
+### `src/app/api/card-visibility/route.ts`
+- GET: returns global visibility from `CachedConfig` table (used by admin to set defaults)
+
 ### `src/app/api/user-card-visibility/route.ts`
 - GET: returns all visibility fields, optional `?field=` param for single field
 - POST: updates single field, rate limited (30/min), validates against `validFields` array
-- `validFields` includes: all `{source}CardVisible` booleans + `cnrsNewsEnabled` + `imagePixabayShowCategories` + `imagePixabayActiveCategory` + `imageWikimediaShowCategories` + `imageWikiLovesShowCategories` + `cardNavBarEnabled`
+- `validFields` includes: all `{source}CardVisible` booleans + `wikipediaImageShowEn` + `cnrsNewsEnabled` + `imagePixabayShowCategories` + `imagePixabayActiveCategory` + `imageWikimediaShowCategories` + `imageWikiLovesShowCategories` + `cardNavBarEnabled`
 
 ### `src/app/api/user-card-order/route.ts`
 - GET: returns user's `cardOrder` JSON array
-- POST: updates user's `cardOrder` JSON array
+- POST: updates user's `cardOrder` JSON array, rate limited (10 req/min)
 - Falls back to `CARD_DEFAULT_ORDER` constant if no order set
 
 ### `src/app/(main)/favoris/page.tsx`
@@ -172,9 +179,9 @@ Every new card source must include these files/patterns. Current codebase has **
 - Pass to `FavorisPageClient`
 
 ### `src/app/(main)/favoris/favoris-page-client.tsx`
-- 14 tabs with `Tab` type union
-- `tabConfig` array with `TabConfig` interface
-- `sortedTabs` sorted by count descending
+- 15 tabs with `Tab` type union
+- `tabConfig` array with `SourceTabConfig` interface
+- `sortedTabs` = `portail-lexical` pinned first, rest sorted by count descending
 - `searchResults` computed with accent normalization
 - `activeTab` + `previousTabRef` for search/restore flow
 - `handleXxxRemove` callbacks for optimistic count updates
@@ -185,9 +192,9 @@ Every new card source must include these files/patterns. Current codebase has **
 ### `src/app/admin/admin-content.tsx`
 - `AdminStats` interface with all source stats (articles, expired, scrapedAt)
 - 5 tabs: stats, users, cartes, cleanup, cache
-- `cardConfigs` array: 13 entries mapping key → labelKey → icon
+- `cardConfigs` array: 14 entries mapping key → labelKey → icon
 - `CartesTab` with `CardToggle` per card (calls `updateGlobalCardVisibility()`)
-- `CacheTab` with `CacheSource` interface, individual refresh + refresh all
+- `CacheTab` with `CacheSource` interface, individual refresh + refresh all, uses `CACHE_SOURCES` from `@/lib/admin-cache-config.ts`
 - `StatCard` component with optional sublabel for expired count
 - `UserRow` component with toggle/delete actions
 - Cleanup dialog with total expired count
@@ -195,23 +202,25 @@ Every new card source must include these files/patterns. Current codebase has **
 - Language switcher dropdown
 
 ### `src/app/admin/page.tsx`
-- Raw SQL query for all 8 cache models (total + expired)
+- Uses `CACHE_SOURCES` from `@/lib/admin-cache-config.ts` for dynamic SQL query (all 9 cache models, total + expired)
 - Individual `findFirst` queries for latest scrapedAt per source
 - `prisma.saviezVousFact.count()` for static facts
 - `prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } })` for proverbe count
+- `prisma.srsCard.count({ where: { nextReviewAt: { lte: new Date() } } })` for SRS due count
+- `prisma.cachedConfig.findMany({ where: { key: { startsWith: 'insolite_' } } })` for insolite config count
 - Pass formatted stats to `AdminContent`
 
 ### `src/app/api/cron/cache/route.ts`
-- 10 sequential steps with step numbering
+- 12 sequential steps with step numbering
 - Auth: token OR IP whitelist (including CIDR matching)
 - Cleanup step: calls `cleanupExpired()` + `cleanupNewsByMaxAge(5)`
 - Returns `{ ok, results, duration, ip }`
 - Portail lexical step uses upsert-by-date (no TTL)
 
 ### `src/lib/cache-helpers.ts`
-- `cleanupExpired()` deletes from 8 cache models: CNRS, Radio, Wiki, WikiLoves, News, F1, PortailWiki, Citation
+- `cleanupExpired()` deletes from 9 cache models: CNRS, Radio, Wiki, WikiLoves, News, F1, PortailWiki, Citation, Insolite
 - Returns counts object
-- `ALLOWED_CRON_IPS` + `isAllowedIp()` with CIDR support
+- `ALLOWED_CRON_IPS` + `isAllowedIp()` with CIDR support (defined in `src/lib/ip.ts`, re-exported from `cache-helpers.ts`)
 - Helper functions: `getValidCachedCnrsArticles`, `getValidCachedRadioEpisodes`, `getValidCachedWikipediaImages`, `upsertWikipediaImages`, `sleep`, `clearAllNewsArticles`, `clearFreenewsapiArticles`, `cleanupNewsByMaxAge(days)`
 
 ## 8. Locales (`src/locales/{fr,en}.json`)
@@ -237,7 +246,7 @@ Every new card source must include these files/patterns. Current codebase has **
 - [ ] CardVisibilityGuard wrapper
 - [ ] Favorites page component (PaginatedFavoritesList or simple)
 - [ ] Favoris page: add tab, count prop, handleRemove callback, TabsContent
-- [ ] Sujets integration: CARD_RENDERERS entry, cardDefinitions entry, HIDDEN_CARD_COLORS entry, CARD_DISPLAY_NAMES entry
+- [ ] Sujets integration: CARD_RENDERERS entry, cardDefinitions entry, CARD_COLORS entry, CARD_DISPLAY_NAMES entry
 - [ ] Sujets page: add visibility field to user select
 - [ ] user-card-visibility route: add field to validFields + GET select
 - [ ] Admin: AdminStats fields, StatCard in stats tab, cardConfig entry, CacheTab entry (if cache model), cleanup entry (if expiresAt), page.tsx query
