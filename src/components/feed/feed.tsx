@@ -163,7 +163,7 @@ export function Feed({
                   e.stopPropagation()
                   onRemove(idea.id)
                 }}
-                className="absolute right-1 top-1 h-7 w-7 p-0 text-muted-foreground opacity-30 hover:text-destructive group-hover:opacity-100"
+                className="absolute right-1 top-1 h-7 w-7 p-0 text-red-500 opacity-30 hover:text-red-700 hover:bg-red-100 group-hover:opacity-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40"
               >
                 <X className="h-4 w-4" />
               </Button>

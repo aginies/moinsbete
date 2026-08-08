@@ -770,5 +770,9 @@
       "load_more": "Load more",
       "empty": "No quotes available"
     }
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next"
   }
 }

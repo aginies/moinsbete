@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { addCommentAction, updateSuggestionAction, deleteSuggestionAction } from '@/actions/suggestion-actions'
@@ -90,11 +91,11 @@ export function SuggestionDetail({ suggestion: sug, currentUserId, isAdmin }: Su
       <div className="rounded-xl border border-border/60 bg-card p-6">
         {isEditing ? (
           <div className="space-y-4">
-            <input
+            <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={100}
-              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-lg font-bold"
+              className="text-lg font-bold"
               placeholder="Titre..."
             />
             <Textarea

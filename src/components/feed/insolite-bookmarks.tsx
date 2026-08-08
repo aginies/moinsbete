@@ -11,6 +11,7 @@ import { ShareButton } from './share-button'
 import { useItemShare } from './use-item-share'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
+import { ImageLightbox } from './image-lightbox'
 
 export interface InsoliteFavoriteDoc {
   id: string
@@ -156,5 +157,3 @@ export function InsoliteBookmarks({ userId, onRemoveComplete, sharedIds, onShare
     </>
   )
 }
-
-import { ImageLightbox } from './image-lightbox'

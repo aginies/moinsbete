@@ -238,7 +238,7 @@ function IdeaBookmarkItem({
               }
             }}
           >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
           </Button>
         )}
       </div>
@@ -349,7 +349,7 @@ function SaviezVousBookmarkItem({
               }).catch(handleUnshareError)
             }}
           >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
           </Button>
         )}
       </div>
@@ -480,7 +480,7 @@ function WikiImageBookmarkItem({
               }).catch(handleUnshareError)
             }}
           >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
           </Button>
         )}
       </div>
@@ -627,7 +627,7 @@ function WikiLovesBookmarkItem({
               }).catch(handleUnshareError)
             }}
           >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
           </Button>
         )}
       </div>
@@ -781,7 +781,7 @@ function NewsBookmarkItem({
               }).catch(handleUnshareError)
             }}
           >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
           </Button>
         )}
       </div>
@@ -921,7 +921,7 @@ function WikiMediaBookmarkItem({
               }).catch(handleUnshareError)
             }}
           >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
           </Button>
         )}
       </div>
@@ -1067,7 +1067,7 @@ function ProverbeBookmarkItem({
               }).catch(handleUnshareError)
             }}
           >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
           </Button>
         )}
       </div>
@@ -1200,7 +1200,7 @@ function PortailWikipediaBookmarkItem({
               }).catch(handleUnshareError)
             }}
           >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
           </Button>
         )}
       </div>
@@ -1453,7 +1453,7 @@ function CitationBookmarkItem({
               }).catch(handleUnshareError)
             }}
           >
-            <Trash2 className="h-3 w-3 text-muted-foreground" />
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
           </Button>
         )}
       </div>

@@ -97,7 +97,7 @@ export function PortailWikipediaBookmarks({ userId, onRemoveComplete, searchQuer
               </div>
               <button
                 onClick={onRemove}
-                className="rounded-full p-1.5 text-indigo-500 opacity-60 hover:opacity-100 hover:text-indigo-700 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-900/40 transition-all"
+                className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
                 title={t('remove_favorite')}
                 aria-label={t('remove_favorite')}
               >

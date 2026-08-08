@@ -770,5 +770,9 @@
       "load_more": "Voir plus",
       "empty": "Aucune citation disponible"
     }
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant"
   }
 }

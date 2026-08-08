@@ -125,7 +125,7 @@ export function ImageWikiLovesFavorites({ userId, onRemoveComplete, sharedIds, o
         darkBgGradient="dark:from-indigo-950/20 dark:to-emerald-950/20"
         textColor="text-indigo-900"
         darkTextColor="dark:text-indigo-100"
-        buttonColor="text-purple-600"
+        buttonColor="text-indigo-600"
         buttonHoverBg="hover:bg-indigo-100"
       />
       {showFullImage && (

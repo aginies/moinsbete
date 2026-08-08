@@ -104,7 +104,7 @@ export function ReviewCard({ idea, onRemoved }: ReviewCardProps) {
               size="sm"
               onClick={handleRemove}
               disabled={!!rating || loading}
-              className="shrink-0 text-muted-foreground hover:text-red-500"
+              className="shrink-0 text-muted-foreground hover:text-destructive"
             >
               <X className="h-4 w-4" />
               <span className="sr-only">Retirer</span>

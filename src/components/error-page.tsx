@@ -18,7 +18,7 @@ export function ErrorPage({ title, message }: ErrorPageProps) {
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative flex min-h-screen items-start justify-center pt-24 px-4">
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 max-w-md text-center">
-            <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-red-400" />
+            <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-destructive" />
             <h2 className="mb-2 text-2xl font-bold text-white">{title}</h2>
             <p className="mb-2 text-sm text-white/80">
               {message}

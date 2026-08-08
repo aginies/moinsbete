@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 
 interface DeleteConfirmationDialogProps {
   suggestionTitle: string
@@ -40,22 +41,20 @@ export function DeleteConfirmationDialog({ suggestionTitle, onConfirm, trigger }
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+          <Button
+            variant="outline"
             onClick={() => setIsOpen(false)}
             disabled={isDeleting}
           >
             Annuler
-          </button>
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-9 px-4 py-2"
+          </Button>
+          <Button
+            variant="destructive"
             onClick={handleDelete}
             disabled={isDeleting}
           >
             {isDeleting ? 'Suppression...' : 'Supprimer'}
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

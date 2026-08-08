@@ -202,7 +202,7 @@ export default function HistoryPageClient({ initialIdeas, total: initialTotal, t
                     handleRemove(idea.id)
                   }}
                   disabled={removing === idea.id}
-                  className="absolute right-2 top-2 rounded-full p-1 text-red-500 opacity-30 transition-opacity hover:opacity-100 hover:bg-muted disabled:opacity-50"
+                  className="absolute right-2 top-2 rounded-full p-1.5 text-red-500 opacity-60 transition-opacity hover:opacity-100 hover:bg-red-100 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 disabled:opacity-50"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

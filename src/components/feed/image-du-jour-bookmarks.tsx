@@ -65,7 +65,7 @@ function ImageDuJourFavoriteItem({ item, onRemove, onShowFullImage, isShared, on
             href={sanitizeUrl(item.fileUrl)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-teal-700 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
+            className="inline-flex items-center gap-1 text-xs text-teal-700 hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-200 hover:underline"
           >
             Voir sur Wikimedia Commons
             <ExternalLink className="h-3 w-3" />

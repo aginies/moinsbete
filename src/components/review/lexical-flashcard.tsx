@@ -437,7 +437,7 @@ export function LexicalFlashcard({ word, currentIndex, total, onRemoved, onNext,
                 size="sm"
                 onClick={handleRemove}
                 disabled={!!rating || loading}
-                className="text-muted-foreground hover:text-red-500"
+                className="text-muted-foreground hover:text-destructive"
               >
                 <X className="h-4 w-4" />
                 <span className="sr-only">Retirer</span>

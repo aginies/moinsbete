@@ -75,7 +75,11 @@ export function SuggestionForm({ mode = 'create', suggestionId, initialTitle = '
         <p className="mt-1 text-xs text-muted-foreground">{description.length}/250</p>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       <Button type="submit" disabled={isPending}>
         {isPending ? 'Enregistrement...' : mode === 'create' ? 'Créer la suggestion' : 'Enregistrer'}
