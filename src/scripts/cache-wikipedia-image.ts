@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { sleep, cleanupExpired } from '@/lib/cache-helpers'
+import { runCacheScript } from './cache-script-helper'
 
 interface ImageEntry {
   imageUrl: string
@@ -265,19 +266,8 @@ export async function scrapeAndCacheWikipediaImagesEN(count: number = 1): Promis
 if (process.argv[1]?.includes('cache-wikipedia-image')) {
   const isEN = process.argv[1]?.includes('cache-wikipedia-image-en')
   const fn = isEN ? scrapeAndCacheWikipediaImagesEN : scrapeAndCacheWikipediaImages
-
   const monthsArg = process.argv.includes('--months')
     ? parseInt(process.argv[process.argv.indexOf('--months') + 1], 10)
     : 1
-
-  fn(monthsArg || 1)
-    .then(() => {
-      console.log('Done!')
-      process.exit(0)
-    })
-    .catch(e => {
-      console.error('Erreur:', e)
-      process.exit(1)
-    })
-    .finally(() => prisma.$disconnect())
+  runCacheScript(() => fn(monthsArg || 1))
 }

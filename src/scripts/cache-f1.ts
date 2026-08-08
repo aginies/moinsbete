@@ -1,5 +1,6 @@
 import { prisma } from '../lib/db'
 import { sleep, cleanupExpired } from '../lib/cache-helpers'
+import { runCacheScript } from './cache-script-helper'
 import {
   stripHtml,
   parseActualitesFromActualitePage,
@@ -226,14 +227,5 @@ export async function scrapeAndCacheF1(): Promise<void> {
 }
 
 if (process.argv[1]?.includes('cache-f1')) {
-  scrapeAndCacheF1()
-    .then(() => {
-      console.log('Done!')
-      process.exit(0)
-    })
-    .catch(e => {
-      console.error('Erreur:', e)
-      process.exit(1)
-    })
-    .finally(() => prisma.$disconnect())
+  runCacheScript(scrapeAndCacheF1)
 }

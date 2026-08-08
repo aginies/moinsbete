@@ -12,6 +12,7 @@ import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
 import { toggleRadioFavoriteAction, isRadioFavoriteAction } from '@/actions/radio-bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { useTranslations } from 'next-intl'
 
 interface RadioFranceDoc {
@@ -45,6 +46,7 @@ async function fetchRandomDoc(excludeId?: string): Promise<RadioFranceDoc | null
 
 function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCardProps) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme('purple')
   const [doc, setDoc] = useState<RadioFranceDoc | null>(() => {
     if (typeof sessionStorage === 'undefined') return initialDoc || null
@@ -154,15 +156,17 @@ function RadioFranceCardInner({ initialDoc, onToggle, isVisible }: RadioFranceCa
              >
                <RefreshCw className={'h-4 w-4 sm:h-5 sm:w-5 ' + c.action + ' ' + c.actionDark + ' ' + (loading ? 'animate-spin' : '')} />
              </button>
-             <button
-               onClick={handleBookmark}
-               disabled={isPending}
-               className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors disabled:opacity-50'}
-               title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-               aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
-             >
-               <Bookmark className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)} />
-             </button>
+           {isLoggedIn && (
+              <button
+                onClick={handleBookmark}
+                disabled={isPending}
+                className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors disabled:opacity-50'}
+                title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+              >
+                <Bookmark className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)} />
+              </button>
+            )}
              <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
             </div>
           </div>

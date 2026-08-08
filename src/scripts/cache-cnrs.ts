@@ -1,5 +1,6 @@
 import { prisma } from '../lib/db'
 import { sleep, cleanupExpired } from '../lib/cache-helpers'
+import { runCacheScript } from './cache-script-helper'
 
 const NEWSROOM_BASE = 'https://www.cnrs.fr'
 
@@ -118,14 +119,5 @@ export async function scrapeAndCacheCnrs(): Promise<void> {
 }
 
 if (process.argv[1]?.includes('cache-cnrs')) {
-  scrapeAndCacheCnrs()
-    .then(() => {
-      console.log('Done!')
-      process.exit(0)
-    })
-    .catch(e => {
-      console.error('Erreur:', e)
-      process.exit(1)
-    })
-    .finally(() => prisma.$disconnect())
+  runCacheScript(scrapeAndCacheCnrs)
 }

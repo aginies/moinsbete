@@ -1,45 +1,7 @@
 import { prisma } from './db'
+import { ALLOWED_CRON_IPS, isAllowedIp } from './ip'
 
-export const ALLOWED_CRON_IPS = [
-  '62.210.207.184',
-  '127.0.0.1',
-  '::1',
-  '100.0.0.0/8',
-  '10.0.0.0/8',
-  '192.168.0.0/16',
-]
-
-export function isAllowedIp(ip: string): boolean {
-  if (!ip) return false
-  
-  // Direct match
-  if (ALLOWED_CRON_IPS.includes(ip)) return true
-  
-  // CIDR matching
-  for (const cidr of ALLOWED_CRON_IPS) {
-    if (cidr.includes('/')) {
-      const [network, prefixLen] = cidr.split('/')
-      const prefix = parseInt(prefixLen, 10)
-      if (ipMatchesNetwork(ip, network, prefix)) return true
-    }
-  }
-  
-  return false
-}
-
-function ipMatchesNetwork(ip: string, network: string, prefixLen: number): boolean {
-  const ipInt = ipToNumber(ip)
-  const networkInt = ipToNumber(network)
-  const mask = prefixLen === 0 ? 0 : (~0 << (32 - prefixLen)) >>> 0
-  
-  return (ipInt & mask) === (networkInt & mask)
-}
-
-function ipToNumber(ip: string): number {
-  return ip
-    .split('.')
-    .reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0
-}
+export { ALLOWED_CRON_IPS, isAllowedIp }
 
 export async function cleanupExpired() {
   const now = new Date()

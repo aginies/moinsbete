@@ -9,6 +9,7 @@ import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardHeader } from './card-header'
 import { CardShell } from './card-shell'
@@ -62,6 +63,7 @@ function ProverbeCardInner({
   linkHref
 }: ProverbeCardProps) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme('emerald')
   const [internalProverbe, setInternalProverbe] = useState<Proverbe | null>(null)
   const [internalLoading, setInternalLoading] = useState(false)
@@ -149,23 +151,25 @@ function ProverbeCardInner({
             loading={loading}
             onRefresh={handleRefresh}
             shareOptions={proverbe ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
-            extraActions={proverbe ? (
-              <div className="flex items-center gap-2">
-                <ShareToLobbyButton resourceId={proverbe.id} resourceType="PROVERBE" />
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                  disabled={isPending || loading}
-                  className={`rounded-full p-1.5 ${c.hoverBg} ${c.hoverBgDark} transition-all disabled:opacity-50`}
-                  title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                  aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                >
-                  <Bookmark
-                    className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark}`}
-                  />
-                </button>
-              </div>
-            ) : undefined}
+           extraActions={proverbe ? (
+               isLoggedIn && (
+               <div className="flex items-center gap-2">
+                 <ShareToLobbyButton resourceId={proverbe.id} resourceType="PROVERBE" />
+                 <button
+                   type="button"
+                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                   disabled={isPending || loading}
+                   className={`rounded-full p-1.5 ${c.hoverBg} ${c.hoverBgDark} transition-all disabled:opacity-50`}
+                   title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                   aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                 >
+                   <Bookmark
+                     className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark}`}
+                   />
+                 </button>
+               </div>
+               )
+             ) : undefined}
           />
 
           {error && !loading && (

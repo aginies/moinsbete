@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { sleep } from '@/lib/cache-helpers'
+import { runCacheScript } from './cache-script-helper'
 
 const WIKIQUOTE_API = 'https://fr.wikiquote.org/w/api.php'
 
@@ -334,14 +335,5 @@ export async function scrapeAndCacheCitation(): Promise<void> {
 }
 
 if (process.argv[1]?.includes('cache-citation')) {
-  scrapeAndCacheCitation()
-    .then(() => {
-      console.log('Done!')
-      process.exit(0)
-    })
-    .catch(e => {
-      console.error('Erreur:', e)
-      process.exit(1)
-    })
-    .finally(() => prisma.$disconnect())
+  runCacheScript(scrapeAndCacheCitation)
 }

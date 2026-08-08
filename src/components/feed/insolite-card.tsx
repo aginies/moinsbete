@@ -14,6 +14,7 @@ import { getTheme } from '@/lib/card-theme'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
 
@@ -50,8 +51,9 @@ export const InsoliteCard = React.memo(function InsoliteCardInner({
   showShare = true,
   isVisible,
   onToggle,
-}: InsoliteCardProps) {
+ }: InsoliteCardProps) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const [article, setArticle] = useState<InsoliteArticle | null>(null)
   const [loading, setLoading] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
@@ -112,18 +114,20 @@ export const InsoliteCard = React.memo(function InsoliteCardInner({
         extraActions={showBookmark && article ? (
           <div className="flex items-center gap-2 sm:gap-3">
             <ShareToLobbyButton resourceId={article.id} resourceType="INSOLITE" meta={{ title: article.title, description: article.description, url: article.url, imageUrl: article.imageUrl }} />
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
-              disabled={isPending || !article}
-              className={'rounded-full p-1.5 ' + c.hoverBg + ' ' + c.hoverBgDark + ' transition-all disabled:opacity-50'}
-              title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-              aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
-            >
-              <Bookmark
-                className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)}
-              />
-            </button>
+            {isLoggedIn && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
+                disabled={isPending || !article}
+                className={'rounded-full p-1.5 ' + c.hoverBg + ' ' + c.hoverBgDark + ' transition-all disabled:opacity-50'}
+                title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+              >
+                <Bookmark
+                  className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)}
+                />
+              </button>
+            )}
           </div>
         ) : undefined}
       />

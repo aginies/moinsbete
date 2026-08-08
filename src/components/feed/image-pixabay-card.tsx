@@ -14,6 +14,7 @@ import { ImageLoading } from './image-loading'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { useTranslations } from 'next-intl'
 
 interface PixabayVideo {
@@ -96,6 +97,7 @@ function ImagePixabayCardInner({
   isVisible?: boolean
 }) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const [video, setVideo] = useState<PixabayVideo | null>(() => {
     if (typeof sessionStorage === 'undefined') return null
     const saved = sessionStorage.getItem('pixabay_video')
@@ -270,18 +272,20 @@ function ImagePixabayCardInner({
             >
               <RefreshCw className={'h-4 w-4 sm:h-5 sm:w-5 ' + (loading ? 'animate-spin' : '')} />
             </button>
-            {video && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                disabled={isPending}
-                className={'ml-2 sm:ml-4 ' + c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors disabled:opacity-50'}
-                title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
-              >
-                <Bookmark className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)} />
-              </button>
-            )}
+           {video && (
+               isLoggedIn && (
+               <button
+                 type="button"
+                 onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                 disabled={isPending}
+                 className={'ml-2 sm:ml-4 ' + c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors disabled:opacity-50'}
+                 title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                 aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+               >
+                 <Bookmark className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)} />
+               </button>
+               )
+             )}
           </div>
         }
       />

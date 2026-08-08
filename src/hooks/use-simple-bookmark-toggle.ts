@@ -11,6 +11,15 @@ interface UseSimpleBookmarkToggleOptions {
   onFavoriteChange?: (fav: boolean) => void
 }
 
+function checkSession(): boolean {
+  try {
+    const cookie = document.cookie.split(';').find(c => c.trim().startsWith('session='))
+    return !!cookie
+  } catch {
+    return false
+  }
+}
+
 export function useSimpleBookmarkToggle({
   toggleFn,
   resourceId,
@@ -32,6 +41,7 @@ export function useSimpleBookmarkToggle({
 
   const handleBookmark = useCallback(async () => {
     if (!resourceId || guard?.()) return
+    if (!checkSession()) return
     const newFavorite = !isFavorite
     setIsPending(true)
     try {

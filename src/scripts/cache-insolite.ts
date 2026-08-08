@@ -1,6 +1,7 @@
 import { prisma } from '../lib/db'
 import { sleep } from '../lib/cache-helpers'
 import { gunzipSync, inflateSync } from 'zlib'
+import { runCacheScript } from './cache-script-helper'
 
 const INSOLITE_PAGE_URL = 'https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Articles_insolites'
 const TTL_MS = 24 * 60 * 60 * 1000
@@ -244,14 +245,5 @@ export async function scrapeAndCacheInsolite(enrichImages: boolean = false): Pro
 
 if (process.argv[2] === 'insolite') {
   const enrich = process.argv.includes('--enrich')
-  scrapeAndCacheInsolite(enrich)
-    .then(() => {
-      console.log('Done!')
-      process.exit(0)
-    })
-    .catch(e => {
-      console.error('Erreur:', e)
-      process.exit(1)
-    })
-    .finally(() => prisma.$disconnect())
+  runCacheScript(() => scrapeAndCacheInsolite(enrich))
 }

@@ -10,6 +10,7 @@ import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { toggleCitationFavoriteAction } from '@/actions/citation-bookmark-actions'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { useTranslations } from 'next-intl'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
@@ -85,6 +86,7 @@ function CitationItemRow({
   onToggleFavorite: (id: string, current: boolean) => void
 }) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme('amber')
 
   return (
@@ -122,6 +124,7 @@ function CitationItemRow({
         </div>
         <div className="flex-shrink-0 flex items-center gap-1">
           <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, ...(item.source && { source: item.source }), url: item.wikiUrl, category: item.category }} />
+          {isLoggedIn && (
           <button
             onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id, isFavorite) }}
             className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
@@ -129,6 +132,7 @@ function CitationItemRow({
           >
             <Bookmark className={'h-4 w-4 ' + (isFavorite ? 'fill-current' : '')} />
           </button>
+          )}
         </div>
       </div>
     </div>
@@ -143,6 +147,7 @@ export const CitationCard = React.memo(function CitationCardInner({
   searchQuery,
 }: CitationCardProps) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme('amber')
   const [activeTab, setActiveTab] = useState('auteurs')
 
@@ -477,24 +482,26 @@ export const CitationCard = React.memo(function CitationCardInner({
                             )}
                           </div>
        <div className="flex items-center justify-center gap-2 mt-3">
-                              <Link
-                                href={sanitizeUrl(item.wikiUrl)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className={'text-xs hover:underline ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark}
-                              >
-                                {t('read_citation')}
-                              </Link>
-       <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, ...(item.source && { source: item.source }), url: item.wikiUrl, category: item.category }} />
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleBookmark(item.id, allFavorites.has(item.id)) }}
-                                className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
-                                title={allFavorites.has(item.id) ? t('remove_favorite') : t('add_favorite')}
-                              >
-                                <Bookmark className={`h-4 w-4 ${allFavorites.has(item.id) ? 'fill-current' : ''}`} />
-                              </button>
-                            </div>
+                               <Link
+                                 href={sanitizeUrl(item.wikiUrl)}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 onClick={(e) => e.stopPropagation()}
+                                 className={'text-xs hover:underline ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark}
+                               >
+                                 {t('read_citation')}
+                               </Link>
+        <ShareToLobbyButton resourceId={item.id} resourceType="CITATION" meta={{ text: item.text, author: item.author, ...(item.source && { source: item.source }), url: item.wikiUrl, category: item.category }} />
+                               {isLoggedIn && (
+                               <button
+                                 onClick={(e) => { e.stopPropagation(); handleBookmark(item.id, allFavorites.has(item.id)) }}
+                                 className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
+                                 title={allFavorites.has(item.id) ? t('remove_favorite') : t('add_favorite')}
+                               >
+                                 <Bookmark className={`h-4 w-4 ${allFavorites.has(item.id) ? 'fill-current' : ''}`} />
+                               </button>
+                               )}
+                             </div>
                         </div>
                       ))}
                     </div>

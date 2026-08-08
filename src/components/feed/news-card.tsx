@@ -11,6 +11,7 @@ import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { useTranslations } from 'next-intl'
 
 export interface NewsArticle {
@@ -119,6 +120,7 @@ async function fetchArticles(categories: string | null, excludeUrl?: string, que
 
 function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infiniteScroll = false, onLoadMore, maxHeight }: NewsCardProps) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme('blue')
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
@@ -468,17 +470,19 @@ function NewsCardInner({ onToggle, showToggle = true, isVisible, linkHref, infin
                         )}
                         <div className="flex items-center gap-2">
                           <ShareToLobbyButton resourceId={article.url} resourceType="NEWS" meta={{ title: article.title, description: article.description, imageUrl: article.imageUrl, source: article.source, category: article.category }} />
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleBookmark(article, isFav)
-                            }}
-                            className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
-                            title={isFav ? t('remove_favorite') : t('add_favorite')}
-                            aria-label={isFav ? t('remove_favorite') : t('add_favorite')}
-                          >
-                            <Bookmark className={'h-4 w-4 ' + (isFav ? ('fill-current ' + c.actionFilled + ' ' + c.actionFilledDark) : (c.action + ' ' + c.actionDark))} />
-                          </button>
+                          {isLoggedIn && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleBookmark(article, isFav)
+                              }}
+                              className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
+                              title={isFav ? t('remove_favorite') : t('add_favorite')}
+                              aria-label={isFav ? t('remove_favorite') : t('add_favorite')}
+                            >
+                              <Bookmark className={'h-4 w-4 ' + (isFav ? ('fill-current ' + c.actionFilled + ' ' + c.actionFilledDark) : (c.action + ' ' + c.actionDark))} />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

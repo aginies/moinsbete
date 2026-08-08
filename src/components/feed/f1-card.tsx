@@ -11,6 +11,7 @@ import { getTheme } from '@/lib/card-theme'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { toggleF1FavoriteAction } from '@/actions/f1-bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { useTranslations } from 'next-intl'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ImageLightbox } from './image-lightbox'
@@ -142,6 +143,7 @@ export const F1Card = React.memo(function F1CardInner({
   userId,
 }: F1CardProps) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme('rose')
   const [activeTab, setActiveTab] = useState('image')
   const [data, setData] = useState<F1Data | null>(null)
@@ -347,15 +349,17 @@ export const F1Card = React.memo(function F1CardInner({
                               <span className={'text-xs ' + c.muted + ' ' + c.mutedDark}>{article.date}</span>
                             </div>
                           </div>
-                          <div className="flex-shrink-0 flex items-center gap-1">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleBookmarkActualite(article.url, favorites.has(article.url)) }}
-                              className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
-                              title={favorites.has(article.url) ? t('remove_favorite') : t('add_favorite')}
-                            >
-                              <Bookmark className={`h-4 w-4 ${favorites.has(article.url) ? 'fill-current' : ''}`} />
-                            </button>
-                          </div>
+                         <div className="flex-shrink-0 flex items-center gap-1">
+                            {isLoggedIn && (
+                             <button
+                               onClick={(e) => { e.stopPropagation(); handleBookmarkActualite(article.url, favorites.has(article.url)) }}
+                               className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
+                               title={favorites.has(article.url) ? t('remove_favorite') : t('add_favorite')}
+                             >
+                               <Bookmark className={`h-4 w-4 ${favorites.has(article.url) ? 'fill-current' : ''}`} />
+                             </button>
+                            )}
+                           </div>
                         </div>
                         {article.content && (
                           <p className={'text-xs leading-relaxed line-clamp-3 mt-2 ' + c.body + ' ' + c.bodyDark}>
@@ -587,14 +591,16 @@ export const F1Card = React.memo(function F1CardInner({
                                 </div>
                               </div>
                               <div className="flex-shrink-0 flex items-center gap-1">
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleBookmarkActualite(article.url, favorites.has(article.url)) }}
-                                  className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
-                                  title={favorites.has(article.url) ? t('remove_favorite') : t('add_favorite')}
-                                >
-                                  <Bookmark className={`h-4 w-4 ${favorites.has(article.url) ? 'fill-current' : ''}`} />
-                                </button>
-                              </div>
+                                 {isLoggedIn && (
+                                 <button
+                                   onClick={(e) => { e.stopPropagation(); handleBookmarkActualite(article.url, favorites.has(article.url)) }}
+                                   className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
+                                   title={favorites.has(article.url) ? t('remove_favorite') : t('add_favorite')}
+                                 >
+                                   <Bookmark className={`h-4 w-4 ${favorites.has(article.url) ? 'fill-current' : ''}`} />
+                                 </button>
+                                 )}
+                               </div>
                             </div>
                             {article.content && (
                               <p className={'text-xs leading-relaxed line-clamp-3 mt-2 ' + c.body + ' ' + c.bodyDark}>
@@ -635,13 +641,15 @@ export const F1Card = React.memo(function F1CardInner({
                           <div className="flex-1">
                             <p className={'text-sm leading-relaxed ' + c.bodyBold + ' ' + c.bodyBoldDark}>{fact.text}</p>
                           </div>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleBookmarkFact(fact.id, favorites.has(fact.id)) }}
-                            className={'flex-shrink-0 transition-colors ' + c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark}
-                            title={favorites.has(fact.id) ? t('remove_favorite') : t('add_favorite')}
-                          >
-                            <Bookmark className={`h-4 w-4 ${favorites.has(fact.id) ? 'fill-current' : ''}`} />
-                          </button>
+                          {isLoggedIn && (
+                           <button
+                             onClick={(e) => { e.stopPropagation(); handleBookmarkFact(fact.id, favorites.has(fact.id)) }}
+                             className={'flex-shrink-0 transition-colors ' + c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark}
+                             title={favorites.has(fact.id) ? t('remove_favorite') : t('add_favorite')}
+                           >
+                             <Bookmark className={`h-4 w-4 ${favorites.has(fact.id) ? 'fill-current' : ''}`} />
+                           </button>
+                           )}
                         </div>
                       </div>
                     ))}

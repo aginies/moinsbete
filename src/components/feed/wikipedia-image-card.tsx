@@ -17,6 +17,7 @@ import { ImageLoading } from './image-loading'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { encodeImageToUrl } from '@/lib/image-url-encoder'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
@@ -72,6 +73,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
   isVisible,
   wikipediaImageShowEn: initialShowEn,
 }: WikipediaImageCardProps) {
+  const isLoggedIn = useIsLoggedIn()
   const t = useTranslations('feed')
   const [showFr, setShowFr] = useState(true)
   const [showEn, setShowEn] = useState(initialShowEn ?? false)
@@ -221,25 +223,27 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
          shareOptions={{ onClick: handleShare, copied, shareUrl }}
          enableAutoRefresh={enableAutoRefresh}
          storageKey={storageKey}
-         extraActions={
-            image && showBookmark && (
-              <div className="flex items-center gap-2">
-                <ShareToLobbyButton resourceId={image.fileUrl} resourceType="IMAGE_DU_JOUR" meta={{ imageUrl: image.imageUrl, description: image.description, fileUrl: image.fileUrl, date: image.date }} />
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
-                  disabled={isPending}
-                  className={'rounded-full p-1.5 ' + c.hoverBg + ' ' + c.hoverBgDark + ' transition-all disabled:opacity-50'}
-                  title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                  aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                >
-                  <Bookmark
-                    className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)}
-                  />
-                </button>
-              </div>
-            )
-          }
+extraActions={
+             image && showBookmark && (
+               <div className="flex items-center gap-2">
+                 <ShareToLobbyButton resourceId={image.fileUrl} resourceType="IMAGE_DU_JOUR" meta={{ imageUrl: image.imageUrl, description: image.description, fileUrl: image.fileUrl, date: image.date }} />
+                 {isLoggedIn && (
+                   <button
+                     type="button"
+                     onClick={(e) => { e.stopPropagation(); handleToggleFavorite() }}
+                     disabled={isPending}
+                     className={'rounded-full p-1.5 ' + c.hoverBg + ' ' + c.hoverBgDark + ' transition-all disabled:opacity-50'}
+                     title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                     aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                   >
+                     <Bookmark
+                       className={'h-4 w-4 sm:h-5 sm:w-5 ' + (isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)}
+                     />
+                   </button>
+                 )}
+               </div>
+             )
+           }
       />
 
       {error && !loading && (

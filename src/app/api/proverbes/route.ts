@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
+import { getClientIp, isAllowedIp } from '@/lib/ip'
 
 const WIKTIONARY_BASE = 'https://fr.wiktionary.org'
 
@@ -90,30 +91,6 @@ interface CachedProverbe {
   wiktionnaireUrl?: string
   etymologie?: string
   definitions?: string[]
-}
-
-function isAllowedIp(request: Request): boolean {
-  const forwardedIp = request.headers.get('x-forwarded-for')
-  const realIp = request.headers.get('x-real-ip')
-  const ip = forwardedIp?.split(',')[0].trim() || realIp || 'unknown'
-  
-  const allowedIps = ['62.210.207.184', '127.0.0.1', '::1', '10.0.0.0/8', '100.0.0.0/8', '192.168.0.0/16']
-  
-  function ipMatchesNetwork(ipStr: string, network: string, prefixLen: number): boolean {
-    const ipInt = ipStr.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0
-    const networkInt = network.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0
-    const mask = prefixLen === 0 ? 0 : (~0 << (32 - prefixLen)) >>> 0
-    return (ipInt & mask) === (networkInt & mask)
-  }
-  
-  if (allowedIps.includes(ip)) return true
-  for (const cidr of allowedIps) {
-    if (cidr.includes('/')) {
-      const [network, prefixLen] = cidr.split('/')
-      if (ipMatchesNetwork(ip, network, parseInt(prefixLen, 10))) return true
-    }
-  }
-  return false
 }
 
 const cleanWikitext = (text: string): string => {
@@ -820,7 +797,7 @@ export async function GET(request: Request) {
 
   if (action === 'fetch-all') {
     const session = await getSession()
-    if (!isAllowedIp(request) && session?.user?.role !== 'ADMIN') {
+    if (!isAllowedIp(getClientIp(request)) && session?.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
 
@@ -867,7 +844,7 @@ export async function GET(request: Request) {
 
   if (action === 'clear-cache') {
     const session = await getSession()
-    if (!isAllowedIp(request) && session?.user?.role !== 'ADMIN') {
+    if (!isAllowedIp(getClientIp(request)) && session?.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
 
@@ -1006,7 +983,7 @@ export async function POST(request: Request) {
   const action = searchParams.get('action')
 
   const session = await getSession()
-  if (!isAllowedIp(request) && session?.user?.role !== 'ADMIN') {
+  if (!isAllowedIp(getClientIp(request)) && session?.user?.role !== 'ADMIN') {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 

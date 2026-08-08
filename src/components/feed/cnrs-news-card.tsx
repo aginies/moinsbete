@@ -8,6 +8,7 @@ import { useItemShare } from './use-item-share'
 import { ShareButton } from './share-button'
 import { toggleCnrsFavoriteAction, isCnrsFavoriteAction } from '@/actions/cnrs-bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { CardShell } from './card-shell'
@@ -62,6 +63,7 @@ async function fetchRandomArticle(): Promise<CnrsArticle | null> {
 
 function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsCardProps) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme('green')
   const [article, setArticle] = useState<CnrsArticle | null>(() => {
     if (typeof sessionStorage === 'undefined') return null
@@ -166,20 +168,22 @@ function CnrsNewsCardInner({ onToggle, showToggle = true, isVisible }: CnrsNewsC
               </button>
             )}
             <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${c.action} ${c.actionDark} cursor-pointer transition-transform hover:scale-110 ${loading ? 'animate-spin' : ''}`} onClick={(e) => { e.stopPropagation(); loadArticle() }} />
-            {article && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleBookmark()
-                }}
-                disabled={isPending}
-                className={`${c.action} ${c.actionHover} ${c.actionDark} ${c.actionHoverDark} transition-colors disabled:opacity-50`}
-                title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
-              >
-                <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark}`} />
-              </button>
-            )}
+           {article && (
+               isLoggedIn && (
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation()
+                   handleBookmark()
+                 }}
+                 disabled={isPending}
+                 className={`${c.action} ${c.actionHover} ${c.actionDark} ${c.actionHoverDark} transition-colors disabled:opacity-50`}
+                 title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                 aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+               >
+                 <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark}`} />
+               </button>
+               )
+             )}
             <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
           </div>
         </div>

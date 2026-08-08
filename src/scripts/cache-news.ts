@@ -1,5 +1,6 @@
 import { prisma } from '../lib/db'
 import { cleanupExpired, cleanupNewsByMaxAge } from '../lib/cache-helpers'
+import { runCacheScript } from './cache-script-helper'
 
 const FREE_NEWS_API_KEY = process.env.FREE_NEWS_API_KEY || ''
 const FREE_NEWS_API_BASE = 'https://api.freenewsapi.io/v1'
@@ -438,14 +439,5 @@ export async function scrapeAndCacheNews(): Promise<void> {
 }
 
 if (process.argv[1]?.includes('cache-news')) {
-  scrapeAndCacheNews()
-    .then(() => {
-      console.log('\nDone!')
-      process.exit(0)
-    })
-    .catch(e => {
-      console.error('Erreur:', e)
-      process.exit(1)
-    })
-    .finally(() => prisma.$disconnect())
+  runCacheScript(scrapeAndCacheNews)
 }

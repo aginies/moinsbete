@@ -70,8 +70,15 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
   const [selectedUsers, setSelectedUsers] = useState<User[]>([])
   const [shareToCommunity, setShareToCommunity] = useState(false)
   const [checkingUserIds, setCheckingUserIds] = useState<Set<string>>(new Set())
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const checkedRef = useRef<Set<string>>(new Set())
+
+  useEffect(() => {
+    fetch('/api/session').then(r => r.json()).then(d => setIsLoggedIn(!!d?.user)).catch(() => setIsLoggedIn(false))
+  }, [])
+
+  if (!isLoggedIn) return null
 
   useEffect(() => {
     const key = `${resourceType}:${resourceId}`

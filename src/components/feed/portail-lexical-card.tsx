@@ -11,6 +11,7 @@ import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
 import { toggleBookmarkAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { CardHeader } from './card-header'
 import { useTranslations } from 'next-intl'
 
@@ -55,6 +56,7 @@ async function fetchWordOfTheDay(): Promise<PortailLexicalWord | null> {
 
 function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: PortailLexicalCardProps) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme('amber')
   const [word, setWord] = useState<PortailLexicalWord | null>(null)
   const [loading, setLoading] = useState(false)
@@ -144,20 +146,22 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
               showRefresh={false}
               loading={loading}
               shareOptions={word ? { onClick: handleShare, copied, shareUrl: shareUrlResult } : undefined}
-               extraActions={word ? (
-                <button
-                   type="button"
-                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                   disabled={isPending || loading}
-                   className={`rounded-full p-1.5 ${c.hoverBg} ${c.hoverBgDark} transition-all disabled:opacity-50`}
-                   title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                   aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                >
-                     <Bookmark
-                       className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark}`}
-                     />
-                  </button>
-                ) : undefined}
+extraActions={word ? (
+                 isLoggedIn && (
+                 <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                    disabled={isPending || loading}
+                    className={`rounded-full p-1.5 ${c.hoverBg} ${c.hoverBgDark} transition-all disabled:opacity-50`}
+                    title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                    aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                 >
+                      <Bookmark
+                        className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark}`}
+                      />
+                   </button>
+                 )
+               ) : undefined}
             />
 
             {error && !loading && (

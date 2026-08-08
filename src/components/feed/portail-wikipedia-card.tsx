@@ -12,6 +12,7 @@ import { isPortailWikipediaFavoriteBatchAction } from '@/actions/portail-wikiped
 import { CardHeader } from './card-header'
 import { ShareButton } from './share-button'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { useTranslations } from 'next-intl'
 
 interface PortailWikipediaArticle {
@@ -42,6 +43,7 @@ async function fetchArticles(count: number): Promise<PortailWikipediaArticle[]> 
 
 function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = true }: PortailWikipediaCardProps) {
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme('indigo')
   const [articles, setArticles] = useState<PortailWikipediaArticle[]>([])
   const [loading, setLoading] = useState(false)
@@ -217,18 +219,20 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
                         </Link>
                         <div className="flex items-center gap-2 ml-auto">
                           <ShareToLobbyButton resourceId={article.id} resourceType="PORTAIL_WIKIPEDIA" meta={{ title: article.title, extract: article.extract, imageUrl: article.imageUrl, pageUrl: article.pageUrl }} />
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleBookmark(article, favorites.has(article.pageUrl))
-                            }}
-                            className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
-                            title={favorites.has(article.pageUrl) ? t('remove_favorite') : t('add_favorite')}
-                            aria-label={favorites.has(article.pageUrl) ? t('remove_favorite') : t('add_favorite')}
-                          >
-                            <Bookmark className={'h-4 w-4 ' + (favorites.has(article.pageUrl) ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)} />
-                          </button>
+                          {isLoggedIn && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleBookmark(article, favorites.has(article.pageUrl))
+                              }}
+                              className={c.action + ' ' + c.actionHover + ' ' + c.actionDark + ' ' + c.actionHoverDark + ' transition-colors'}
+                              title={favorites.has(article.pageUrl) ? t('remove_favorite') : t('add_favorite')}
+                              aria-label={favorites.has(article.pageUrl) ? t('remove_favorite') : t('add_favorite')}
+                            >
+                              <Bookmark className={'h-4 w-4 ' + (favorites.has(article.pageUrl) ? 'fill-current ' + c.actionFilled + ' ' + c.actionFilledDark : c.action + ' ' + c.actionDark)} />
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={(e) => {

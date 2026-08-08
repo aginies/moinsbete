@@ -15,6 +15,7 @@ import { ImageLoading } from './image-loading'
 import { isValidUrl } from '@/lib/utils'
 import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import type { BookmarkType } from '@/generated/client'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
@@ -128,6 +129,7 @@ export function BaseImageCard<TTopic>({
   } = config
 
   const t = useTranslations('feed')
+  const isLoggedIn = useIsLoggedIn()
   const c = getTheme(color)
   const imageStorageKey = storageKey ? `base_image_${storageKey}` : 'base_image'
 
@@ -297,18 +299,20 @@ export function BaseImageCard<TTopic>({
               >
                 <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
-             {image && (
-                <button
-                   type="button"
-                   onClick={(e) => { e.stopPropagation(); handleBookmark() }}
-                   disabled={isPending}
-                   className={`${c.title} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
-                   title={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                   aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
-                >
-                  <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current' : ''}`} />
-                </button>
-              )}
+            {image && (
+                 isLoggedIn && (
+                 <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); handleBookmark() }}
+                    disabled={isPending}
+                    className={`${c.title} rounded-full p-1.5 hover:bg-current/10 transition-all disabled:opacity-50`}
+                    title={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                    aria-label={isFavorite ? t('remove_favorite') : t('add_favorite')}
+                 >
+                   <Bookmark className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current' : ''}`} />
+                 </button>
+                 )
+               )}
               {image && config.resourceType && (
                 <ShareToLobbyButton resourceId={image.docid} resourceType={config.resourceType} meta={{ titre: image.titre, auteur: image.auteur, imageUrl: image.imageUrl, link: image.link, droits: image.droits }} />
               )}

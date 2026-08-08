@@ -2,22 +2,20 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Share2, Quote, Trash2, Trophy, Globe, Download, Sparkles } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Quote, Trash2, Trophy, Globe, Download, Sparkles } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
-import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { useBookmarkToggle } from '@/hooks/use-bookmark-toggle'
+import { useSharedResources } from '@/hooks/use-shared-resources'
+import { useShareToLobby } from '@/hooks/use-share-to-lobby'
+import { useSourceCount } from '@/hooks/use-source-count'
 import { RadioFranceFavorites } from './radio-france-favorites'
 import { CnrsBookmarks } from '@/components/feed/cnrs-bookmarks'
 import { type CompactIdea } from '@/types/idea'
-import { type ImageDuJourFavoriteDoc } from '@/lib/image-du-jour-bookmark'
-import { type WikiLovesImageFavoriteDoc } from '@/lib/image-wikiloves-bookmark'
-import { type WikimediaImageFavoriteDoc } from '@/lib/image-wikimedia-bookmark'
-import { type ProverbeFavoriteDoc } from '@/lib/proverbe-bookmark'
 import { normalizeAccents } from '@/lib/utils'
 import { ImageDuJourBookmarks } from '@/components/feed/image-du-jour-bookmarks'
 import { SaviezVousBookmarks } from '@/components/feed/saviez-vous-bookmarks'
@@ -33,8 +31,6 @@ import { CitationBookmarks } from './citation-bookmarks'
 import { InsoliteBookmarks } from '@/components/feed/insolite-bookmarks'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
-import { shareToLobby, unshareFromLobby, shareResourceToLobby, unshareResourceFromLobby } from '@/actions/lobby-share-actions'
-import { toast } from 'sonner'
 import { SearchResults } from '@/components/lobby/search-results'
 import { useTranslations } from 'next-intl'
 
@@ -86,100 +82,20 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const router = useRouter()
   const t = useTranslations('feed')
   const [activeTab, setActiveTab] = useState<Tab>(portailLexicalCount > 0 ? 'portail-lexical' : 'idees')
-  const [previousTab, setPreviousTab] = useState<Tab | null>(null)
   const hasInitialSet = useRef(false)
   const initialTabSetRef = useRef(false)
   const [searchQuery, setSearchQuery] = useState('')
   const previousTabRef = useRef<Tab | null>(null)
   const { savedIdeaIds, handleBookmark } = useBookmarkToggle(ideas)
-  const [sharedSaviezIds, setSharedSaviezIds] = useState<Set<string>>(new Set())
-  const [sharedImageIds, setSharedImageIds] = useState<Set<string>>(new Set())
-  const [sharedWikiLovesIds, setSharedWikiLovesIds] = useState<Set<string>>(new Set())
-  const [sharedWikimediaIds, setSharedWikimediaIds] = useState<Set<string>>(new Set())
-  const [sharedProverbeIds, setSharedProverbeIds] = useState<Set<string>>(new Set())
-  const [isSharing, setIsSharing] = useState<string | null>(null)
 
-  useEffect(() => {
-    const loadSaviezSharedState = async () => {
-      if (!userId) return
-      try {
-        const res = await fetch('/api/lobby/shared-resources?type=SAVIEZ_VOUS')
-        const data = await res.json()
-        if (data.resourceIds) {
-          setSharedSaviezIds(new Set(data.resourceIds))
-        }
-      } catch (err) {
-        console.error('Failed to load SaviezVous shared state:', err)
-      }
-    }
-    loadSaviezSharedState()
-  }, [userId])
+  // Shared resources (P3)
+  const [sharedSaviezIds, setSharedSaviezIds] = useSharedResources('SAVIEZ_VOUS', userId)
+  const [sharedImageIds, setSharedImageIds] = useSharedResources('IMAGE_DU_JOUR', userId)
+  const [sharedWikiLovesIds, setSharedWikiLovesIds] = useSharedResources('IMAGE_WIKILOVES', userId)
+  const [sharedWikimediaIds, setSharedWikimediaIds] = useSharedResources('IMAGE_WIKIMEDIA', userId)
+  const [sharedProverbeIds, setSharedProverbeIds] = useSharedResources('PROVERBE', userId)
 
-  useEffect(() => {
-    const loadImageSharedState = async () => {
-      if (!userId) return
-      try {
-        const res = await fetch('/api/lobby/shared-resources?type=IMAGE_DU_JOUR')
-        const data = await res.json()
-        if (data.resourceIds) {
-          setSharedImageIds(new Set(data.resourceIds))
-        }
-      } catch (err) {
-        console.error('Failed to load image shared state:', err)
-      }
-    }
-    loadImageSharedState()
-  }, [userId])
-
-  useEffect(() => {
-    const loadWikiLovesSharedState = async () => {
-      if (!userId) return
-      try {
-        const res = await fetch('/api/lobby/shared-resources?type=IMAGE_WIKILOVES')
-        const data = await res.json()
-        if (data.resourceIds) {
-          setSharedWikiLovesIds(new Set(data.resourceIds))
-        }
-      } catch (err) {
-        console.error('Failed to load WikiLoves shared state:', err)
-      }
-    }
-    loadWikiLovesSharedState()
-  }, [userId])
-
-  useEffect(() => {
-    const loadWikimediaSharedState = async () => {
-      if (!userId) return
-      try {
-        const res = await fetch('/api/lobby/shared-resources?type=IMAGE_WIKIMEDIA')
-        const data = await res.json()
-        if (data.resourceIds) {
-          setSharedWikimediaIds(new Set(data.resourceIds))
-        }
-      } catch (err) {
-        console.error('Failed to load Wikimedia shared state:', err)
-      }
-    }
-    loadWikimediaSharedState()
-  }, [userId])
-
-  useEffect(() => {
-    const loadProverbeSharedState = async () => {
-      if (!userId) return
-      try {
-        const res = await fetch('/api/lobby/shared-resources?type=PROVERBE')
-        const data = await res.json()
-        if (data.resourceIds) {
-          setSharedProverbeIds(new Set(data.resourceIds))
-        }
-      } catch (err) {
-        console.error('Failed to load proverbe shared state:', err)
-      }
-    }
-    loadProverbeSharedState()
-  }, [userId])
-
-  // Derived count for ideas to update immediately when bookmarks are toggled
+  // Derived count for ideas
   const originalIdsOnPage = useMemo(() => new Set(ideas.map(i => i.id)), [ideas])
   
   const currentBookmarkedOnPageCount = useMemo(() => {
@@ -195,248 +111,49 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const diff = currentBookmarkedOnPageCount - originalIdsOnPage.size
   const derivedIdeasCount = total + diff
 
-  // State-based counts for other tabs to support instant/optimistic updates on removal
-  const [radioCount, setRadioCount] = useState(radioFavoritesCount)
-  const [cnrsCount, setCnrsCount] = useState(cnrsFavoritesCount)
-  const [imageDuJourCount, setImageDuJourCount] = useState(imageDuJourFavoritesCount)
-  const [saviezVousCount, setSaviezVousCount] = useState(saviezVousFavoritesCount)
-  const [wikimediaCount, setWikimediaCount] = useState(wikimediaFavoritesCount)
-  const [wikilovesCount, setWikilovesCount] = useState(wikilovesFavoritesCount)
-  const [pixabayCount, setPixabayCount] = useState(pixabayFavoritesCount)
-  const [portailLexCount, setPortailLexCount] = useState(portailLexicalCount)
-  const [portailWikiCount, setPortailWikiCount] = useState(portailWikipediaCount)
-  const [proverbeCount, setProverbeCount] = useState(proverbeFavoritesCount)
-  const [newsCount, setNewsCount] = useState(newsFavoritesCount)
-  const [f1Count, setF1Count] = useState(f1FavoritesCount)
-  const [citationCount, setCitationCount] = useState(citationFavoritesCount)
-  const [insoliteCount, setInsoliteCount] = useState(insoliteFavoritesCount)
-  const prevCountsRef = useRef({ radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, portailWikipediaCount, proverbeFavoritesCount, newsFavoritesCount, f1FavoritesCount, citationFavoritesCount, insoliteFavoritesCount })
+  // Source counts (P5)
+  const [radioCount, handleRadioRemove] = useSourceCount(radioFavoritesCount)
+  const [cnrsCount, handleCnrsRemove] = useSourceCount(cnrsFavoritesCount)
+  const [imageDuJourCount, handleImageDuJourRemove] = useSourceCount(imageDuJourFavoritesCount)
+  const [saviezVousCount, handleSaviezVousRemove] = useSourceCount(saviezVousFavoritesCount)
+  const [wikimediaCount, handleWikimediaRemove] = useSourceCount(wikimediaFavoritesCount)
+  const [wikilovesCount, handleWikiLovesRemove] = useSourceCount(wikilovesFavoritesCount)
+  const [pixabayCount, handlePixabayRemove] = useSourceCount(pixabayFavoritesCount)
+  const [portailLexCount, handlePortailLexRemove] = useSourceCount(portailLexicalCount)
+  const [portailWikiCount, handlePortailWikiRemove] = useSourceCount(portailWikipediaCount)
+  const [proverbeCount, handleProverbeRemove] = useSourceCount(proverbeFavoritesCount)
+  const [newsCount, handleNewsRemove] = useSourceCount(newsFavoritesCount)
+  const [f1Count, handleF1Remove] = useSourceCount(f1FavoritesCount)
+  const [citationCount, handleCitationRemove] = useSourceCount(citationFavoritesCount)
+  const [insoliteCount, handleInsoliteRemove] = useSourceCount(insoliteFavoritesCount)
 
-  useEffect(() => {
-    const prev = prevCountsRef.current
-    if (prev.radioFavoritesCount !== radioFavoritesCount) setRadioCount(radioFavoritesCount)
-    if (prev.cnrsFavoritesCount !== cnrsFavoritesCount) setCnrsCount(cnrsFavoritesCount)
-    if (prev.imageDuJourFavoritesCount !== imageDuJourFavoritesCount) setImageDuJourCount(imageDuJourFavoritesCount)
-    if (prev.saviezVousFavoritesCount !== saviezVousFavoritesCount) setSaviezVousCount(saviezVousFavoritesCount)
-    if (prev.wikimediaFavoritesCount !== wikimediaFavoritesCount) setWikimediaCount(wikimediaFavoritesCount)
-    if (prev.wikilovesFavoritesCount !== wikilovesFavoritesCount) setWikilovesCount(wikilovesFavoritesCount)
-    if (prev.pixabayFavoritesCount !== pixabayFavoritesCount) setPixabayCount(pixabayFavoritesCount)
-    if (prev.portailLexicalCount !== portailLexicalCount) setPortailLexCount(portailLexicalCount)
-    if (prev.portailWikipediaCount !== portailWikipediaCount) setPortailWikiCount(portailWikipediaCount)
-    if (prev.proverbeFavoritesCount !== proverbeFavoritesCount) setProverbeCount(proverbeFavoritesCount)
-    if (prev.newsFavoritesCount !== newsFavoritesCount) setNewsCount(newsFavoritesCount)
-    if (prev.f1FavoritesCount !== f1FavoritesCount) setF1Count(f1FavoritesCount)
-    if (prev.citationFavoritesCount !== citationFavoritesCount) setCitationCount(citationFavoritesCount)
-    if (prev.insoliteFavoritesCount !== insoliteFavoritesCount) setInsoliteCount(insoliteFavoritesCount)
-    prevCountsRef.current = { radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, portailWikipediaCount, proverbeFavoritesCount, newsFavoritesCount, f1FavoritesCount, citationFavoritesCount, insoliteFavoritesCount }
-  }, [radioFavoritesCount, cnrsFavoritesCount, imageDuJourFavoritesCount, saviezVousFavoritesCount, wikimediaFavoritesCount, wikilovesFavoritesCount, pixabayFavoritesCount, portailLexicalCount, portailWikipediaCount, proverbeFavoritesCount, newsFavoritesCount, f1FavoritesCount, citationFavoritesCount, insoliteFavoritesCount])
+  // Share-to-lobby handlers (P4)
+  const { toggle: handleSaviezVousShareToLobby, isSharing: saviezIsSharing } =
+    useShareToLobby('SAVIEZ_VOUS', sharedSaviezIds, setSharedSaviezIds, (v: string) => v)
 
-  const handleRadioRemove = useCallback(() => {
-    setRadioCount(prev => Math.max(0, prev - 1))
-  }, [])
+  const { toggle: handleImageShareToLobby, isSharing: imageIsSharing } =
+    useShareToLobby('IMAGE_DU_JOUR', sharedImageIds, setSharedImageIds,
+      (item: any) => item.fileUrl, (item: any) => item)
 
-  const handleCnrsRemove = useCallback(() => {
-    setCnrsCount(prev => Math.max(0, prev - 1))
-  }, [])
+  const { toggle: handleWikiLovesShareToLobby, isSharing: wikiLovesIsSharing } =
+    useShareToLobby('IMAGE_WIKILOVES', sharedWikiLovesIds, setSharedWikiLovesIds,
+      (item: any) => item.docid, (item: any) => item)
 
-  const handleImageDuJourRemove = useCallback(() => {
-    setImageDuJourCount(prev => Math.max(0, prev - 1))
-  }, [])
+  const { toggle: handleWikimediaShareToLobby, isSharing: wikimediaIsSharing } =
+    useShareToLobby('IMAGE_WIKIMEDIA', sharedWikimediaIds, setSharedWikimediaIds,
+      (item: any) => item.docid, (item: any) => item)
 
-  const handleSaviezVousRemove = useCallback(() => {
-    setSaviezVousCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handleWikimediaRemove = useCallback(() => {
-    setWikimediaCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handleWikiLovesRemove = useCallback(() => {
-    setWikilovesCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handlePixabayRemove = useCallback(() => {
-    setPixabayCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handlePortailLexRemove = useCallback(() => {
-    setPortailLexCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handlePortailWikiRemove = useCallback(() => {
-    setPortailWikiCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handleProverbeRemove = useCallback(() => {
-    setProverbeCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handleNewsRemove = useCallback(() => {
-    setNewsCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handleF1Remove = useCallback(() => {
-    setF1Count(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handleCitationRemove = useCallback(() => {
-    setCitationCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handleInsoliteRemove = useCallback(() => {
-    setInsoliteCount(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handleSaviezVousShareToLobby = async (resourceId: string) => {
-    setIsSharing(resourceId)
-    try {
-      const isShared = sharedSaviezIds.has(resourceId)
-      if (isShared) {
-        await unshareResourceFromLobby('SAVIEZ_VOUS', resourceId)
-        setSharedSaviezIds(prev => {
-          const next = new Set(prev)
-          next.delete(resourceId)
-          return next
-        })
-        toast.success('Retiré du lobby')
-        router.refresh()
-      } else {
-        const result = await shareResourceToLobby('SAVIEZ_VOUS', resourceId)
-        if (result.success) {
-          setSharedSaviezIds(prev => new Set([...prev, resourceId]))
-          toast.success('Partagé au lobby')
-          router.refresh()
-        } else {
-          toast.error(result.error)
-        }
-      }
-    } finally {
-      setIsSharing(null)
-    }
-  }
-
-  const handleImageShareToLobby = async (item: ImageDuJourFavoriteDoc) => {
-    const resourceId = item.fileUrl
-    setIsSharing(resourceId)
-    try {
-      const isShared = sharedImageIds.has(resourceId)
-      if (isShared) {
-        await unshareResourceFromLobby('IMAGE_DU_JOUR', resourceId)
-        setSharedImageIds(prev => {
-          const next = new Set(prev)
-          next.delete(resourceId)
-          return next
-        })
-        toast.success('Retiré du lobby')
-        router.refresh()
-      } else {
-        const result = await shareResourceToLobby('IMAGE_DU_JOUR', resourceId, item as any)
-        if (result.success) {
-          setSharedImageIds(prev => new Set([...prev, resourceId]))
-          toast.success('Partagé au lobby')
-          router.refresh()
-        } else {
-          toast.error(result.error)
-        }
-      }
-    } finally {
-      setIsSharing(null)
-    }
-  }
-
-  const handleWikiLovesShareToLobby = async (item: WikiLovesImageFavoriteDoc) => {
-    const resourceId = item.docid
-    setIsSharing(resourceId)
-    try {
-      const isShared = sharedWikiLovesIds.has(resourceId)
-      if (isShared) {
-        await unshareResourceFromLobby('IMAGE_WIKILOVES', resourceId)
-        setSharedWikiLovesIds(prev => {
-          const next = new Set(prev)
-          next.delete(resourceId)
-          return next
-        })
-        toast.success('Retiré du lobby')
-        router.refresh()
-      } else {
-        const result = await shareResourceToLobby('IMAGE_WIKILOVES', resourceId, item as any)
-        if (result.success) {
-          setSharedWikiLovesIds(prev => new Set([...prev, resourceId]))
-          toast.success('Partagé au lobby')
-          router.refresh()
-        } else {
-          toast.error(result.error)
-        }
-      }
-    } finally {
-      setIsSharing(null)
-    }
-  }
-
-  const handleWikimediaShareToLobby = async (item: WikimediaImageFavoriteDoc) => {
-    const resourceId = item.docid
-    setIsSharing(resourceId)
-    try {
-      const isShared = sharedWikimediaIds.has(resourceId)
-      if (isShared) {
-        await unshareResourceFromLobby('IMAGE_WIKIMEDIA', resourceId)
-        setSharedWikimediaIds(prev => {
-          const next = new Set(prev)
-          next.delete(resourceId)
-          return next
-        })
-        toast.success('Retiré du lobby')
-        router.refresh()
-      } else {
-        const result = await shareResourceToLobby('IMAGE_WIKIMEDIA', resourceId, item as any)
-        if (result.success) {
-          setSharedWikimediaIds(prev => new Set([...prev, resourceId]))
-          toast.success('Partagé au lobby')
-          router.refresh()
-        } else {
-          toast.error(result.error)
-        }
-      }
-    } finally {
-      setIsSharing(null)
-    }
-  }
-
-  const handleProverbeShareToLobby = async (item: ProverbeFavoriteDoc) => {
-    const resourceId = item.id
-    setIsSharing(resourceId)
-    try {
-      const isShared = sharedProverbeIds.has(resourceId)
-      if (isShared) {
-        await unshareResourceFromLobby('PROVERBE', resourceId)
-        setSharedProverbeIds(prev => {
-          const next = new Set(prev)
-          next.delete(resourceId)
-          return next
-        })
-        toast.success('Retiré du lobby')
-        router.refresh()
-      } else {
-        const result = await shareResourceToLobby('PROVERBE', resourceId, {
-          text: item.text,
-          signification: item.signification,
-          source: item.source,
-          wiktionnaireUrl: item.wiktionnaireUrl,
-          etymologie: item.etymologie,
-          definitions: item.definitions,
-        })
-        if (result.success) {
-          setSharedProverbeIds(prev => new Set([...prev, resourceId]))
-          toast.success('Partagé au lobby')
-          router.refresh()
-        } else {
-          toast.error(result.error)
-        }
-      }
-    } finally {
-      setIsSharing(null)
-    }
-  }
+  const { toggle: handleProverbeShareToLobby, isSharing: proverbeIsSharing } =
+    useShareToLobby('PROVERBE', sharedProverbeIds, setSharedProverbeIds,
+      (item: any) => item.id,
+      (item: any) => ({
+        text: item.text,
+        signification: item.signification,
+        source: item.source,
+        wiktionnaireUrl: item.wiktionnaireUrl,
+        etymologie: item.etymologie,
+        definitions: item.definitions,
+      }))
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
@@ -450,23 +167,23 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     return `/favoris?page=${page}`
   }, [])
 
-    const tabConfig: TabConfig[] = useMemo(() => [
-      ...(derivedIdeasCount > 0 ? [{ id: 'idees' as Tab, label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount }] : []),
-      { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
-      { id: 'image-wikimedia', label: 'Wikimedia', Icon: BookOpen, count: wikimediaCount },
-       { id: 'image-wikiloves', label: 'Wiki Loves', Icon: Earth, count: wikilovesCount },
-       { id: 'image-pixabay', label: 'Pixabay', Icon: Video, count: pixabayCount },
-        { id: 'portail-lexical', label: 'Lexique', Icon: BookOpen, count: portailLexCount },
-        { id: 'portail-wikipedia', label: 'Portail Wikipédia', Icon: Globe, count: portailWikiCount },
-        { id: 'proverbe', label: 'Proverbes', Icon: Quote, count: proverbeCount },
-       { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
-       { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
-       { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
-        { id: 'news', label: 'NEWS', Icon: Newspaper, count: newsCount },
-{ id: 'f1', label: 'F1', Icon: Trophy, count: f1Count },
-          { id: 'citation', label: 'Citations', Icon: Quote, count: citationCount },
-        { id: 'insolite', label: 'Insolite', Icon: Sparkles, count: insoliteCount },
-        ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, portailWikiCount, proverbeCount, saviezVousCount, radioCount, cnrsCount, newsCount, f1Count, citationCount, insoliteCount])
+  const tabConfig: TabConfig[] = useMemo(() => [
+    ...(derivedIdeasCount > 0 ? [{ id: 'idees' as Tab, label: 'Idées', Icon: Lightbulb, count: derivedIdeasCount }] : []),
+    { id: 'image-du-jour', label: 'Images', Icon: ImageIcon, count: imageDuJourCount },
+    { id: 'image-wikimedia', label: 'Wikimedia', Icon: BookOpen, count: wikimediaCount },
+    { id: 'image-wikiloves', label: 'Wiki Loves', Icon: Earth, count: wikilovesCount },
+    { id: 'image-pixabay', label: 'Pixabay', Icon: Video, count: pixabayCount },
+    { id: 'portail-lexical', label: 'Lexique', Icon: BookOpen, count: portailLexCount },
+    { id: 'portail-wikipedia', label: 'Portail Wikipédia', Icon: Globe, count: portailWikiCount },
+    { id: 'proverbe', label: 'Proverbes', Icon: Quote, count: proverbeCount },
+    { id: 'saviez-vous', label: 'Saviez-vous ?', Icon: Info, count: saviezVousCount },
+    { id: 'radio-france', label: 'Radio France', Icon: Radio, count: radioCount },
+    { id: 'cnrs-news', label: 'CNRS', Icon: Newspaper, count: cnrsCount },
+    { id: 'news', label: 'NEWS', Icon: Newspaper, count: newsCount },
+    { id: 'f1', label: 'F1', Icon: Trophy, count: f1Count },
+    { id: 'citation', label: 'Citations', Icon: Quote, count: citationCount },
+    { id: 'insolite', label: 'Insolite', Icon: Sparkles, count: insoliteCount },
+  ], [derivedIdeasCount, imageDuJourCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, portailWikiCount, proverbeCount, saviezVousCount, radioCount, cnrsCount, newsCount, f1Count, citationCount, insoliteCount])
 
   const sortedTabs = useMemo(() => {
     const lexical = tabConfig.find(t => t.id === 'portail-lexical')
@@ -488,163 +205,47 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
         navigateTo: () => setActiveTab('idees'),
       })
     })
-    
-    if (radioCount > 0) {
-      results.push({
-        id: 'radio-placeholder',
-        title: `${radioCount} documentaires Radio France`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Radio France',
-        sourceTab: 'radio-france',
-        navigateTo: () => setActiveTab('radio-france'),
-      })
-    }
-    
-    if (cnrsCount > 0) {
-      results.push({
-        id: 'cnrs-placeholder',
-        title: `${cnrsCount} actualités CNRS`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'CNRS',
-        sourceTab: 'cnrs-news',
-        navigateTo: () => setActiveTab('cnrs-news'),
-      })
-    }
-    
-    if (newsCount > 0) {
-      results.push({
-        id: 'news-placeholder',
-        title: `${newsCount} actualités NEWS`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'NEWS',
-        sourceTab: 'news',
-        navigateTo: () => setActiveTab('news'),
-      })
-    }
-    
-    if (f1Count > 0) {
-      results.push({
-        id: 'f1-placeholder',
-        title: `${f1Count} favoris F1`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'F1',
-        sourceTab: 'f1',
-        navigateTo: () => setActiveTab('f1'),
-      })
-    }
 
-    if (citationCount > 0) {
-      results.push({
-        id: 'citation-placeholder',
-        title: `${citationCount} citations favorites`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Citations',
-        sourceTab: 'citation',
-        navigateTo: () => setActiveTab('citation'),
-      })
+    const sourceDescs: Record<string, string> = {
+      'radio-france': 'documentaires Radio France',
+      'cnrs-news': 'actualités CNRS',
+      'news': 'actualités NEWS',
+      'f1': 'favoris F1',
+      'citation': 'citations favorites',
+      'image-du-jour': 'images du jour',
+      'saviez-vous': 'faits "Saviez-vous ?"',
+      'image-wikimedia': 'images Wikimedia',
+      'image-wikiloves': 'images Wiki Loves',
+      'image-pixabay': 'vidéos Pixabay',
+      'portail-lexical': 'mots du Lexique',
+      'proverbe': 'proverbes',
+      'portail-wikipedia': 'articles Portail Wikipédia',
+      'insolite': 'articles insolites',
     }
-    
-    if (imageDuJourCount > 0) {
-      results.push({
-        id: 'image-placeholder',
-        title: `${imageDuJourCount} images du jour`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Images',
-        sourceTab: 'image-du-jour',
-        navigateTo: () => setActiveTab('image-du-jour'),
-      })
+    const counts: Record<string, number> = {
+      'radio-france': radioCount, 'cnrs-news': cnrsCount, 'news': newsCount,
+      'f1': f1Count, 'citation': citationCount, 'image-du-jour': imageDuJourCount,
+      'saviez-vous': saviezVousCount, 'image-wikimedia': wikimediaCount,
+      'image-wikiloves': wikilovesCount, 'image-pixabay': pixabayCount,
+      'portail-lexical': portailLexCount, 'proverbe': proverbeCount,
+      'portail-wikipedia': portailWikiCount, 'insolite': insoliteCount,
     }
-    
-    if (saviezVousCount > 0) {
-      results.push({
-        id: 'saviez-placeholder',
-        title: `${saviezVousCount} faits "Saviez-vous ?"`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Saviez-vous ?',
-        sourceTab: 'saviez-vous',
-        navigateTo: () => setActiveTab('saviez-vous'),
-      })
-    }
-    
-    if (wikimediaCount > 0) {
-      results.push({
-        id: 'wikimedia-placeholder',
-        title: `${wikimediaCount} images Wikimedia`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Wikimedia',
-        sourceTab: 'image-wikimedia',
-        navigateTo: () => setActiveTab('image-wikimedia'),
-      })
-    }
-    
-    if (wikilovesCount > 0) {
-      results.push({
-        id: 'wikiloves-placeholder',
-        title: `${wikilovesCount} images Wiki Loves`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Wiki Loves',
-        sourceTab: 'image-wikiloves',
-        navigateTo: () => setActiveTab('image-wikiloves'),
-      })
-    }
-    
-    if (pixabayCount > 0) {
-      results.push({
-        id: 'pixabay-placeholder',
-        title: `${pixabayCount} vidéos Pixabay`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Pixabay',
-        sourceTab: 'image-pixabay',
-        navigateTo: () => setActiveTab('image-pixabay'),
-      })
-    }
-    
-    if (portailLexCount > 0) {
-      results.push({
-        id: 'lexical-placeholder',
-        title: `${portailLexCount} mots du Lexique`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Lexique',
-        sourceTab: 'portail-lexical',
-        navigateTo: () => setActiveTab('portail-lexical'),
-      })
-    }
-    
-    if (proverbeCount > 0) {
-      results.push({
-        id: 'proverbe-placeholder',
-        title: `${proverbeCount} proverbes`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Proverbes',
-        sourceTab: 'proverbe',
-        navigateTo: () => setActiveTab('proverbe'),
-      })
-    }
-
-    if (portailWikiCount > 0) {
-      results.push({
-        id: 'portail-wikipedia-placeholder',
-        title: `${portailWikiCount} articles Portail Wikipédia`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Portail Wikipédia',
-        sourceTab: 'portail-wikipedia',
-        navigateTo: () => setActiveTab('portail-wikipedia'),
-      })
-    }
-
-    if (insoliteCount > 0) {
-      results.push({
-        id: 'insolite-placeholder',
-        title: `${insoliteCount} articles insolites`,
-        description: 'Cliquez pour voir les résultats',
-        source: 'Insolite',
-        sourceTab: 'insolite',
-        navigateTo: () => setActiveTab('insolite'),
-      })
+    const tabLabels = Object.fromEntries(sortedTabs.map(t => [t.id, t.label]))
+    for (const [tabId, count] of Object.entries(counts)) {
+      if (count > 0) {
+        results.push({
+          id: `${tabId}-placeholder`,
+          title: `${count} ${sourceDescs[tabId]}`,
+          description: 'Cliquez pour voir les résultats',
+          source: tabLabels[tabId],
+          sourceTab: tabId,
+          navigateTo: () => setActiveTab(tabId as Tab),
+        })
+      }
     }
 
     return results
-  }, [searchQuery, filteredIdeas, radioCount, cnrsCount, newsCount, imageDuJourCount, saviezVousCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, portailWikiCount, proverbeCount, citationCount])
+  }, [searchQuery, filteredIdeas, radioCount, cnrsCount, newsCount, f1Count, citationCount, imageDuJourCount, saviezVousCount, wikimediaCount, wikilovesCount, pixabayCount, portailLexCount, portailWikiCount, proverbeCount, insoliteCount, sortedTabs])
 
   useEffect(() => {
     if (searchQuery?.trim()) {
@@ -664,7 +265,6 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       if (firstNonEmptyTab) {
         hasInitialSet.current = true
         initialTabSetRef.current = true
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setActiveTab(firstNonEmptyTab.id)
       } else {
         hasInitialSet.current = true
@@ -745,21 +345,21 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
               {filteredIdeas.map((idea) => (
                 <div key={idea.id} className="group relative">
                   <CompactIdeaCard idea={{ ...idea, viewedAt: new Date().toISOString() }} />
-            <div className="absolute right-2 top-2 z-10 flex items-center gap-1">
-                <IdeaShareButton idea={idea} />
-                <ShareToLobbyButton resourceId={idea.id} resourceType="IDEA" />
-                <button
-                 type="button"
-                 className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
-                 onClick={(e) => {
-                   e.preventDefault()
-                   e.stopPropagation()
-                   handleBookmark(idea.id)
-                 }}
-               >
-                  <Trash2 className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
-               </button>
-             </div>
+                <div className="absolute right-2 top-2 z-10 flex items-center gap-1">
+                    <IdeaShareButton idea={idea} />
+                    <ShareToLobbyButton resourceId={idea.id} resourceType="IDEA" />
+                    <button
+                     type="button"
+                     className="rounded-full bg-card/90 p-1.5 opacity-60 backdrop-blur-sm transition-all hover:opacity-100 hover:bg-muted hover:text-foreground"
+                     onClick={(e) => {
+                       e.preventDefault()
+                       e.stopPropagation()
+                       handleBookmark(idea.id)
+                     }}
+                    >
+                      <Trash2 className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
+                    </button>
+                  </div>
                 </div>
               ))}
 
@@ -769,7 +369,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
                    totalPages={totalPages}
                    pageUrl={pageUrl}
                  />
-               )}
+                )}
 
               {derivedIdeasCount > 0 && (
                 <p className="py-4 text-center text-xs text-muted-foreground">
@@ -793,13 +393,13 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
       <TabsContent value="f1"><F1Favorites userId={userId} onRemoveComplete={handleF1Remove} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} sharedIds={sharedImageIds} onShareToggle={handleImageShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
+      <TabsContent value="image-du-jour"><ImageDuJourBookmarks userId={userId} onRemoveComplete={handleImageDuJourRemove} sharedIds={sharedImageIds} onShareToggle={handleImageShareToLobby} isSharing={imageIsSharing} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} sharedIds={sharedSaviezIds} onShareToggle={handleSaviezVousShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
+      <TabsContent value="saviez-vous"><SaviezVousBookmarks userId={userId} onRemoveComplete={handleSaviezVousRemove} sharedIds={sharedSaviezIds} onShareToggle={handleSaviezVousShareToLobby} isSharing={saviezIsSharing} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} sharedIds={sharedWikimediaIds} onShareToggle={handleWikimediaShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
+      <TabsContent value="image-wikimedia"><ImageWikimediaFavorites userId={userId} onRemoveComplete={handleWikimediaRemove} sharedIds={sharedWikimediaIds} onShareToggle={handleWikimediaShareToLobby} isSharing={wikimediaIsSharing} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} sharedIds={sharedWikiLovesIds} onShareToggle={handleWikiLovesShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
+      <TabsContent value="image-wikiloves"><ImageWikiLovesFavorites userId={userId} onRemoveComplete={handleWikiLovesRemove} sharedIds={sharedWikiLovesIds} onShareToggle={handleWikiLovesShareToLobby} isSharing={wikiLovesIsSharing} searchQuery={searchQuery} /></TabsContent>
 
       <TabsContent value="image-pixabay"><PixabayFavorites userId={userId} onRemoveComplete={handlePixabayRemove} searchQuery={searchQuery} /></TabsContent>
 
@@ -807,7 +407,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
       <TabsContent value="portail-wikipedia"><PortailWikipediaBookmarks userId={userId} onRemoveComplete={handlePortailWikiRemove} searchQuery={searchQuery} /></TabsContent>
 
-      <TabsContent value="proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} sharedIds={sharedProverbeIds} onShareToggle={handleProverbeShareToLobby} isSharing={isSharing} searchQuery={searchQuery} /></TabsContent>
+      <TabsContent value="proverbe"><ProverbeBookmarks userId={userId} onRemoveComplete={handleProverbeRemove} sharedIds={sharedProverbeIds} onShareToggle={handleProverbeShareToLobby} isSharing={proverbeIsSharing} searchQuery={searchQuery} /></TabsContent>
 
       <TabsContent value="citation"><CitationBookmarks userId={userId} onRemoveComplete={handleCitationRemove} searchQuery={searchQuery} /></TabsContent>
 
