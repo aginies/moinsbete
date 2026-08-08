@@ -186,6 +186,42 @@ export default function AproposPage() {
           </section>
 
           <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Citations</h3>
+            <p className="text-muted-foreground">
+              Découvrez des citations célèbres issues de Wikiquote. Chaque jour, une citation du jour est sélectionnée,
+              et des collections thématiques par thème et par auteur permettent d'explorer la sagesse des grands penseurs.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sauvegardez vos citations préférées dans vos favoris et retrouvez-les
+              facilement dans l'onglet Citations de votre page favoris.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Portail Wikipédia</h3>
+            <p className="text-muted-foreground">
+              Explorez les meilleurs articles de Wikipédia sélectionnés par les portails thématiques.
+              Chaque carte présente un article de qualité avec un extrait et une image illustrative.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sauvegardez vos articles préférés dans vos favoris et retrouvez-les
+              facilement dans l'onglet Portail Wikipédia de votre page favoris.
+            </p>
+          </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Articles insolites</h3>
+            <p className="text-muted-foreground">
+              Découvrez des articles insolites de Wikipédia — ces articles courts, surprenants,
+              ou simplement amusants qui font la particularité de l'encyclopédie.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sauvegardez vos articles insolites préférés dans vos favoris et retrouvez-les
+              facilement dans l'onglet Insolite de votre page favoris.
+            </p>
+          </section>
+
+          <section className="mt-4">
             <h3 className="mb-2 text-lg font-medium text-foreground/90">Formule 1</h3>
             <p className="text-muted-foreground">
               Suivez l&apos;actualité de la Formule 1 : résultats, classements pilotes et constructeurs,
@@ -207,7 +243,7 @@ export default function AproposPage() {
             <p className="text-muted-foreground">
               Chaque utilisateur peut partager ses favoris avec la communauté. Pour qu&apos;un contenu apparaisse dans les favoris partagés,
               il doit d&apos;abord être ajouté aux favoris de l&apos;utilisateur. Les favoris incluent les idées, faits surprenants, images du jour,
-              images Wikimedia et Wiki Loves.
+              images Wikimedia et Wiki Loves, citations, articles Portail Wikipédia, articles insolites.
             </p>
             <h4 className="mt-4 mb-2 text-base font-medium text-foreground/80">Partagé avec vous</h4>
             <p className="text-muted-foreground">
@@ -229,7 +265,7 @@ export default function AproposPage() {
           <section className="mt-4">
             <h3 className="mb-2 text-lg font-medium text-foreground/90">Partagez tout le contenu</h3>
             <p className="text-muted-foreground">
-              Chaque idée, fait, image, article du CNRS, article NEWS, article F1, documentaire Radio France, vidéo Pixabay et page de MoinsBête peut être partagée
+              Chaque idée, fait, image, article du CNRS, article NEWS, article F1, documentaire Radio France, vidéo Pixabay, citation, article Portail Wikipédia, article insolite et page de MoinsBête peut être partagée
               facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
               ou copier le lien directement.
             </p>
@@ -287,10 +323,10 @@ export default function AproposPage() {
         <section id="sources" className="pt-6 border-t border-border/40">
           <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Sources des contenus</h2>
           <p className="text-muted-foreground">
-            Le contenu de MoinsBête provient de multiples sources de qualité en français :
-            Wikipédia, Wiktionary, le journal du CNRS, FreeNewsAPI, Wikimedia Commons,
-            Radio France, Pixabay, la Formule 1 (FIA), Wiki Loves et le Portail Lexical.
-            L&apos;IA analyse, résume et structure le contenu pour offrir des idées claires et digestes.
+           Le contenu de MoinsBête provient de multiples sources de qualité en français :
+             Wikipédia, Wiktionary, le journal du CNRS, FreeNewsAPI, Wikimedia Commons,
+             Radio France, Pixabay, la Formule 1 (FIA), Wiki Loves, le Portail Lexical,
+            Wikiquote, et les articles insolites de Wikipédia.
           </p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-lg border border-border/60 p-4">
@@ -387,6 +423,30 @@ export default function AproposPage() {
                 className="mt-2 inline-block text-xs text-primary hover:underline"
               >
                 portail-lexical.fr →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Wikiquote</h3>
+              <p className="text-sm text-muted-foreground">Citations célèbres</p>
+              <a
+                href="https://fr.wikiquote.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                fr.wikiquote.org →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Articles insolites</h3>
+              <p className="text-sm text-muted-foreground">Articles surprenants de Wikipédia</p>
+              <a
+                href="https://fr.wikipedia.org/wiki/Wikipédia:Articles_insolites"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                wikipédia:articles_insolites →
               </a>
             </div>
             <div className="rounded-lg border border-border/60 p-4">

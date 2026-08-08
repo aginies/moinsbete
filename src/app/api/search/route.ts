@@ -15,6 +15,10 @@ interface SearchCacheEntry {
   facts: JsonValue[]
   proverbs: JsonValue[]
   images: JsonValue[]
+  news: JsonValue[]
+  citations: JsonValue[]
+  portailWikipedia: JsonValue[]
+  insolite: JsonValue[]
   expiresAt: number
 }
 
@@ -37,7 +41,7 @@ async function getCachedSearch(q: string) {
   return null
 }
 
-async function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue[], topics: JsonValue[], facts: JsonValue[], proverbs: JsonValue[], images: JsonValue[]) {
+async function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue[], topics: JsonValue[], facts: JsonValue[], proverbs: JsonValue[], images: JsonValue[], news: JsonValue[], citations: JsonValue[], portailWikipedia: JsonValue[], insolite: JsonValue[]) {
   await searchCache.set(q, {
     ideas,
     sources,
@@ -45,6 +49,10 @@ async function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue
     facts,
     proverbs,
     images,
+    news,
+    citations,
+    portailWikipedia,
+    insolite,
     expiresAt: Date.now() + SEARCH_CACHE_TTL,
   })
 }
@@ -78,7 +86,7 @@ async function searchProverbesInCache(q: string) {
       normalizeAccents(p.text).toLowerCase().includes(normalized) ||
       normalizeAccents(p.signification).toLowerCase().includes(normalized)
     )
-    .slice(0, 20)
+    .slice(0, 5)
     .map(p => ({ id: p.text.toLowerCase().replace(/\s+/g, '_'), text: p.text, signification: p.signification, source: p.source }))
 }
 
@@ -95,9 +103,104 @@ async function searchImagesInCache(q: string) {
         fileUrl: true,
         date: true,
       },
-      take: 10,
+      take: 5,
     })
     return images
+  } catch {
+    return []
+  }
+}
+
+async function searchNews(q: string) {
+  try {
+    const news = await prisma.cachedNewsArticle.findMany({
+      where: {
+        OR: [
+          { title: { contains: q } },
+          { description: { contains: q } },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        url: true,
+        imageUrl: true,
+      },
+      take: 5,
+    })
+    return news
+  } catch {
+    return []
+  }
+}
+
+async function searchCitations(q: string) {
+  try {
+    const citations = await prisma.cachedCitationArticle.findMany({
+      where: {
+        OR: [
+          { text: { contains: q } },
+          { author: { contains: q } },
+        ],
+      },
+      select: {
+        id: true,
+        text: true,
+        author: true,
+        wikiUrl: true,
+      },
+      take: 5,
+    })
+    return citations
+  } catch {
+    return []
+  }
+}
+
+async function searchPortailWikipedia(q: string) {
+  try {
+    const articles = await prisma.cachedWikipediaPortalArticle.findMany({
+      where: {
+        OR: [
+          { title: { contains: q } },
+          { extract: { contains: q } },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        extract: true,
+        pageUrl: true,
+        imageUrl: true,
+      },
+      take: 5,
+    })
+    return articles
+  } catch {
+    return []
+  }
+}
+
+async function searchInsolite(q: string) {
+  try {
+    const articles = await prisma.cachedInsoliteArticle.findMany({
+      where: {
+        OR: [
+          { title: { contains: q } },
+          { description: { contains: q } },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        url: true,
+        imageUrl: true,
+      },
+      take: 5,
+    })
+    return articles
   } catch {
     return []
   }
@@ -109,7 +212,7 @@ export async function GET(request: NextRequest) {
     let q = searchParams.get('q')?.trim() || ''
 
     if (!q || q.length < 2) {
-      return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [], proverbs: [], images: [] })
+      return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [], proverbs: [], images: [], news: [], citations: [], portailWikipedia: [], insolite: [] })
     }
 
     if (q.length > 100) {
@@ -124,11 +227,11 @@ export async function GET(request: NextRequest) {
     // Check cache
     const cached = await getCachedSearch(q)
     if (cached) {
-      return NextResponse.json({ ideas: cached.ideas, sources: cached.sources, topics: cached.topics, facts: cached.facts, proverbs: cached.proverbs, images: cached.images })
+      return NextResponse.json({ ideas: cached.ideas, sources: cached.sources, topics: cached.topics, facts: cached.facts, proverbs: cached.proverbs, images: cached.images, news: cached.news, citations: cached.citations, portailWikipedia: cached.portailWikipedia, insolite: cached.insolite })
     }
 
     const normalizedQ = normalizeAccents(q).toLowerCase()
-    const [ideas, sources, topics, facts, proverbs, images] = await Promise.all([
+    const [ideas, sources, topics, facts, proverbs, images, news, citations, portailWikipedia, insolite] = await Promise.all([
       prisma.idea.findMany({
         where: {
           isPublished: true,
@@ -152,7 +255,7 @@ export async function GET(request: NextRequest) {
           },
           source: { select: { title: true, type: true, url: true, coverUrl: true } },
         },
-        take: 20,
+        take: 5,
       }),
       prisma.source.findMany({
         where: {
@@ -169,7 +272,7 @@ export async function GET(request: NextRequest) {
            coverUrl: true,
            description: true,
          },
-        take: 10,
+        take: 5,
       }),
       prisma.topic.findMany({
         where: {
@@ -182,7 +285,7 @@ export async function GET(request: NextRequest) {
           icon: true,
           color: true,
         },
-        take: 10,
+        take: 5,
       }),
       prisma.saviezVousFact.findMany({
         where: {
@@ -192,10 +295,14 @@ export async function GET(request: NextRequest) {
           id: true,
           text: true,
         },
-        take: 10,
+        take: 5,
       }),
       searchProverbesInCache(q),
       searchImagesInCache(q),
+      searchNews(q),
+      searchCitations(q),
+      searchPortailWikipedia(q),
+      searchInsolite(q),
     ])
 
     const filteredIdeas = ideas.filter(idea =>
@@ -222,11 +329,11 @@ export async function GET(request: NextRequest) {
       topics: mapIdeaWithTopics(idea),
     }))
 
-    await setCachedSearch(normalizedQ, formattedIdeas as any, filteredSources as any, filteredTopics as any, filteredFacts as any, proverbs as any, images as any)
+    await setCachedSearch(normalizedQ, formattedIdeas as any, filteredSources as any, filteredTopics as any, filteredFacts as any, proverbs as any, images as any, news as any, citations as any, portailWikipedia as any, insolite as any)
 
-    return NextResponse.json({ ideas: formattedIdeas, sources: filteredSources, topics: filteredTopics, facts: filteredFacts, proverbs, images })
+    return NextResponse.json({ ideas: formattedIdeas, sources: filteredSources, topics: filteredTopics, facts: filteredFacts, proverbs, images, news, citations, portailWikipedia, insolite })
   } catch (error) {
     console.error('Search error:', error)
-    return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [], proverbs: [], images: [] })
+    return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [], proverbs: [], images: [], news: [], citations: [], portailWikipedia: [], insolite: [] })
   }
 }
