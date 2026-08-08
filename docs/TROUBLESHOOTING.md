@@ -8,6 +8,12 @@ rm dev.db
 npx prisma db push
 npx tsx prisma/seed.ts
 npx tsx src/scripts/seed-ideas.ts
+
+# Repeupler le cache et les données externes
+npm run cache:all
+npx tsx src/scripts/run-cron.ts
+npm run fetch-proverbes
+npx tsx src/scripts/scrape-wikiloves.ts
 ```
 
 ## Idées sans topic
@@ -70,7 +76,7 @@ apache2ctl -M | grep -E "proxy|rewrite"
 
 # Vérifier les permissions
 ls -la /srv/http/moinsbete/
-sudo chown -R www-data:www-data /srv/http/moinsbete/
+sudo chown -R wwwrun:www /srv/http/moinsbete/
 ```
 
 ## Problèmes NextAuth
@@ -219,22 +225,38 @@ EOF
 npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
 SELECT COUNT(*) FROM "CachedCitationArticle" WHERE "expiresAt" < datetime('now');
 EOF
+
+# Articles insolites expirés
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedInsoliteArticle" WHERE "expiresAt" < datetime('now');
+EOF
 ```
 
 ## Cache: forcer le refresh
 
 ```bash
-# Arrêter tous les caches expirés
+# Reset complet (9 scripts)
+npx tsx src/scripts/run-cron.ts
+
+# Reset rapide (CNRS + Radio + Wiki FR + News + cleanup)
 npm run cache:all
 
-# Ou individuellement
-npx tsx scripts/cache-cnrs.ts
-npx tsx scripts/cache-radio-france.ts
-npx tsx scripts/cache-wikipedia-image.ts
-npx tsx scripts/scrape-wikiloves.ts
+# Reset individuel
+npm run cache:cnrs
+npm run cache:radio
+npm run cache:wikipedia
+npm run cache:news
+npm run cache:insolite
+npm run cache:insolite:enrich   # insolite avec enrichissement images
+npm run cache:portail-lexical
+npx tsx src/scripts/cache-wikipedia-image-en.ts
+npx tsx src/scripts/cache-f1.ts
+npx tsx src/scripts/cache-portail-wikipedia.ts
+npx tsx src/scripts/cache-citation.ts
+npx tsx src/scripts/scrape-wikiloves.ts
 
-# Nettoyer les éléments expirés
-npx tsx scripts/cleanup-cached.ts
+# Nettoyer les éléments expirés (9 modèles)
+npm run cache:cleanup
 ```
 
 ## Card visibility: vérifier la config globale

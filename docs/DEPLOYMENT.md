@@ -29,8 +29,8 @@ cd /srv/http/moinsbete
 git clone https://github.com/aginies/moinsbete.git moinsbete
 cd moinsbete
 
-# Installer les dépendances (production uniquement)
-npm ci --omit=dev
+# Installer les dépendances (dev required pour tsx + prisma CLI)
+npm ci
 
 # Générer le client Prisma
 npx prisma generate
@@ -50,6 +50,13 @@ npx tsx src/scripts/seed-ideas.ts
 
 # Scraper les faits "Le saviez-vous" (optionnel mais recommandé)
 npx tsx scripts/scrape-saviez-vous.ts
+
+# Charger les proverbes depuis Wiktionary
+npm run fetch-proverbes
+
+# Remplir le cache sources externes
+npm run cache:all            # CNRS, Radio, Wiki FR, News, cleanup
+npx tsx src/scripts/run-cron.ts  # + F1, Citation, Lexical, Saviez-vous images
 ```
 
 ### Avec une base de données existante :
@@ -90,10 +97,19 @@ NEXTAUTH_SECRET="votre-clé-secrète-aléatoire"
 # URL de production (HTTPS)
 NEXTAUTH_URL="https://moinsbete.example.com"
 
+# FreeNewsAPI (actualités)
+FREE_NEWS_API_KEY="votre-cle-api"
+
+# Pixabay (vidéos)
+PIXABAY_API_KEY="votre-cle-api"
+
 # LLM (optionnel, pour génération d'idées)
 LLM_BASE_URL="https://votre-api-llm:port/v1"
 LLM_MODEL="qwen3.6"
 LLM_API_KEY="votre-cle-api"
+
+# Cron cache (générer avec: openssl rand -hex 32)
+CRON_SECRET="votre-token-cron"
 
 # TLS (si le LLM utilise un certificat auto-signé)
 # NODE_TLS_REJECT_UNAUTHORIZED=0
@@ -102,15 +118,17 @@ LLM_API_KEY="votre-cle-api"
 # RATE_LIMITER_DRIVER=redis
 # REDIS_URL=redis://localhost:6379
 
-# IP proxy (définir si derrière un reverse proxy comme Apache/Nginx)
-# TRUST_PROXY=true
+# IP proxy (derrière reverse proxy Apache/Nginx)
+TRUST_PROXY=true
 ```
 
 **Points de sécurité :**
 - `NEXTAUTH_SECRET` doit être une chaîne aléatoire de 32+ caractères
+- `CRON_SECRET` protège les endpoints `/api/cron/*` — ne pas exposer
 - `NEXTAUTH_URL` doit correspondre au domaine réel (HTTPS en production)
+- `TRUST_PROXY=true` requis derrière Apache/Nginx pour IP correcte
 - `dev.db` est dans `.gitignore` — le fichier de production ne sera pas versionné
-- Les clés API (`LLM_API_KEY`, `NEXTAUTH_SECRET`) ne sont pas exposées via le navigateur
+- Les clés API (`LLM_API_KEY`, `FREE_NEWS_API_KEY`, `PIXABAY_API_KEY`, `CRON_SECRET`) ne sont pas exposées via le navigateur
 
 ## Étape 5 : Build et démarrage
 
@@ -333,7 +351,7 @@ pm2 logs moinsbete --lines 100
 # Mettre à jour (git pull + rebuild)
 cd /srv/http/moinsbete
 git pull
-npm ci --omit=dev
+npm ci
 npx prisma generate
 npx prisma migrate deploy
 npm run build
@@ -347,6 +365,25 @@ cp "/srv/http/moinsbete/dev.db.backup.20260707" /srv/http/moinsbete/dev.db
 
 # Nettoyage cache expiré
 npx tsx scripts/cleanup-cached.ts
+
+# Mise à jour du cache (ou via cron système)
+npx tsx src/scripts/run-cron.ts
+```
+
+## Cron système (cache automatique)
+
+Lancer le cache via le cron API ou `run-cron.ts` :
+
+```bash
+# Option A: cron système appelant le script local
+# Éditer crontab: crontab -e
+0 6,12,18 * * * cd /srv/http/moinsbete && npx tsx src/scripts/run-cron.ts >> /var/log/moinsbete-cron.log 2>&1
+
+# Option B: cron système appelant l'API (recommandé)
+0 6,12,18 * * * curl -s -H "x-cron-token: $CRON_SECRET" http://localhost:3000/api/cron/cache >> /var/log/moinsbete-cron.log 2>&1
+
+# Option C: cron Node.js intégré (via node-cron dans l'app)
+# À configurer dans le code si besoin
 ```
 
 ## Vérification

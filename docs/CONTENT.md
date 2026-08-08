@@ -68,13 +68,16 @@ npx tsx src/scripts/ingest-wikipedia.ts
 # Étape 5: Faits "Le saviez-vous ?"
 ./scripts/update le-saviez-vous
 
-# Étape 6: Proverbes depuis Wiktionary
+# Étape 6: Cache sources externes (12 étapes, voir section ci-dessous)
+npm run cache:all            # Rapide : CNRS, Radio, Wiki FR, News, cleanup
+npx tsx src/scripts/run-cron.ts  # Complet : 8 scripts (sans cleanup, wiki EN, portail wiki, insolite)
+# Ou cron API : curl -H "x-cron-token: $CRON_SECRET" http://localhost:3000/api/cron/cache
+
+# Étape 7: Proverbes depuis Wiktionary
 npm run fetch-proverbes
 
-# Étape 7: Cache sources externes
-npm run cache:all
+# Étape 8: Images Wiki Loves (manuel uniquement)
 npx tsx src/scripts/scrape-wikiloves.ts
-npx tsx src/scripts/cache-news.ts
 ```
 
 **Prérequis**: `OPENROUTER_API_KEY` ou `LLM_API_KEY` dans `.env` pour étapes 3 et 4.
@@ -159,55 +162,84 @@ npx tsx scripts/insert_saviez_vous.ts
 
 ### 5. Cache sources externes
 
-| Script | Source | TTL | Fréquence recommandée |
-|--------|--------|-----|----------------------|
-| `cache-cnrs.ts` | Articles CNRS | 24h | Quotidien |
-| `cache-radio-france.ts` | Épisodes Radio France | 24h | Quotidien |
-| `cache-wikipedia-image.ts` | Images Wikipédia | 30 jours | Mensuel |
-| `scrape-wikiloves.ts` | Images Wiki Loves | 30 jours | Mensuel |
-| `cache-news.ts` | Actualités NEWS (FreeNewsAPI) | 24h | 5x/jour (6h, 12h, 15h, 16h, 21h) |
-| `cache-f1.ts` | Articles Formule 1 | 24h | Quotidien |
-| `cache-portail-wikipedia.ts` | Articles Portail Wikipédia | 7 jours | Quotidien |
-| `cache-citation.ts` | Citations Wikiquote | 24h | Quotidien |
-| `cache-portail-lexical.ts` | Mot du jour Portail Lexical | None (upsert-by-date) | Quotidien |
-| `cache-saviez-vous-images.ts` | Images Le saviez-vous | None (static) | Quotidien |
-| `cache-insolite.ts` | Articles insolites | 24h | 6h (rapide) / 7j (enrich) |
+| Script | Source | Modèle DB | TTL | npm script | Cron ? |
+|--------|--------|-----------|-----|-----------|--------|
+| `cache-cnrs.ts` | cnrs.fr/newsroom | `CachedCnrsArticle` | 24h | `cache:cnrs` | Step 1 |
+| `cache-radio-france.ts` | radiofrance.fr/franceculture | `CachedRadioEpisode` | 24h | `cache:radio` | Step 2 |
+| `cache-news.ts` | freenewsapi.io (14 catégories) | `CachedNewsArticle` | 48h | `cache:news` | Step 3 |
+| `cache-wikipedia-image.ts` | fr.wikipedia.org Image du Jour | `CachedWikipediaImage` (lang: fr) | 30j | `cache:wikipedia` | Step 4 |
+| `cache-wikipedia-image-en.ts` | en.wikipedia.org Picture of the Day | `CachedWikipediaImage` (lang: en) | 30j | — | Step 5 |
+| `cache-f1.ts` | Portail:F1 + fia.com (actualités, image, classement, saviez, fia) | `CachedF1Article` | 24h image / 7j contenu | — | Step 6 |
+| `cache-portail-wikipedia.ts` | Contenus de qualité / Bons contenus | `CachedWikipediaPortalArticle` | 7j | — | Step 7 |
+| `cache-citation.ts` | fr.wikiquote.org (thèmes, auteurs) | `CachedCitationArticle` | 24h | — | Step 8 |
+| `cache-insolite.ts` | Articles insolites Wikipédia | `CachedInsoliteArticle` | 24h | `cache:insolite` | Step 12 |
+| `cache-saviez-vous-images.ts` | Résolution images Wikimedia pour faits | `SaviezVousFact.imageFilename` | None | — | Step 10 |
+| `cache-portail-lexical.ts` | Mot du jour Portail Lexical | `PortailLexicalMotDuJour` | None (upsert-by-date) | `cache:portail-lexical` | Step 11 |
+| `scrape-wikiloves.ts` | Wiki Loves Monuments + Earth | `CachedWikiLovesImage` | 30j | — | Non (manuel) |
+| `fetch-proverbes.ts` | Wiktionary proverbes → API `/api/proverbes` | `CachedConfig` (key: `proverbes_all`, JSON) | None | `fetch-proverbes` | Non (manuel) |
 
-`npm run cache:all` lance cache-cnrs, cache-radio-france, cache-wikipedia-image + cleanup (pas scrape-wikiloves, pas cache-news).
-
-Cron `/api/cron/cache` (12 étapes séquentielles):
-1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image FR → 5. Wikipedia Image EN → 6. F1 → 7. Portail Wikipédia → 8. Wikiquote → 9. Cleanup (9 cache models) → 10. Saviez-vous images → 11. Portail Lexical (WOTD) → 12. Insolite (rapide, --enrich via npm run cache:insolite:enrich)
+**Mode d'exécution :**
 
 ```bash
-# Lancer tous les caches (sans wikiloves, sans news)
+# Rapide : CNRS + Radio + Wiki FR + News + cleanup
 npm run cache:all
 
-# Ou individuellement
-npx tsx src/scripts/cache-cnrs.ts
-npx tsx src/scripts/cache-radio-france.ts
-npx tsx src/scripts/cache-wikipedia-image.ts
-npx tsx src/scripts/scrape-wikiloves.ts
-npx tsx src/scripts/cache-news.ts
+# Local complet : 8 scripts (CNRS, Radio, News, Wiki FR, Saviez-vous images, F1, Citation, Lexical)
+npx tsx src/scripts/run-cron.ts
+
+# Cron API complet : 12 étapes + cleanup (9 modèles)
+# Auth: token (?token= ou x-cron-token header) ou IP whitelist
+curl -H "x-cron-token: $CRON_SECRET" http://localhost:3000/api/cron/cache
+
+# Individuellement
+npm run cache:cnrs
+npm run cache:radio
+npm run cache:wikipedia
+npm run cache:news
+npm run cache:insolite
+npm run cache:insolite:enrich   # insolite avec enrichissement complet images
+npm run cache:portail-lexical
+npm run fetch-proverbes
+npx tsx src/scripts/cache-wikipedia-image-en.ts
 npx tsx src/scripts/cache-f1.ts
 npx tsx src/scripts/cache-portail-wikipedia.ts
 npx tsx src/scripts/cache-citation.ts
-npx tsx src/scripts/cache-portail-lexical.ts
-npx tsx src/scripts/cache-saviez-vous-images.ts
-npx tsx src/scripts/cache-insolite.ts
+npx tsx src/scripts/scrape-wikiloves.ts
 
-# Avec enrichissement complet des images
-npm run cache:insolite:enrich
-
-# Nettoyer les items expirés
-npx tsx src/scripts/cleanup-cached.ts
+# Nettoyer les items expirés (9 modèles)
+npm run cache:cleanup
 ```
 
-### 6. Proverbes
+**Ordre du cron** (`/api/cron/cache`, 12 étapes séquentielles) :
 
-```bash
-# Récupérer les proverbes depuis Wiktionary
-npm run fetch-proverbes
 ```
+Step  1/12:  CNRS
+Step  2/12:  Radio France
+Step  3/12:  News (freenewsapi.io)
+Step  4/12:  Wikipedia Image FR
+Step  5/12:  Wikipedia Image EN
+Step  6/12:  F1
+Step  7/12:  Portail Wikipédia
+Step  8/12:  Wikiquote (citation)
+Step  9/12:  Cleanup (9 modèles expirés + news max-age 5j)
+Step 10/12:  Saviez-vous images
+Step 11/12:  Portail Lexical (WOTD)
+Step 12/12:  Articles insolites
+```
+
+**Différences entre modes :**
+
+| | `npm run cache:all` | `run-cron.ts` | `/api/cron/cache` |
+|---|---|---|---|
+| Étapes | 5 | 8 | 12 + cleanup |
+| Wiki EN | non | non | oui |
+| Portail Wiki | non | non | oui |
+| Insolite | non | non | oui |
+| Saviez-vous images | non | oui | oui |
+| Cleanup | oui | non | oui (step 9) |
+| Lexical | non | oui | oui |
+| Wikiloves | non | non | non (manuel) |
+| Proverbes | non | non | non (manuel) |
 
 ## Ajouter de nouveaux articles Wikipédia
 
