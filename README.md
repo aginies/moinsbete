@@ -71,4 +71,4 @@ Voir [docs/CONTENT.md](./docs/CONTENT.md) pour les 3 pipelines de génération d
 
 ---
 
-**Licence**: AGPLv3
+**Licence**: [AGPLv3](./LICENSE)
