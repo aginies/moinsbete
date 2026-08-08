@@ -78,8 +78,6 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
     fetch('/api/session').then(r => r.json()).then(d => setIsLoggedIn(!!d?.user)).catch(() => setIsLoggedIn(false))
   }, [])
 
-  if (!isLoggedIn) return null
-
   useEffect(() => {
     const key = `${resourceType}:${resourceId}`
     if (!checkedRef.current.has(key)) {
@@ -252,6 +250,8 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
       setSearchQuery('')
     }
   }
+
+  if (!isLoggedIn) return null
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
