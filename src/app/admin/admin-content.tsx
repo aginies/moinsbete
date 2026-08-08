@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers, Trophy, BarChart3, Map, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
@@ -134,7 +135,12 @@ export function AdminContent({ stats, users }: AdminContentProps) {
           <h1 className="text-2xl font-heading font-bold">{adminT('admin_title')}</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 rounded-lg border border-input bg-background px-2.5 py-1 h-9 dark:bg-zinc-950">
+            <Link href="/test-layout" passHref>
+              <Button variant="outline" size="sm">
+                Test Layout
+              </Button>
+            </Link>
+            <div className="flex items-center gap-1.5 rounded-lg border border-input bg-background px-2.5 py-1 h-9 dark:bg-zinc-950">
             <Globe className="h-4 w-4 text-muted-foreground" />
             <select
               value={locale}
