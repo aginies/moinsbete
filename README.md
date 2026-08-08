@@ -23,28 +23,6 @@ MoinsBête propose des idées courtes et actionnables issues de Wikipédia, gén
 | Génération de contenu | LLM OpenAI-compatible |
 | Ingestion Wikipédia | REST API fr.wikipedia.org |
 
-## Structure du projet
-
-```
-moinsbete/
-├── prisma/
-│   ├── schema.prisma          # Modèle de données (36 modèles)
-│   ├── migrations/            # Migrations Prisma
-│   └── seed.ts                # Création des topics racine
-├── src/
-│   ├── lib/                   # db, auth, llm, utils, rate-limiter, bookmarks
-│   ├── app/                   # Pages + API routes (incl. /admin, /lobby)
-│   ├── components/            # IdeaCard, Feed, feed cards (14 sources)
-│   ├── scripts/               # seed-ideas, generate-ideas, ingest-wikipedia, cache-*
-│   ├── actions/               # Server actions (auth, bookmarks, favorites, cron)
-│   ├── hooks/                 # use-card-visibility, use-bookmark-toggle, etc.
-│   └── locales/               # i18n fr/en
-├── docs/                      # Documentation détaillée
-├── scripts/                   # scrape-saviez-vous, update, deploy, install
-├── .env                       # Variables d'environnement
-└── next.config.ts             # Config Next.js
-```
-
 ## Installation rapide
 
 ```bash
