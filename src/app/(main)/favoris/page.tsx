@@ -36,7 +36,7 @@ export default async function FavorisPage({
   const currentPage = Math.max(1, parseInt((await searchParams).page || '1', 10))
   const skip = (currentPage - 1) * PAGE_SIZE
 
-  const counts = await prisma.$queryRaw<{ type: string, count: bigint }[]>`
+  const rowCounts = await prisma.$queryRaw<{ type: string, count: bigint }[]>`
     SELECT type, COUNT(*) as count
     FROM Bookmark
     WHERE userId = ${session.user.id}
@@ -44,25 +44,28 @@ export default async function FavorisPage({
   `
 
   const countMap = new Map<string, number>()
-  for (const row of counts) {
+  for (const row of rowCounts) {
     countMap.set(row.type, Number(row.count))
   }
 
+  const sourceCounts: Record<string, number> = {
+    imageDuJour: countMap.get('IMAGE_DU_JOUR') ?? 0,
+    wikimedia: countMap.get('IMAGE_WIKIMEDIA') ?? 0,
+    wikiloves: countMap.get('IMAGE_WIKILOVES') ?? 0,
+    pixabay: countMap.get('IMAGE_PIXABAY') ?? 0,
+    portailLexical: countMap.get('PORTAIL_LEXICAL') ?? 0,
+    portailWikipedia: countMap.get('PORTAIL_WIKIPEDIA') ?? 0,
+    proverbe: countMap.get('PROVERBE') ?? 0,
+    saviezVous: countMap.get('SAVIEZ_VOUS') ?? 0,
+    radioFrance: countMap.get('RADIO_FRANCE') ?? 0,
+    cnrs: countMap.get('CNRS_NEWS') ?? 0,
+    news: countMap.get('NEWS') ?? 0,
+    f1: countMap.get('F1') ?? 0,
+    citation: countMap.get('CITATION') ?? 0,
+    insolite: countMap.get('INSOLITE') ?? 0,
+  }
+
   const total = countMap.get('IDEA') ?? 0
-  const radioFavoritesCount = countMap.get('RADIO_FRANCE') ?? 0
-  const cnrsFavoritesCount = countMap.get('CNRS_NEWS') ?? 0
-  const imageDuJourFavoritesCount = countMap.get('IMAGE_DU_JOUR') ?? 0
-  const saviezVousFavoritesCount = countMap.get('SAVIEZ_VOUS') ?? 0
-  const wikimediaFavoritesCount = countMap.get('IMAGE_WIKIMEDIA') ?? 0
-  const wikilovesFavoritesCount = countMap.get('IMAGE_WIKILOVES') ?? 0
-  const pixabayFavoritesCount = countMap.get('IMAGE_PIXABAY') ?? 0
-  const portailLexicalCount = countMap.get('PORTAIL_LEXICAL') ?? 0
-  const portailWikipediaFavoritesCount = countMap.get('PORTAIL_WIKIPEDIA') ?? 0
-  const proverbeFavoritesCount = countMap.get('PROVERBE') ?? 0
-  const newsFavoritesCount = countMap.get('NEWS') ?? 0
-  const f1FavoritesCount = countMap.get('F1') ?? 0
-  const citationFavoritesCount = countMap.get('CITATION') ?? 0
-  const insoliteFavoritesCount = countMap.get('INSOLITE') ?? 0
 
   const [bookmarks] = await Promise.all([
     prisma.bookmark.findMany({
@@ -101,20 +104,7 @@ export default async function FavorisPage({
         currentPage={currentPage}
         totalPages={totalPages}
         total={total}
-        radioFavoritesCount={radioFavoritesCount}
-        cnrsFavoritesCount={cnrsFavoritesCount}
-        imageDuJourFavoritesCount={imageDuJourFavoritesCount}
-        saviezVousFavoritesCount={saviezVousFavoritesCount}
-        wikimediaFavoritesCount={wikimediaFavoritesCount}
-        wikilovesFavoritesCount={wikilovesFavoritesCount}
-        pixabayFavoritesCount={pixabayFavoritesCount}
-        portailLexicalCount={portailLexicalCount}
-        portailWikipediaCount={portailWikipediaFavoritesCount}
-        proverbeFavoritesCount={proverbeFavoritesCount}
-        newsFavoritesCount={newsFavoritesCount}
-        f1FavoritesCount={f1FavoritesCount}
-        citationFavoritesCount={citationFavoritesCount}
-        insoliteFavoritesCount={insoliteFavoritesCount}
+        counts={sourceCounts}
       />
     </div>
   )

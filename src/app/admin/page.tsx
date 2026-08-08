@@ -3,6 +3,8 @@ import { getSession } from '@/lib/auth'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { AdminUser } from './admin-content'
+import { CACHE_SOURCES } from '@/lib/admin-cache-config'
+import { AdminContent } from './admin-content'
 
 export default async function AdminPage() {
   const session = await getSession()
@@ -29,32 +31,20 @@ export default async function AdminPage() {
       </div>
     )
   }
-  const now = new Date()
-  const [
-    ideaCount,
-    topicCount,
-    sourceCount,
-    bookmarkCount,
-    userCount,
-    viewedIdeaCount,
-    activeStreakCount,
-    cacheStats,
-    saviezVousCount,
-    srsDueCount,
-    proverbeRow,
-    users,
-    latestCnrs,
-    latestRadio,
-    latestNews,
-    latestWiki,
-    latestWikiLoves,
-    latestF1,
-    latestSaviezVous,
-    latestPortailWiki,
-    latestCitation,
-    latestInsolite,
-    insoliteConfigCount,
-  ] = await Promise.all([
+
+  // Build dynamic SQL for cache total + expired counts
+  const countSql = `SELECT\n        ${CACHE_SOURCES.map(s =>
+    `(SELECT COUNT(*) FROM ${s.model}) as "${s.statsArticles}",\n        (SELECT COUNT(*) FROM ${s.model} WHERE datetime(expiresAt) < datetime('now')) as "${s.statsExpired}"`
+  ).join(',\n        ')}`
+  const cacheStats = await prisma.$queryRawUnsafe<Record<string, bigint>[]>(countSql)
+
+  // Build dynamic SQL for latest scrapedAt per source
+  const latestSql = `SELECT\n        ${CACHE_SOURCES.map(s =>
+    `(SELECT scrapedAt FROM ${s.model} ORDER BY scrapedAt DESC LIMIT 1) as "${s.key}"`
+  ).join(',\n        ')}`
+  const latestRow = await prisma.$queryRawUnsafe<Record<string, Date | null>[]>(latestSql)
+
+  const [ideaCount, topicCount, sourceCount, bookmarkCount, userCount, viewedIdeaCount, activeStreakCount, saviezVousCount, srsDueCount, proverbeRow, users, insoliteConfigCount, latestSaviezVous] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
     prisma.topic.count(),
     prisma.source.count(),
@@ -62,53 +52,13 @@ export default async function AdminPage() {
     prisma.user.count(),
     prisma.viewedIdea.count(),
     prisma.growthPlan.count({ where: { streakDays: { gt: 0 } } }),
-    prisma.$queryRaw<Array<{
-      cnrsTotal: bigint
-      cnrsExpired: bigint
-      radioTotal: bigint
-      radioExpired: bigint
-      wikiImageTotal: bigint
-      wikiImageExpired: bigint
-      wikiLovesTotal: bigint
-      wikiLovesExpired: bigint
-      newsTotal: bigint
-      newsExpired: bigint
-      f1Total: bigint
-f1Expired: bigint
-       portailWikipediaTotal: bigint
-       portailWikipediaExpired: bigint
-        citationTotal: bigint
-        citationExpired: bigint
-        insoliteTotal: bigint
-        insoliteExpired: bigint
-      }>>`
-       SELECT
-         (SELECT COUNT(*) FROM CachedCnrsArticle) as cnrsTotal,
-         (SELECT COUNT(*) FROM CachedCnrsArticle WHERE datetime(expiresAt) < datetime('now')) as cnrsExpired,
-         (SELECT COUNT(*) FROM CachedRadioEpisode) as radioTotal,
-         (SELECT COUNT(*) FROM CachedRadioEpisode WHERE datetime(expiresAt) < datetime('now')) as radioExpired,
-         (SELECT COUNT(*) FROM CachedWikipediaImage) as wikiImageTotal,
-         (SELECT COUNT(*) FROM CachedWikipediaImage WHERE datetime(expiresAt) < datetime('now')) as wikiImageExpired,
-         (SELECT COUNT(*) FROM CachedWikiLovesImage) as wikiLovesTotal,
-         (SELECT COUNT(*) FROM CachedWikiLovesImage WHERE datetime(expiresAt) < datetime('now')) as wikiLovesExpired,
-         (SELECT COUNT(*) FROM CachedNewsArticle) as newsTotal,
-         (SELECT COUNT(*) FROM CachedNewsArticle WHERE datetime(expiresAt) < datetime('now')) as newsExpired,
-         (SELECT COUNT(*) FROM CachedF1Article) as f1Total,
-         (SELECT COUNT(*) FROM CachedF1Article WHERE datetime(expiresAt) < datetime('now')) as f1Expired,
-         (SELECT COUNT(*) FROM CachedWikipediaPortalArticle) as portailWikipediaTotal,
-          (SELECT COUNT(*) FROM CachedWikipediaPortalArticle WHERE datetime(expiresAt) < datetime('now')) as portailWikipediaExpired,
-          (SELECT COUNT(*) FROM CachedCitationArticle) as citationTotal,
-          (SELECT COUNT(*) FROM CachedCitationArticle WHERE datetime(expiresAt) < datetime('now')) as citationExpired,
-          (SELECT COUNT(*) FROM CachedInsoliteArticle) as insoliteTotal,
-          (SELECT COUNT(*) FROM CachedInsoliteArticle WHERE datetime(expiresAt) < datetime('now')) as insoliteExpired
-    `,
     prisma.saviezVousFact.count(),
     prisma.bookmark.count({
       where: {
         type: 'IDEA',
         OR: [
           { nextReviewAt: null },
-          { nextReviewAt: { lte: now } },
+          { nextReviewAt: { lte: new Date() } },
         ],
       },
     }),
@@ -127,38 +77,12 @@ f1Expired: bigint
         lastVisited: true,
       },
     }),
-    prisma.cachedCnrsArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
-    prisma.cachedRadioEpisode.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
-    prisma.cachedNewsArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
-    prisma.cachedWikipediaImage.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
-    prisma.cachedWikiLovesImage.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
-    prisma.cachedF1Article.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
-    prisma.saviezVousFact.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
-    prisma.cachedWikipediaPortalArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
-    prisma.cachedCitationArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
-    prisma.cachedInsoliteArticle.findFirst({ orderBy: { scrapedAt: 'desc' }, select: { scrapedAt: true } }),
     prisma.cachedConfig.count({ where: { key: { startsWith: 'insolite_' } } }),
+    prisma.saviezVousFact.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
   ])
 
   const stats = cacheStats[0]
-  const cnrsCount = Number(stats.cnrsTotal)
-  const cnrsExpiredCount = Number(stats.cnrsExpired)
-  const radioCount = Number(stats.radioTotal)
-  const radioExpiredCount = Number(stats.radioExpired)
-  const wikiImageCount = Number(stats.wikiImageTotal)
-  const wikiImageExpiredCount = Number(stats.wikiImageExpired)
-  const wikiLovesCount = Number(stats.wikiLovesTotal)
-  const wikiLovesExpiredCount = Number(stats.wikiLovesExpired)
-  const newsCount = Number(stats.newsTotal)
-  const newsExpiredCount = Number(stats.newsExpired)
-  const f1Count = Number(stats.f1Total)
-  const f1ExpiredCount = Number(stats.f1Expired)
-  const portailWikipediaCount = Number(stats.portailWikipediaTotal)
-  const portailWikipediaExpiredCount = Number(stats.portailWikipediaExpired)
-   const citationCount = Number(stats.citationTotal)
-   const citationExpiredCount = Number(stats.citationExpired)
-   const insoliteCount = Number(stats.insoliteTotal)
-   const insoliteExpiredCount = Number(stats.insoliteExpired)
+  const latest = latestRow[0] ?? {}
 
   const formatScrapedAt = (date: Date | null) => {
     if (!date) return null
@@ -173,52 +97,32 @@ f1Expired: bigint
 
   const adminUsers = users as AdminUser[]
 
+  // Build stats object from config
+  const statsObj: Record<string, unknown> = {
+    ideas: ideaCount,
+    topics: topicCount,
+    sources: sourceCount,
+    bookmarks: bookmarkCount,
+    users: userCount,
+    viewedIdeas: viewedIdeaCount,
+    activeStreaks: activeStreakCount,
+    saviezVousFacts: saviezVousCount,
+    saviezVousScrapedAt: formatScrapedAt(latestSaviezVous?.createdAt ?? null),
+    srsDue: srsDueCount,
+    proverbesCached: proverbeRow ? (() => { try { return JSON.parse(proverbeRow.value).length } catch { return 0 } })() : 0,
+    insoliteConfigCount,
+  }
+
+  for (const s of CACHE_SOURCES) {
+    statsObj[s.statsArticles] = Number(stats[s.statsArticles])
+    statsObj[s.statsExpired] = Number(stats[s.statsExpired])
+    statsObj[s.statsScrapedAt] = formatScrapedAt(latest[s.key] ?? null)
+  }
+
   return (
     <AdminContent
-      stats={{
-        ideas: ideaCount,
-        topics: topicCount,
-        sources: sourceCount,
-        bookmarks: bookmarkCount,
-        users: userCount,
-        viewedIdeas: viewedIdeaCount,
-        activeStreaks: activeStreakCount,
-        cnrsArticles: cnrsCount,
-        cnrsExpired: cnrsExpiredCount,
-        cnrsScrapedAt: formatScrapedAt(latestCnrs?.scrapedAt ?? null),
-        radioEpisodes: radioCount,
-        radioExpired: radioExpiredCount,
-        radioScrapedAt: formatScrapedAt(latestRadio?.scrapedAt ?? null),
-        wikiImages: wikiImageCount,
-        wikiImageExpired: wikiImageExpiredCount,
-        wikiScrapedAt: formatScrapedAt(latestWiki?.scrapedAt ?? null),
-        wikiLovesImages: wikiLovesCount,
-        wikiLovesExpired: wikiLovesExpiredCount,
-        wikiLovesScrapedAt: formatScrapedAt(latestWikiLoves?.scrapedAt ?? null),
-        saviezVousFacts: saviezVousCount,
-        saviezVousScrapedAt: formatScrapedAt(latestSaviezVous?.createdAt ?? null),
-        srsDue: srsDueCount,
-        proverbesCached: proverbeRow ? (() => { try { return JSON.parse(proverbeRow.value).length } catch { return 0 } })() : 0,
-        newsArticles: newsCount,
-        newsExpired: newsExpiredCount,
-        newsScrapedAt: formatScrapedAt(latestNews?.scrapedAt ?? null),
-        f1Articles: f1Count,
-        f1Expired: f1ExpiredCount,
-        f1ScrapedAt: formatScrapedAt(latestF1?.scrapedAt ?? null),
-        portailWikipediaArticles: portailWikipediaCount,
-        portailWikipediaExpired: portailWikipediaExpiredCount,
-        portailWikipediaScrapedAt: formatScrapedAt(latestPortailWiki?.scrapedAt ?? null),
-         citationArticles: citationCount,
-         citationExpired: citationExpiredCount,
-         citationScrapedAt: formatScrapedAt(latestCitation?.scrapedAt ?? null),
-         insoliteArticles: insoliteCount,
-         insoliteExpired: insoliteExpiredCount,
-          insoliteScrapedAt: formatScrapedAt(latestInsolite?.scrapedAt ?? null),
-          insoliteConfigCount: insoliteConfigCount,
-        }}
+      stats={statsObj as any}
       users={adminUsers}
     />
   )
 }
-
-import { AdminContent } from './admin-content'

@@ -19,6 +19,31 @@ import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { clearAllNewsAction, clearFreenewsapiAction } from '@/actions/cleanup-actions'
 import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshPortailWikipedia, refreshInsolite, refreshAll } from '@/actions/cache-refresh-actions'
+import { CACHE_SOURCES } from '@/lib/admin-cache-config'
+
+const EXPIRED_ICONS: Record<string, React.ReactNode> = {
+  cnrs: <Newspaper className="h-4 w-4 text-muted-foreground" />,
+  radio: <Radio className="h-4 w-4 text-muted-foreground" />,
+  wiki: <Image className="h-4 w-4 text-muted-foreground" />,
+  wikiloves: <ImagePlus className="h-4 w-4 text-muted-foreground" />,
+  news: <Newspaper className="h-4 w-4 text-muted-foreground" />,
+  f1: <Trophy className="h-4 w-4 text-muted-foreground" />,
+  portailWiki: <Globe className="h-4 w-4 text-muted-foreground" />,
+  citation: <Quote className="h-4 w-4 text-muted-foreground" />,
+  insolite: <Sparkles className="h-4 w-4 text-muted-foreground" />,
+}
+
+const EXPIRED_LABELS: Record<string, string> = {
+  cnrs: 'feed.cnrs_expired',
+  radio: 'feed.radio_expired',
+  wiki: 'feed.wiki_images_expired',
+  wikiloves: 'feed.wiki_loves_expired',
+  news: 'feed.news_expired',
+  f1: 'feed.f1_expired',
+  portailWiki: 'feed.portail_wikipedia_expired',
+  citation: 'feed.citation_expired',
+  insolite: 'feed.insolite_expired',
+}
 import type { RefreshResult } from '@/actions/cache-refresh-actions'
 import { toggleUserEnabled, deleteUser } from '@/actions/user-actions'
 import { updateGlobalCardVisibility } from '@/actions/card-actions'
@@ -304,88 +329,16 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                 {t('feed.expired_cache', { fallback: 'Expired cache' })}
               </h3>
               <div className="mb-4 space-y-2 text-sm">
-                {stats.cnrsExpired > 0 && (
-                  <div className="flex items-center justify-between">
+                {CACHE_SOURCES.filter(s => (stats as any)[s.statsExpired] > 0).map(s => (
+                  <div key={s.key} className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
-                      <Newspaper className="h-4 w-4 text-muted-foreground" />
-                      {t('feed.cnrs_expired')}
+                      {EXPIRED_ICONS[s.key]}
+                      {t(EXPIRED_LABELS[s.key])}
                     </span>
-                    <span className="font-medium text-destructive">{stats.cnrsExpired}</span>
+                    <span className="font-medium text-destructive">{(stats as any)[s.statsExpired]}</span>
                   </div>
-                )}
-                {stats.radioExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Radio className="h-4 w-4 text-muted-foreground" />
-                      {t('feed.radio_expired')}
-                    </span>
-                    <span className="font-medium text-destructive">{stats.radioExpired}</span>
-                  </div>
-                )}
-                {stats.wikiImageExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Image className="h-4 w-4 text-muted-foreground" />
-                      {t('feed.wiki_images_expired')}
-                    </span>
-                    <span className="font-medium text-destructive">{stats.wikiImageExpired}</span>
-                  </div>
-                )}
-                {stats.wikiLovesExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <ImagePlus className="h-4 w-4 text-muted-foreground" />
-                      {t('feed.wiki_loves_expired')}
-                    </span>
-                    <span className="font-medium text-destructive">{stats.wikiLovesExpired}</span>
-                  </div>
-                )}
-                {stats.newsExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Newspaper className="h-4 w-4 text-muted-foreground" />
-                      {t('feed.news_expired')}
-                    </span>
-                    <span className="font-medium text-destructive">{stats.newsExpired}</span>
-                  </div>
-                )}
-                {stats.f1Expired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Trophy className="h-4 w-4 text-muted-foreground" />
-                      {t('feed.f1_expired')}
-                    </span>
-                    <span className="font-medium text-destructive">{stats.f1Expired}</span>
-                  </div>
-                )}
-                {stats.portailWikipediaExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-muted-foreground" />
-                      {t('feed.portail_wikipedia_expired')}
-                    </span>
-                    <span className="font-medium text-destructive">{stats.portailWikipediaExpired}</span>
-                  </div>
-                )}
-                {stats.citationExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Quote className="h-4 w-4 text-muted-foreground" />
-                      {t('feed.citation_expired')}
-                    </span>
-                    <span className="font-medium text-destructive">{stats.citationExpired}</span>
-                  </div>
-                )}
-                {stats.insoliteExpired > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-muted-foreground" />
-                      Articles insolites expirés
-                    </span>
-                    <span className="font-medium text-destructive">{stats.insoliteExpired}</span>
-                  </div>
-                )}
-                {stats.cnrsExpired === 0 && stats.radioExpired === 0 && stats.wikiImageExpired === 0 && stats.wikiLovesExpired === 0 && stats.newsExpired === 0 && stats.f1Expired === 0 && stats.portailWikipediaExpired === 0 && stats.citationExpired === 0 && stats.insoliteExpired === 0 && (
+                ))}
+                {CACHE_SOURCES.every(s => (stats as any)[s.statsExpired] === 0) && (
                   <p className="text-muted-foreground">{t('feed.no_expired')}</p>
                 )}
               </div>
@@ -406,7 +359,7 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                   <DialogHeader>
                     <DialogTitle>Confirmer le nettoyage</DialogTitle>
                       <DialogDescription>
-                        Supprimer {stats.cnrsExpired + stats.radioExpired + stats.wikiImageExpired + stats.wikiLovesExpired + stats.newsExpired + stats.f1Expired + stats.portailWikipediaExpired + stats.citationExpired + stats.insoliteExpired} éléments expirés ?
+                        Supprimer {CACHE_SOURCES.reduce((sum, s) => sum + (stats as any)[s.statsExpired], 0)} éléments expirés ?
                       </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
