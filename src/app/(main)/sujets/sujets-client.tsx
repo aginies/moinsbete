@@ -25,6 +25,7 @@ import { CARD_DEFAULT_ORDER } from '@/lib/constants'
 import { CARD_COLORS } from '@/lib/card-theme'
 import { CardNavBar } from '@/components/feed/card-nav-bar'
 import { useTranslations } from 'next-intl'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
@@ -163,6 +164,8 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
     saviezVous: true, wikipedia: true, wikipediaShowEn: false, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, portailWikipedia: true, proverbe: true, news: true, f1: true, citation: true, insolite: true, pixabayActiveCategory: 'bird',
   })
+
+  const [showTopics, setShowTopics] = useState(false)
 
   const lastSyncedRef = useRef<string | null>(null)
   const syncKey = initialVisibility ? JSON.stringify(initialVisibility) : null
@@ -314,6 +317,58 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         )
       })}
 
+      <div className="mb-4 sm:mb-6">
+        <div className="rounded-xl border-2 border-rose-400 bg-gradient-to-br from-rose-50 to-pink-50 dark:border-rose-600 dark:from-rose-950/30 dark:to-pink-950/30 shadow-sm">
+          <Link
+            href={((userId && followedIds.length > 0) || isAllSelected) ? '/idees/au-hasard?followed=1' : '/sujets'}
+            className="block p-5 hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500 dark:bg-rose-600">
+                  <span className="text-lg">🎲</span>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-rose-800 dark:text-rose-200">
+                    {((userId && followedIds.length > 0) || isAllSelected) ? t('carte_aléatoire') : t('choisir_sujets')}
+                  </h3>
+                  <p className="text-xs text-rose-600 dark:text-rose-300">
+                    {((userId && followedIds.length > 0) || isAllSelected) ? t('découvrir_hasard') : t('sélectionner_sujets')}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setShowTopics(f => !f)
+                }}
+                className="flex-shrink-0 ml-2 rounded-full p-2 transition-colors hover:bg-rose-200/50 dark:hover:bg-rose-800/50"
+              >
+                {showTopics ? (
+                  <ChevronUp className="h-5 w-5 text-rose-700 dark:text-rose-300" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-rose-700 dark:text-rose-300" />
+                )}
+              </button>
+            </div>
+          </Link>
+          <div
+            className={`overflow-hidden transition-all duration-300 ${
+              showTopics ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="p-5 pt-0 space-y-6">
+              {followedTopics.length > 0 && (
+                <TopicGrid topics={followedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} />
+              )}
+              <TopicGrid topics={unfollowedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
         {hiddenCards.map(card => (
           <div key={card.key} className="h-full">
@@ -321,35 +376,6 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
           </div>
         ))}
       </div>
-
-      <div className="mb-4 sm:mb-6">
-        <Link
-          href={((userId && followedIds.length > 0) || isAllSelected) ? '/idees/au-hasard?followed=1' : '/sujets'}
-          className="block rounded-xl border-2 border-rose-400 bg-gradient-to-br from-rose-50 to-pink-50 p-5 dark:border-rose-600 dark:from-rose-950/30 dark:to-pink-950/30 hover:shadow-md transition-shadow"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500 dark:bg-rose-600">
-              <span className="text-lg">🎲</span>
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-rose-800 dark:text-rose-200">
-                {((userId && followedIds.length > 0) || isAllSelected) ? t('carte_aléatoire') : t('choisir_sujets')}
-              </h3>
-              <p className="text-xs text-rose-600 dark:text-rose-300">
-                {((userId && followedIds.length > 0) || isAllSelected) ? t('découvrir_hasard') : t('sélectionner_sujets')}
-              </p>
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      {followedTopics.length > 0 && (
-        <div className="mb-8">
-          <TopicGrid topics={followedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} />
-        </div>
-      )}
-
-      <TopicGrid topics={unfollowedTopics} followedIdsSet={followedIdsSet} onToggle={handleToggle} isAuthenticated={!!userId} />
     </div>
   )
 }

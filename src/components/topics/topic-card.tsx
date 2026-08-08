@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Bookmark } from 'lucide-react'
+import { Plus, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Topic } from '@/generated/client'
 import { toggleTopic } from '@/actions/bookmark-actions'
@@ -50,7 +50,11 @@ export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing
   }
 
   return (
-    <div className={`group rounded-2xl border border-border/60 bg-card p-5 shadow-sm transition-all hover:border-border hover:shadow-md ${following ? '' : 'opacity-75'}`}>
+    <div className={`group rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md ${following
+        ? 'border-solid border-border/60 hover:border-border'
+        : 'border-dashed border-2 border-foreground/20 opacity-75 hover:border-foreground/40'
+      }`}
+>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-2xl">{topic.icon}</span>
@@ -63,7 +67,11 @@ export const TopicCard = React.memo(function TopicCardInner({ topic, isFollowing
           onClick={handleToggle}
           className={`rounded-full p-2 transition-colors hover:bg-muted ${following ? 'text-primary' : 'text-muted-foreground'} ${loading ? 'animate-pulse' : ''}`}
         >
-          <Bookmark className={`h-5 w-5 ${following ? 'fill-current' : ''}`} />
+          {following ? (
+            <Check className="h-5 w-5" />
+          ) : (
+            <Plus className="h-5 w-5" />
+          )}
         </button>
       </div>
 
