@@ -11,6 +11,19 @@
 | Génération de contenu | LLM OpenAI-compatible |
 | Ingestion Wikipédia | REST API fr.wikipedia.org |
 
+### Dépendances principales
+
+- **Next.js 16.2** - Framework React
+- **React 19.2** - Bibliothèque UI
+- **Prisma v6.19** - ORM
+- **Tailwind CSS v4** - Styling
+- **shadcn ^4.12** - Composants UI
+- **Lucide React** - Icônes
+- **next-auth** - Authentification
+- **next-intl** - i18n (fr/en locales)
+- **sonner** - Toast notifications
+- **react-beautiful-dnd** - Drag-to-reorder (card ordering)
+
 ## Commandes principales
 
 | Commande | Description |
