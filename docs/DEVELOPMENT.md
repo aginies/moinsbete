@@ -1,5 +1,46 @@
 # Développement
 
+## Stack technique
+
+| Couche | Technologie |
+|--------|-------------|
+| Frontend | Next.js App Router, React Server Components |
+| Backend | API Routes Next.js, Prisma ORM |
+| Base de données | SQLite (fichier .db) |
+| Authentification | NextAuth v4 + bcrypt |
+| Génération de contenu | LLM OpenAI-compatible |
+| Ingestion Wikipédia | REST API fr.wikipedia.org |
+
+## Commandes principales
+
+| Commande | Description |
+|----------|-------------|
+| `npm run dev` | Serveur de développement |
+| `npm run build` | Build de production |
+| `npx prisma studio` | Interface DB |
+| `npm test` | Exécuter tous les tests (359 tests) |
+| `npx tsx src/scripts/seed-ideas.ts` | Seed manuel |
+| `npx tsx src/scripts/generate-ideas.ts` | Génération LLM |
+| `npx tsx scripts/scrape-saviez-vous.ts` | Scraper Wikipédia |
+| `npm run cache:all` | Lancer tous les caches |
+| `npm run cache:insolite:enrich` | Enrichir images insolites |
+
+## Tests
+
+359 tests sur 31 fichiers (vitest).
+
+```bash
+npm test              # Exécuter tous les tests
+npm test -- --watch   # Mode watch
+```
+
+Couverture :
+- `src/lib/` — utils, slugify, url validation, rate-limiter, csrf, auth, bookmark, feed-helpers, saviez-vous, view, llm, radio-bookmark, image-url-encoder, constants
+- `src/actions/` — auth-actions, bookmark-actions, topic-actions, view-actions, review-actions
+- `src/scripts/` — seed-ideas data validation
+- `src/app/` — robots.txt, feed helpers, pagination, wikimedia-topics route
+- `src/hooks/` — use-card-visibility
+
 ## Architecture des pages
 
 ```
