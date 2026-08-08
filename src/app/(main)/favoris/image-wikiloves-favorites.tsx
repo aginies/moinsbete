@@ -1,140 +1,40 @@
 'use client'
 
-import Link from 'next/link'
-import { ExternalLink, Trash2 } from 'lucide-react'
-import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getWikiLovesFavoritesAction } from '@/actions/image-wikiloves-bookmark-actions'
 import { type WikiLovesImageFavoriteDoc } from '@/lib/image-wikiloves-bookmark'
-import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
-import { useFavoritesList } from '@/components/feed/use-favorites-list'
-import { ImageLightbox } from '@/components/feed/image-lightbox'
-import { ImageHint } from '@/components/feed/image-hint'
-import { ShareButton } from '@/components/feed/share-button'
-import { useState, useCallback } from 'react'
-import { useItemShare } from '@/components/feed/use-item-share'
-import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
+import { ImageSourceFavorites } from '@/components/feed/image-source-favorites'
 
-const WIKILOVES_FAVORITES_KEY = 'image_wikiloves_favorites'
-
-interface WikiLovesFavoriteItemProps {
-  item: WikiLovesImageFavoriteDoc
-  onRemove: () => void
-  onShowFullImage: (url: string) => void
-  isShared: boolean
-  onShareToggle: () => void
-  isSharing: boolean
+interface ImageWikiLovesFavoritesProps {
+  userId?: string
+  onRemoveComplete?: () => void
+  sharedIds?: Set<string>
+  onShareToggle?: (item: WikiLovesImageFavoriteDoc) => void
+  isSharing?: string | null
+  searchQuery?: string
 }
 
-function WikiLovesFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareToggle, isSharing }: WikiLovesFavoriteItemProps) {
-  const { handleShare, copied, shareUrl } = useItemShare({
-    shareUrl: item.link,
-    title: item.titre,
-    text: item.auteur ? `Par ${item.auteur}` : '',
-    itemId: item.docid,
-  })
-
+export function ImageWikiLovesFavorites({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing, searchQuery }: ImageWikiLovesFavoritesProps) {
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex-1">
-        {isValidUrl(item.imageUrl) && (
-          <div
-            className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-indigo-200 dark:border-indigo-800"
-            onClick={() => onShowFullImage(item.imageUrl)}
-          >
-            <img
-              src={sanitizeUrl(item.imageUrl, '')}
-              alt={item.titre}
-              loading="lazy"
-              className="max-w-full transition-opacity hover:opacity-90 rounded-xl"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-            />
-            <ImageHint color="cyan" />
-          </div>
-        )}
-        <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
-          {item.titre}
-        </h3>
-        {item.auteur && (
-          <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-1">
-            {item.auteur}
-          </p>
-        )}
-        {isValidUrl(item.link) && (
-          <Link
-            href={item.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-indigo-700 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 hover:underline"
-          >
-            Voir sur Wikimedia Commons
-            <ExternalLink className="h-3 w-3" />
-          </Link>
-        )}
-      </div>
-      <div className="flex flex-col gap-2">
-        <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
-        <ShareToLobbyButton resourceId={item.docid} resourceType="IMAGE_WIKILOVES" />
-        <button
-          onClick={onRemove}
-          className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
-          title="Retirer des favoris"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-  )
-}
-
-export function ImageWikiLovesFavorites({ userId, onRemoveComplete, sharedIds, onShareToggle, isSharing, searchQuery }: { userId?: string; onRemoveComplete?: () => void; sharedIds: Set<string>; onShareToggle: (item: WikiLovesImageFavoriteDoc) => void; isSharing: string | null; searchQuery?: string }) {
-  const [showFullImage, setShowFullImage] = useState<string | null>(null)
-
-  const { handleRemove, getFavorites } = useFavoritesList<WikiLovesImageFavoriteDoc>({
-    userId,
-    storageKey: WIKILOVES_FAVORITES_KEY,
-    resourceIdGetter: (item) => item.docid,
-    bookmarkType: 'IMAGE_WIKILOVES',
-  })
-
-  const fetchFn = useCallback(async () => {
-    if (userId) {
-      const result = await getWikiLovesFavoritesAction()
-      return result.favorites as WikiLovesImageFavoriteDoc[]
-    }
-    return getFavorites()
-  }, [userId, getFavorites])
-
-  return (
-    <>
-      <PaginatedFavoritesList
-        onRemoveComplete={onRemoveComplete}
-        fetchFn={fetchFn}
-        searchQuery={searchQuery}
-        searchFields={(item) => item.titre}
-        renderItem={(item, onRemove) => (
-          <WikiLovesFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.docid)} onShareToggle={() => onShareToggle && onShareToggle(item)} isSharing={isSharing === item.docid} />
-        )}
-        emptyTitle="Aucun favori Wiki Loves"
-        emptyDescription="Favorisez des images depuis la page d&apos;accueil pour les voir ici."
-        storageKey={WIKILOVES_FAVORITES_KEY}
-        userId={userId}
-        removeFavorite={handleRemove}
-        borderColor="border-indigo-200"
-        bgGradient="bg-gradient-to-br from-indigo-50 to-emerald-50"
-        darkBorderColor="dark:border-indigo-800"
-        darkBgGradient="dark:from-indigo-950/20 dark:to-emerald-950/20"
-        textColor="text-indigo-900"
-        darkTextColor="dark:text-indigo-100"
-        buttonColor="text-indigo-600"
-        buttonHoverBg="hover:bg-indigo-100"
-      />
-      {showFullImage && (
-        <ImageLightbox
-          src={showFullImage}
-          alt="Wiki Loves"
-          onClose={() => setShowFullImage(null)}
-        />
-      )}
-    </>
+    <ImageSourceFavorites
+      userId={userId}
+      onRemoveComplete={onRemoveComplete}
+      sharedIds={sharedIds || new Set()}
+      onShareToggle={onShareToggle || (() => {})}
+      isSharing={isSharing || null}
+      searchQuery={searchQuery}
+      config={{
+        storageKey: 'image_wikiloves_favorites',
+        bookmarkType: 'IMAGE_WIKILOVES',
+        color: 'indigo',
+        hintColor: 'cyan',
+        resourceType: 'IMAGE_WIKILOVES',
+        emptyTitle: "Aucun favori Wiki Loves",
+        emptyDescription: "Favorisez des images depuis la page d'accueil pour les voir ici.",
+        linkText: 'Voir sur Wikimedia Commons',
+        lightboxAlt: 'Wiki Loves',
+        searchFields: (item) => item.titre,
+        fetchAction: getWikiLovesFavoritesAction,
+      }}
+    />
   )
 }

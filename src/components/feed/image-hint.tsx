@@ -2,7 +2,7 @@
 
 import { ImageIcon } from 'lucide-react'
 
-interface ImageHintProps {
+export interface ImageHintProps {
   color: 'teal' | 'blue' | 'purple' | 'green' | 'amber' | 'rose' | 'orange' | 'cyan'
 }
 
