@@ -5,7 +5,6 @@
 - **Type**: SQLite (fichier unique `dev.db`)
 - **ORM**: Prisma v6
 - **Fichier**: `dev.db` à la racine du projet (dans `.gitignore`)
-- **Emplacement**: à la racine du projet (`dev.db`)
 - **Optimisations**: WAL mode, synchronous normal, busy timeout (see `src/lib/db.ts`)
 
 ## Statistiques actuelles
@@ -24,7 +23,7 @@
 | **UserWikiLovesTopic** | Catégories Wiki Loves actives par utilisateur |
 | **UserSuggestion** | Suggestions utilisateur |
 | **SuggestionComment** | Commentaires sur suggestions utilisateur |
-| **Bookmark** | Bookmarks utilisateur (SRS: easeFactor, reviewCount, nextReviewAt) |
+| **Bookmark** | Bookmarks utilisateur (easeFactor, reviewCount, nextReviewAt) |
 | **ViewedIdea** | Historique de consultation |
 | **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) |
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) |

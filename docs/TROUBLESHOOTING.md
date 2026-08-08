@@ -247,6 +247,6 @@ EOF
 
 # Réinitialiser à toutes visibles (true)
 npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
-UPDATE "CachedConfig" SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"portailWikipedia":true,"proverbe":true,"news":true,"f1":true,"citation":true}' WHERE key = 'cartes_global_visibility';
+UPDATE "CachedConfig" SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"portailWikipedia":true,"proverbe":true,"news":true,"f1":true,"citation":true,"insolite":true}' WHERE key = 'cartes_global_visibility';
 EOF
 ```

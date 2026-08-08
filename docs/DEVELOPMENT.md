@@ -7,7 +7,7 @@
 | Frontend | Next.js App Router, React Server Components |
 | Backend | API Routes Next.js, Prisma ORM |
 | Base de données | SQLite (fichier .db) |
-| Authentification | NextAuth v4 + bcrypt |
+| Authentification | NextAuth v5 + bcrypt |
 | Génération de contenu | LLM OpenAI-compatible |
 | Ingestion Wikipédia | REST API fr.wikipedia.org |
 

@@ -9,7 +9,7 @@
 | **Source** | Sources (Wikipédia, livres, articles, podcasts) |
 | **Idea** | Idées bite-sized (titre, contenu, takeaway) |
 | **IdeaTopic** | Junction Idea ↔ Topic (1 par idée) |
-| **Bookmark** | Bookmarks utilisateur (SRS fields: easeFactor, reviewCount, nextReviewAt) |
+| **Bookmark** | Bookmarks utilisateur (easeFactor, reviewCount, nextReviewAt) |
 | **Collection** | Curated idea collections |
 | **GrowthPlan** | Plan d'apprentissage (streak, dernière activité) |
 | **TopicSuggestion** | Suggestions de nouveaux topics (admin) |
