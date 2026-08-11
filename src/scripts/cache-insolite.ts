@@ -4,7 +4,7 @@ import { gunzipSync, inflateSync } from 'zlib'
 import { runCacheScript } from './cache-script-helper'
 
 const INSOLITE_PAGE_URL = 'https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Articles_insolites'
-const TTL_MS = 24 * 60 * 60 * 1000
+const TTL_MS = 72 * 60 * 60 * 1000
 
 interface InsoliteEntry {
   title: string

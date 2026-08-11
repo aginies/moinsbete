@@ -95,7 +95,11 @@ export async function GET(request: NextRequest) {
     await scrapeAndCacheCitation()
     results.citation = 'ok'
 
-    console.log('[cron] Step 9/12: Cleanup...')
+    console.log('[cron] Step 9/12: Scraping Articles insolites...')
+    await scrapeAndCacheInsolite()
+    results.insolite = 'ok'
+
+    console.log('[cron] Step 10/12: Cleanup...')
     const counts = await cleanupExpired()
     const citationSkipped = counts.citation === 0
     const insoliteSkipped = counts.insolite === 0
@@ -114,17 +118,13 @@ export async function GET(request: NextRequest) {
       results.insoliteConfigCleanup = `configs:${oldConfigCleaned}`
     }
 
-    console.log('[cron] Step 10/12: Resolving Saviez-vous images...')
+    console.log('[cron] Step 11/12: Resolving Saviez-vous images...')
     await scrapeAndCacheSaviezVousImages()
     results.saviezvous = 'ok'
 
-    console.log('[cron] Step 11/12: Scraping Portail Lexical Word of the Day...')
+    console.log('[cron] Step 12/12: Scraping Portail Lexical Word of the Day...')
     await scrapeAndCachePortailLexicalWotd()
     results.portailLexical = 'ok'
-
-    console.log('[cron] Step 12/12: Scraping Articles insolites...')
-    await scrapeAndCacheInsolite()
-    results.insolite = 'ok'
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
     console.log(`[cron] Cache update completed in ${duration}s`)
