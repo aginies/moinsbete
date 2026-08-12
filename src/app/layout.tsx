@@ -102,7 +102,7 @@ export default async function RootLayout({
                 {' · '}
                 <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
                 {' · '}
-                guibo.com ©
+                moinsbete.guibo.com ©
                 {' · '}
                 v{appVersion}
              </footer>

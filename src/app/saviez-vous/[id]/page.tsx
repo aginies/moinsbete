@@ -5,7 +5,6 @@ import { ArrowLeft } from 'lucide-react'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
 
 async function getFact(id: string) {
-  console.log('[DEBUG] getFact query id:', id)
   const result = await prisma.saviezVousFact.findUnique({
     where: { id },
     select: {
@@ -15,7 +14,6 @@ async function getFact(id: string) {
       imageFilename: true,
     },
   })
-  console.log('[DEBUG] getFact result:', result)
   return result
 }
 
@@ -57,11 +55,7 @@ export default async function SaviezVousPage({
 }) {
   const { id } = await params
   const decodedId = decodeURIComponent(id)
-  console.log('[DEBUG] params:', await params)
-  console.log('[DEBUG] ID:', id)
-  console.log('[DEBUG] decodedId:', decodedId)
   const fact = await getFact(decodedId)
-  console.log('[DEBUG] fact found:', fact)
 
   if (!fact) {
     return (

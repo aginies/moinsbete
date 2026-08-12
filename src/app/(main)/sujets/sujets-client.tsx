@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+import React from 'react'
 import { Topic } from '@/generated/client'
 import { TopicGrid } from '@/components/topics/topic-grid'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
@@ -55,6 +56,8 @@ interface CardVisibility {
   citation: boolean
   insolite: boolean
 }
+
+export type { CardVisibility }
 
 interface CardConfig {
   key: string
@@ -130,6 +133,34 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
     <InsoliteCard onToggle={config.toggle} isVisible={config.isVisible} />
   ),
 }
+
+interface CardWrapperProps {
+  cardKey: string
+  cardId: string
+  config: CardConfig
+  saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null
+  userId: string | undefined
+  hasUserId: boolean
+  visibility: CardVisibility | undefined
+}
+
+const CardWrapper = React.memo(function CardWrapper({
+  cardKey,
+  cardId,
+  config,
+  saviezVousFact,
+  userId,
+  hasUserId,
+  visibility,
+}: CardWrapperProps) {
+  const renderer = CARD_RENDERERS[cardKey]
+  if (!renderer) return null
+  return (
+    <div className="mb-4 sm:mb-6" id={cardId}>
+      {renderer(config, saviezVousFact, userId, hasUserId, visibility)}
+    </div>
+  )
+})
 
 async function updateCardVisibility(field: string, value: boolean) {
   await fetch('/api/user-card-visibility', {
@@ -307,15 +338,18 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
         enabled={cardNavBarEnabled}
       />
 
-      {visibleCards.map(card => {
-        const renderer = CARD_RENDERERS[card.key]
-        if (!renderer) return null
-        return (
-          <div key={card.key} className="mb-4 sm:mb-6" id={card.key}>
-            {renderer(card, saviezVousFact, userId, hasUserId, visibility)}
-          </div>
-        )
-      })}
+      {visibleCards.map(card => (
+        <CardWrapper
+          key={card.key}
+          cardKey={card.key}
+          cardId={card.key}
+          config={card}
+          saviezVousFact={saviezVousFact}
+          userId={userId}
+          hasUserId={hasUserId}
+          visibility={visibility}
+        />
+      ))}
 
       <div className="mb-4 sm:mb-6">
         <div className="rounded-xl border-2 border-rose-400 bg-gradient-to-br from-rose-50 to-pink-50 dark:border-rose-600 dark:from-rose-950/30 dark:to-pink-950/30 shadow-sm">

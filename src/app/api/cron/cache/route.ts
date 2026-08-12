@@ -11,9 +11,9 @@ import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexica
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
+import { isAllowedIp } from '@/lib/ip'
 
 const CRON_SECRET = process.env.CRON_SECRET || ''
-const ALLOWED_IPS = ['62.210.207.184', '127.0.0.1', '::1']
 
 function ipInPrivateRange(ip: string): boolean {
   if (ip.startsWith('10.')) return true
@@ -37,7 +37,7 @@ function isAuthorized(request: NextRequest): { authorized: boolean; ip: string; 
   const realIp = request.headers.get('x-real-ip')
   const ip = (forwardedIp?.split(',')[0].trim() || realIp || 'unknown').trim()
   
-  if (ALLOWED_IPS.includes(ip)) {
+  if (isAllowedIp(ip)) {
     return { authorized: true, ip, reason: 'ip-whitelist' }
   }
   
