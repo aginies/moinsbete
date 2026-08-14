@@ -141,7 +141,7 @@ export async function loginAction(formData: {
   cookieExpires.setTime(cookieExpires.getTime() + SESSION_COOKIE_MAX_AGE_MS)
 
   cookieStore.set('__Secure-next-auth.session-token', token, {
-    httpOnly: false,
+    httpOnly: true,
     sameSite: 'lax',
     path: '/',
     secure: true,
@@ -158,7 +158,7 @@ export async function logoutAction() {
   // Clear secure cookie
   cookieStore.set('__Secure-next-auth.session-token', '', {
     path: '/',
-    httpOnly: false,
+    httpOnly: true,
     sameSite: 'lax',
     secure: true,
     expires: pastDate,
@@ -167,7 +167,7 @@ export async function logoutAction() {
   // Clear standard session cookie
   cookieStore.set('next-auth.session-token', '', {
     path: '/',
-    httpOnly: false,
+    httpOnly: true,
     sameSite: 'lax',
     secure: true,
     expires: pastDate,

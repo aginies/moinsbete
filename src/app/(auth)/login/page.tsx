@@ -28,6 +28,7 @@ export default function LoginPage() {
     if (result.error) {
       setError(result.error)
     } else {
+      localStorage.removeItem('session_logged_in')
       router.push('/')
       router.refresh()
     }

@@ -46,6 +46,7 @@ export default function MonCompteClient({ session }: { session: SessionWithNotif
     startTransition(async () => {
       try {
         await logoutAction()
+      localStorage.removeItem('session_logged_in')
       } catch {
         // ignore
       }
