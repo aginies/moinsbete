@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { BaseImageCard } from './base-image-card'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { TopicsModal } from './topics-modal'
+import { fetchCardImage } from '@/lib/fetch-card-image'
 
 interface WikiLovesImage {
   docid: string
@@ -58,19 +59,8 @@ async function fetchTopics(): Promise<Topic[]> {
 }
 
 async function fetchRandomImage(event?: string): Promise<WikiLovesImage | null> {
-  try {
-    const url = event ? `/api/image-wikiloves?event=${encodeURIComponent(event)}` : '/api/image-wikiloves'
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(15000),
-      cache: 'no-store',
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    if (data.error || !data?.imageUrl) return null
-    return data
-  } catch {
-    return null
-  }
+  const { data } = await fetchCardImage<WikiLovesImage>('/api/image-wikiloves', { event }, { requireField: 'imageUrl' })
+  return data
 }
 
 function ImageWikiLovesCardInner({

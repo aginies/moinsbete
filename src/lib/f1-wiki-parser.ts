@@ -5,6 +5,8 @@
  * to eliminate duplicate regex logic and interface definitions.
  */
 
+import { WIKIMEDIA_UA } from './constants'
+
 // ── Shared types ────────────────────────────────────────────────────────────
 
 export interface F1Actualite {
@@ -58,7 +60,7 @@ async function fetchWikiPage(page: string): Promise<string | null> {
       `${WIKI_API}?action=parse&page=${encodeURIComponent(page)}&prop=text&format=json`,
       {
         headers: {
-          'User-Agent': 'moinsbete/1.0 (https://moinsbete.guibo.com; bot-traffic@wikimedia.org)',
+          'User-Agent': WIKIMEDIA_UA,
         },
         signal: AbortSignal.timeout(15000),
       }
@@ -307,7 +309,7 @@ export async function fetchArticleContent(articleTitle: string): Promise<string 
       `${WIKI_API}?action=parse&page=${encodeURIComponent(articleTitle)}&prop=text&format=json`,
       {
         headers: {
-          'User-Agent': 'moinsbete/1.0 (https://moinsbete.guibo.com; bot-traffic@wikimedia.org)',
+          'User-Agent': WIKIMEDIA_UA,
         },
         signal: AbortSignal.timeout(10000),
       }

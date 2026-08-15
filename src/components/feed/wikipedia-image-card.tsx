@@ -12,7 +12,7 @@ import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
 import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
-import { SwipeBackgroundCard } from './swipe-background-card'
+import { SwipeCardWrapper } from './swipe-card-wrapper'
 import { ImageLoading } from './image-loading'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleImageDuJourFavoriteAction } from '@/actions/bookmark-actions'
@@ -21,6 +21,7 @@ import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { encodeImageToUrl } from '@/lib/image-url-encoder'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
+import { fetchCardImage } from '@/lib/fetch-card-image'
 
 interface ImageData {
   imageUrl: string
@@ -45,18 +46,8 @@ interface WikipediaImageCardProps {
 }
 
 async function fetchRandomImage(showFr: boolean, showEn: boolean): Promise<{ data: ImageData | null; error: string | null }> {
-  try {
-    const params = new URLSearchParams()
-    if (showFr) params.set('lang', 'fr')
-    if (showEn) params.set('lang', params.get('lang') ? `${params.get('lang')},en` : 'en')
-    const url = `/api/wikipedia-image?${params.toString()}`
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
-    const data = await res.json()
-    if (data.error) return { data: null, error: data.error }
-    return { data, error: null }
-  } catch {
-    return { data: null, error: null }
-  }
+  const lang = [showFr && 'fr', showEn && 'en'].filter(Boolean).join(',')
+  return fetchCardImage<ImageData>('/api/wikipedia-image', { lang: lang || undefined }, { timeoutMs: 8000 })
 }
 
 export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
@@ -149,16 +140,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
     }
   }, [showFr, showEn])
 
-  const {
-    bind,
-    containerRef,
-    dragX,
-    swipeStyle,
-    isDragging,
-    prefersReducedMotion,
-    prevHintOpacity,
-    nextHintOpacity,
-  } = useSwipeGesture({
+  const gesture = useSwipeGesture({
     onSwipeLeft: loadImage,
     onSwipeRight: loadImage,
     onDragStart: prefetchNextImage,
@@ -166,6 +148,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
     swipeable,
     resetDep: image?.imageUrl,
   })
+  const { dragX, isDragging } = gesture
 
   useEffect(() => {
     if (isVisible === false) return
@@ -355,32 +338,16 @@ extraActions={
         buttonColor="teal"
         label="Afficher Image du jour"
       >
-        {swipeable ? (
-          <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
-            {prevHintOpacity > 0 && (
-              <div
-                className="pointer-events-none absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-green-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
-                style={{ opacity: prevHintOpacity }}
-              >
-                ← Précédent
-              </div>
-            )}
-
-            {nextHintOpacity > 0 && (
-              <div
-                className="pointer-events-none absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-blue-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
-                style={{ opacity: nextHintOpacity }}
-              >
-                Suivant →
-              </div>
-            )}
-
-            {nextImage && bgOpacity > 0 && (
-              <SwipeBackgroundCard
-                title="Image du jour"
-                icon={<Camera className="h-4 w-4 text-teal-950" />}
-                color="teal"
-              >
+        <SwipeCardWrapper
+          gesture={gesture}
+          swipeable={swipeable}
+          cardContent={cardContent}
+          background={nextImage && bgOpacity > 0 ? {
+            title: 'Image du jour',
+            icon: <Camera className="h-4 w-4 text-teal-950" />,
+            color: 'teal',
+            children: (
+              <>
                 {nextImage.imageUrl && (
                   <div className="mb-3 overflow-hidden rounded-lg border border-teal-200 dark:border-teal-800 h-48">
                     <img
@@ -394,19 +361,10 @@ extraActions={
                 <p className="text-sm leading-relaxed text-teal-900 dark:text-teal-100">
                   {nextImage.description}
                 </p>
-              </SwipeBackgroundCard>
-            )}
-
-            <div
-              className={`w-full relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
-              style={swipeStyle}
-            >
-              {cardContent}
-            </div>
-          </div>
-        ) : (
-          cardContent
-        )}
+              </>
+            ),
+          } : undefined}
+        />
       </CardVisibilityGuard>
 
       {showFullImage && (

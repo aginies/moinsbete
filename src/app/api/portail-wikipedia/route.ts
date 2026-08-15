@@ -3,113 +3,27 @@ import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import { getCachedPool } from '@/lib/feed-pool-cache'
+import { PORTAL_PAGES, PORTAL_ARTICLE_TTL_MS, fetchArticleDetails, fetchLinksFromPortal, type PortalArticleData } from '@/lib/portail-wikipedia-fetch'
 import articlesFallback from '@/data/portail-wikipedia.json'
 
-interface ArticleData {
+interface PortalPoolRow {
   id: string
-  title: string
-  extract: string
+  title: string | null
+  extract: string | null
   imageUrl: string | null
-  pageUrl: string
+  pageUrl: string | null
+  expiresAt: Date
 }
 
-const PORTAL_PAGES = [
-  'Wikipédia:Contenus_de_qualité',
-  'Wikipédia:Bons_contenus',
-]
-
-const TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
-
-function getRandomArticles(count: number): ArticleData[] {
+function getRandomArticles(count: number): PortalArticleData[] {
   const pool = [...articlesFallback]
-  const result: ArticleData[] = []
+  const result: PortalArticleData[] = []
   while (result.length < count && pool.length > 0) {
     const idx = Math.floor(Math.random() * pool.length)
     result.push(pool.splice(idx, 1)[0])
   }
   return result
-}
-
-async function fetchArticleDetails(titles: string[]): Promise<ArticleData[]> {
-  if (titles.length === 0) return []
-
-  const BATCH_SIZE = 50
-  const allResults: ArticleData[] = []
-
-  for (let i = 0; i < titles.length; i += BATCH_SIZE) {
-    const batch = titles.slice(i, i + BATCH_SIZE)
-    const escapedTitles = batch.map(t => encodeURIComponent(t)).join('|')
-    const url = `https://fr.wikipedia.org/w/api.php?action=query&titles=${escapedTitles}&prop=pageimages|extracts&piprop=thumbnail&pithumbsize=400&exintro=true&explaintext=true&format=json`
-
-    try {
-      const res = await fetch(url, {
-        headers: { 'User-Agent': 'moinsbete (https://moinsbete.guibo.com; bot-traffic@wikimedia.org)' },
-        signal: AbortSignal.timeout(30000),
-      })
-      if (!res.ok) continue
-
-      const data = await res.json()
-      const pages = data?.query?.pages
-      if (!pages) continue
-
-      for (const pageId of Object.keys(pages)) {
-        const page = pages[pageId]
-        if (page.missing) continue
-
-        const title = page.title || ''
-        const extract = page.extract || ''
-        const imageUrl = page.thumbnail?.source || null
-        const pageUrl = `https://fr.wikipedia.org/wiki/${encodeURIComponent(title)}`
-
-        allResults.push({
-          id: pageId,
-          title,
-          extract: extract.replace(/\s+/g, ' ').trim(),
-          imageUrl,
-          pageUrl,
-        })
-      }
-    } catch {
-      // Skip failed batches
-    }
-  }
-
-  return allResults
-}
-
-async function fetchLinksFromPortal(pageTitle: string): Promise<string[]> {
-  let allLinks: string[] = []
-  let plcontinue: string | null = null
-  let url: string
-
-  while (true) {
-    url = `https://fr.wikipedia.org/w/api.php?action=query&prop=links&titles=${encodeURIComponent(pageTitle)}&pllimit=500&format=json${plcontinue ? `&plcontinue=${encodeURIComponent(plcontinue)}` : ''}`
-    try {
-      const res = await fetch(url, {
-        headers: { 'User-Agent': 'moinsbete (https://moinsbete.guibo.com; bot-traffic@wikimedia.org)' },
-        signal: AbortSignal.timeout(15000),
-      })
-      if (!res.ok) break
-
-      const data = await res.json()
-      const pages = data?.query?.pages
-      if (!pages) break
-
-      for (const pageId of Object.keys(pages)) {
-        const page = pages[pageId]
-        if (page.links) {
-          allLinks = allLinks.concat(page.links.map((l: { title: string }) => l.title))
-        }
-      }
-      plcontinue = data?.continue?.plcontinue
-    } catch {
-      break
-    }
-
-    if (!plcontinue) break
-  }
-
-  return allLinks
 }
 
 export async function GET(request: NextRequest) {
@@ -122,26 +36,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
     }
 
-    const totalCached = await prisma.cachedWikipediaPortalArticle.count({
-      where: { expiresAt: { gte: new Date() } },
-    })
-
-    if (totalCached >= count) {
-      const skip = Math.floor(Math.random() * Math.max(totalCached - count + 1, 0))
-      const articles = await prisma.cachedWikipediaPortalArticle.findMany({
+    const now = new Date()
+    const pool = await getCachedPool<PortalPoolRow[]>('portail-wiki:all', () =>
+      prisma.cachedWikipediaPortalArticle.findMany({
         where: { expiresAt: { gte: new Date() } },
-        select: { id: true, title: true, extract: true, imageUrl: true, pageUrl: true },
-        skip,
-        take: count,
+        select: { id: true, title: true, extract: true, imageUrl: true, pageUrl: true, expiresAt: true },
       })
+    )
+    const valid = pool.filter(a => a.expiresAt >= now)
+
+    if (valid.length >= count) {
+      const skip = Math.floor(Math.random() * Math.max(valid.length - count + 1, 0))
+      const articles = valid.slice(skip, skip + count).map(({ expiresAt: _e, ...a }) => a)
       if (articles.length > 0) {
         return NextResponse.json(articles)
       }
-    } else if (totalCached > 0) {
-      const articles = await prisma.cachedWikipediaPortalArticle.findMany({
-        where: { expiresAt: { gte: new Date() } },
-        select: { id: true, title: true, extract: true, imageUrl: true, pageUrl: true },
-      })
+    } else if (valid.length > 0) {
+      const articles = valid.map(({ expiresAt: _e, ...a }) => a)
       if (articles.length > 0) {
         return NextResponse.json(articles)
       }
@@ -163,7 +74,7 @@ export async function GET(request: NextRequest) {
 
       // Upsert to DB
       const now = new Date()
-      const expiresAt = new Date(now.getTime() + TTL_MS)
+      const expiresAt = new Date(now.getTime() + PORTAL_ARTICLE_TTL_MS)
 
       for (const article of articles) {
         await prisma.cachedWikipediaPortalArticle.upsert({

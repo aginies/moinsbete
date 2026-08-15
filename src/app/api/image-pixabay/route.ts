@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import { getCachedPool } from '@/lib/feed-pool-cache'
 
 interface PixabayVideo {
   id: number
@@ -17,9 +18,9 @@ interface PixabayVideo {
 const PIXABAY_API = 'https://pixabay.com/api/videos/'
 const API_KEY = process.env.PIXABAY_API_KEY
 
-async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> {
+async function fetchVideoPool(category: string): Promise<PixabayVideo[]> {
   if (!API_KEY) {
-    return null
+    return []
   }
 
   const params = new URLSearchParams({
@@ -43,37 +44,36 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
 
       if (!res.ok) {
         console.log('[pixabay] HTTP error:', res.status, await res.text())
-        return null
+        return []
       }
 
       const data = await res.json()
       console.log('[pixabay] API response:', data.totalHits, 'hits')
       const hits = data.hits || []
 
-      if (hits.length === 0) return null
-
-      const randomVideo = hits[Math.floor(Math.random() * hits.length)]
-      const mediumVideo = randomVideo.videos?.medium || randomVideo.videos?.small
-
-      if (!mediumVideo?.url) return null
-
-      return {
-        id: randomVideo.id,
-        pageURL: randomVideo.pageURL,
-        author: randomVideo.user || '',
-        authorProfileUrl: `https://pixabay.com/users/${randomVideo.user}-${randomVideo.user_id}/`,
-        duration: randomVideo.duration || 0,
-        thumbnailUrl: mediumVideo.thumbnail || '',
-        videoUrl: mediumVideo.url,
-        tags: randomVideo.tags || '',
+      const videos: PixabayVideo[] = []
+      for (const hit of hits) {
+        const mediumVideo = hit.videos?.medium || hit.videos?.small
+        if (!mediumVideo?.url) continue
+        videos.push({
+          id: hit.id,
+          pageURL: hit.pageURL,
+          author: hit.user || '',
+          authorProfileUrl: `https://pixabay.com/users/${hit.user}-${hit.user_id}/`,
+          duration: hit.duration || 0,
+          thumbnailUrl: mediumVideo.thumbnail || '',
+          videoUrl: mediumVideo.url,
+          tags: hit.tags || '',
+        })
       }
+      return videos
     } catch (e) {
-      console.log('fetchRandomVideo error:', e)
+      console.log('fetchVideoPool error:', e)
       await new Promise(r => setTimeout(r, 500 * (retry + 1)))
     }
   }
 
-  return null
+  return []
 }
 
 export async function GET(request: NextRequest) {
@@ -84,7 +84,8 @@ export async function GET(request: NextRequest) {
 
   const categoryParam = request.nextUrl.searchParams.get('category') || 'bird'
 
-  const video = await fetchRandomVideo(categoryParam)
+  const pool = await getCachedPool<PixabayVideo[]>(`pixabay:${categoryParam}`, () => fetchVideoPool(categoryParam))
+  const video = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null
   if (!video) {
     return NextResponse.json({ error: true })
   }

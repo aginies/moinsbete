@@ -1,5 +1,4 @@
-import { prisma } from '../lib/db'
-import { sleep, cleanupExpired } from '../lib/cache-helpers'
+import { cleanupExpired, upsertCachedF1Article } from '../lib/cache-helpers'
 import { runCacheScript } from './cache-script-helper'
 import {
   stripHtml,
@@ -81,26 +80,14 @@ export async function scrapeAndCacheF1(): Promise<void> {
     if (actualites.length > 0) {
       console.log(`  Actualites: ${actualites.length} articles`)
       for (const article of actualites) {
-        await prisma.cachedF1Article.upsert({
-          where: { url: article.url },
-          update: {
-            section: 'actualites',
-            title: article.title,
-            description: article.date,
-            content: article.content || '',
-            url: article.url,
-            scrapedAt: now,
-            expiresAt: contentExpiresAt,
-          },
-          create: {
-            section: 'actualites',
-            title: article.title,
-            description: article.date,
-            content: article.content || '',
-            url: article.url,
-            scrapedAt: now,
-            expiresAt: contentExpiresAt,
-          },
+        await upsertCachedF1Article({
+          section: 'actualites',
+          title: article.title,
+          description: article.date,
+          content: article.content || '',
+          url: article.url,
+          scrapedAt: now,
+          expiresAt: contentExpiresAt,
         })
       }
     }
@@ -110,26 +97,14 @@ export async function scrapeAndCacheF1(): Promise<void> {
   const image = parseImageDuJour(html)
   if (image) {
     console.log(`  Image du jour: ${image.caption}`)
-    await prisma.cachedF1Article.upsert({
-      where: { url: image.articleLink },
-      update: {
-        section: 'image',
-        title: image.caption,
-        description: image.caption,
-        imageUrl: image.imageUrl,
-        url: image.articleLink,
-        scrapedAt: now,
-        expiresAt: imageExpiresAt,
-      },
-      create: {
-        section: 'image',
-        title: image.caption,
-        description: image.caption,
-        imageUrl: image.imageUrl,
-        url: image.articleLink,
-        scrapedAt: now,
-        expiresAt: imageExpiresAt,
-      },
+    await upsertCachedF1Article({
+      section: 'image',
+      title: image.caption,
+      description: image.caption,
+      imageUrl: image.imageUrl,
+      url: image.articleLink,
+      scrapedAt: now,
+      expiresAt: imageExpiresAt,
     })
   }
 
@@ -139,26 +114,14 @@ export async function scrapeAndCacheF1(): Promise<void> {
     console.log(`  Classement: ${standings.length} tables`)
     for (const standing of standings) {
       const standingUrl = `https://fr.wikipedia.org/wiki/Portail:Formule_1#${standing.type}`
-      await prisma.cachedF1Article.upsert({
-        where: { url: `${standingUrl}_${standing.type}` },
-        update: {
-          section: 'classement',
-          title: standing.type === 'pilotes' ? 'Classement Pilotes' : 'Classement Constructeurs',
-          description: `${standing.rows.length} positions`,
-          meta: standing.rows as any,
-          url: `${standingUrl}_${standing.type}`,
-          scrapedAt: now,
-          expiresAt: contentExpiresAt,
-        },
-        create: {
-          section: 'classement',
-          title: standing.type === 'pilotes' ? 'Classement Pilotes' : 'Classement Constructeurs',
-          description: `${standing.rows.length} positions`,
-          meta: standing.rows as any,
-          url: `${standingUrl}_${standing.type}`,
-          scrapedAt: now,
-          expiresAt: contentExpiresAt,
-        },
+      await upsertCachedF1Article({
+        section: 'classement',
+        title: standing.type === 'pilotes' ? 'Classement Pilotes' : 'Classement Constructeurs',
+        description: `${standing.rows.length} positions`,
+        meta: standing.rows,
+        url: `${standingUrl}_${standing.type}`,
+        scrapedAt: now,
+        expiresAt: contentExpiresAt,
       })
     }
   }
@@ -169,24 +132,13 @@ export async function scrapeAndCacheF1(): Promise<void> {
     console.log(`  Le saviez-vous: ${saviez.facts.length} facts`)
     for (const fact of saviez.facts) {
       const factUrl = `https://fr.wikipedia.org/wiki/Portail:Formule_1#saviez-${encodeURIComponent(fact.substring(0, 30))}`
-      await prisma.cachedF1Article.upsert({
-        where: { url: factUrl },
-        update: {
-          section: 'saviez',
-          title: fact,
-          description: fact,
-          url: factUrl,
-          scrapedAt: now,
-          expiresAt: contentExpiresAt,
-        },
-        create: {
-          section: 'saviez',
-          title: fact,
-          description: fact,
-          url: factUrl,
-          scrapedAt: now,
-          expiresAt: contentExpiresAt,
-        },
+      await upsertCachedF1Article({
+        section: 'saviez',
+        title: fact,
+        description: fact,
+        url: factUrl,
+        scrapedAt: now,
+        expiresAt: contentExpiresAt,
       })
     }
   }
@@ -196,28 +148,15 @@ export async function scrapeAndCacheF1(): Promise<void> {
   if (fiaArticles.length > 0) {
     console.log(`  FIA F1 News: ${fiaArticles.length} articles`)
     for (const article of fiaArticles) {
-      await prisma.cachedF1Article.upsert({
-        where: { url: article.url },
-        update: {
-          section: 'fia',
-          title: article.title,
-          description: article.date,
-          content: article.summary || '',
-          imageUrl: article.imageUrl,
-          url: article.url,
-          scrapedAt: now,
-          expiresAt: contentExpiresAt,
-        },
-        create: {
-          section: 'fia',
-          title: article.title,
-          description: article.date,
-          content: article.summary || '',
-          imageUrl: article.imageUrl,
-          url: article.url,
-          scrapedAt: now,
-          expiresAt: contentExpiresAt,
-        },
+      await upsertCachedF1Article({
+        section: 'fia',
+        title: article.title,
+        description: article.date,
+        content: article.summary || '',
+        imageUrl: article.imageUrl,
+        url: article.url,
+        scrapedAt: now,
+        expiresAt: contentExpiresAt,
       })
     }
   }

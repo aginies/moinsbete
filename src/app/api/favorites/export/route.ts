@@ -14,99 +14,45 @@ export async function GET() {
     const userId = session.user.id
     const now = new Date()
 
-    const [
-      ideaBookmarks,
-      radioBookmarks,
-      cnrsBookmarks,
-      imageDuJourBookmarks,
-      saviezVousBookmarks,
-      wikimediaBookmarks,
-      wikiLovesBookmarks,
-      pixabayBookmarks,
-      portailLexicalBookmarks,
-      portailWikipediaBookmarks,
-      proverbeBookmarks,
-      newsBookmarks,
-      f1Bookmarks,
-      citationBookmarks,
-      insoliteBookmarks,
-    ] = await Promise.all([
+    const NON_IDEA_TYPES: BookmarkType[] = [
+      'RADIO_FRANCE', 'CNRS_NEWS', 'IMAGE_DU_JOUR', 'SAVIEZ_VOUS',
+      'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'IMAGE_PIXABAY', 'PORTAIL_LEXICAL',
+      'PORTAIL_WIKIPEDIA', 'PROVERBE', 'NEWS', 'F1', 'CITATION', 'INSOLITE',
+    ]
+
+    const [ideaBookmarks, otherBookmarks] = await Promise.all([
       prisma.bookmark.findMany({
         where: { userId, type: 'IDEA' },
         orderBy: { createdAt: 'desc' },
         select: { id: true, resourceId: true, type: true, meta: true, createdAt: true, idea: { select: { id: true, title: true, slug: true, content: true, takeaway: true, source: { select: { title: true } } } } },
       }),
       prisma.bookmark.findMany({
-        where: { userId, type: 'RADIO_FRANCE' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'CNRS_NEWS' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'IMAGE_DU_JOUR' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'SAVIEZ_VOUS' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'IMAGE_WIKIMEDIA' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'IMAGE_WIKILOVES' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'IMAGE_PIXABAY' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'PORTAIL_LEXICAL' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'PORTAIL_WIKIPEDIA' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'PROVERBE' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'NEWS' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'F1' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'CITATION' },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
-      }),
-      prisma.bookmark.findMany({
-        where: { userId, type: 'INSOLITE' },
+        where: { userId, type: { in: NON_IDEA_TYPES } },
         orderBy: { createdAt: 'desc' },
         select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
       }),
     ])
+
+    const byType = new Map<BookmarkType, typeof otherBookmarks>()
+    for (const bm of otherBookmarks) {
+      const list = byType.get(bm.type)
+      if (list) list.push(bm)
+      else byType.set(bm.type, [bm])
+    }
+    const radioBookmarks = byType.get('RADIO_FRANCE') ?? []
+    const cnrsBookmarks = byType.get('CNRS_NEWS') ?? []
+    const imageDuJourBookmarks = byType.get('IMAGE_DU_JOUR') ?? []
+    const saviezVousBookmarks = byType.get('SAVIEZ_VOUS') ?? []
+    const wikimediaBookmarks = byType.get('IMAGE_WIKIMEDIA') ?? []
+    const wikiLovesBookmarks = byType.get('IMAGE_WIKILOVES') ?? []
+    const pixabayBookmarks = byType.get('IMAGE_PIXABAY') ?? []
+    const portailLexicalBookmarks = byType.get('PORTAIL_LEXICAL') ?? []
+    const portailWikipediaBookmarks = byType.get('PORTAIL_WIKIPEDIA') ?? []
+    const proverbeBookmarks = byType.get('PROVERBE') ?? []
+    const newsBookmarks = byType.get('NEWS') ?? []
+    const f1Bookmarks = byType.get('F1') ?? []
+    const citationBookmarks = byType.get('CITATION') ?? []
+    const insoliteBookmarks = byType.get('INSOLITE') ?? []
 
     const items: ExportBookmarkItem[] = []
 

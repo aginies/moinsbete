@@ -4,20 +4,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import React from 'react'
 import { Topic } from '@/generated/client'
 import { TopicGrid } from '@/components/topics/topic-grid'
-import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { WikipediaImageCard } from '@/components/feed/wikipedia-image-card'
-import { CnrsNewsCard } from '@/components/feed/cnrs-news-card'
-import { RadioFranceCard } from '@/components/feed/radio-france-card'
-import { ImageWikimediaCard } from '@/components/feed/image-wikimedia-card'
-import { ImageWikiLovesCard } from '@/components/feed/image-wikiloves-card'
-import { ImagePixabayCard } from '@/components/feed/image-pixabay-card'
-import { PortailLexicalCard } from '@/components/feed/portail-lexical-card'
-import { PortailWikipediaCard } from '@/components/feed/portail-wikipedia-card'
-import { ProverbeCard } from '@/components/feed/proverbe-card'
-import { NewsCard } from '@/components/feed/news-card'
-import { F1Card } from '@/components/feed/f1-card'
-import { CitationCard } from '@/components/feed/citation-card'
-import { InsoliteCard } from '@/components/feed/insolite-card'
+import dynamic from 'next/dynamic'
 import { VisibilityButton } from '@/components/feed/visibility-button'
 import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
@@ -27,6 +14,28 @@ import { CARD_COLORS } from '@/lib/card-theme'
 import { CardNavBar } from '@/components/feed/card-nav-bar'
 import { useTranslations } from 'next-intl'
 import { ChevronDown, ChevronUp } from 'lucide-react'
+
+// Cards are code-split (next/dynamic) and only mounted when near the viewport
+// (see LazyMount below). This keeps the initial bundle small and avoids 14
+// simultaneous data fetches on load.
+const SaviezVousCard = dynamic(() => import('@/components/feed/saviez-vous-card').then(m => m.SaviezVousCard), { loading: () => <CardSkeleton /> })
+const WikipediaImageCard = dynamic(() => import('@/components/feed/wikipedia-image-card').then(m => m.WikipediaImageCard), { loading: () => <CardSkeleton /> })
+const CnrsNewsCard = dynamic(() => import('@/components/feed/cnrs-news-card').then(m => m.CnrsNewsCard), { loading: () => <CardSkeleton /> })
+const RadioFranceCard = dynamic(() => import('@/components/feed/radio-france-card').then(m => m.RadioFranceCard), { loading: () => <CardSkeleton /> })
+const ImageWikimediaCard = dynamic(() => import('@/components/feed/image-wikimedia-card').then(m => m.ImageWikimediaCard), { loading: () => <CardSkeleton /> })
+const ImageWikiLovesCard = dynamic(() => import('@/components/feed/image-wikiloves-card').then(m => m.ImageWikiLovesCard), { loading: () => <CardSkeleton /> })
+const ImagePixabayCard = dynamic(() => import('@/components/feed/image-pixabay-card').then(m => m.ImagePixabayCard), { loading: () => <CardSkeleton /> })
+const PortailLexicalCard = dynamic(() => import('@/components/feed/portail-lexical-card').then(m => m.PortailLexicalCard), { loading: () => <CardSkeleton /> })
+const PortailWikipediaCard = dynamic(() => import('@/components/feed/portail-wikipedia-card').then(m => m.PortailWikipediaCard), { loading: () => <CardSkeleton /> })
+const ProverbeCard = dynamic(() => import('@/components/feed/proverbe-card').then(m => m.ProverbeCard), { loading: () => <CardSkeleton /> })
+const NewsCard = dynamic(() => import('@/components/feed/news-card').then(m => m.NewsCard), { loading: () => <CardSkeleton /> })
+const F1Card = dynamic(() => import('@/components/feed/f1-card').then(m => m.F1Card), { loading: () => <CardSkeleton /> })
+const CitationCard = dynamic(() => import('@/components/feed/citation-card').then(m => m.CitationCard), { loading: () => <CardSkeleton /> })
+const InsoliteCard = dynamic(() => import('@/components/feed/insolite-card').then(m => m.InsoliteCard), { loading: () => <CardSkeleton /> })
+
+function CardSkeleton() {
+  return <Skeleton className="h-48 w-full rounded-2xl" />
+}
 
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
@@ -144,6 +153,40 @@ interface CardWrapperProps {
   visibility: CardVisibility | undefined
 }
 
+// Only mounts (and thus triggers the dynamic chunk load + data fetch) when the
+// card is within 300px of the viewport. Until then it renders a fixed-height
+// skeleton so layout/scroll anchors stay stable.
+function LazyMount({ render, minHeight = 192 }: { render: () => React.ReactNode; minHeight?: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisible(true)
+      return
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisible(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '300px 0px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} style={visible ? undefined : { minHeight }}>
+      {visible ? render() : <CardSkeleton />}
+    </div>
+  )
+}
+
 const CardWrapper = React.memo(function CardWrapper({
   cardKey,
   cardId,
@@ -157,7 +200,7 @@ const CardWrapper = React.memo(function CardWrapper({
   if (!renderer) return null
   return (
     <div className="mb-4 sm:mb-6" id={cardId}>
-      {renderer(config, saviezVousFact, userId, hasUserId, visibility)}
+      <LazyMount render={() => renderer(config, saviezVousFact, userId, hasUserId, visibility)} />
     </div>
   )
 })

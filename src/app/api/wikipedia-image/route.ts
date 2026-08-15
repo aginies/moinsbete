@@ -4,13 +4,9 @@ import { getSession } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
-
-interface ImageEntry {
-  imageUrl: string
-  description: string
-  fileUrl: string
-  date: string
-}
+import { getCachedPool } from '@/lib/feed-pool-cache'
+import { extractEntriesFR, type WikipediaImageEntry } from '@/lib/wikipedia-image-parse'
+import type { CachedWikipediaImage } from '@/generated/client'
 
 const MONTHS = [
   'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
@@ -20,45 +16,6 @@ const MONTHS = [
 const archives = MONTHS.flatMap((m) =>
   Array.from({ length: 2026 - 2005 + 1 }, (_, i) => `${m} ${2005 + i}`)
 )
-
-function extractEntries(html: string): ImageEntry[] {
-  const entries: ImageEntry[] = []
-  const h2Regex = /<h2[^>]*>([\s\S]*?)<\/h2>/g
-  let h2Match: RegExpExecArray | null
-
-  while ((h2Match = h2Regex.exec(html)) !== null) {
-    const h2Content = h2Match[1]
-    const dateMatch = h2Content.match(/(\d{1,2}(?:er)?\s+\w+\s+\d{4})/)
-    if (!dateMatch) continue
-
-    const date = dateMatch[1].replace(/<[^>]*>/g, '').trim()
-    const afterH2 = html.slice(h2Match.index + h2Match[0].length)
-
-    const imgSrcMatch = afterH2.match(/src="(\/\/upload\.wikimedia\.org[^"]+)"/)
-    const imgAltMatch = afterH2.match(/alt="([^"]+)"/)
-    const fileHrefMatch = afterH2.match(/href="\/wiki\/Fichier:([^"]+)"/)
-
-    if (imgSrcMatch && imgAltMatch && fileHrefMatch) {
-      let imageUrl = `https:${imgSrcMatch[1]}`
-      if (imageUrl.includes('/thumb/')) {
-        imageUrl = imageUrl.replace(/\/\d+px-/, '/1280px-')
-      }
-
-      entries.push({
-        imageUrl,
-        description: imgAltMatch[1]
-          .replace(/\s*\([^)]*définition réelle[^)]*\)/, '')
-          .trim(),
-        fileUrl: `https://fr.wikipedia.org/wiki/Fichier:${fileHrefMatch[1]}`,
-        date,
-      })
-    }
-
-    if (entries.length >= 31) break
-  }
-
-  return entries
-}
 
 async function fetchWithRetry(url: string, maxRetries = 3): Promise<unknown> {
   for (let i = 0; i < maxRetries; i++) {
@@ -108,37 +65,31 @@ export async function GET(request: NextRequest) {
     }
 
     // Try cache first
-    const totalCached = await prisma.cachedWikipediaImage.count({
-      where: {
-        expiresAt: { gte: new Date() },
-        language: { in: languages },
-      },
-    })
-
-    if (totalCached > 0) {
-      const randomOffset = Math.floor(Math.random() * totalCached)
-      const randomEntry = await prisma.cachedWikipediaImage.findFirst({
+    const now = new Date()
+    const pool = await getCachedPool<CachedWikipediaImage[]>(`wiki-image:${languages.join(',')}`, () =>
+      prisma.cachedWikipediaImage.findMany({
         where: {
           expiresAt: { gte: new Date() },
           language: { in: languages },
         },
-        skip: randomOffset,
       })
+    )
+    const valid = pool.filter(i => i.expiresAt >= now)
+    const randomEntry = valid.length > 0 ? valid[Math.floor(Math.random() * valid.length)] : null
 
-      if (randomEntry) {
-        return NextResponse.json({
-          imageUrl: randomEntry.imageUrl,
-          description: randomEntry.description,
-          fileUrl: randomEntry.fileUrl,
-          date: randomEntry.date,
-        })
-      }
+    if (randomEntry) {
+      return NextResponse.json({
+        imageUrl: randomEntry.imageUrl,
+        description: randomEntry.description,
+        fileUrl: randomEntry.fileUrl,
+        date: randomEntry.date,
+      })
     }
 
     // Cache empty — scrape fresh (fallback, FR only)
     const usedArchives = new Set<string>()
     const maxRetries = 5
-    let entries: ImageEntry[] = []
+    let entries: WikipediaImageEntry[] = []
     let randomArchive: string
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -154,7 +105,7 @@ export async function GET(request: NextRequest) {
 
       if (!data?.parse?.text?.['*']) continue
 
-      entries = extractEntries(data.parse.text['*'])
+      entries = extractEntriesFR(data.parse.text['*'], randomArchive)
       if (entries.length > 0) break
     }
 

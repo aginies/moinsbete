@@ -22,6 +22,13 @@ export const NEWS_DISPLAY_LIMIT = 10
 
 export const RATE_LIMIT_ERROR_MESSAGE = 'Trop de demandes. Réessayez dans 60 secondes.'
 
+export const BROWSER_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+}
+export const WIKIMEDIA_UA = 'moinsbete/1.0 (https://moinsbete.guibo.com; bot-traffic@wikimedia.org)'
+
 export const MAX_URL_LENGTH = 2048
 
 export const CARD_DEFAULT_ORDER = [

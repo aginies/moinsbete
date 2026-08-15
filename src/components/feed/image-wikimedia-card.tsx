@@ -7,6 +7,7 @@ import { BaseImageCard } from './base-image-card'
 import { sanitizeUrl } from '@/lib/utils'
 import { useCardVisibility } from '@/hooks/use-card-visibility'
 import { TopicsModal } from './topics-modal'
+import { fetchCardImage } from '@/lib/fetch-card-image'
 
 interface WikimediaImage {
   docid: string
@@ -70,20 +71,8 @@ async function fetchTopics(): Promise<Topic[]> {
 }
 
 async function fetchRandomImage(topic?: string): Promise<WikimediaImage | null> {
-  try {
-    const url = topic ? `/api/image-wikimedia?topic=${encodeURIComponent(topic)}` : '/api/image-wikimedia'
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(15000),
-      cache: 'no-store',
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    if (data.error) return null
-    if (!data?.imageUrl) return null
-    return data
-  } catch {
-    return null
-  }
+  const { data } = await fetchCardImage<WikimediaImage>('/api/image-wikimedia', { topic }, { requireField: 'imageUrl' })
+  return data
 }
 
 function ImageWikimediaCardInner({

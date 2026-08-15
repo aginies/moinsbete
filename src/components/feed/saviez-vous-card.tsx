@@ -13,7 +13,7 @@ import { ImageHint } from './image-hint'
 import { CardHeader } from './card-header'
 import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
-import { SwipeBackgroundCard } from './swipe-background-card'
+import { SwipeCardWrapper } from './swipe-card-wrapper'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { toggleSaviezVousFavoriteAction } from '@/actions/bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
@@ -137,16 +137,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
 
   useAutoRefresh('saviezVous', handleClick)
 
-  const {
-    bind,
-    containerRef,
-    dragX,
-    swipeStyle,
-    isDragging,
-    prefersReducedMotion,
-    prevHintOpacity,
-    nextHintOpacity,
-  } = useSwipeGesture({
+  const gesture = useSwipeGesture({
     onSwipeLeft: handleClick,
     onSwipeRight: handleClick,
     onDragStart: prefetchNextFact,
@@ -154,6 +145,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     swipeable,
     resetDep: fact.id,
   })
+  const { dragX, isDragging } = gesture
 
   const resolvedImageFilename = fact.imageFilename
   const hasImage = isValidUrlUtil(resolvedImageFilename) && !imageError && !isRefreshing
@@ -274,48 +266,21 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
         buttonColor="blue"
         label="Afficher saviez-vous ?"
       >
-        {swipeable ? (
-          <div className="relative touch-pan-y w-full" ref={containerRef} {...bind()}>
-            {prevHintOpacity > 0 && (
-              <div
-                className="pointer-events-none absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-green-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
-                style={{ opacity: prevHintOpacity }}
-              >
-                ← Précédent
-              </div>
-            )}
-
-            {nextHintOpacity > 0 && (
-              <div
-                className="pointer-events-none absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-blue-500/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm"
-                style={{ opacity: nextHintOpacity }}
-              >
-                Suivant →
-              </div>
-            )}
-
-            {nextFact && bgOpacity > 0 && (
-              <SwipeBackgroundCard
-                title="saviez-vous ?"
-                icon={<Lightbulb className="h-4 w-4 text-blue-950" />}
-                color="blue"
-              >
-                <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
-                  {decodeHtmlEntities(nextFact.text)}
-                </p>
-              </SwipeBackgroundCard>
-            )}
-
-            <div
-              className={`w-full relative z-10 ${isDragging || prefersReducedMotion ? '' : 'transition-all duration-200 ease-out'}`}
-              style={swipeStyle}
-            >
-              {cardContent}
-            </div>
-          </div>
-        ) : (
-          cardContent
-        )}
+        <SwipeCardWrapper
+          gesture={gesture}
+          swipeable={swipeable}
+          cardContent={cardContent}
+          background={nextFact && bgOpacity > 0 ? {
+            title: 'saviez-vous ?',
+            icon: <Lightbulb className="h-4 w-4 text-blue-950" />,
+            color: 'blue',
+            children: (
+              <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-100">
+                {decodeHtmlEntities(nextFact.text)}
+              </p>
+            ),
+          } : undefined}
+        />
       </CardVisibilityGuard>
 
       {showFullImage && (

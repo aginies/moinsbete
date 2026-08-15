@@ -11,34 +11,38 @@ Process (per AGENTS.md): after each batch → `npm test` + `npm run build`; bump
 
 | # | Issue | Location | Fix | Status |
 |---|-------|----------|-----|--------|
-| S1 | Cron auth bypass via `x-forwarded-for` spoofing | `src/app/api/cron/cache/route.ts`, `src/lib/ip.ts` | Require `CRON_SECRET` in prod OR socket IP; honor XFF only if `TRUST_PROXY=true`; `crypto.timingSafeEqual` for token | [] |
-| S2 | CSRF "own origin" trusts client `x-forwarded-host`/`proto` | `src/lib/csrf.ts` | Derive public origin from env (`NEXTAUTH_URL`/`PUBLIC_ORIGIN`), never request headers | [] |
-| S3 | Credentials brute-force: `authorize()` unthrottled | `src/lib/auth.ts` | Add `checkRateLimit` in `authorize()` | [] |
-| S4 | `registerAction` no min-password / email validation | `src/actions/auth-actions.ts` | Add `MIN_PASSWORD_LENGTH` + `isValidEmail` | [] |
-| S5 | Pixabay + 5 feed routes unthrottled (paid API burn) | `src/app/api/{image-pix,image-wikimedia,image-wikiloves,cnrs-news,portail-lexical,proverbes}/route.ts` | Add `checkRateLimit` | [] |
-| S6 | Error leak `err?.message` + no value validation | `src/app/api/user-card-visibility/route.ts` | Generic 500; validate `value` type | [] |
-| S7 | Missing HSTS / Permissions-Policy; deprecated X-XSS | `next.config.ts` | Add HSTS + Permissions-Policy, drop X-XSS | [] |
+| S1 | Cron auth bypass via `x-forwarded-for` spoofing | `src/app/api/cron/cache/route.ts`, `src/lib/ip.ts` | Require `CRON_SECRET` in prod OR socket IP; honor XFF only if `TRUST_PROXY=true`; `crypto.timingSafeEqual` for token | [x] |
+| S2 | CSRF "own origin" trusts client `x-forwarded-host`/`proto` | `src/lib/csrf.ts` | Derive public origin from env (`NEXTAUTH_URL`/`PUBLIC_ORIGIN`), never request headers | [x] |
+| S3 | Credentials brute-force: `authorize()` unthrottled | `src/lib/auth.ts` | Add `checkRateLimit` in `authorize()` | [x] |
+| S4 | `registerAction` no min-password / email validation | `src/actions/auth-actions.ts` | Add `MIN_PASSWORD_LENGTH` + `isValidEmail` | [x] |
+| S5 | Pixabay + 5 feed routes unthrottled (paid API burn) | `src/app/api/{image-pix,image-wikimedia,image-wikiloves,cnrs-news,portail-lexical,proverbes}/route.ts` | Add `checkRateLimit` | [x] |
+| S6 | Error leak `err?.message` + no value validation | `src/app/api/user-card-visibility/route.ts` | Generic 500; validate `value` type | [x] |
+| S7 | Missing HSTS / Permissions-Policy; deprecated X-XSS | `next.config.ts` | Add HSTS + Permissions-Policy, drop X-XSS | [x] |
 
 ## P0 — Correctness bugs
 
 | # | Bug | Location | Fix | Status |
 |---|-----|----------|-----|--------|
-| B1 | INSOLITE missing from favorites export (15 types, 14 handled) | `src/app/api/favorites/export/route.ts` | Add INSOLITE query + mapper | [] |
-| B2 | News cursor pagination: sort `scrapedAt` but cursor filters `url` | `src/app/api/news/route.ts` | Composite cursor on sort key | [] |
-| B3 | Stray `'use server'` in route handler | `src/app/api/track/visit/route.ts` | Remove | [] |
-| B4 | `logoutAction` clears same cookie twice | `src/actions/auth-actions.ts` | Remove duplicate block | [] |
+| B1 | INSOLITE missing from favorites export (15 types, 14 handled) | `src/app/api/favorites/export/route.ts` | Add INSOLITE query + mapper | [x] |
+| B2 | News cursor pagination: sort `scrapedAt` but cursor filters `url` | `src/app/api/news/route.ts` | Composite cursor on sort key | [x] |
+| B3 | Stray `'use server'` in route handler | `src/app/api/track/visit/route.ts` | Remove | [x] |
+| B4 | `logoutAction` clears same cookie twice | `src/actions/auth-actions.ts` | Remove duplicate block | [x] |
 
 ## P1 — Performance
 
 | # | Win | Location | Fix | Impact | Status |
 |---|-----|----------|-----|--------|--------|
-| P1 | Sujets mounts all 14 cards at once (1 bundle + 14 fetches) | `src/app/(main)/sujets/sujets-client.tsx` | `next/dynamic` per card + IntersectionObserver mount-on-scroll | HIGH | [] |
-| P2 | No feed route uses caching (DB hit per request) | `src/app/api/*` | Cache valid-article pool in-memory/Redis 30-60s, random pick per request | MED-HIGH | [] |
-| P3 | `images.remotePatterns` incomplete | `next.config.ts` | Add pixabay/radio/news/f1/insolite CDNs | MED | [] |
-| P4 | Missing index `Bookmark.nextReviewAt` (+ cnrs.category, radio.radio) | `prisma/schema.prisma` | Add `@@index`, run migration | LOW-MED | [] |
-| P5 | Export route 14 `findMany` → 2 | `src/app/api/favorites/export/route.ts` | Consolidate non-IDEA types via `type in [...]` | LOW-MED | [] |
+| P1 | Sujets mounts all 14 cards at once (1 bundle + 14 fetches) | `src/app/(main)/sujets/sujets-client.tsx` | `next/dynamic` per card + IntersectionObserver mount-on-scroll | HIGH | [x] |
+| P2 | No feed route uses caching (DB hit per request) | `src/app/api/*` | Cache valid-article pool in-memory/Redis 30-60s, random pick per request | MED-HIGH | [x] |
+| P3 | `images.remotePatterns` incomplete | `next.config.ts` | Add pixabay/radio/news/f1/insolite CDNs | MED | [x] |
+| P4 | Missing index `Bookmark.nextReviewAt` (+ cnrs.category, radio.radio) | `prisma/schema.prisma` | Add `@@index`, run migration | LOW-MED | [x] |
+
+> P4 note: `prisma migrate dev` blocked by pre-existing drift (migrations dir out of sync with `_prisma_migrations`, would reset DB). Indexes applied directly to `dev.db` via `CREATE INDEX IF NOT EXISTS`. Schema.prisma is source of truth.
+
+> P2 scope: pool cache (60s, `src/lib/feed-pool-cache.ts` over `createRedisTtlCache`) applied to cnrs-news, radio-france, wikipedia-image, news, citation, portail-wikipedia, image-wikiloves, image-pixabay (paid API). Skipped: f1 (bounded small queries), saviez-vous (small static table), insolite (stateful daily pick), proverbes (single row), image-wikimedia (live API, no pool concept).
+| P5 | Export route 14 `findMany` → 2 | `src/app/api/favorites/export/route.ts` | Consolidate non-IDEA types via `type in [...]` | LOW-MED | [x] |
 | P6 | `news-card` static import of react-virtual | `src/components/feed/news-card.tsx` | Keep (sole consumer) or dynamic | LOW | [] |
-| P7 | PWA pointless `api.openai.com` runtime rule | `next.config.ts` | Remove | trivial | [] |
+| P7 | PWA pointless `api.openai.com` runtime rule | `next.config.ts` | Remove | trivial | [x] |
 
 ## P1 — De-duplication
 
@@ -46,13 +50,16 @@ Process (per AGENTS.md): after each batch → `npm test` + `npm run build`; bump
 
 | # | Dup | Fix | Status |
 |---|-----|-----|--------|
-| D1 | `fetchLinksFromPortal`+`fetchArticleDetails` in `cache-portail-wikipedia.ts` ↔ `portail-wikipedia/route.ts` | `src/lib/portail-wikipedia-fetch.ts` | [] |
-| D2 | `extractEntries` ×3 (route, script, `sujets-data.ts`) | `src/lib/wikipedia-image-parse.ts` | [] |
-| D3 | Server `fetchRandomImage` loop (wikimedia ↔ wikiloves routes) | `src/lib/commons-random-image.ts` | [] |
-| D4 | Client fetch wrapper ×3 (wikimedia/wikiloves/wikipedia cards) | `fetchCardImage()` helper | [] |
-| D5 | Swipe wrapper block ×2 (wikipedia-image-card ↔ saviez-vous-card) | `src/components/feed/swipe-card-wrapper.tsx` | [] |
-| D6 | `cache-f1.ts` 5 near-identical upsert blocks | `upsertCachedArticle()` in cache-helpers | [] |
-| D7 | Browser UA headers in 6 cache scripts | `BROWSER_HEADERS` const | [] |
+| D1 | `fetchLinksFromPortal`+`fetchArticleDetails` in `cache-portail-wikipedia.ts` ↔ `portail-wikipedia/route.ts` | `src/lib/portail-wikipedia-fetch.ts` | [x] |
+| D2 | `extractEntries` ×3 (route, script, `sujets-data.ts`) | `src/lib/wikipedia-image-parse.ts` | [x] |
+| D3 | Server `fetchRandomImage` loop (wikimedia ↔ wikiloves routes) | `src/lib/commons-random-image.ts` | [x] |
+| D4 | Client fetch wrapper ×3 (wikimedia/wikiloves/wikipedia cards) | `fetchCardImage()` helper | [x] |
+| D5 | Swipe wrapper block ×2 (wikipedia-image-card ↔ saviez-vous-card) | `src/components/feed/swipe-card-wrapper.tsx` | [x] |
+| D6 | `cache-f1.ts` 5 near-identical upsert blocks | `upsertCachedArticle()` in cache-helpers | [x] |
+| D7 | Browser UA headers in 6 cache scripts | `BROWSER_HEADERS` const | [x] |
+
+> D2 note: `sujets-data.ts` already removed in dead-code pass; actual dup was route (`extractEntries`) ↔ script (`extractEntriesFR/EN`). Shared lib uses script's robust FR parser (route fallback now more robust; same output fields).
+> D7 note: browser UA was in 2 scripts (cnrs, radio-france) → `BROWSER_HEADERS` (full header set). Also unified Wikimedia bot UA (`WIKIMEDIA_UA`) across f1-wiki-parser, cache-wikipedia-image, portail-wikipedia-fetch.
 
 ### P1 config-driven (~2000 lines, medium risk) — GATED
 
@@ -71,7 +78,7 @@ Kept (verified in-use): `wiki-text-utils.ts`, `insert_saviez_vous.ts`, `enhance-
 
 ## Verification
 
-- [ ] `npm test` green
-- [ ] `npm run build` green
-- [ ] `version.json` bumped
-- [ ] No DB tables dropped; migrations applied for new indexes
+- [x] `npm test` green (359 tests)
+- [x] `npm run build` green
+- [x] `version.json` bumped (8.0.13 → 8.0.14)
+- [x] No DB tables dropped; indexes applied (direct SQL, see P4 note)

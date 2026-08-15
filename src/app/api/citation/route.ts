@@ -5,6 +5,8 @@ import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
+import { getCachedPool } from '@/lib/feed-pool-cache'
+import type { CachedCitationArticle } from '@/generated/client'
 
 interface CitationItem {
   id: string
@@ -98,13 +100,17 @@ export async function GET(request: NextRequest) {
       where.category = { in: categories }
     }
 
-    const cached = await prisma.cachedCitationArticle.findMany({
-      where,
-      orderBy: { scrapedAt: 'desc' },
-      take: 50,
-    })
+    const cached = await getCachedPool<CachedCitationArticle[]>(
+      `citation:pool:${daily === '1' ? 'daily' : categoryType || 'all'}:${[...(categories || [])].sort().join(',')}`,
+      () => prisma.cachedCitationArticle.findMany({
+        where: { ...where, expiresAt: { gte: new Date() } },
+        orderBy: { scrapedAt: 'desc' },
+        take: 50,
+      })
+    )
+    const valid = cached.filter(c => c.expiresAt >= now)
 
-    const items: CitationItem[] = cached
+    const items: CitationItem[] = valid
       .sort(() => Math.random() - 0.5)
       .slice(0, daily === '1' ? 1 : 15)
       .map(c => ({
@@ -119,11 +125,13 @@ export async function GET(request: NextRequest) {
       }))
 
     // Fetch available categories for the card
-    const allCategories = await prisma.cachedCitationArticle.findMany({
-      where: { expiresAt: { gte: now } },
-      select: { category: true, categoryType: true },
-      distinct: ['category', 'categoryType'],
-    })
+    const allCategories = await getCachedPool<{ category: string; categoryType: string }[]>('citation:categories', () =>
+      prisma.cachedCitationArticle.findMany({
+        where: { expiresAt: { gte: new Date() } },
+        select: { category: true, categoryType: true },
+        distinct: ['category', 'categoryType'],
+      })
+    )
     const categoriesMap: Record<string, string[]> = { theme: [], auteur: [], daily: [] }
     for (const c of allCategories) {
       if (!categoriesMap[c.categoryType]) categoriesMap[c.categoryType] = []

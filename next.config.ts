@@ -8,8 +8,14 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'fr.wikipedia.org' },
+      { protocol: 'https', hostname: 'en.wikipedia.org' },
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      { protocol: 'https', hostname: 'commons.wikimedia.org' },
       { protocol: 'https', hostname: 'lejournal.cnrs.fr' },
+      { protocol: 'https', hostname: 'www.cnrs.fr' },
+      { protocol: 'https', hostname: 'www.radiofrance.fr' },
+      { protocol: 'https', hostname: 'pixabay.com' },
+      { protocol: 'https', hostname: 'cdn.pixabay.com' },
     ],
   },
   allowedDevOrigins: ['100.0.0.0/8', '10.0.1.78'],
@@ -100,18 +106,6 @@ export default withPWA({
     ignoreURLParametersMatching: [/^(utm_source|utm_medium|utm_campaign)$/, /^fbclid$/],
   },
   runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/api\.openai\.com\/.*/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'api-cache',
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 60 * 24,
-        },
-        networkTimeoutSeconds: 10,
-      },
-    },
     {
       urlPattern: /^https:\/\/upload\.wikimedia\.org\/.*/i,
       handler: 'CacheFirst',

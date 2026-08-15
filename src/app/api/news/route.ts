@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE, NEWS_DISPLAY_LIMIT } from '@/lib/constants'
+import { getCachedPool } from '@/lib/feed-pool-cache'
+import type { CachedNewsArticle } from '@/generated/client'
 
 interface BbcArticle {
   title: string
@@ -16,28 +18,31 @@ interface BbcArticle {
 }
 
 async function fetchFromCache(categories: string[], limit: number, query?: string | null): Promise<BbcArticle[]> {
-  const now = new Date()
-  const queryWhere: { expiresAt: { gte: Date }; category?: string | { in: string[] }; OR?: { title?: { contains: string }; description?: { contains: string }; source?: { contains: string } }[] } = {
-    expiresAt: { gte: now },
-  }
-  if (categories.length > 0) {
-    queryWhere.category = { in: categories }
-  }
-  if (query) {
-    queryWhere.OR = [
-      { title: { contains: query } },
-      { description: { contains: query } },
-      { source: { contains: query } },
-    ]
-  }
+  const poolKey = `news:${[...categories].sort().join(',')}:${query || ''}`
+  const pool = await getCachedPool<CachedNewsArticle[]>(poolKey, async () => {
+    const queryWhere: { expiresAt: { gte: Date }; category?: string | { in: string[] }; OR?: { title?: { contains: string }; description?: { contains: string }; source?: { contains: string } }[] } = {
+      expiresAt: { gte: new Date() },
+    }
+    if (categories.length > 0) {
+      queryWhere.category = { in: categories }
+    }
+    if (query) {
+      queryWhere.OR = [
+        { title: { contains: query } },
+        { description: { contains: query } },
+        { source: { contains: query } },
+      ]
+    }
 
-  // Fetch a fixed larger batch directly (no count query needed)
-  const articles = await prisma.cachedNewsArticle.findMany({
-    where: queryWhere,
-    take: limit + 20,
-    orderBy: { scrapedAt: 'desc' },
+    return prisma.cachedNewsArticle.findMany({
+      where: queryWhere,
+      take: Math.max(limit + 20, 100),
+      orderBy: { scrapedAt: 'desc' },
+    })
   })
 
+  const now = new Date()
+  const articles = pool.filter(a => a.expiresAt >= now)
   if (articles.length === 0) return []
 
   return articles.map(a => ({

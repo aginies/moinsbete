@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { searchCommonsFiles, fetchCommonsImageInfo, type CommonsImage } from '@/lib/wikimedia-commons'
+import { type CommonsImage } from '@/lib/wikimedia-commons'
+import { findRandomCommonsImage } from '@/lib/commons-random-image'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import { getCachedPool } from '@/lib/feed-pool-cache'
+import type { CachedWikiLovesImage } from '@/generated/client'
 
 const WIKILOVES_EVENTS: Record<string, string[]> = {
   wle: ['Wiki Loves Earth'],
@@ -13,31 +16,19 @@ const WIKILOVES_EVENTS: Record<string, string[]> = {
 async function fetchFromCache(source: string): Promise<CommonsImage | null> {
   try {
     const now = new Date()
-    const totalCached = await prisma.cachedWikiLovesImage.count({
-      where: {
-        source,
-        expiresAt: { gte: now },
-      },
-    })
+    const pool = await getCachedPool<CachedWikiLovesImage[]>(`wikiloves:${source}`, () =>
+      prisma.cachedWikiLovesImage.findMany({
+        where: { source, expiresAt: { gte: new Date() } },
+      })
+    )
+    const valid = pool.filter(i => i.expiresAt >= now)
 
-    console.log(`[WikiLoves] Cache check for ${source}: ${totalCached} valid entries`)
-
-    if (totalCached === 0) return null
-
-    const randomOffset = Math.floor(Math.random() * totalCached)
-    const random = await prisma.cachedWikiLovesImage.findFirst({
-      where: {
-        source,
-        expiresAt: { gte: now },
-      },
-      skip: randomOffset,
-    })
-
-    if (!random) {
-      console.log(`[WikiLoves] No image found for source ${source}`)
+    if (valid.length === 0) {
+      console.log(`[WikiLoves] No valid images for source ${source}`)
       return null
     }
 
+    const random = valid[Math.floor(Math.random() * valid.length)]
     console.log(`[WikiLoves] Returning cached image from ${source}: ${random.title}`)
 
     return {
@@ -99,28 +90,20 @@ async function fetchRandomImage(event?: string): Promise<CommonsImage | null> {
 
   console.log('[WikiLoves] FALLBACK empty, searching Commons API...')
   const fallbackSearchTerms = ['Wiki Loves Earth', 'Wiki Loves Monuments', 'Nature', 'Architecture', 'France', 'Wildlife']
-  const shuffled = fallbackSearchTerms.sort(() => Math.random() - 0.5)
 
-  for (const term of shuffled) {
-    console.log(`[WikiLoves] Searching Commons for: ${term}`)
-    const files = await searchCommonsFiles(term)
-    if (files.length === 0) continue
-
-    const shuffledFiles = [...files].sort(() => Math.random() - 0.5)
-    const maxAttempts = Math.min(shuffledFiles.length, 5)
-
-    for (let i = 0; i < maxAttempts; i++) {
-      const image = await fetchCommonsImageInfo(shuffledFiles[i])
-      if (image && image.imageUrl) {
-        console.log(`[WikiLoves] Found image from Commons: ${image.titre}, caching as FALLBACK`)
-        await cacheFallbackImage(image)
-        return image
-      }
-    }
+  const image = await findRandomCommonsImage(
+    fallbackSearchTerms,
+    async (img) => {
+      console.log(`[WikiLoves] Found image from Commons: ${img.titre}, caching as FALLBACK`)
+      await cacheFallbackImage(img)
+    },
+    (term) => console.log(`[WikiLoves] Searching Commons for: ${term}`),
+  )
+  if (!image) {
+    console.log('[WikiLoves] No images found at all')
+    return null
   }
-
-  console.log('[WikiLoves] No images found at all')
-  return null
+  return image
 }
 
 export async function GET(request: NextRequest) {

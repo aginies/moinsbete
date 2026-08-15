@@ -177,6 +177,7 @@ model Bookmark {
   @@unique([userId, ideaId])
   @@unique([userId, resourceId, type])
   @@index([userId, type])
+  @@index([nextReviewAt])
 }
 
 model GrowthPlan {
@@ -284,6 +285,7 @@ model CachedCnrsArticle {
   expiresAt DateTime
 
   @@index([expiresAt])
+  @@index([category])
 }
 
 model CachedRadioEpisode {
@@ -298,6 +300,7 @@ model CachedRadioEpisode {
   expiresAt   DateTime
 
   @@index([expiresAt])
+  @@index([radio])
 }
 
 model CachedWikipediaImage {

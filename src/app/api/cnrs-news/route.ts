@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
+import { getCachedPool } from '@/lib/feed-pool-cache'
+import type { CachedCnrsArticle } from '@/generated/client'
 
 export async function GET(request: NextRequest) {
   const clientId = getClientIp(request)
@@ -12,11 +14,14 @@ export async function GET(request: NextRequest) {
 
   try {
     const now = new Date()
-    const articles = await prisma.cachedCnrsArticle.findMany({
-      where: { expiresAt: { gte: now } },
-    })
-    const article = articles.length > 0
-      ? articles[Math.floor(Math.random() * articles.length)]
+    const pool = await getCachedPool<CachedCnrsArticle[]>('cnrs:all', () =>
+      prisma.cachedCnrsArticle.findMany({
+        where: { expiresAt: { gte: new Date() } },
+      })
+    )
+    const valid = pool.filter(a => a.expiresAt >= now)
+    const article = valid.length > 0
+      ? valid[Math.floor(Math.random() * valid.length)]
       : null
 
     if (article) {

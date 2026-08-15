@@ -83,3 +83,35 @@ export async function cleanupNewsByMaxAge(days: number) {
   })
   return result.count
 }
+
+export interface CachedF1ArticleUpsert {
+  url: string
+  section: string
+  title: string
+  description: string
+  content?: string
+  imageUrl?: string
+  meta?: unknown
+  scrapedAt: Date
+  expiresAt: string | Date
+}
+
+export async function upsertCachedF1Article(data: CachedF1ArticleUpsert) {
+  const { url, section, title, description, content, imageUrl, meta, scrapedAt, expiresAt } = data
+  const payload = {
+    section,
+    title,
+    description,
+    ...(content !== undefined ? { content } : {}),
+    ...(imageUrl !== undefined ? { imageUrl } : {}),
+    ...(meta !== undefined ? { meta: meta as object } : {}),
+    url,
+    scrapedAt,
+    expiresAt,
+  }
+  await prisma.cachedF1Article.upsert({
+    where: { url },
+    update: payload,
+    create: payload,
+  })
+}

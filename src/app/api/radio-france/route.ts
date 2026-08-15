@@ -3,7 +3,8 @@ import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
-import type { Prisma } from '@/generated/client'
+import { getCachedPool } from '@/lib/feed-pool-cache'
+import type { CachedRadioEpisode } from '@/generated/client'
 
 export async function GET(request: NextRequest) {
   const clientId = getClientIp(request)
@@ -18,33 +19,25 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: true }, { status: 400 })
   }
 
-  const queryWhere: Prisma.CachedRadioEpisodeWhereInput = { expiresAt: { gte: new Date() } }
-  if (excludeId) {
-    queryWhere.title = { not: excludeId }
-  }
-  
-  const totalCached = await prisma.cachedRadioEpisode.count({
-    where: queryWhere,
-  })
-
-  if (totalCached > 0) {
-    const randomOffset = Math.floor(Math.random() * totalCached)
-    const doc = await prisma.cachedRadioEpisode.findFirst({
-      where: queryWhere,
-      skip: randomOffset,
+  const now = new Date()
+  const pool = await getCachedPool<CachedRadioEpisode[]>('radio:all', () =>
+    prisma.cachedRadioEpisode.findMany({
+      where: { expiresAt: { gte: new Date() } },
     })
+  )
+  const valid = pool.filter(e => e.expiresAt >= now && (!excludeId || e.title !== excludeId))
+  const doc = valid.length > 0 ? valid[Math.floor(Math.random() * valid.length)] : null
 
-    if (doc) {
-      return NextResponse.json({
-        id: doc.id,
-        title: doc.title,
-        description: doc.description,
-        url: doc.link,
-        radio: doc.radio,
-        section: doc.radio,
-        image: doc.imageUrl,
-      })
-    }
+  if (doc) {
+    return NextResponse.json({
+      id: doc.id,
+      title: doc.title,
+      description: doc.description,
+      url: doc.link,
+      radio: doc.radio,
+      section: doc.radio,
+      image: doc.imageUrl,
+    })
   }
 
   // Cache empty — serve from static data as fallback
