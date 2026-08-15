@@ -91,7 +91,7 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
     )
   },
   wikipedia: (config, _, __, ___, vis) => (
-    <WikipediaImageCard onToggle={config.toggle} mediumImage isVisible={config.isVisible} wikipediaImageShowEn={(vis as any)?.wikipediaShowEn ?? false} />
+    <WikipediaImageCard onToggle={config.toggle} mediumImage isVisible={config.isVisible} wikipediaImageShowEn={vis?.wikipediaShowEn ?? false} />
   ),
   cnrs: (config) => (
     <CnrsNewsCard onToggle={config.toggle} isVisible={config.isVisible} />

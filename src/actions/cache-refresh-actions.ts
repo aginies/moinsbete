@@ -5,12 +5,16 @@ import { getSession } from '@/lib/auth'
 import { scrapeAndCacheCnrs } from '@/scripts/cache-cnrs'
 import { scrapeAndCacheRadioEpisodes } from '@/scripts/cache-radio-france'
 import { scrapeAndCacheNews } from '@/scripts/cache-news'
-import { scrapeAndCacheWikipediaImages } from '@/scripts/cache-wikipedia-image'
+import { scrapeAndCacheWikipediaImages, scrapeAndCacheWikipediaImagesEN } from '@/scripts/cache-wikipedia-image'
 import { scrapeAndCacheSaviezVousImages } from '@/scripts/cache-saviez-vous-images'
 import { scrapeAndCacheWikiLoves } from '@/scripts/scrape-wikiloves'
+import { scrapeAndCacheF1 } from '@/scripts/cache-f1'
+import { scrapeAndCacheCitation } from '@/scripts/cache-citation'
+import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexical'
 import { scrapeAndCachePortailWikipedia } from '@/scripts/cache-portail-wikipedia'
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
-import { cleanupExpired } from '@/lib/cache-helpers'
+import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
+import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
 
 export interface RefreshResult {
   success: boolean
@@ -92,10 +96,14 @@ export async function refreshAll(): Promise<RefreshResult> {
     await scrapeAndCacheWikipediaImages()
     results.push({ name: 'Image Wikipédia', ok: true })
 
-    await cleanupExpired()
+    await scrapeAndCacheWikipediaImagesEN()
+    results.push({ name: 'Image Wikipédia EN', ok: true })
 
-    await scrapeAndCacheSaviezVousImages()
-    results.push({ name: 'Saviez-vous', ok: true })
+    await scrapeAndCacheF1()
+    results.push({ name: 'F1', ok: true })
+
+    await scrapeAndCacheCitation()
+    results.push({ name: 'Citation', ok: true })
 
     await scrapeAndCachePortailWikipedia()
     results.push({ name: 'Portail Wikipédia', ok: true })
@@ -103,7 +111,17 @@ export async function refreshAll(): Promise<RefreshResult> {
     await scrapeAndCacheInsolite()
     results.push({ name: 'Articles insolites', ok: true })
 
-    await cleanupExpired()
+    const counts = await cleanupExpired()
+    const total = Object.values(counts).reduce((a, b) => a + b, 0)
+    await cleanupNewsByMaxAge(5)
+    await cleanupOldInsoliteConfigs(30)
+    results.push({ name: `Cleanup (${total} expirés)`, ok: true })
+
+    await scrapeAndCacheSaviezVousImages()
+    results.push({ name: 'Saviez-vous', ok: true })
+
+    await scrapeAndCachePortailLexicalWotd()
+    results.push({ name: 'Portail Lexical', ok: true })
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
     const allOk = results.every(r => r.ok)

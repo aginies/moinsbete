@@ -12,7 +12,7 @@ import { useSwipeGesture } from '@/hooks/use-swipe-gesture'
 import { usePixabayActiveCategory } from '@/hooks/use-pixabay-active-category'
 import { ImageLoading } from './image-loading'
 import { CardVisibilityGuard } from './card-visibility-guard'
-import { toggleBookmarkAction } from '@/actions/favorite-actions'
+import { togglePixabayFavoriteAction } from '@/actions/bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { useTranslations } from 'next-intl'
@@ -195,7 +195,7 @@ function ImagePixabayCardInner({
     initialFavorite: false,
     onFavoriteChange: () => {},
     toggleFn: async (action) => {
-      await toggleBookmarkAction('IMAGE_PIXABAY', String(video!.id), action, {
+      await togglePixabayFavoriteAction(String(video!.id), action, {
         pageURL: video!.pageURL,
         author: video!.author,
         authorProfileUrl: video!.authorProfileUrl,

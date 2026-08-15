@@ -75,7 +75,6 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const t = useTranslations('feed')
   const [activeTab, setActiveTab] = useState<Tab>(counts.portailLexical > 0 ? 'portail-lexical' : 'idees')
   const hasInitialSet = useRef(false)
-  const initialTabSetRef = useRef(false)
   const [searchQuery, setSearchQuery] = useState('')
   const previousTabRef = useRef<Tab | null>(null)
   const { savedIdeaIds, handleBookmark } = useBookmarkToggle(ideas)
@@ -106,14 +105,14 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const { toggle: handleSaviezShare, isSharing: saviezIsSharing } =
     useShareToLobby('SAVIEZ_VOUS', sharedSaviezIds, setSharedSaviezIds, (v: string) => v)
   const { toggle: handleImageShare, isSharing: imageIsSharing } =
-    useShareToLobby('IMAGE_DU_JOUR', sharedImageIds, setSharedImageIds, (item: any) => item.fileUrl, (item: any) => item)
+    useShareToLobby<{ fileUrl: string }>('IMAGE_DU_JOUR', sharedImageIds, setSharedImageIds, (item) => item.fileUrl, (item) => item)
   const { toggle: handleWikiLovesShare, isSharing: wikiLovesIsSharing } =
-    useShareToLobby('IMAGE_WIKILOVES', sharedWikiLovesIds, setSharedWikiLovesIds, (item: any) => item.docid, (item: any) => item)
+    useShareToLobby<{ docid: string }>('IMAGE_WIKILOVES', sharedWikiLovesIds, setSharedWikiLovesIds, (item) => item.docid, (item) => item)
   const { toggle: handleWikimediaShare, isSharing: wikimediaIsSharing } =
-    useShareToLobby('IMAGE_WIKIMEDIA', sharedWikimediaIds, setSharedWikimediaIds, (item: any) => item.docid, (item: any) => item)
+    useShareToLobby<{ docid: string }>('IMAGE_WIKIMEDIA', sharedWikimediaIds, setSharedWikimediaIds, (item) => item.docid, (item) => item)
   const { toggle: handleProverbeShare, isSharing: proverbeIsSharing } =
-    useShareToLobby('PROVERBE', sharedProverbeIds, setSharedProverbeIds, (item: any) => item.id,
-      (item: any) => ({ text: item.text, signification: item.signification, source: item.source, wiktionnaireUrl: item.wiktionnaireUrl, etymologie: item.etymologie, definitions: item.definitions }))
+    useShareToLobby<{ id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }>('PROVERBE', sharedProverbeIds, setSharedProverbeIds, (item) => item.id,
+      (item) => ({ text: item.text, signification: item.signification, source: item.source, wiktionnaireUrl: item.wiktionnaireUrl, etymologie: item.etymologie, definitions: item.definitions }))
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
@@ -176,10 +175,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   }, [searchQuery, activeTab])
 
   useEffect(() => {
-    if (!hasInitialSet.current && !initialTabSetRef.current && activeTab === 'idees' && derivedIdeasCount === 0) {
+    if (!hasInitialSet.current && activeTab === 'idees' && derivedIdeasCount === 0) {
       const first = sortedTabs.find(tab => (c[tab.countKey] || 0) > 0)
-      if (first) { hasInitialSet.current = true; initialTabSetRef.current = true; setActiveTab(first.id) }
-      else { hasInitialSet.current = true; initialTabSetRef.current = true }
+      if (first) { hasInitialSet.current = true; setActiveTab(first.id) }
+      else { hasInitialSet.current = true }
     }
   }, [sortedTabs, activeTab, derivedIdeasCount, c])
 
@@ -239,7 +238,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
             <div className="space-y-3">
               {filteredIdeas.map((idea) => (
                 <div key={idea.id} className="group relative">
-                  <CompactIdeaCard idea={{ ...idea, viewedAt: new Date().toISOString() }} />
+                  <CompactIdeaCard idea={idea} />
                   <div className="absolute right-2 top-2 z-10 flex items-center gap-1">
                     <IdeaShareButton idea={idea} />
                     <ShareToLobbyButton resourceId={idea.id} resourceType="IDEA" />

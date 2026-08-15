@@ -15,7 +15,7 @@ import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { CardVisibilityGuard } from './card-visibility-guard'
-import { toggleBookmarkAction } from '@/actions/favorite-actions'
+import { toggleSaviezVousFavoriteAction } from '@/actions/bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
@@ -177,7 +177,7 @@ export const SaviezVousCard = React.memo(function SaviezVousCardInner({
     initialFavorite: false,
     onFavoriteChange: () => {},
     toggleFn: async (action) => {
-      await toggleBookmarkAction('SAVIEZ_VOUS', fact!.id, action, {
+      await toggleSaviezVousFavoriteAction(fact!.id, action, {
         text: fact!.text,
         sourceUrl: fact!.sourceUrl,
         imageFilename: fact!.imageFilename,

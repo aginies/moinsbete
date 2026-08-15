@@ -12,7 +12,7 @@ import { CardHeader } from './card-header'
 import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
 import { CardVisibilityGuard } from './card-visibility-guard'
-import { toggleBookmarkAction } from '@/actions/favorite-actions'
+import { toggleInsoliteFavoriteAction } from '@/actions/bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
@@ -89,7 +89,7 @@ export const InsoliteCard = React.memo(function InsoliteCardInner({
     initialFavorite: false,
     onFavoriteChange: () => {},
     toggleFn: async (action) => {
-      await toggleBookmarkAction('INSOLITE', article!.id, action, {
+      await toggleInsoliteFavoriteAction(article!.id, action, {
         title: article!.title,
         description: article!.description,
         url: article!.url,

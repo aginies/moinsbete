@@ -7,7 +7,7 @@ import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
 import { useAutoRefresh } from '@/hooks/use-auto-refresh'
 import { CardVisibilityGuard } from './card-visibility-guard'
-import { toggleBookmarkAction } from '@/actions/favorite-actions'
+import { toggleProverbeFavoriteAction } from '@/actions/bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
@@ -97,7 +97,7 @@ function ProverbeCardInner({
     initialFavorite: false,
     onFavoriteChange: () => {},
     toggleFn: async (action) => {
-      await toggleBookmarkAction('PROVERBE', proverbe!.id, action, {
+      await toggleProverbeFavoriteAction(proverbe!.id, action, {
         text: proverbe!.text,
         signification: proverbe!.signification,
         source: proverbe!.source,

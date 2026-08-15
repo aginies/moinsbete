@@ -34,8 +34,6 @@ export async function sendResetEmail(to: string, token: string) {
 }
 
 export async function sendShareNotificationEmail(to: string, toName: string, sharerName: string, title: string, resourceType?: string) {
-  console.log('[EMAIL] sendShareNotificationEmail:', { to, toName, sharerName, title, resourceType })
-
   const lobbyUrl = 'https://moinsbete.guibo.com/fr/lobby?tab=partage'
   const accountUrl = 'https://moinsbete.guibo.com/fr/mon-compte'
 

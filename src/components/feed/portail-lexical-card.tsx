@@ -9,7 +9,7 @@ import { useItemShare } from './use-item-share'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
-import { toggleBookmarkAction } from '@/actions/favorite-actions'
+import { togglePortailLexicalFavoriteAction } from '@/actions/bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { CardHeader } from './card-header'
@@ -82,7 +82,7 @@ function PortailLexicalCardInner({ onToggle, isVisible, showToggle = true }: Por
     initialFavorite: false,
     onFavoriteChange: () => {},
     toggleFn: async (action) => {
-      await toggleBookmarkAction('PORTAIL_LEXICAL', word!.form, action, {
+      await togglePortailLexicalFavoriteAction(word!.form, action, {
         description: word!.description,
         full_pos: word!.full_pos,
         ipa: word!.ipa,

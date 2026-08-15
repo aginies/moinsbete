@@ -217,7 +217,7 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
                           <ExternalLink className="h-3 w-3" />
                         </Link>
                         <div className="flex items-center gap-2 ml-auto">
-                          <ShareToLobbyButton resourceId={article.id} resourceType="PORTAIL_WIKIPEDIA" meta={{ title: article.title, extract: article.extract, imageUrl: article.imageUrl, pageUrl: article.pageUrl }} />
+                          <ShareToLobbyButton resourceId={article.pageUrl} resourceType="PORTAIL_WIKIPEDIA" meta={{ title: article.title, extract: article.extract, imageUrl: article.imageUrl, pageUrl: article.pageUrl }} />
                           {isLoggedIn && (
                             <button
                               type="button"

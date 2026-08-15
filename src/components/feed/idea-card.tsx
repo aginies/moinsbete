@@ -162,7 +162,7 @@ interface CompactIdeaCardProps {
       icon: string
       color: string
     }>
-    viewedAt: string
+    viewedAt?: string
   }
 }
 

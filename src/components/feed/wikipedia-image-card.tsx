@@ -15,7 +15,7 @@ import { getTheme } from '@/lib/card-theme'
 import { SwipeBackgroundCard } from './swipe-background-card'
 import { ImageLoading } from './image-loading'
 import { CardVisibilityGuard } from './card-visibility-guard'
-import { toggleBookmarkAction } from '@/actions/favorite-actions'
+import { toggleImageDuJourFavoriteAction } from '@/actions/bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { encodeImageToUrl } from '@/lib/image-url-encoder'
@@ -197,7 +197,7 @@ export const WikipediaImageCard = React.memo(function WikipediaImageCardInner({
     initialFavorite: false,
     onFavoriteChange: () => {},
     toggleFn: async (action) => {
-      await toggleBookmarkAction('IMAGE_DU_JOUR', image!.fileUrl, action, {
+      await toggleImageDuJourFavoriteAction(image!.fileUrl, action, {
         imageUrl: image!.imageUrl,
         description: image!.description,
         fileUrl: image!.fileUrl,

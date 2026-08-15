@@ -13,10 +13,9 @@ import { CardVisibilityGuard } from './card-visibility-guard'
 import { CardShell } from './card-shell'
 import { ImageLoading } from './image-loading'
 import { isValidUrl } from '@/lib/utils'
-import { toggleBookmarkAction, isBookmarkedAction } from '@/actions/favorite-actions'
+import { toggleWikimediaFavoriteAction, toggleWikiLovesFavoriteAction, isWikimediaFavoriteAction, isWikiLovesFavoriteAction } from '@/actions/bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
-import type { BookmarkType } from '@/generated/client'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
 import type { CardColorName, CardShape, CardBorderStyle, CardShadow, CardCompact } from '@/lib/card-theme'
@@ -199,7 +198,8 @@ export function BaseImageCard<TTopic>({
   useEffect(() => {
     if (image && !checkedImageIdsRef.current.has(image.docid)) {
       checkedImageIdsRef.current.add(image.docid)
-      isBookmarkedAction(resourceType as BookmarkType, image.docid).then(result => {
+      const checkFn = resourceType === 'IMAGE_WIKIMEDIA' ? isWikimediaFavoriteAction : isWikiLovesFavoriteAction
+      checkFn(image.docid).then(result => {
         setIsFavorite(result.isBookmarked)
       }).catch(() => {})
     }
@@ -210,7 +210,8 @@ export function BaseImageCard<TTopic>({
     initialFavorite: isFavorite,
     onFavoriteChange: setIsFavorite,
     toggleFn: async (action) => {
-      await toggleBookmarkAction(resourceType as BookmarkType, image!.docid, action, {
+      const toggleFn = resourceType === 'IMAGE_WIKIMEDIA' ? toggleWikimediaFavoriteAction : toggleWikiLovesFavoriteAction
+      await toggleFn(image!.docid, action, {
         titre: image!.titre,
         auteur: image!.auteur,
         imageUrl: image!.imageUrl,

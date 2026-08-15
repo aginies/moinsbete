@@ -175,7 +175,7 @@ model Bookmark {
   idea         Idea?        @relation(fields: [ideaId], references: [id])
 
   @@unique([userId, ideaId])
-  @@unique([userId, resourceId])
+  @@unique([userId, resourceId, type])
   @@index([userId, type])
 }
 

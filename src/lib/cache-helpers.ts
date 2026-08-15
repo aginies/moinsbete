@@ -46,14 +46,14 @@ export async function upsertWikipediaImages(images: Array<{ imageUrl: string; de
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
-  for (const image of images) {
+  await Promise.all(images.map(image => {
     const lang = image.language || 'fr'
-    await prisma.cachedWikipediaImage.upsert({
+    return prisma.cachedWikipediaImage.upsert({
       where: { imageUrl_date_language: { imageUrl: image.imageUrl, date: image.date, language: lang } },
-      update: { ...image, language: lang, scrapedAt: now, expiresAt },
-      create: { ...image, language: lang, scrapedAt: now, expiresAt },
+      update: { description: image.description, fileUrl: image.fileUrl, archive: image.archive, scrapedAt: now, expiresAt },
+      create: { imageUrl: image.imageUrl, description: image.description, fileUrl: image.fileUrl, date: image.date, archive: image.archive, language: lang, scrapedAt: now, expiresAt },
     })
-  }
+  }))
 
   return images.length
 }
