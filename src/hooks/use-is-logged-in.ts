@@ -7,17 +7,30 @@ const SESSION_CACHE_TTL = 5 * 60 * 1000
 
 let pendingCheck: Promise<boolean> | null = null
 
+function getCachedSession(): boolean | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const cached = localStorage.getItem(SESSION_CACHE_KEY)
+    if (cached) {
+      const { value, timestamp } = JSON.parse(cached)
+      if (Date.now() - timestamp < SESSION_CACHE_TTL) {
+        return value
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null
+}
+
 async function checkSession(): Promise<boolean> {
   if (pendingCheck) return pendingCheck
 
   pendingCheck = (async () => {
     try {
-      const cached = localStorage.getItem(SESSION_CACHE_KEY)
-      if (cached) {
-        const { value, timestamp } = JSON.parse(cached)
-        if (Date.now() - timestamp < SESSION_CACHE_TTL) {
-          return value
-        }
+      const cached = getCachedSession()
+      if (cached !== null) {
+        return cached
       }
 
       const res = await fetch('/api/session')
@@ -41,7 +54,7 @@ async function checkSession(): Promise<boolean> {
 }
 
 export function useIsLoggedIn() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(() => getCachedSession() ?? false)
 
   useEffect(() => {
     checkSession().then(setIsLoggedIn)

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Share2, X, Search, User as UserIcon } from 'lucide-react'
 import { shareResourceToLobby, unshareResourceFromLobby, isSharedResourceToLobby, getShareDetails } from '@/actions/lobby-share-actions'
+import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -70,13 +71,9 @@ export function ShareToLobbyButton({ resourceId, resourceType, icon, className, 
   const [selectedUsers, setSelectedUsers] = useState<User[]>([])
   const [shareToCommunity, setShareToCommunity] = useState(false)
   const [checkingUserIds, setCheckingUserIds] = useState<Set<string>>(new Set())
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const isLoggedIn = useIsLoggedIn()
   const inputRef = useRef<HTMLInputElement>(null)
   const checkedRef = useRef<Set<string>>(new Set())
-
-  useEffect(() => {
-    fetch('/api/session').then(r => r.json()).then(d => setIsLoggedIn(!!d?.user)).catch(() => setIsLoggedIn(false))
-  }, [])
 
   useEffect(() => {
     const key = `${resourceType}:${resourceId}`
