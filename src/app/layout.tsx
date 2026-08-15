@@ -12,7 +12,6 @@ import { join } from 'path'
 import { cookies } from 'next/headers'
 import { getMessages } from 'next-intl/server'
 import { NextIntlClientProvider } from 'next-intl'
-import '@/lib/cron-runner'
 import { defaultLocale } from '@/i18n/request'
 
 const inter = Inter({ subsets: ['latin'] })

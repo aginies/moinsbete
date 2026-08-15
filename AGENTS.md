@@ -37,7 +37,7 @@ Every new card source must include these files/patterns. Current codebase has **
   - Export `{source}Manager` (instance), `get{Source}Favorites`, `get{Source}FavoritesCount`
   - Define `{Source}FavoriteDoc` interface with `id` field
   - Pass `mapMeta` function that transforms DB `meta` JSON + `resourceId` into typed doc
-- `src/actions/{source}-bookmark-actions.ts` - Server actions using `createBookmarkManagerActions()` factory from `@/actions/bookmark-manager` (wrapped by `createBookmarkActions()` in `@/actions/bookmark-actions-factory`)
+- `src/actions/bookmark-actions.ts` - Server actions. Uses `createBookmarkManagerActions()` factory from `@/actions/bookmark-manager` and re-exports per-source actions (e.g. `toggleRadioFavoriteAction`) built from each `{source}Manager`
   - Export `toggle{Source}FavoriteAction`, `get{Source}FavoritesAction`, `is{Source}FavoriteAction`
 
 ### Simple bookmark support (no manager):
@@ -92,7 +92,7 @@ Every new card source must include these files/patterns. Current codebase has **
   // Render: t(tab.label) for desktop, t(tab.label).split(' ')[0] for mobile
   ```
 - Wrap card in `CardVisibilityGuard` for show/hide logic
-- Reuse existing components first: `CardVisibilityGuard`, `useAutoRefresh`, `useItemShare`, `PaginatedFavoritesList`, `useFavoritesList`, `createBookmarkManager`, `createBookmarkActions`
+- Reuse existing components first: `CardVisibilityGuard`, `useAutoRefresh`, `useItemShare`, `PaginatedFavoritesList`, `useFavoritesList`, `createBookmarkManager`, `createBookmarkManagerActions`
 
 ## 5b. Reusable Components (check before creating new ones)
 
@@ -106,7 +106,6 @@ Every new card source must include these files/patterns. Current codebase has **
 - `useFavoritesList` — hook for `PaginatedFavoritesList`
 - `createBookmarkManager()` — bookmark manager factory with `mapMeta` function (from `@/lib/bookmark-manager`)
 - `createBookmarkManagerActions()` — server actions factory (from `@/actions/bookmark-manager`)
-- `createBookmarkActions()` — thin wrapper around `createBookmarkManagerActions()` (from `@/actions/bookmark-actions-factory`)
 - `ShareButton` — standalone share button component
 - `ShareToLobbyButton` — share to lobby button (from `@/components/lobby/share-tolobby-button`)
 - `useSimpleBookmarkToggle` — simple bookmark state hook (from `@/hooks/use-simple-bookmark-toggle`)
