@@ -32,7 +32,7 @@ Process (per AGENTS.md): after each batch → `npm test` + `npm run build`; bump
 
 | # | Win | Location | Fix | Impact | Status |
 |---|-----|----------|-----|--------|--------|
-| P1 | Sujets mounts all 14 cards at once (1 bundle + 14 fetches) | `src/app/(main)/sujets/sujets-client.tsx` | Static imports + IntersectionObserver mount-gate (first 4 eager, rest 600px margin) | HIGH | [x] |
+| P1 | Sujets mounts all 14 cards at once (1 bundle + 14 fetches) | `src/app/(main)/sujets/sujets-client.tsx` | REVERTED (user decision): static imports + immediate mount, original behavior. Code-split/IO variants made perceived load slower | HIGH | [x] |
 | P2 | No feed route uses caching (DB hit per request) | `src/app/api/*` | Cache valid-article pool in-memory/Redis 30-60s, random pick per request | MED-HIGH | [x] |
 | P3 | `images.remotePatterns` incomplete | `next.config.ts` | Add pixabay/radio/news/f1/insolite CDNs | MED | [x] |
 | P4 | Missing index `Bookmark.nextReviewAt` (+ cnrs.category, radio.radio) | `prisma/schema.prisma` | Add `@@index`, run migration | LOW-MED | [x] |

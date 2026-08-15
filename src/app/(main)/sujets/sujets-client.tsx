@@ -28,15 +28,6 @@ import { CardNavBar } from '@/components/feed/card-nav-bar'
 import { useTranslations } from 'next-intl'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 
-// Cards above the fold render immediately (SSR content, no skeleton). The rest
-// mount only when near the viewport (see LazyMount below) to avoid 14
-// simultaneous data fetches on load.
-const EAGER_CARD_KEYS = new Set(['insolite', 'saviezVous', 'wikipedia', 'cnrs'])
-
-function CardSkeleton() {
-  return <Skeleton className="h-48 w-full rounded-2xl" />
-}
-
 interface SujetsClientProps {
   allTopics: Array<{ id: string } & Topic>
   initialFollowedIds: string[]
@@ -153,40 +144,6 @@ interface CardWrapperProps {
   visibility: CardVisibility | undefined
 }
 
-// Only mounts (and thus triggers the data fetch) when the card is within
-// 600px of the viewport. Until then it renders a fixed-height skeleton so
-// layout/scroll anchors stay stable.
-function LazyMount({ render, minHeight = 192 }: { render: () => React.ReactNode; minHeight?: number }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    if (typeof IntersectionObserver === 'undefined') {
-      setVisible(true)
-      return
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisible(true)
-          observer.disconnect()
-        }
-      },
-      { rootMargin: '600px 0px' },
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
-  return (
-    <div ref={ref} style={visible ? undefined : { minHeight }}>
-      {visible ? render() : <CardSkeleton />}
-    </div>
-  )
-}
-
 const CardWrapper = React.memo(function CardWrapper({
   cardKey,
   cardId,
@@ -198,10 +155,9 @@ const CardWrapper = React.memo(function CardWrapper({
 }: CardWrapperProps) {
   const renderer = CARD_RENDERERS[cardKey]
   if (!renderer) return null
-  const content = renderer(config, saviezVousFact, userId, hasUserId, visibility)
   return (
     <div className="mb-4 sm:mb-6" id={cardId}>
-      {EAGER_CARD_KEYS.has(cardKey) ? content : <LazyMount render={() => renderer(config, saviezVousFact, userId, hasUserId, visibility)} />}
+      {renderer(config, saviezVousFact, userId, hasUserId, visibility)}
     </div>
   )
 })
