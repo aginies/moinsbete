@@ -6,7 +6,7 @@ import { Newspaper, ExternalLink, RefreshCw, EyeOff, Bookmark, Globe, Briefcase,
 import Link from 'next/link'
 import { sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
-import { toggleNewsFavoriteAction, isNewsFavoriteAction, isNewsFavoriteBatchAction } from '@/actions/news-bookmark-actions'
+import { toggleNewsFavoriteAction, isNewsFavoriteAction, isNewsFavoriteBatchAction } from '@/actions/bookmark-actions'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { CardShell } from './card-shell'

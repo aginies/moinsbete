@@ -1,6 +1,6 @@
 'use client'
 
-import { getWikimediaFavoritesAction } from '@/actions/image-wikimedia-bookmark-actions'
+import { getWikimediaFavoritesAction } from '@/actions/bookmark-actions'
 import { type WikimediaImageFavoriteDoc } from '@/lib/image-wikimedia-bookmark'
 import { ImageSourceFavorites } from '@/components/feed/image-source-favorites'
 

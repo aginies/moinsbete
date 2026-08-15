@@ -1,6 +1,6 @@
 'use client'
 
-import { getWikiLovesFavoritesAction } from '@/actions/image-wikiloves-bookmark-actions'
+import { getWikiLovesFavoritesAction } from '@/actions/bookmark-actions'
 import { type WikiLovesImageFavoriteDoc } from '@/lib/image-wikiloves-bookmark'
 import { ImageSourceFavorites } from '@/components/feed/image-source-favorites'
 

@@ -100,6 +100,11 @@ export async function refreshAll(): Promise<RefreshResult> {
     await scrapeAndCachePortailWikipedia()
     results.push({ name: 'Portail Wikipédia', ok: true })
 
+    await scrapeAndCacheInsolite()
+    results.push({ name: 'Articles insolites', ok: true })
+
+    await cleanupExpired()
+
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
     const allOk = results.every(r => r.ok)
     return {

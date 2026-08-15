@@ -7,8 +7,7 @@ import { sanitizeUrl } from '@/lib/utils'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { CardShell } from './card-shell'
 import { getTheme } from '@/lib/card-theme'
-import { toggleBookmarkAction } from '@/actions/favorite-actions'
-import { isPortailWikipediaFavoriteBatchAction } from '@/actions/portail-wikipedia-bookmark-actions'
+import { togglePortailWikipediaFavoriteAction, isPortailWikipediaFavoriteBatchAction } from '@/actions/bookmark-actions'
 import { CardHeader } from './card-header'
 import { ShareButton } from './share-button'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
@@ -92,7 +91,7 @@ function PortailWikipediaCardInner({ userId, onToggle, isVisible, showToggle = t
       }
       return next
     })
-    await toggleBookmarkAction('PORTAIL_WIKIPEDIA', article.pageUrl, action, {
+    await togglePortailWikipediaFavoriteAction(article.pageUrl, action, {
       title: article.title,
       extract: article.extract,
       imageUrl: article.imageUrl,

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { ExternalLink, Trash2 } from 'lucide-react'
 import { sanitizeUrl } from '@/lib/utils'
-import { getRadioFavoritesAction } from '@/actions/radio-bookmark-actions'
+import { getRadioFavoritesAction } from '@/actions/bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
 import { useFavoritesList } from '@/components/feed/use-favorites-list'
 import { useCallback } from 'react'
