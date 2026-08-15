@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { searchCommonsFiles, fetchCommonsImageInfo, type CommonsImage } from '@/lib/wikimedia-commons'
+import { checkRateLimit } from '@/lib/rate-limiter'
+import { getClientIp } from '@/lib/ip'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
 const WIKILOVES_EVENTS: Record<string, string[]> = {
   wle: ['Wiki Loves Earth'],
@@ -121,6 +124,11 @@ async function fetchRandomImage(event?: string): Promise<CommonsImage | null> {
 }
 
 export async function GET(request: NextRequest) {
+  const clientId = getClientIp(request)
+  if (!(await checkRateLimit(`wikiloves:${clientId}`, 30, 60_000))) {
+    return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
+  }
+
   console.log('[WikiLoves] GET handler called')
   const eventParam = request.nextUrl.searchParams.get('event') || undefined
   let event: string | undefined = undefined

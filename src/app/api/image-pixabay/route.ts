@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit } from '@/lib/rate-limiter'
+import { getClientIp } from '@/lib/ip'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
 interface PixabayVideo {
   id: number
@@ -74,6 +77,11 @@ async function fetchRandomVideo(category: string): Promise<PixabayVideo | null> 
 }
 
 export async function GET(request: NextRequest) {
+  const clientId = getClientIp(request)
+  if (!(await checkRateLimit(`pixabay:${clientId}`, 30, 60_000))) {
+    return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
+  }
+
   const categoryParam = request.nextUrl.searchParams.get('category') || 'bird'
 
   const video = await fetchRandomVideo(categoryParam)

@@ -22,13 +22,10 @@ export async function isCsrfValid(request: NextRequest, overrideToken?: string):
   if (origin) {
     try {
       const originUrl = new URL(origin).origin.toLowerCase()
-      
-      // A. Reconstruct origin from standard reverse-proxy headers (e.g. Nginx, Cloudflare)
-      const proto = request.headers.get('x-forwarded-proto') || 'http'
-      const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.host
-      const proxyOrigin = `${proto}://${host}`.toLowerCase()
 
-      // B. Parse configured NEXTAUTH_URL origin if present
+      // Authoritative public origin from env only. NEVER derive from
+      // x-forwarded-proto / x-forwarded-host — those are client-controllable and
+      // spoofable (attacker sets X-Forwarded-Host: evil.com to pass the check).
       let publicOrigin = ''
       if (process.env.NEXTAUTH_URL) {
         try {
@@ -36,10 +33,10 @@ export async function isCsrfValid(request: NextRequest, overrideToken?: string):
         } catch {}
       }
 
-      // Check if browser origin matches any of our known domains/origins
+      // request.nextUrl.origin reflects the Host the request was sent to (set by
+      // the proxy to the real domain), so a cross-origin attacker's Origin won't match.
       if (
         originUrl === request.nextUrl.origin.toLowerCase() ||
-        originUrl === proxyOrigin ||
         (publicOrigin && originUrl === publicOrigin)
       ) {
         return true

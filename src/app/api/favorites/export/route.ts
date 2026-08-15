@@ -29,6 +29,7 @@ export async function GET() {
       newsBookmarks,
       f1Bookmarks,
       citationBookmarks,
+      insoliteBookmarks,
     ] = await Promise.all([
       prisma.bookmark.findMany({
         where: { userId, type: 'IDEA' },
@@ -97,6 +98,11 @@ export async function GET() {
       }),
       prisma.bookmark.findMany({
         where: { userId, type: 'CITATION' },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
+      }),
+      prisma.bookmark.findMany({
+        where: { userId, type: 'INSOLITE' },
         orderBy: { createdAt: 'desc' },
         select: { id: true, resourceId: true, type: true, meta: true, createdAt: true },
       }),
@@ -267,6 +273,16 @@ export async function GET() {
       }
       const desc = m.author ? `"${m.text}" — ${m.author}` : m.text || 'Citation'
       items.push(metaToItem(bm, m.text || 'Citation', desc, m.url || '', m.imageUrl || null))
+    }
+
+    // INSOLITE
+    for (const bm of insoliteBookmarks) {
+      const m = bm.meta as { title?: string; description?: string; url?: string | null; imageUrl?: string | null } | null | undefined
+      if (!m) {
+        items.push(metaToItem(bm, 'Article insolite', '', '', null))
+        continue
+      }
+      items.push(metaToItem(bm, m.title || 'Article insolite', m.description || '', m.url || '', m.imageUrl || null))
     }
 
     // Sort by favoritedAt descending

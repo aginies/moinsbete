@@ -89,7 +89,9 @@ export async function GET(request: NextRequest) {
     const results = await prisma.cachedNewsArticle.findMany({
       where: queryWhere,
       take: limit + 1,
-      orderBy: { scrapedAt: 'desc' },
+      // Cursor is the last item's URL; order by url desc so pagination is a
+      // consistent continuation (ordering by scrapedAt here skipped/duped items).
+      orderBy: { url: 'desc' },
     })
 
     hasMore = results.length > limit

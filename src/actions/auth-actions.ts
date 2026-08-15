@@ -9,6 +9,7 @@ import { authOptions } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_REGISTER_MAX, RATE_LIMIT_LOGIN_MAX, SESSION_COOKIE_MAX_AGE_MS, SESSION_MAX_AGE_SECONDS, MIN_PASSWORD_LENGTH } from '@/lib/constants'
 import { getClientIpFromHeaders } from '@/lib/ip'
+import { isValidEmail } from '@/lib/utils'
 
 async function verifyTurnstile(token: string, remoteIp: string): Promise<boolean> {
   if (!process.env.TURNSTILE_SECRET_KEY) {
@@ -56,6 +57,14 @@ export async function registerAction(formData: {
 
   if (process.env.REGISTRATION_LOCKED === 'true') {
     return { error: 'Inscriptions temporairement fermées pendant la mise à jour de la base de données.' }
+  }
+
+  if (!isValidEmail(email)) {
+    return { error: 'Adresse email invalide' }
+  }
+
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return { error: `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères` }
   }
 
   const existing = await prisma.user.findUnique({ where: { email } })
@@ -165,15 +174,6 @@ export async function logoutAction() {
   })
   
   // Clear standard session cookie
-  cookieStore.set('next-auth.session-token', '', {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: true,
-    expires: pastDate,
-  })
-  
-  // Clear next-auth-cross-device cookie
   cookieStore.set('next-auth.session-token', '', {
     path: '/',
     httpOnly: true,

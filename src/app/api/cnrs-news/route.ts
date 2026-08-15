@@ -1,7 +1,15 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { checkRateLimit } from '@/lib/rate-limiter'
+import { getClientIp } from '@/lib/ip'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const clientId = getClientIp(request)
+  if (!(await checkRateLimit(`cnrs:${clientId}`, 30, 60_000))) {
+    return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
+  }
+
   try {
     const now = new Date()
     const articles = await prisma.cachedCnrsArticle.findMany({

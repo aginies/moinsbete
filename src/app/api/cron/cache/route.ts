@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'node:crypto'
 import { scrapeAndCacheCnrs } from '@/scripts/cache-cnrs'
 import { scrapeAndCacheRadioEpisodes } from '@/scripts/cache-radio-france'
 import { scrapeAndCacheWikipediaImages, scrapeAndCacheWikipediaImagesEN } from '@/scripts/cache-wikipedia-image'
@@ -11,7 +12,7 @@ import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexica
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
-import { isAllowedIp } from '@/lib/ip'
+import { isAllowedIp, getClientIp } from '@/lib/ip'
 
 const CRON_SECRET = process.env.CRON_SECRET || ''
 
@@ -24,27 +25,40 @@ function ipInPrivateRange(ip: string): boolean {
   return false
 }
 
+function safeEqual(a: string, b: string): boolean {
+  const ba = Buffer.from(a)
+  const bb = Buffer.from(b)
+  if (ba.length !== bb.length) return false
+  return timingSafeEqual(ba, bb)
+}
+
 function isAuthorized(request: NextRequest): { authorized: boolean; ip: string; reason: string } {
   const token = request.nextUrl.searchParams.get('token')
   const headerToken = request.headers.get('x-cron-token')
   const providedToken = token || headerToken
-  
-  if (CRON_SECRET && providedToken === CRON_SECRET) {
-    return { authorized: true, ip: '', reason: 'token' }
+
+  // Trusted IP resolution (platform IP / cf-connecting-ip first; x-forwarded-for
+  // only honored when TRUST_PROXY=true). Never read x-forwarded-for blindly.
+  const ip = getClientIp(request)
+
+  // Token auth (constant-time compare). When a secret is configured it is REQUIRED —
+  // no IP fallback, so header spoofing cannot bypass auth in production.
+  if (CRON_SECRET) {
+    if (providedToken && safeEqual(providedToken, CRON_SECRET)) {
+      return { authorized: true, ip, reason: 'token' }
+    }
+    return { authorized: false, ip, reason: 'token-required' }
   }
-  
-  const forwardedIp = request.headers.get('x-forwarded-for')
-  const realIp = request.headers.get('x-real-ip')
-  const ip = (forwardedIp?.split(',')[0].trim() || realIp || 'unknown').trim()
-  
+
+  // No secret configured (dev / local cron): fall back to trusted IP resolution.
   if (isAllowedIp(ip)) {
     return { authorized: true, ip, reason: 'ip-whitelist' }
   }
-  
+
   if (ipInPrivateRange(ip)) {
     return { authorized: true, ip, reason: 'private-range' }
   }
-  
+
   return { authorized: false, ip, reason: 'unauthorized' }
 }
 
@@ -55,7 +69,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'unauthorized', ip: auth.ip }, { status: 401 })
   }
   
-  const ip = auth.ip || (request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown')
+  const ip = auth.ip
   
   const startTime = Date.now()
   console.log(`[cron] Starting cache update from IP: ${ip} (auth: ${auth.reason})`)

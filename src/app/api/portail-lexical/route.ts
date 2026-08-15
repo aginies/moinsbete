@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { fetchWotd, fetchWordDetails, searchWords, isValidSearchTerm, type WotdResponse } from '@/lib/portail-lexical'
+import { checkRateLimit } from '@/lib/rate-limiter'
+import { getClientIp } from '@/lib/ip'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
 export async function GET(request: Request) {
+  const clientId = getClientIp(request)
+  if (!(await checkRateLimit(`lexical:${clientId}`, 30, 60_000))) {
+    return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
+  }
+
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
 

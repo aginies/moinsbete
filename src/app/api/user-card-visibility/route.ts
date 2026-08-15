@@ -48,9 +48,9 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(user)
-  } catch (err: any) {
+  } catch (err) {
     console.error('[API/user-card-visibility] GET uncaught error:', err)
-    return NextResponse.json({ error: err?.message || 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
 
@@ -99,14 +99,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid field' }, { status: 400 })
     }
 
+    // Validate value type: only imagePixabayActiveCategory is a string, all others are booleans.
+    // Prevents malformed values from reaching Prisma (and leaking DB error messages).
+    const isStringField = field === 'imagePixabayActiveCategory'
+    const validValue = isStringField
+      ? typeof value === 'string' && value.length > 0 && value.length <= 100
+      : typeof value === 'boolean'
+    if (!validValue) {
+      return NextResponse.json({ error: 'Invalid value' }, { status: 400 })
+    }
+
     await prisma.user.update({
       where: { id: session.user.id },
       data: { [field]: value },
     })
 
     return NextResponse.json({ success: true })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[API/user-card-visibility] POST uncaught error:', err)
-    return NextResponse.json({ error: err?.message || 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

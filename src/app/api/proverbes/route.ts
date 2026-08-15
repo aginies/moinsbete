@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { getClientIp, isAllowedIp } from '@/lib/ip'
+import { checkRateLimit } from '@/lib/rate-limiter'
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 
 const WIKTIONARY_BASE = 'https://fr.wiktionary.org'
 
@@ -789,6 +791,11 @@ async function enrichWithWiktionnaire(proverbes: CachedProverbe[]): Promise<Prov
 }
 
 export async function GET(request: Request) {
+  const clientId = getClientIp(request)
+  if (!(await checkRateLimit(`proverbes:${clientId}`, 30, 60_000))) {
+    return NextResponse.json({ error: RATE_LIMIT_ERROR_MESSAGE }, { status: 429 })
+  }
+
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
   const q = searchParams.get('q')

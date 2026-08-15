@@ -5,6 +5,9 @@ import { prisma } from './db'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
 import { decode, JWT } from 'next-auth/jwt'
+import { checkRateLimit } from './rate-limiter'
+import { getClientIpFromHeaders } from './ip'
+import { RATE_LIMIT_LOGIN_MAX, RATE_LIMIT_WINDOW_MS } from './constants'
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -15,6 +18,13 @@ export const authOptions: AuthOptions = {
         password: { label: 'Mot de passe', type: 'password' },
       },
       async authorize(credentials) {
+        // Rate-limit the credentials callback directly (the UI path is limited via
+        // loginAction, but /api/auth/callback/credentials is publicly reachable).
+        const clientId = await getClientIpFromHeaders()
+        if (!(await checkRateLimit(`login:${clientId}`, RATE_LIMIT_LOGIN_MAX, RATE_LIMIT_WINDOW_MS))) {
+          return null
+        }
+
         let email = ''
         let password = ''
 
