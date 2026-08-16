@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { apodPageUrl } from '@/lib/utils'
 import { exportFavoritesToHtml, type ExportBookmarkItem } from '@/lib/favorites-export'
 import { BookmarkType } from '@/generated/client'
 
@@ -239,7 +240,7 @@ export async function GET() {
         items.push(metaToItem(bm, 'APOD', '', '', null))
         continue
       }
-      items.push(metaToItem(bm, m.titre || 'APOD', m.description || '', m.link || '', m.imageUrl || null))
+      items.push(metaToItem(bm, m.titre || 'APOD', m.description || '', apodPageUrl(bm.resourceId ?? '') || m.link || '', m.imageUrl || null))
     }
 
     // Sort by favoritedAt descending
