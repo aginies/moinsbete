@@ -73,12 +73,11 @@ function ApodCardInner({
   })
   const dateRef = useRef<string>(startDate)
 
-  const fetchFn = useCallback(async (_topics: string | undefined, direction?: 'prev' | 'next') => {
-    if (direction) {
+  const fetchFn = useCallback(async (_topics: string | undefined, _direction?: 'prev' | 'next') => {
+    if (_direction) {
       const d = new Date(`${dateRef.current}T00:00:00Z`)
-      d.setUTCDate(d.getUTCDate() + (direction === 'next' ? 1 : -1))
-      const target = d.toISOString().slice(0, 10)
-      dateRef.current = direction === 'next' && target > todayStr() ? todayStr() : target
+      d.setUTCDate(d.getUTCDate() - 1)
+      dateRef.current = d.toISOString().slice(0, 10)
     }
     const { data } = await fetchCardImage<ApodImage>('/api/apod', { date: dateRef.current }, { requireField: 'imageUrl', timeoutMs: 8000 })
     if (data) {
