@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { SaviezVousCard } from '@/components/feed/saviez-vous-card'
-import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List, Newspaper, Languages, Sparkles } from 'lucide-react'
+import { User, Trash2, Camera, BookOpen, ExternalLink, Search, X, Bookmark, Loader2, Quote, Lightbulb, Info, Image as ImageIcon, Earth, List, Newspaper, Languages, Sparkles, Telescope } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -26,6 +26,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Earth: Earth,
   Quote: Quote,
   Sparkles: Sparkles,
+  Telescope: Telescope,
 }
 
 const handleUnshareError = (err: Error & { code?: string }) => {
@@ -115,6 +116,16 @@ interface SharedBookmark {
     url: string
     imageUrl: string | null
   } | null
+  apodImage?: {
+    id: string
+    date: string
+    title: string
+    explanation: string
+    imageUrl: string
+    hdImageUrl: string | null
+    copyright: string | null
+    apodUrl: string
+  } | null
   user: { id: string; displayName: string | null; email: string }
   sharedWithUsers?: Array<{ id: string; displayName: string | null; email: string }>
 }
@@ -135,6 +146,7 @@ interface SharedBookmarksProps {
     PORTAIL_WIKIPEDIA: Set<string>
     CITATION: Set<string>
     INSOLITE: Set<string>
+    APOD: Set<string>
   }
   typeFilters?: { value: string; label: string; icon: string }[]
   activeType?: string
@@ -939,6 +951,159 @@ function WikiMediaBookmarkItem({
   )
 }
 
+function ApodBookmarkItem({
+  bookmark,
+  currentUserId,
+  isAdmin,
+  userFavoriteIds,
+  locale,
+  t,
+}: {
+  bookmark: SharedBookmark & { apodImage: NonNullable<SharedBookmark['apodImage']> }
+  currentUserId: string | null
+  isAdmin: boolean
+  userFavoriteIds: SharedBookmarksProps['userFavoriteIds']
+  locale: string
+  t: ReturnType<typeof useTranslations>
+}) {
+  const router = useRouter()
+  const [showFullImage, setShowFullImage] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const isFavorite = bookmark.resourceId ? userFavoriteIds.APOD.has(bookmark.resourceId) : false
+  const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+
+  const handleAddToFavorites = async () => {
+    if (isAdding || !bookmark.resourceId) return
+    setIsAdding(true)
+    try {
+      const result = await addToFavoritesFromLobby('APOD', bookmark.resourceId, {
+        titre: bookmark.apodImage.title,
+        auteur: bookmark.apodImage.copyright || '',
+        imageUrl: bookmark.apodImage.imageUrl,
+        link: bookmark.apodImage.apodUrl,
+        droits: 'NASA / APOD',
+        description: bookmark.apodImage.explanation,
+      })
+      if (result.success) {
+        router.refresh()
+      } else if (result.error) {
+        toast.error(result.error)
+      }
+    } catch {
+      toast.error('Erreur lors de l\'ajout aux favoris')
+    } finally {
+      setIsAdding(false)
+    }
+  }
+
+  return (
+    <div className="group relative">
+      <div className="rounded-xl border-2 border-indigo-800 bg-gradient-to-br from-indigo-50 to-purple-50 p-4 dark:border-indigo-900 dark:from-indigo-950/30 dark:to-purple-950/30">
+        <div className="mb-2 flex items-center gap-2">
+          <Telescope className="h-4 w-4 text-white" />
+          <h4 className="text-sm font-bold uppercase tracking-wide text-indigo-800 dark:text-indigo-300">APOD</h4>
+        </div>
+        {isValidUrl(bookmark.apodImage.imageUrl) && (
+          <div
+            className="mb-2 cursor-pointer overflow-hidden rounded-lg border border-indigo-200 dark:border-indigo-800"
+            onClick={() => setShowFullImage(true)}
+          >
+            <img
+              src={sanitizeUrl(bookmark.apodImage.imageUrl, '')}
+              alt={bookmark.apodImage.title}
+              loading="lazy"
+              className="w-full h-32 object-cover transition-opacity hover:opacity-90"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none'
+              }}
+            />
+            <ImageHint color="purple" />
+          </div>
+        )}
+        <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
+          {bookmark.apodImage.title}
+        </p>
+        {bookmark.apodImage.copyright && (
+          <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-1">
+            {bookmark.apodImage.copyright}
+          </p>
+        )}
+        {bookmark.apodImage.explanation && (
+          <p className="text-xs text-indigo-800 dark:text-indigo-200 mb-2 line-clamp-3">
+            {bookmark.apodImage.explanation}
+          </p>
+        )}
+        <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-2">
+          NASA / APOD · {bookmark.apodImage.date}
+        </p>
+        {bookmark.apodImage.apodUrl && (
+          <Link
+            href={sanitizeUrl(bookmark.apodImage.apodUrl)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-indigo-700 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 hover:underline"
+          >
+            Voir sur APOD
+            <ExternalLink className="h-3 w-3" />
+          </Link>
+        )}
+      </div>
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
+        <span className="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
+          <User className="h-3 w-3" />
+          {bookmark.user.displayName || maskEmail(bookmark.user.email)}
+        </span>
+        {bookmark.sharedWithUsers && bookmark.sharedWithUsers.length > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 backdrop-blur-sm dark:bg-green-900/30 dark:text-green-400">
+            <User className="h-3 w-3" />
+            {bookmark.sharedWithUsers.map(u => u.displayName || maskEmail(u.email)).join(', ')}
+          </span>
+        )}
+        {showBookmarkBtn && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={handleAddToFavorites}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            ) : (
+              <Bookmark className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''} text-muted-foreground`} />
+            )}
+          </Button>
+        )}
+        {(currentUserId === bookmark.user.id || isAdmin) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0 transition-opacity opacity-100"
+            onClick={() => {
+              bookmark.resourceId && unshareResourceFromLobby(bookmark.resourceType, bookmark.resourceId).then(r => {
+                if (r?.error) toast.error(r.error)
+                else router.refresh()
+              }).catch(handleUnshareError)
+            }}
+          >
+            <Trash2 className="h-4 w-4 text-red-500 dark:text-red-400" />
+          </Button>
+        )}
+      </div>
+      <div className="mt-1 text-xs text-muted-foreground">
+        {t('shared_on')} {bookmark.formattedCreatedAt}
+      </div>
+      {showFullImage && (
+        <ImageLightbox
+          src={bookmark.apodImage.imageUrl}
+          alt={bookmark.apodImage.title}
+          onClose={() => setShowFullImage(false)}
+        />
+      )}
+    </div>
+  )
+}
+
 function ProverbeBookmarkItem({
   bookmark,
   currentUserId,
@@ -1478,7 +1643,7 @@ export function SharedBookmarks({
   emptyMessage,
 }: SharedBookmarksProps) {
   const t = useTranslations('feed')
-  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.newsArticle || b.portailWikipediaArticle || b.proverbe || b.citation || b.insoliteArticle)
+  const items = sharedBookmarks.filter(b => b.idea || b.saviezFact || b.wikiImage || b.wikiMediaImage || b.wikiLovesImage || b.newsArticle || b.portailWikipediaArticle || b.proverbe || b.citation || b.insoliteArticle || b.apodImage)
 
   const hasFilters = typeFilters.length > 0 || searchQuery
 
@@ -1564,6 +1729,9 @@ export function SharedBookmarks({
             }
             if (bookmark.insoliteArticle) {
               return <InsoliteBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { insoliteArticle: NonNullable<SharedBookmark['insoliteArticle']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
+            }
+            if (bookmark.apodImage) {
+              return <ApodBookmarkItem key={bookmark.id} bookmark={bookmark as SharedBookmark & { apodImage: NonNullable<SharedBookmark['apodImage']> }} currentUserId={currentUserId} isAdmin={isAdmin} userFavoriteIds={userFavoriteIds} locale={locale} t={t} />
             }
             return null
           })}

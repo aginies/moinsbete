@@ -13,6 +13,7 @@ import { scrapeAndCacheCitation } from '@/scripts/cache-citation'
 import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexical'
 import { scrapeAndCachePortailWikipedia } from '@/scripts/cache-portail-wikipedia'
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
+import { scrapeAndCacheApod } from '@/scripts/cache-apod'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
 
@@ -76,6 +77,10 @@ export async function refreshInsolite(): Promise<RefreshResult> {
   return executeRefresh('Articles insolites', scrapeAndCacheInsolite)
 }
 
+export async function refreshApod(): Promise<RefreshResult> {
+  return executeRefresh('APOD', scrapeAndCacheApod)
+}
+
 export async function refreshAll(): Promise<RefreshResult> {
   const authErr = await authCheck()
   if (authErr) return authErr
@@ -110,6 +115,9 @@ export async function refreshAll(): Promise<RefreshResult> {
 
     await scrapeAndCacheInsolite()
     results.push({ name: 'Articles insolites', ok: true })
+
+    await scrapeAndCacheApod()
+    results.push({ name: 'APOD', ok: true })
 
     const counts = await cleanupExpired()
     const total = Object.values(counts).reduce((a, b) => a + b, 0)

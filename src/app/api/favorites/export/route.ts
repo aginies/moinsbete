@@ -17,7 +17,7 @@ export async function GET() {
     const NON_IDEA_TYPES: BookmarkType[] = [
       'RADIO_FRANCE', 'CNRS_NEWS', 'IMAGE_DU_JOUR', 'SAVIEZ_VOUS',
       'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'IMAGE_PIXABAY', 'PORTAIL_LEXICAL',
-      'PORTAIL_WIKIPEDIA', 'PROVERBE', 'NEWS', 'F1', 'CITATION', 'INSOLITE',
+      'PORTAIL_WIKIPEDIA', 'PROVERBE', 'NEWS', 'F1', 'CITATION', 'INSOLITE', 'APOD',
     ]
 
     const [ideaBookmarks, otherBookmarks] = await Promise.all([
@@ -53,6 +53,7 @@ export async function GET() {
     const f1Bookmarks = byType.get('F1') ?? []
     const citationBookmarks = byType.get('CITATION') ?? []
     const insoliteBookmarks = byType.get('INSOLITE') ?? []
+    const apodBookmarks = byType.get('APOD') ?? []
 
     const items: ExportBookmarkItem[] = []
 
@@ -229,6 +230,16 @@ export async function GET() {
         continue
       }
       items.push(metaToItem(bm, m.title || 'Article insolite', m.description || '', m.url || '', m.imageUrl || null))
+    }
+
+    // APOD
+    for (const bm of apodBookmarks) {
+      const m = bm.meta as { titre?: string; imageUrl?: string; link?: string; description?: string } | null | undefined
+      if (!m) {
+        items.push(metaToItem(bm, 'APOD', '', '', null))
+        continue
+      }
+      items.push(metaToItem(bm, m.titre || 'APOD', m.description || '', m.link || '', m.imageUrl || null))
     }
 
     // Sort by favoritedAt descending

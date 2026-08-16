@@ -38,6 +38,7 @@ model User {
   proverbeCardVisible          Boolean               @default(true)
   citationCardVisible          Boolean               @default(true)
   insoliteCardVisible          Boolean               @default(true)
+  apodCardVisible              Boolean               @default(true)
   cardOrder                    Json?
   newsCardVisible              Boolean?              @default(true)
   cardNavBarEnabled            Boolean               @default(true)
@@ -419,6 +420,21 @@ model CachedInsoliteArticle {
   @@index([category])
 }
 
+model CachedApodImage {
+  id          String   @id @default(cuid())
+  date        String   @unique
+  title       String
+  explanation String
+  imageUrl    String
+  hdImageUrl  String?
+  copyright   String?
+  apodUrl     String
+  scrapedAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
+
 model UserSuggestion {
   id          String              @id @default(cuid())
   userId      String
@@ -508,4 +524,5 @@ enum BookmarkType {
   PORTAIL_WIKIPEDIA
   CITATION
   INSOLITE
+  APOD
 }

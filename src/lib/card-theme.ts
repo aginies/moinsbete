@@ -936,6 +936,7 @@ export type CardKey =
   | 'f1'
   | 'citation'
   | 'insolite'
+  | 'apod'
 
 export const CARD_COLORS: Record<CardKey, CardColorName> = {
   saviezVous: 'blue',
@@ -952,6 +953,7 @@ export const CARD_COLORS: Record<CardKey, CardColorName> = {
   f1: 'rose',
   citation: 'amber',
   insolite: 'purple',
+  apod: 'indigo',
 }
 
 export function getTheme(color: CardColorName): CardTheme {

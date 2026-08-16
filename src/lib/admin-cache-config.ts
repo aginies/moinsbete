@@ -16,4 +16,5 @@ export const CACHE_SOURCES: CacheSourceConfig[] = [
   { key: 'portailWiki', model: 'CachedWikipediaPortalArticle', statsArticles: 'portailWikipediaArticles', statsExpired: 'portailWikipediaExpired', statsScrapedAt: 'portailWikipediaScrapedAt' },
   { key: 'citation', model: 'CachedCitationArticle', statsArticles: 'citationArticles', statsExpired: 'citationExpired', statsScrapedAt: 'citationScrapedAt' },
   { key: 'insolite', model: 'CachedInsoliteArticle', statsArticles: 'insoliteArticles', statsExpired: 'insoliteExpired', statsScrapedAt: 'insoliteScrapedAt' },
+  { key: 'apod', model: 'CachedApodImage', statsArticles: 'apodImages', statsExpired: 'apodExpired', statsScrapedAt: 'apodScrapedAt' },
 ]

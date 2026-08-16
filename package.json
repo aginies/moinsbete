@@ -21,6 +21,7 @@
     "cache:cleanup": "tsx src/scripts/cleanup-cached.ts",
     "cache:news": "tsx src/scripts/cache-news.ts",
     "cache:insolite": "tsx src/scripts/cache-insolite.ts",
+    "cache:apod": "tsx src/scripts/cache-apod.ts",
     "cache:insolite:enrich": "tsx src/scripts/cache-insolite.ts insolite --enrich",
     "cache:portail-lexical": "tsx src/scripts/cache-portail-lexical.ts",
     "cache:all": "tsx src/scripts/cache-cnrs.ts && tsx src/scripts/cache-radio-france.ts && tsx src/scripts/cache-wikipedia-image.ts && tsx src/scripts/cache-news.ts && tsx src/scripts/cleanup-cached.ts",

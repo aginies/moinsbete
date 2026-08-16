@@ -12,13 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers, Trophy, BarChart3, Map, Sparkles } from 'lucide-react'
+import { RefreshCw, Files, Database, Users, Eye, Bookmark, BookOpen, Radio, Image, ImagePlus, Newspaper, Podcast, CheckCircle2, Clock, Trash2, UserCheck, UserX, Quote, Globe, Layers, Trophy, BarChart3, Map, Sparkles, Telescope } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { clearAllNewsAction, clearFreenewsapiAction } from '@/actions/cleanup-actions'
-import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshPortailWikipedia, refreshInsolite, refreshAll } from '@/actions/cache-refresh-actions'
+import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshPortailWikipedia, refreshInsolite, refreshApod, refreshAll } from '@/actions/cache-refresh-actions'
 import { CACHE_SOURCES } from '@/lib/admin-cache-config'
 
 const EXPIRED_ICONS: Record<string, React.ReactNode> = {
@@ -31,6 +31,7 @@ const EXPIRED_ICONS: Record<string, React.ReactNode> = {
   portailWiki: <Globe className="h-4 w-4 text-muted-foreground" />,
   citation: <Quote className="h-4 w-4 text-muted-foreground" />,
   insolite: <Sparkles className="h-4 w-4 text-muted-foreground" />,
+  apod: <Telescope className="h-4 w-4 text-muted-foreground" />,
 }
 
 const EXPIRED_LABELS: Record<string, string> = {
@@ -43,6 +44,7 @@ const EXPIRED_LABELS: Record<string, string> = {
   portailWiki: 'feed.portail_wikipedia_expired',
   citation: 'feed.citation_expired',
   insolite: 'feed.insolite_expired',
+  apod: 'feed.apod_expired',
 }
 import type { RefreshResult } from '@/actions/cache-refresh-actions'
 import { toggleUserEnabled, deleteUser } from '@/actions/user-actions'
@@ -90,6 +92,9 @@ export interface AdminStats {
    insoliteExpired: number
    insoliteScrapedAt: string | null
    insoliteConfigCount: number
+   apodImages: number
+   apodExpired: number
+   apodScrapedAt: string | null
 }
 
 export interface AdminUser {
@@ -291,6 +296,12 @@ export function AdminContent({ stats, users }: AdminContentProps) {
                 icon={<Sparkles className="h-5 w-5" />}
                 label={t('feed.insolite_seen_today')}
                 value={stats.insoliteConfigCount}
+              />
+              <StatCard
+                icon={<Telescope className="h-5 w-5" />}
+                label={t('feed.apod_articles')}
+                value={stats.apodImages}
+                sublabel={stats.apodExpired > 0 ? `${stats.apodExpired} ${t('feed.expired')}` : undefined}
               />
             </div>
         </TabsContent>
@@ -667,6 +678,7 @@ const cardConfigs: Array<{ key: string; labelKey: string; icon: React.ReactNode 
   { key: 'f1', labelKey: 'feed.f1_tab', icon: <Trophy className="h-4 w-4" /> },
   { key: 'citation', labelKey: 'feed.citation_tab', icon: <Quote className="h-4 w-4" /> },
   { key: 'insolite', labelKey: 'feed.insolite_tab', icon: <Sparkles className="h-4 w-4" /> },
+  { key: 'apod', labelKey: 'feed.apod_tab', icon: <Telescope className="h-4 w-4" /> },
 ]
 
 function CartesTab() {
@@ -838,6 +850,14 @@ function CacheTab({ stats }: { stats: AdminStats }) {
       count: stats.insoliteArticles,
       scrapedAt: stats.insoliteScrapedAt,
       refreshFn: refreshInsolite,
+    },
+    {
+      key: 'apod',
+      labelKey: adminT('cache_apod'),
+      icon: <Telescope className="h-4 w-4" />,
+      count: stats.apodImages,
+      scrapedAt: stats.apodScrapedAt,
+      refreshFn: refreshApod,
     },
   ]
 

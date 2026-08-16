@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Quote, Trash2, Trophy, Globe, Download, Sparkles } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Quote, Trash2, Trophy, Globe, Download, Sparkles, Telescope } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import Link from 'next/link'
@@ -29,6 +29,7 @@ import { NewsFavorites } from './news-favorites'
 import { F1Favorites } from './f1-favorites'
 import { CitationBookmarks } from './citation-bookmarks'
 import { InsoliteBookmarks } from '@/components/feed/insolite-bookmarks'
+import { ApodBookmarks } from '@/components/feed/apod-bookmarks'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 import { SearchResults } from '@/components/lobby/search-results'
@@ -44,7 +45,7 @@ interface FavorisPageClientProps {
   counts: Record<string, number>
 }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'portail-wikipedia' | 'proverbe' | 'news' | 'f1' | 'citation' | 'insolite' | 'results'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'portail-wikipedia' | 'proverbe' | 'news' | 'f1' | 'citation' | 'insolite' | 'apod' | 'results'
 
 interface SourceTabConfig {
   id: Tab
@@ -85,6 +86,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const [sharedWikiLovesIds, setSharedWikiLovesIds] = useSharedResources('IMAGE_WIKILOVES', userId)
   const [sharedWikimediaIds, setSharedWikimediaIds] = useSharedResources('IMAGE_WIKIMEDIA', userId)
   const [sharedProverbeIds, setSharedProverbeIds] = useSharedResources('PROVERBE', userId)
+  const [sharedApodIds, setSharedApodIds] = useSharedResources('APOD', userId)
 
   // Derived count for ideas
   const originalIdsOnPage = useMemo(() => new Set(ideas.map(i => i.id)), [ideas])
@@ -113,6 +115,9 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const { toggle: handleProverbeShare, isSharing: proverbeIsSharing } =
     useShareToLobby<{ id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }>('PROVERBE', sharedProverbeIds, setSharedProverbeIds, (item) => item.id,
       (item) => ({ text: item.text, signification: item.signification, source: item.source, wiktionnaireUrl: item.wiktionnaireUrl, etymologie: item.etymologie, definitions: item.definitions }))
+  const { toggle: handleApodShare, isSharing: apodIsSharing } =
+    useShareToLobby<{ id: string; titre: string; auteur: string; imageUrl: string; link: string; droits: string; description: string }>('APOD', sharedApodIds, setSharedApodIds, (item) => item.id,
+      (item) => ({ titre: item.titre, auteur: item.auteur, imageUrl: item.imageUrl, link: item.link, droits: item.droits, description: item.description }))
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas
@@ -139,12 +144,13 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       { id: 'f1', countKey: 'f1', label: 'F1', Icon: Trophy, sourceDesc: 'favoris F1', component: <F1Favorites userId={userId} onRemoveComplete={() => handleRemove('f1')} searchQuery={searchQuery} /> },
       { id: 'citation', countKey: 'citation', label: 'Citations', Icon: Quote, sourceDesc: 'citations favorites', component: <CitationBookmarks userId={userId} onRemoveComplete={() => handleRemove('citation')} searchQuery={searchQuery} /> },
       { id: 'insolite', countKey: 'insolite', label: 'Insolite', Icon: Sparkles, sourceDesc: 'articles insolites', component: <InsoliteBookmarks userId={userId} onRemoveComplete={() => handleRemove('insolite')} searchQuery={searchQuery} /> },
+      { id: 'apod', countKey: 'apod', label: 'APOD', Icon: Telescope, sourceDesc: 'images APOD', component: <ApodBookmarks userId={userId} onRemoveComplete={() => handleRemove('apod')} sharedIds={sharedApodIds} onShareToggle={handleApodShare} isSharing={apodIsSharing} searchQuery={searchQuery} /> },
     ]
     if (derivedIdeasCount > 0) {
       base.unshift({ id: 'idees', countKey: 'idees', label: 'Idées', Icon: Lightbulb, sourceDesc: 'idées favorites', component: <div /> })
     }
     return base
-  }, [userId, derivedIdeasCount, c, handleRemove, sharedSaviezIds, sharedImageIds, sharedWikiLovesIds, sharedWikimediaIds, sharedProverbeIds, searchQuery, imageIsSharing, saviezIsSharing, wikiLovesIsSharing, wikimediaIsSharing, proverbeIsSharing])
+  }, [userId, derivedIdeasCount, c, handleRemove, sharedSaviezIds, sharedImageIds, sharedWikiLovesIds, sharedWikimediaIds, sharedProverbeIds, sharedApodIds, searchQuery, imageIsSharing, saviezIsSharing, wikiLovesIsSharing, wikimediaIsSharing, proverbeIsSharing, apodIsSharing])
 
   const sortedTabs = useMemo(() => {
     const lexical = tabConfig.find(t => t.id === 'portail-lexical')

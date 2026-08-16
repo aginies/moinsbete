@@ -5,7 +5,7 @@ export { ALLOWED_CRON_IPS, isAllowedIp }
 
 export async function cleanupExpired() {
   const now = new Date()
-  const [cnrs, radio, wiki, wikiLoves, news, f1, portailWikipedia, citation, insolite] = await Promise.all([
+  const [cnrs, radio, wiki, wikiLoves, news, f1, portailWikipedia, citation, insolite, apod] = await Promise.all([
     prisma.cachedCnrsArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedRadioEpisode.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedWikipediaImage.deleteMany({ where: { expiresAt: { lt: now } } }),
@@ -15,9 +15,10 @@ export async function cleanupExpired() {
     prisma.cachedWikipediaPortalArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedCitationArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.cachedInsoliteArticle.deleteMany({ where: { expiresAt: { lt: now } } }),
+    prisma.cachedApodImage.deleteMany({ where: { expiresAt: { lt: now } } }),
   ])
 
-  return { cnrs: cnrs.count, radio: radio.count, wiki: wiki.count, wikiLoves: wikiLoves.count, news: news.count, f1: f1.count, portailWikipedia: portailWikipedia.count, citation: citation.count, insolite: insolite.count }
+  return { cnrs: cnrs.count, radio: radio.count, wiki: wiki.count, wikiLoves: wikiLoves.count, news: news.count, f1: f1.count, portailWikipedia: portailWikipedia.count, citation: citation.count, insolite: insolite.count, apod: apod.count }
 }
 
 export async function upsertWikipediaImages(images: Array<{ imageUrl: string; description: string; fileUrl: string; date: string; archive: string; language?: string }>) {

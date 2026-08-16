@@ -274,6 +274,10 @@
     "insolite_desc": "Articles les plus surprenants et insolites de Wikipédia",
     "insolite_no_more_unseen": "Tous les articles insolites ont été vus aujourd'hui.",
     "insolite_seen_today": "Vus aujourd'hui",
+    "apod_tab": "Espace",
+    "apod_articles": "Images APOD",
+    "apod_expired": "Expirés",
+    "apod_desc": "L'image astronomique du jour par la NASA",
     "reload_page": "Recharger la page pour un nouvel article",
     "filter_categories": "Filtrer",
     "citation_articles": "Citations en cache",
@@ -677,7 +681,8 @@
       "proverbe_tab": "Proverbe",
       "saviez_vous_tab": "Saviez-vous ?",
       "news_tab": "NEWS",
-      "f1_tab": "Formule 1"
+      "f1_tab": "Formule 1",
+      "apod_tab": "Espace"
     },
     "cache_title": "Cache",
     "cache_desc": "Actualiser le cache des sources de contenu",
@@ -690,6 +695,7 @@
     "cache_saviezvous": "Saviez-vous",
     "cache_portail_wikipedia": "Portail Wikipédia",
     "cache_insolite": "Articles insolites",
+    "cache_apod": "APOD (NASA)",
     "last_updated": "Mis à jour",
     "never_updated": "Jamais mis à jour"
   },

@@ -20,6 +20,7 @@ import { proverbeManager } from '@/lib/proverbe-bookmark'
 import { f1Manager } from '@/lib/f1-bookmark'
 import { citationManager } from '@/lib/citation-bookmark'
 import { insoliteManager } from '@/lib/insolite-bookmark'
+import { apodManager } from '@/lib/apod-bookmark'
 
 export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
   const session = await getServerSession(authOptions)
@@ -161,6 +162,7 @@ const proverbeActions = createBookmarkManagerActions(proverbeManager)
 const f1Actions = createBookmarkManagerActions(f1Manager)
 const citationActions = createBookmarkManagerActions(citationManager)
 const insoliteActions = createBookmarkManagerActions(insoliteManager)
+const apodActions = createBookmarkManagerActions(apodManager)
 
 // Radio France
 export const toggleRadioFavoriteAction = radioActions.toggle
@@ -235,3 +237,8 @@ export const isCitationFavoriteBatchAction = citationActions.isBookmarkedBatch
 export const toggleInsoliteFavoriteAction = insoliteActions.toggle
 export const getInsoliteFavoritesAction = insoliteActions.getFavorites
 export const isInsoliteFavoriteAction = insoliteActions.isBookmarked
+
+// APOD
+export const toggleApodFavoriteAction = apodActions.toggle
+export const getApodFavoritesAction = apodActions.getFavorites
+export const isApodFavoriteAction = apodActions.isBookmarked

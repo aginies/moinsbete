@@ -13,7 +13,7 @@ import { CardVisibilityGuard } from './card-visibility-guard'
 import { CardShell } from './card-shell'
 import { ImageLoading } from './image-loading'
 import { isValidUrl } from '@/lib/utils'
-import { toggleWikimediaFavoriteAction, toggleWikiLovesFavoriteAction, isWikimediaFavoriteAction, isWikiLovesFavoriteAction } from '@/actions/bookmark-actions'
+import { toggleWikimediaFavoriteAction, toggleWikiLovesFavoriteAction, toggleApodFavoriteAction, isWikimediaFavoriteAction, isWikiLovesFavoriteAction, isApodFavoriteAction } from '@/actions/bookmark-actions'
 import { useSimpleBookmarkToggle } from '@/hooks/use-simple-bookmark-toggle'
 import { useIsLoggedIn } from '@/hooks/use-is-logged-in'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
@@ -36,13 +36,14 @@ interface BaseImage {
 interface BaseImageCardConfig<TTopic> {
   resourceType: string
   resourceId?: string
-  fetchFn: (topicIds: string | undefined) => Promise<BaseImage | null>
+  fetchFn: (topicIds: string | undefined, direction?: 'prev' | 'next') => Promise<BaseImage | null>
   defaultTopics: TTopic[]
   icon: React.ReactNode
   title: string
   color: CardColorName
   linkHref?: string
   enableAutoRefresh?: boolean
+  enablePrefetch?: boolean
   storageKey?: string
   visibilityStorageKey: string
   categoriesVisibilityStorageKey: string
@@ -54,8 +55,9 @@ interface BaseImageCardConfig<TTopic> {
   visibilityLabel: string
   shareTextAuthor: string
   shareTextRights: string
-  settingsButtonTitle: string
-  onSettingsClick: () => void
+  settingsButtonTitle?: string
+  onSettingsClick?: () => void
+  showRefresh?: boolean
   shape?: CardShape
   borderStyle?: CardBorderStyle
   shadow?: CardShadow
@@ -70,7 +72,7 @@ interface BaseImageCardProps<TTopic> {
   onToggleTopic: (topicId: string) => Promise<void>
   onTopicsChange?: () => Promise<void>
   onImageLoaded: () => void
-  onToggleCategories: () => void
+  onToggleCategories?: () => void
   renderTopics: () => React.ReactNode
   renderImage: (image: BaseImage) => React.ReactNode
   renderMetadata: (image: BaseImage) => React.ReactNode
@@ -110,6 +112,7 @@ export function BaseImageCard<TTopic>({
     color,
     linkHref,
     enableAutoRefresh = false,
+    enablePrefetch = true,
     storageKey,
     visibilityStorageKey,
     loadingProps,
@@ -121,6 +124,7 @@ export function BaseImageCard<TTopic>({
     shareTextRights,
     settingsButtonTitle,
     onSettingsClick,
+    showRefresh = true,
     shape,
     borderStyle,
     shadow,
@@ -145,15 +149,16 @@ export function BaseImageCard<TTopic>({
   const [isFavorite, setIsFavorite] = useState(false)
   const checkedImageIdsRef = useRef<Set<string>>(new Set())
 
-  const prefetchNextImage = useCallback(async () => {
+  const prefetchNextImage = useCallback(async (direction?: 'prev' | 'next') => {
+    if (enablePrefetch === false) return
     const activeTopicIds = topics.filter((t: any) => t.active).map((t: any) => t.id)
-    const data = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined)
+    const data = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined, direction)
     if (data) {
       setNextImage(data)
     }
-  }, [fetchFn, topics])
+  }, [fetchFn, topics, enablePrefetch])
 
-  const loadImage = useCallback(async () => {
+  const loadImage = useCallback(async (direction?: 'prev' | 'next') => {
     if (nextImage) {
       setImage(nextImage)
       setNextImage(null)
@@ -169,7 +174,7 @@ export function BaseImageCard<TTopic>({
     setError(false)
     setIsImageLoaded(false)
     const activeTopicIds = topics.filter((t: any) => t.active).map((t: any) => t.id)
-    const newImage = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined)
+    const newImage = await fetchFn(activeTopicIds.length > 0 ? activeTopicIds.join(',') : undefined, direction)
     if (newImage) {
       setImage(newImage)
       setIsImageLoaded(true)
@@ -198,7 +203,7 @@ export function BaseImageCard<TTopic>({
   useEffect(() => {
     if (image && !checkedImageIdsRef.current.has(image.docid)) {
       checkedImageIdsRef.current.add(image.docid)
-      const checkFn = resourceType === 'IMAGE_WIKIMEDIA' ? isWikimediaFavoriteAction : isWikiLovesFavoriteAction
+      const checkFn = resourceType === 'IMAGE_WIKIMEDIA' ? isWikimediaFavoriteAction : resourceType === 'APOD' ? isApodFavoriteAction : isWikiLovesFavoriteAction
       checkFn(image.docid).then(result => {
         setIsFavorite(result.isBookmarked)
       }).catch(() => {})
@@ -210,13 +215,14 @@ export function BaseImageCard<TTopic>({
     initialFavorite: isFavorite,
     onFavoriteChange: setIsFavorite,
     toggleFn: async (action) => {
-      const toggleFn = resourceType === 'IMAGE_WIKIMEDIA' ? toggleWikimediaFavoriteAction : toggleWikiLovesFavoriteAction
+      const toggleFn = resourceType === 'IMAGE_WIKIMEDIA' ? toggleWikimediaFavoriteAction : resourceType === 'APOD' ? toggleApodFavoriteAction : toggleWikiLovesFavoriteAction
       await toggleFn(image!.docid, action, {
         titre: image!.titre,
         auteur: image!.auteur,
         imageUrl: image!.imageUrl,
         link: image!.link,
         droits: image!.droits,
+        description: image!.description,
       })
     },
   })
@@ -239,10 +245,10 @@ export function BaseImageCard<TTopic>({
     prevHintOpacity,
     nextHintOpacity,
   } = useSwipeGesture({
-    onSwipeLeft: loadImage,
-    onSwipeRight: loadImage,
-    onDragStart: prefetchNextImage,
-    onRefresh: loadImage,
+    onSwipeLeft: () => loadImage('next'),
+    onSwipeRight: () => loadImage('prev'),
+    onDragStart: () => prefetchNextImage(),
+    onRefresh: () => loadImage(),
     swipeable,
     resetDep: image?.imageUrl,
   })
@@ -291,6 +297,7 @@ export function BaseImageCard<TTopic>({
                 <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}
+            {showRefresh && (
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); loadImage() }}
@@ -299,7 +306,8 @@ export function BaseImageCard<TTopic>({
                 aria-label={t('refresh_content')}
               >
                 <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
-            </button>
+              </button>
+            )}
             {image && (
                  isLoggedIn && (
                  <button
@@ -354,7 +362,7 @@ export function BaseImageCard<TTopic>({
 
       {image && renderMetadata(image)}
 
-      {image && (
+      {image && (onSettingsClick || onToggleCategories) && (
         <div className="flex items-center justify-end gap-2 mt-3">
           {onSettingsClick && (
             <button
