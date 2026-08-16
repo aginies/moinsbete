@@ -29,6 +29,7 @@
 *.db-journal
 *.db-shm
 *.db-wal
+*.db.bak.*
 
 # debug
 npm-debug.log*
