@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS, generateImageId, sanitizeMessage, parseHTML, escapeHtml, isValidUrl, sanitizeUrl, shuffle } from '@/lib/utils'
+import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS, generateImageId, sanitizeMessage, parseHTML, escapeHtml, isValidUrl, sanitizeUrl, shuffle, apodPageUrl } from '@/lib/utils'
 
 describe('slugify', () => {
   it('converts to lowercase', () => {
@@ -285,6 +285,36 @@ describe('sanitizeUrl', () => {
 
   it('returns fallback for null', () => {
     expect(sanitizeUrl(null)).toBe('/')
+  })
+})
+
+describe('apodPageUrl', () => {
+  it('builds static apYYMMDD.html URL for modern dates', () => {
+    expect(apodPageUrl('2026-08-14')).toBe('https://apod.nasa.gov/apod/ap260814.html')
+  })
+
+  it('builds static URL for 2000s dates', () => {
+    expect(apodPageUrl('2020-01-01')).toBe('https://apod.nasa.gov/apod/ap200101.html')
+  })
+
+  it('builds static URL for 1996 dates', () => {
+    expect(apodPageUrl('1996-01-01')).toBe('https://apod.nasa.gov/apod/ap960101.html')
+  })
+
+  it('falls back to archive page for dates before 1995-06-20', () => {
+    expect(apodPageUrl('1995-06-12')).toBe('https://apod.nasa.gov/apod/archivepix.html')
+    expect(apodPageUrl('1995-06-19')).toBe('https://apod.nasa.gov/apod/archivepix.html')
+  })
+
+  it('uses static URL from 1995-06-20 onward', () => {
+    expect(apodPageUrl('1995-06-20')).toBe('https://apod.nasa.gov/apod/ap950620.html')
+  })
+
+  it('returns empty string for invalid dates', () => {
+    expect(apodPageUrl('')).toBe('')
+    expect(apodPageUrl('2026-13-45')).toBe('')
+    expect(apodPageUrl('not-a-date')).toBe('')
+    expect(apodPageUrl('2026/08/14')).toBe('')
   })
 })
 

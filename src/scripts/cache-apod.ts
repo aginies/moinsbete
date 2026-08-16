@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { sleep } from '@/lib/cache-helpers'
+import { apodPageUrl } from '@/lib/utils'
 import { runCacheScript } from './cache-script-helper'
 
 const NASA_API_KEY = process.env.NASA_API_KEY || 'DEMO_KEY'
@@ -67,7 +68,7 @@ async function upsertApod(data: ApodApiResponse): Promise<boolean> {
       imageUrl: data.url,
       hdImageUrl: data.hdurl || null,
       copyright: data.copyright || null,
-      apodUrl: `https://apod.nasa.gov/apod/astropix.html?date=${data.date}`,
+      apodUrl: apodPageUrl(data.date),
       scrapedAt: now,
       expiresAt,
     },
@@ -78,7 +79,7 @@ async function upsertApod(data: ApodApiResponse): Promise<boolean> {
       imageUrl: data.url,
       hdImageUrl: data.hdurl || null,
       copyright: data.copyright || null,
-      apodUrl: `https://apod.nasa.gov/apod/astropix.html?date=${data.date}`,
+      apodUrl: apodPageUrl(data.date),
       scrapedAt: now,
       expiresAt,
     },

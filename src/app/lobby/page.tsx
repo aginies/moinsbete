@@ -6,6 +6,7 @@ import { cookies } from 'next/headers'
 import type { JsonValue } from '@prisma/client/runtime/library'
 import type { Idea, SharedLobbyBookmark, SaviezVousFact, CachedWikipediaImage, CachedWikiLovesImage, CachedNewsArticle, CachedCitationArticle } from '@/generated/client'
 import { redirect } from 'next/navigation'
+import { apodPageUrl } from '@/lib/utils'
 
 interface SharedBookmarkRaw extends SharedLobbyBookmark {
   meta: JsonValue | null
@@ -488,9 +489,12 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
               imageUrl: (m.imageUrl || '') as string,
               hdImageUrl: null,
               copyright: (m.auteur || null) as string | null,
-              apodUrl: (m.link || `https://apod.nasa.gov/apod/astropix.html?date=${bookmark.resourceId}`) as string,
+              apodUrl: apodPageUrl(bookmark.resourceId) || (m.link as string) || '',
             }
           }
+        }
+        if (image) {
+          image = { ...image, apodUrl: apodPageUrl(image.date) || image.apodUrl }
         }
         return { ...bookmark, apodImage: image ?? null }
       }

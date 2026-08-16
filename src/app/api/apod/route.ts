@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
-import { sanitizeUrl } from '@/lib/utils'
+import { sanitizeUrl, apodPageUrl } from '@/lib/utils'
 import { getCachedPool } from '@/lib/feed-pool-cache'
 import type { CachedApodImage } from '@/generated/client'
 
@@ -61,7 +61,7 @@ async function upsertApod(data: ApodApiResponse): Promise<void> {
       imageUrl: data.url,
       hdImageUrl: data.hdurl || null,
       copyright: data.copyright || null,
-      apodUrl: `https://apod.nasa.gov/apod/astropix.html?date=${data.date}`,
+      apodUrl: apodPageUrl(data.date),
       scrapedAt: now,
       expiresAt,
     },
@@ -72,7 +72,7 @@ async function upsertApod(data: ApodApiResponse): Promise<void> {
       imageUrl: data.url,
       hdImageUrl: data.hdurl || null,
       copyright: data.copyright || null,
-      apodUrl: `https://apod.nasa.gov/apod/astropix.html?date=${data.date}`,
+      apodUrl: apodPageUrl(data.date),
       scrapedAt: now,
       expiresAt,
     },
@@ -86,7 +86,6 @@ function toResponse(entry: {
   imageUrl: string
   hdImageUrl: string | null
   copyright: string | null
-  apodUrl: string
 }) {
   return NextResponse.json({
     docid: entry.date,
@@ -97,7 +96,7 @@ function toResponse(entry: {
     thumbnailUrl: sanitizeUrl(entry.imageUrl, ''),
     description: entry.explanation,
     droits: 'NASA / APOD',
-    link: sanitizeUrl(entry.apodUrl, ''),
+    link: sanitizeUrl(apodPageUrl(entry.date), ''),
     date: entry.date,
   })
 }
@@ -137,7 +136,6 @@ export async function GET(request: NextRequest) {
           imageUrl: live.url,
           hdImageUrl: live.hdurl || null,
           copyright: live.copyright || null,
-          apodUrl: `https://apod.nasa.gov/apod/astropix.html?date=${live.date}`,
         })
       }
 
@@ -169,7 +167,6 @@ export async function GET(request: NextRequest) {
           imageUrl: live.url,
           hdImageUrl: live.hdurl || null,
           copyright: live.copyright || null,
-          apodUrl: `https://apod.nasa.gov/apod/astropix.html?date=${live.date}`,
         })
       }
     }

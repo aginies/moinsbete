@@ -1,5 +1,6 @@
 import type { BookmarkType } from '@/generated/client'
 import { createBookmarkManager } from '@/lib/bookmark-manager'
+import { apodPageUrl } from '@/lib/utils'
 
 export interface ApodFavoriteDoc {
   id: string
@@ -32,7 +33,7 @@ export const apodManager = createBookmarkManager(APOD_TYPE, (meta, resourceId) =
     titre: m.titre || '',
     auteur: m.auteur || '',
     imageUrl: m.imageUrl || '',
-    link: m.link || '',
+    link: apodPageUrl(resourceId) || m.link || '',
     droits: m.droits || '',
     description: m.description || '',
     date: resourceId,

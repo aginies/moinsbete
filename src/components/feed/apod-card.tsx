@@ -164,7 +164,7 @@ function ApodCardInner({
           <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-2">
             {img.droits || 'NASA / APOD'}
           </p>
-          {showLink && (
+          {img.link && (
             <Link
               href={sanitizeUrl(img.link)}
               target="_blank"

@@ -103,6 +103,18 @@ export function sanitizeUrl(url: string | null | undefined, fallback: string = '
   return fallback
 }
 
+const APOD_ARCHIVE_PAGE = 'https://apod.nasa.gov/apod/archivepix.html'
+// Static apYYMMDD.html files exist on apod.nasa.gov from 1995-06-20 onward
+const APOD_STATIC_FIRST_DATE = '1995-06-20'
+
+export function apodPageUrl(date: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return ''
+  const d = new Date(`${date}T00:00:00Z`)
+  if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== date) return ''
+  if (date < APOD_STATIC_FIRST_DATE) return APOD_ARCHIVE_PAGE
+  return `https://apod.nasa.gov/apod/ap${date.slice(2).replaceAll('-', '')}.html`
+}
+
 export function isValidEmail(email: string | null | undefined): boolean {
   if (typeof email !== 'string' || !email) return false
   const trimmed = email.trim()
