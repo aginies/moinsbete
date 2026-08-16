@@ -52,6 +52,15 @@ export function getRandomColor(): string {
   return TOPIC_COLORS[Math.floor(Math.random() * TOPIC_COLORS.length)]
 }
 
+export function shuffle<T>(items: readonly T[]): T[] {
+  const result = [...items]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
 const MAX_URL_LENGTH = 2048
 
 export function isValidUrl(url: string | null | undefined): boolean {

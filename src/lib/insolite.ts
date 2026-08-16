@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { shuffle } from '@/lib/utils'
 
 export interface InsoliteArticle {
   id: string
@@ -20,7 +21,7 @@ export async function getRandomInsoliteArticles(count: number = 20): Promise<Ins
   if (validArticles.length === 0) return []
 
   const result: InsoliteArticle[] = []
-  const shuffled = [...validArticles].sort(() => Math.random() - 0.5)
+  const shuffled = shuffle(validArticles)
   const takeCount = Math.min(count, shuffled.length)
 
   for (let i = 0; i < takeCount; i++) {

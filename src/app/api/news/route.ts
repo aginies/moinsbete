@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limiter'
 import { getClientIp } from '@/lib/ip'
 import { RATE_LIMIT_ERROR_MESSAGE, NEWS_DISPLAY_LIMIT } from '@/lib/constants'
+import { shuffle } from '@/lib/utils'
 import { getCachedPool } from '@/lib/feed-pool-cache'
 import type { CachedNewsArticle } from '@/generated/client'
 
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest) {
   const categoriesParam = searchParams.get('categories') || null
   const excludeUrl = searchParams.get('exclude') || null
   const cursor = searchParams.get('cursor') || null
-  const limit = parseInt(searchParams.get('limit') || '10', 10)
+  const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '10', 10) || 10, 1), 50)
   const query = searchParams.get('q') || null
 
   const categories = categoriesParam ? categoriesParam.split(',').filter(Boolean) : []
@@ -125,7 +126,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ articles: [], hasMore: false })
     }
 
-    const shuffled = [...articles].sort(() => Math.random() - 0.5)
+    const shuffled = shuffle(articles)
     articles = shuffled.slice(0, Math.min(limit, NEWS_DISPLAY_LIMIT))
   }
 

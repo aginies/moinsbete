@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS, generateImageId, sanitizeMessage, parseHTML, escapeHtml, isValidUrl, sanitizeUrl } from '@/lib/utils'
+import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS, generateImageId, sanitizeMessage, parseHTML, escapeHtml, isValidUrl, sanitizeUrl, shuffle } from '@/lib/utils'
 
 describe('slugify', () => {
   it('converts to lowercase', () => {
@@ -285,5 +285,29 @@ describe('sanitizeUrl', () => {
 
   it('returns fallback for null', () => {
     expect(sanitizeUrl(null)).toBe('/')
+  })
+})
+
+describe('shuffle', () => {
+  it('returns a new array with the same elements', () => {
+    const input = [1, 2, 3, 4, 5]
+    const result = shuffle(input)
+    expect(result).not.toBe(input)
+    expect([...result].sort((a, b) => a - b)).toEqual(input)
+    expect(input).toEqual([1, 2, 3, 4, 5])
+  })
+
+  it('handles empty array', () => {
+    expect(shuffle([])).toEqual([])
+  })
+
+  it('handles single element', () => {
+    expect(shuffle([42])).toEqual([42])
+  })
+
+  it('actually shuffles (not identity for long input)', () => {
+    const input = Array.from({ length: 100 }, (_, i) => i)
+    const result = shuffle(input)
+    expect(result).not.toEqual(input)
   })
 })

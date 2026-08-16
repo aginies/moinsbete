@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { prisma } from '../lib/db'
-import { slugify, getRandomIcon, getRandomColor } from '../lib/utils'
+import { slugify, getRandomIcon, getRandomColor, shuffle } from '../lib/utils'
 import { suggestTopic, distillIdeas } from '../lib/llm'
 import type { Prisma } from '@/generated/client'
 
@@ -644,7 +644,7 @@ async function createCollections() {
       continue
     }
 
-    const shuffled = [...allIdeas].sort(() => Math.random() - 0.5)
+    const shuffled = shuffle(allIdeas)
     const ideaIds = shuffled.slice(0, 10).map(i => i.id)
 
     await prisma.collection.create({

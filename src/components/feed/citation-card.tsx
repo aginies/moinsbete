@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Quote, Bookmark, Sparkles, BookOpen, User, EyeOff, Filter } from 'lucide-react'
 import Link from 'next/link'
-import { sanitizeUrl } from '@/lib/utils'
+import { sanitizeUrl, shuffle } from '@/lib/utils'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { CardVisibilityGuard } from './card-visibility-guard'
 import { CardShell } from './card-shell'
@@ -317,7 +317,7 @@ export const CitationCard = React.memo(function CitationCardInner({
   const pickFew = (items: CitationItem[]) => {
     if (items.length === 0) return []
     const count = items.length <= 2 ? items.length : (Math.random() < 0.5 ? 1 : 2)
-    return items.toSorted(() => Math.random() - 0.5).slice(0, count)
+    return shuffle(items).slice(0, count)
   }
 
   const themesKey = filteredThemes.map(c => c.id).join(',')

@@ -6,6 +6,16 @@ import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 import { getCachedPool } from '@/lib/feed-pool-cache'
 import type { CachedCnrsArticle } from '@/generated/client'
 
+function fallbackResponse() {
+  return NextResponse.json({
+    title: 'Actualité CNRS',
+    imageUrl: '',
+    link: 'https://www.cnrs.fr/fr/newsroom',
+    category: 'Sciences',
+    date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+  })
+}
+
 export async function GET(request: NextRequest) {
   const clientId = getClientIp(request)
   if (!(await checkRateLimit(`cnrs:${clientId}`, 30, 60_000))) {
@@ -34,21 +44,9 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({
-      title: 'Actualité CNRS',
-      imageUrl: '',
-      link: 'https://www.cnrs.fr/fr/newsroom',
-      category: 'Sciences',
-      date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
-    })
+    return fallbackResponse()
   } catch (error) {
     console.error('CNRS error:', error)
-    return NextResponse.json({
-      title: 'Actualité CNRS',
-      imageUrl: '',
-      link: 'https://www.cnrs.fr/fr/newsroom',
-      category: 'Sciences',
-      date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
-    })
+    return fallbackResponse()
   }
 }

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { sleep } from '@/lib/cache-helpers'
+import { shuffle } from '@/lib/utils'
 import { runCacheScript } from './cache-script-helper'
 
 const WIKIQUOTE_API = 'https://fr.wikiquote.org/w/api.php'
@@ -265,13 +266,13 @@ export async function scrapeAndCacheCitation(): Promise<void> {
     cmtitle: 'Catégorie:Thème',
     cmlimit: '500',
   })
-  const themeCats = (themeData?.query?.categorymembers || [])
+  const themeCats: string[] = (themeData?.query?.categorymembers || [])
     .filter((m: any) => m.ns === 14)
     .map((m: any) => m.title.replace('Catégorie:', ''))
 
   // Collect random pages from all theme categories
   const themePageMap = new Map<string, string[]>()
-  const shuffledThemes = themeCats.sort(() => Math.random() - 0.5).slice(0, 100)
+  const shuffledThemes = shuffle(themeCats).slice(0, 100)
   for (const cat of shuffledThemes) {
     const pages = await fetchRandomCategoryPages(cat, 3)
     if (pages.length > 0) {
@@ -303,13 +304,13 @@ export async function scrapeAndCacheCitation(): Promise<void> {
     cmtitle: 'Catégorie:Personnalité par métier',
     cmlimit: '500',
   })
-  const authorCats = (authorData?.query?.categorymembers || [])
+  const authorCats: string[] = (authorData?.query?.categorymembers || [])
     .filter((m: any) => m.ns === 14)
     .map((m: any) => m.title.replace('Catégorie:', ''))
 
   // Collect random pages from all author categories
   const authorPageMap = new Map<string, string[]>()
-  const shuffledAuthors = authorCats.sort(() => Math.random() - 0.5).slice(0, 100)
+  const shuffledAuthors = shuffle(authorCats).slice(0, 100)
   for (const cat of shuffledAuthors) {
     const pages = await fetchRandomCategoryPages(cat, 3)
     if (pages.length > 0) {

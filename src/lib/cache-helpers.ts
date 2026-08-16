@@ -20,28 +20,6 @@ export async function cleanupExpired() {
   return { cnrs: cnrs.count, radio: radio.count, wiki: wiki.count, wikiLoves: wikiLoves.count, news: news.count, f1: f1.count, portailWikipedia: portailWikipedia.count, citation: citation.count, insolite: insolite.count }
 }
 
-export async function getValidCachedCnrsArticles() {
-  return prisma.cachedCnrsArticle.findMany({
-    where: { expiresAt: { gte: new Date() } },
-    orderBy: { scrapedAt: 'desc' },
-  })
-}
-
-export async function getValidCachedRadioEpisodes() {
-  return prisma.cachedRadioEpisode.findMany({
-    where: { expiresAt: { gte: new Date() } },
-    orderBy: { scrapedAt: 'desc' },
-  })
-}
-
-export async function getValidCachedWikipediaImages() {
-  return prisma.cachedWikipediaImage.findMany({
-    where: { expiresAt: { gte: new Date() } },
-    orderBy: { scrapedAt: 'desc' },
-  })
-}
-
-
 export async function upsertWikipediaImages(images: Array<{ imageUrl: string; description: string; fileUrl: string; date: string; archive: string; language?: string }>) {
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)

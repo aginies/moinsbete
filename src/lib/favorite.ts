@@ -28,12 +28,12 @@ export async function toggleBookmark(
   })
 
   if (existing) {
-    if (action === 'add') return { bookmarked: false, wasBookmarked: true }
+    if (action === 'add') return { bookmarked: true, wasBookmarked: true }
     await prisma.bookmark.delete({ where: { id: existing.id } })
     return { bookmarked: false, wasBookmarked: true }
   }
 
-  if (action === 'remove') return { bookmarked: true, wasBookmarked: false }
+  if (action === 'remove') return { bookmarked: false, wasBookmarked: false }
 
   await prisma.bookmark.create({
     data: { userId, resourceId, type, meta: (meta as JsonValue | null) ?? Prisma.JsonNull },

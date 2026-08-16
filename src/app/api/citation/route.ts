@@ -6,6 +6,7 @@ import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { getCachedPool } from '@/lib/feed-pool-cache'
+import { shuffle } from '@/lib/utils'
 import type { CachedCitationArticle } from '@/generated/client'
 
 interface CitationItem {
@@ -110,8 +111,7 @@ export async function GET(request: NextRequest) {
     )
     const valid = cached.filter(c => c.expiresAt >= now)
 
-    const items: CitationItem[] = valid
-      .sort(() => Math.random() - 0.5)
+    const items: CitationItem[] = shuffle(valid)
       .slice(0, daily === '1' ? 1 : 15)
       .map(c => ({
         id: c.id,

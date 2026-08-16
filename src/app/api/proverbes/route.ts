@@ -808,38 +808,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
 
-    if (request.method === 'POST') {
-      if (fetchProgress.status === 'idle') {
-        fetchProgress.status = 'fetching'
-        fetchProgress.progress = `0/${ANNEXE_PAGES.length + CATEGORY_PAGES.length}`
-        fetchProgress.currentPage = ''
-        fetchProgress.total = 0
-        fetchProgress.added = 0
-        
-        const result = await fetchAllAnnexPagesSequentially()
-        fetchProgress.total = result.total
-        fetchProgress.added = result.added
-        fetchProgress.status = 'done'
-        fetchProgress.progress = `${ANNEXE_PAGES.length + CATEGORY_PAGES.length}/${ANNEXE_PAGES.length + CATEGORY_PAGES.length}`
-        
-        return NextResponse.json({ 
-          status: 'done',
-          total: fetchProgress.total,
-          added: fetchProgress.added
-        })
-      }
-      
-      return NextResponse.json({ 
-        status: fetchProgress.status,
-        progress: fetchProgress.progress,
-        currentPage: fetchProgress.currentPage,
-        total: fetchProgress.total,
-        added: fetchProgress.added,
-        perPage: fetchProgress.perPage
-      })
-    }
-    
-    return NextResponse.json({ 
+    return NextResponse.json({
       status: fetchProgress.status,
       progress: fetchProgress.progress,
       currentPage: fetchProgress.currentPage,
