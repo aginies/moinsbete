@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db'
 import { sleep } from '@/lib/cache-helpers'
-import { shuffle } from '@/lib/utils'
+import { shuffle, decodeHtmlEntities } from '@/lib/utils'
 import { runCacheScript } from './cache-script-helper'
 
 const WIKIQUOTE_API = 'https://fr.wikiquote.org/w/api.php'
@@ -209,22 +209,24 @@ async function upsertCitations(
   let created = 0
   let updated = 0
   for (const citation of page.citations) {
+    const text = decodeHtmlEntities(citation.text)
+    const source = citation.source ? decodeHtmlEntities(citation.source) : citation.source
     const wikiUrl = `https://fr.wikiquote.org/wiki/${encodeURIComponent(page.title)}`
     try {
       const result = await prisma.cachedCitationArticle.upsert({
-        where: { author_text: { author: page.title, text: citation.text } },
+        where: { author_text: { author: page.title, text } },
         update: {
-          text: citation.text,
-          source: citation.source,
+          text,
+          source,
           category,
           categoryType,
           imageUrl: page.imageUrl,
           expiresAt,
         },
         create: {
-          text: citation.text,
+          text,
           author: page.title,
-          source: citation.source,
+          source,
           category,
           categoryType,
           wikiUrl,

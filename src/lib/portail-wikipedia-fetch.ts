@@ -1,4 +1,5 @@
 import { WIKIMEDIA_UA } from './constants'
+import { decodeHtmlEntities } from './utils'
 
 export const PORTAL_PAGES = [
   'Wikipédia:Contenus_de_qualité',
@@ -84,8 +85,8 @@ export async function fetchArticleDetails(titles: string[]): Promise<PortalArtic
 
         allResults.push({
           id: pageId,
-          title,
-          extract: extract.replace(/\s+/g, ' ').trim(),
+          title: decodeHtmlEntities(title),
+          extract: decodeHtmlEntities(extract).replace(/\s+/g, ' ').trim(),
           imageUrl,
           pageUrl,
         })

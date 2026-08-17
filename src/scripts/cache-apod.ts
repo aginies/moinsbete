@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db'
 import { sleep } from '@/lib/cache-helpers'
-import { apodPageUrl } from '@/lib/utils'
+import { apodPageUrl, decodeHtmlEntities } from '@/lib/utils'
 import { runCacheScript } from './cache-script-helper'
 
 const NASA_API_KEY = process.env.NASA_API_KEY || 'DEMO_KEY'
@@ -60,25 +60,28 @@ async function upsertApod(data: ApodApiResponse): Promise<boolean> {
   if (data.media_type === 'video') return false
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+  const title = decodeHtmlEntities(data.title)
+  const explanation = decodeHtmlEntities(data.explanation || '')
+  const copyright = data.copyright ? decodeHtmlEntities(data.copyright) : null
   await prisma.cachedApodImage.upsert({
     where: { date: data.date },
     update: {
-      title: data.title,
-      explanation: data.explanation || '',
+      title,
+      explanation,
       imageUrl: data.url,
       hdImageUrl: data.hdurl || null,
-      copyright: data.copyright || null,
+      copyright,
       apodUrl: apodPageUrl(data.date),
       scrapedAt: now,
       expiresAt,
     },
     create: {
       date: data.date,
-      title: data.title,
-      explanation: data.explanation || '',
+      title,
+      explanation,
       imageUrl: data.url,
       hdImageUrl: data.hdurl || null,
-      copyright: data.copyright || null,
+      copyright,
       apodUrl: apodPageUrl(data.date),
       scrapedAt: now,
       expiresAt,

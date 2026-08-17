@@ -12,6 +12,7 @@
     "db:seed": "tsx src/scripts/seed-ideas.ts",
     "db:ingest": "tsx src/scripts/ingest-wikipedia.ts",
     "db:studio": "prisma studio",
+    "db:cleanup-entities": "tsx src/scripts/cleanup-html-entities.ts",
     "build:app": "bash scripts/build.sh",
     "test:app": "bash scripts/test.sh",
     "test": "vitest run",

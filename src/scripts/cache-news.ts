@@ -1,5 +1,6 @@
 import { prisma } from '../lib/db'
 import { cleanupExpired, cleanupNewsByMaxAge } from '../lib/cache-helpers'
+import { decodeHtmlEntities } from '../lib/utils'
 import { runCacheScript } from './cache-script-helper'
 
 const FREE_NEWS_API_KEY = process.env.FREE_NEWS_API_KEY || ''
@@ -214,7 +215,7 @@ async function fetchArticlesWithDetails(articles: Array<{ uuid: string; title: s
       })
 
       results.push({
-        title: article.title,
+        title: decodeHtmlEntities(article.title),
         description: '',
         url: detail.url,
         imageUrl: detail.imageUrl,

@@ -1,6 +1,7 @@
 import { prisma } from '../lib/db'
 import { sleep, cleanupExpired } from '../lib/cache-helpers'
 import { BROWSER_HEADERS } from '../lib/constants'
+import { decodeHtmlEntities } from '../lib/utils'
 import { runCacheScript } from './cache-script-helper'
 
 interface RadioEpisode {
@@ -88,11 +89,11 @@ export async function scrapeAndCacheRadioEpisodes(): Promise<void> {
         if (!url) continue
 
         const titleMatch = block.match(/<!--\[-1-->([^<]+(?:<[^>]+>[^<]+)*?)<!--\]-->/)
-        const title = titleMatch ? titleMatch[1].trim() : ''
+        const title = titleMatch ? decodeHtmlEntities(titleMatch[1]).trim() : ''
         if (!title) continue
 
         const descMatch = block.match(/id="subtext-[^"]*"[^>]*><!--\[-1-->([^<]+(?:<[^>]+>[^<]+)*?)<!--\]-->/)
-        const description = descMatch ? descMatch[1].trim() : ''
+        const description = descMatch ? decodeHtmlEntities(descMatch[1]).trim() : ''
 
         const imgMatch = block.match(/src="(https:\/\/www\.radiofrance\.fr\/pikapi\/images\/[^"]+\/2048)"/)
         const image = imgMatch ? sanitizeUrl(imgMatch[1]) : undefined

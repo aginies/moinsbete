@@ -1,3 +1,5 @@
+import { decodeHtmlEntities } from './utils'
+
 export interface WikipediaImageEntry {
   imageUrl: string
   description: string
@@ -31,7 +33,7 @@ export function extractEntriesFR(html: string, archive: string): WikipediaImageE
 
       entries.push({
         imageUrl,
-        description: imgAltMatch[1].replace(/\s*\([^)]*définition réelle[^)]*\)/, '').trim(),
+        description: decodeHtmlEntities(imgAltMatch[1].replace(/\s*\([^)]*définition réelle[^)]*\)/, '')).trim(),
         fileUrl: `https://fr.wikipedia.org/wiki/Fichier:${fileHrefMatch[1]}`,
         date,
         archive,
@@ -66,7 +68,7 @@ export function extractEntriesEN(html: string, archive: string): WikipediaImageE
 
       entries.push({
         imageUrl,
-        description: imgAltMatch[1].trim(),
+        description: decodeHtmlEntities(imgAltMatch[1]).trim(),
         fileUrl: `https://en.wikipedia.org/wiki/File:${fileHrefMatch[1]}`,
         date,
         archive,

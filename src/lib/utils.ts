@@ -195,16 +195,75 @@ export function generateImageId(fileUrl: string, date: string): string {
     .slice(0, 8)
 }
 
+const NAMED_ENTITIES: Record<string, string> = {
+  nbsp: ' ',
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  dagger: '\u2020',
+  hellip: '\u2026',
+  ndash: '\u2013',
+  mdash: '\u2014',
+  lsquo: '\u2018',
+  rsquo: '\u2019',
+  ldquo: '\u201C',
+  rdquo: '\u201D',
+  laquo: '\u00AB',
+  raquo: '\u00BB',
+  eacute: '\u00E9',
+  egrave: '\u00E8',
+  ecircumflex: '\u00EA',
+  agrave: '\u00E0',
+  aacute: '\u00E1',
+  atilde: '\u00E3',
+  ccedil: '\u00E7',
+  uacute: '\u00FA',
+  ugrave: '\u00F9',
+  ucircumflex: '\u00FB',
+  oacute: '\u00F3',
+  ograve: '\u00F2',
+  ocircumflex: '\u00F4',
+  iacute: '\u00ED',
+  icircumflex: '\u00EE',
+  ntilde: '\u00F1',
+  yuml: '\u00FF',
+  cc: '\u00A9',
+  reg: '\u00AE',
+  trade: '\u2122',
+  deg: '\u00B0',
+  times: '\u00D7',
+  divide: '\u00F7',
+  middot: '\u00B7',
+  bull: '\u2022',
+  sect: '\u00A7',
+  para: '\u00B6',
+  percnt: '%',
+  prime: '\u2032',
+  Prime: '\u2033',
+  sup2: '\u00B2',
+  sup3: '\u00B3',
+  frac12: '\u00BD',
+  frac14: '\u00BC',
+  frac34: '\u00BE',
+}
+
+function decodeNumericEntity(code: number): string | null {
+  if (code === 160) return ' '
+  if (code > 0x10ffff) return null
+  try {
+    return String.fromCodePoint(code)
+  } catch {
+    return null
+  }
+}
+
 export function decodeHtmlEntities(text: string): string {
   return text
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(Number(num)))
-    .replace(/&#[xX]([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, num) => decodeNumericEntity(Number(num)) ?? '')
+    .replace(/&#[xX]([0-9a-fA-F]+);/g, (_, hex) => decodeNumericEntity(parseInt(hex, 16)) ?? '')
+    .replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (match, name: string) => NAMED_ENTITIES[name] ?? match)
 }
 
 const MAX_MESSAGE_LENGTH = 250

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS, generateImageId, sanitizeMessage, parseHTML, escapeHtml, isValidUrl, sanitizeUrl, shuffle, apodPageUrl } from '@/lib/utils'
+import { slugify, generateSlug, truncate, cn, getRandomIcon, getRandomColor, TOPIC_ICONS, TOPIC_COLORS, generateImageId, sanitizeMessage, parseHTML, escapeHtml, decodeHtmlEntities, isValidUrl, sanitizeUrl, shuffle, apodPageUrl } from '@/lib/utils'
 
 describe('slugify', () => {
   it('converts to lowercase', () => {
@@ -251,6 +251,45 @@ describe('escapeHtml', () => {
 
   it('escapes ampersand first', () => {
     expect(escapeHtml('&lt;')).toBe('&amp;lt;')
+  })
+})
+
+describe('decodeHtmlEntities', () => {
+  it('decodes &nbsp; to a plain space', () => {
+    expect(decodeHtmlEntities('11&nbsp;872&nbsp;mm')).toBe('11 872 mm')
+  })
+
+  it('decodes basic named entities', () => {
+    expect(decodeHtmlEntities('a &amp; b &lt; c &gt; d &quot;e&quot;')).toBe('a & b < c > d "e"')
+  })
+
+  it('decodes numeric decimal entities', () => {
+    expect(decodeHtmlEntities('it&#039;s&#160;ok')).toBe("it's ok")
+  })
+
+  it('decodes numeric hex entities', () => {
+    expect(decodeHtmlEntities('café &#xE9;')).toBe('café é')
+  })
+
+  it('decodes &dagger;', () => {
+    expect(decodeHtmlEntities('mort &dagger; 1803')).toBe('mort † 1803')
+  })
+
+  it('keeps unknown named entities as-is', () => {
+    expect(decodeHtmlEntities('x &unknownEntity; y')).toBe('x &unknownEntity; y')
+  })
+
+  it('does not double-decode &amp;nbsp;', () => {
+    expect(decodeHtmlEntities('&amp;nbsp;')).toBe('&nbsp;')
+  })
+
+  it('leaves plain text untouched', () => {
+    expect(decodeHtmlEntities('pas d entité ici')).toBe('pas d entité ici')
+  })
+
+  it('round-trips with escapeHtml', () => {
+    const original = "Titre & sous-titre, « exemple »"
+    expect(decodeHtmlEntities(escapeHtml(original))).toBe(original)
   })
 })
 

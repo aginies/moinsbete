@@ -1,5 +1,6 @@
 import { prisma } from '../lib/db'
 import { sleep } from '../lib/cache-helpers'
+import { decodeHtmlEntities } from '../lib/utils'
 import { gunzipSync, inflateSync } from 'zlib'
 import { runCacheScript } from './cache-script-helper'
 
@@ -117,8 +118,8 @@ function extractArticles(html: string): InsoliteEntry[] {
       const rawDesc = rowMatch[4]
       
       const url = rawUrl.startsWith('http') ? rawUrl : `https://fr.wikipedia.org${rawUrl}`
-      const title = rawTitle.replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim()
-      const description = rawDesc.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/\s+/g, ' ').trim()
+      const title = decodeHtmlEntities(rawTitle).trim()
+      const description = decodeHtmlEntities(rawDesc.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim()
       
       // Skip self-references
       if (url.includes('Articles_insolites')) continue

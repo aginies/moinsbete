@@ -1,6 +1,7 @@
 import { prisma } from '../lib/db'
 import { sleep, cleanupExpired } from '../lib/cache-helpers'
 import { BROWSER_HEADERS } from '../lib/constants'
+import { decodeHtmlEntities } from '../lib/utils'
 import { runCacheScript } from './cache-script-helper'
 
 const NEWSROOM_BASE = 'https://www.cnrs.fr'
@@ -43,7 +44,7 @@ export async function scrapeAndCacheCnrs(): Promise<void> {
 
         if (!titleMatch || !linkMatch || !imgMatch) continue
 
-        const title = titleMatch[1].replace(/<[^>]*>/g, '').trim()
+        const title = decodeHtmlEntities(titleMatch[1].replace(/<[^>]*>/g, '')).trim()
         const href = linkMatch[1]
         const category = linkMatch[2]
         const imageUrl: string = imgMatch[1]

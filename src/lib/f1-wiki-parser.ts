@@ -6,6 +6,7 @@
  */
 
 import { WIKIMEDIA_UA } from './constants'
+import { decodeHtmlEntities } from './utils'
 
 // ── Shared types ────────────────────────────────────────────────────────────
 
@@ -41,13 +42,7 @@ export interface F1SaviezVous {
 
 /** Strip HTML tags and decode common entities. */
 export function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .trim()
+  return decodeHtmlEntities(html.replace(/<[^>]*>/g, '')).trim()
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
