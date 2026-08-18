@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 
-export type CardKey = 'saviezVous' | 'wikipedia' | 'cnrs' | 'radioFrance' | 'news' | 'wikimedia' | 'wikiloves' | 'pixabay' | 'portailLexical' | 'portailWikipedia' | 'proverbe' | 'f1' | 'citation' | 'insolite' | 'apod'
+export type CardKey = 'saviezVous' | 'wikipedia' | 'cnrs' | 'radioFrance' | 'news' | 'wikimedia' | 'wikiloves' | 'pixabay' | 'portailLexical' | 'portailWikipedia' | 'proverbe' | 'f1' | 'citation' | 'insolite' | 'apod' | 'airCrash'
 
 const DEFAULT_VISIBILITY: Record<CardKey, boolean> = {
   saviezVous: true,
@@ -21,6 +21,7 @@ const DEFAULT_VISIBILITY: Record<CardKey, boolean> = {
   citation: true,
   insolite: true,
   apod: true,
+  airCrash: true,
 }
 
 const CONFIG_KEY = 'cartes_global_visibility'

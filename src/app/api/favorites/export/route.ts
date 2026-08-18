@@ -18,7 +18,7 @@ export async function GET() {
     const NON_IDEA_TYPES: BookmarkType[] = [
       'RADIO_FRANCE', 'CNRS_NEWS', 'IMAGE_DU_JOUR', 'SAVIEZ_VOUS',
       'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'IMAGE_PIXABAY', 'PORTAIL_LEXICAL',
-      'PORTAIL_WIKIPEDIA', 'PROVERBE', 'NEWS', 'F1', 'CITATION', 'INSOLITE', 'APOD',
+      'PORTAIL_WIKIPEDIA', 'PROVERBE', 'NEWS', 'F1', 'CITATION', 'INSOLITE', 'APOD', 'AIR_CRASH',
     ]
 
     const [ideaBookmarks, otherBookmarks] = await Promise.all([
@@ -55,6 +55,7 @@ export async function GET() {
     const citationBookmarks = byType.get('CITATION') ?? []
     const insoliteBookmarks = byType.get('INSOLITE') ?? []
     const apodBookmarks = byType.get('APOD') ?? []
+    const airCrashBookmarks = byType.get('AIR_CRASH') ?? []
 
     const items: ExportBookmarkItem[] = []
 
@@ -241,6 +242,16 @@ export async function GET() {
         continue
       }
       items.push(metaToItem(bm, m.titre || 'APOD', m.description || '', apodPageUrl(bm.resourceId ?? '') || m.link || '', m.imageUrl || null))
+    }
+
+    // AIR_CRASH
+    for (const bm of airCrashBookmarks) {
+      const m = bm.meta as { title?: string; description?: string; url?: string | null; imageUrl?: string | null } | null | undefined
+      if (!m) {
+        items.push(metaToItem(bm, 'Accident aérien', '', '', null))
+        continue
+      }
+      items.push(metaToItem(bm, m.title || 'Accident aérien', m.description || '', m.url || '', m.imageUrl || null))
     }
 
     // Sort by favoritedAt descending

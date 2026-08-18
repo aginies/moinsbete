@@ -20,6 +20,7 @@ interface SharedBookmarkRaw extends SharedLobbyBookmark {
   portailWikipediaArticle?: { id: string; title: string; extract: string; imageUrl: string | null; pageUrl: string } | null
   citation?: CachedCitationArticle | null
   insoliteArticle?: { id: string; title: string; description: string; url: string; imageUrl: string | null } | null
+  airCrashArticle?: { id: string; title: string; description: string; url: string; imageUrl: string | null } | null
   apodImage?: { id: string; date: string; title: string; explanation: string; imageUrl: string; hdImageUrl: string | null; copyright: string | null; apodUrl: string } | null
 }
 
@@ -36,6 +37,7 @@ interface UserFavoriteIds {
   CITATION: Set<string>
   INSOLITE: Set<string>
   APOD: Set<string>
+  AIR_CRASH: Set<string>
 }
 
 const PAGE_SIZE = 20
@@ -67,16 +69,17 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       CITATION: new Set(),
       INSOLITE: new Set(),
       APOD: new Set(),
+      AIR_CRASH: new Set(),
     }
     if (session?.user?.id) {
       const bookmarks = await prisma.bookmark.findMany({
         where: {
           userId: session.user.id,
-          type: { in: ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'CITATION', 'INSOLITE', 'APOD'] },
+          type: { in: ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'CITATION', 'INSOLITE', 'APOD', 'AIR_CRASH'] },
         },
         select: { resourceId: true, type: true },
       })
-      const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'PORTAIL_WIKIPEDIA', 'INSOLITE', 'APOD'] as const
+      const knownTypes = ['IDEA', 'SAVIEZ_VOUS', 'IMAGE_DU_JOUR', 'IMAGE_WIKIMEDIA', 'IMAGE_WIKILOVES', 'PROVERBE', 'PORTAIL_LEXICAL', 'NEWS', 'PORTAIL_WIKIPEDIA', 'INSOLITE', 'APOD', 'AIR_CRASH'] as const
       for (const bm of bookmarks) {
         if (bm.resourceId && knownTypes.includes(bm.type as typeof knownTypes[number])) {
           userFavoriteIds[bm.type as keyof UserFavoriteIds].add(bm.resourceId)
@@ -168,9 +171,11 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const insoliteIds = insoliteBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const apodBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'APOD' && b.resourceId)
     const apodIds = apodBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
+    const airCrashBookmarks = sharedBookmarks.filter((b: { resourceType: string; resourceId: string | null }) => b.resourceType === 'AIR_CRASH' && b.resourceId)
+    const airCrashIds = airCrashBookmarks.map((b: { resourceId: string | null }) => b.resourceId!).filter(Boolean)
     const cachedProverbes: Array<{ text: string; signification: string; source: string; hasWiktionnairePage: boolean; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }> = proverbeConfig ? JSON.parse(proverbeConfig.value) : []
 
-    const [saviezFacts, wikiImages, wikiLovesImages, cachedNewsArticles, cachedPortailWikiArticles, cachedCitationArticles, cachedInsoliteArticles, cachedApodImages] = await prisma.$transaction([
+    const [saviezFacts, wikiImages, wikiLovesImages, cachedNewsArticles, cachedPortailWikiArticles, cachedCitationArticles, cachedInsoliteArticles, cachedApodImages, cachedAirCrashArticles] = await prisma.$transaction([
       prisma.saviezVousFact.findMany({ where: saviezIds.length > 0 ? { id: { in: saviezIds } } : {} }),
       prisma.cachedWikipediaImage.findMany({ where: imageIds.length > 0 ? { fileUrl: { in: imageIds } } : {} }),
       prisma.cachedWikiLovesImage.findMany({ where: wikiLovesIds.length > 0 ? { docid: { in: wikiLovesIds } } : {} }),
@@ -179,6 +184,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
       prisma.cachedCitationArticle.findMany({ where: citationIds.length > 0 ? { id: { in: citationIds } } : {} }),
       prisma.cachedInsoliteArticle.findMany({ where: insoliteIds.length > 0 ? { id: { in: insoliteIds } } : {} }),
       prisma.cachedApodImage.findMany({ where: apodIds.length > 0 ? { date: { in: apodIds } } : {} }),
+      prisma.cachedAirCrashArticle.findMany({ where: airCrashIds.length > 0 ? { id: { in: airCrashIds } } : {} }),
     ])
 
     const proverbeMap = new Map<string, typeof cachedProverbes[0]>()
@@ -199,6 +205,7 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
     const citationMap = new Map(cachedCitationArticles.map((a: CachedCitationArticle) => [a.id, a]))
     const insoliteMap = new Map(cachedInsoliteArticles.map((a: { id: string; title: string; description: string; url: string; imageUrl: string | null }) => [a.id, a]))
     const apodMap = new Map(cachedApodImages.map((a: { date: string }) => [a.date, a]))
+    const airCrashMap = new Map(cachedAirCrashArticles.map((a: { id: string }) => [a.id, a]))
 
     const allBookmarks = [...sharedBookmarks, ...sharedWithMeBookmarks, ...sharedByMeBookmarks]
     const missingIdeaIds = [...new Set(
@@ -471,6 +478,28 @@ export default async function LobbyPage({ searchParams }: { searchParams: Promis
           }
         }
         return { ...bookmark, insoliteArticle: article as any }
+      }
+      if (bookmark.resourceType === 'AIR_CRASH' && bookmark.resourceId) {
+        let article = airCrashMap.get(bookmark.resourceId)
+        if (!article && bookmark.meta) {
+          let meta = bookmark.meta as JsonValue | null
+          if (typeof meta === 'string') {
+            try { meta = JSON.parse(meta) } catch { meta = {} }
+          }
+          if (typeof meta === 'object' && meta !== null && 'title' in meta) {
+            const m = meta as Record<string, unknown>
+            article = {
+              id: bookmark.resourceId,
+              title: (m.title || '') as string,
+              description: (m.description || '') as string,
+              url: (m.url || '') as string,
+              imageUrl: (m.imageUrl || null) as string | null,
+              scrapedAt: new Date(),
+              expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            } as any
+          }
+        }
+        return { ...bookmark, airCrashArticle: article as any }
       }
       if (bookmark.resourceType === 'APOD' && bookmark.resourceId) {
         let image = apodMap.get(bookmark.resourceId) as { id: string; date: string; title: string; explanation: string; imageUrl: string; hdImageUrl: string | null; copyright: string | null; apodUrl: string } | undefined

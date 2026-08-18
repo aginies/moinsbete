@@ -21,6 +21,7 @@ import { f1Manager } from '@/lib/f1-bookmark'
 import { citationManager } from '@/lib/citation-bookmark'
 import { insoliteManager } from '@/lib/insolite-bookmark'
 import { apodManager } from '@/lib/apod-bookmark'
+import { airCrashManager } from '@/lib/air-crash-bookmark'
 
 export async function bookmarkAction(ideaId: string, action: 'add' | 'remove') {
   const session = await getServerSession(authOptions)
@@ -163,6 +164,7 @@ const f1Actions = createBookmarkManagerActions(f1Manager)
 const citationActions = createBookmarkManagerActions(citationManager)
 const insoliteActions = createBookmarkManagerActions(insoliteManager)
 const apodActions = createBookmarkManagerActions(apodManager)
+const airCrashActions = createBookmarkManagerActions(airCrashManager)
 
 // Radio France
 export const toggleRadioFavoriteAction = radioActions.toggle
@@ -242,3 +244,8 @@ export const isInsoliteFavoriteAction = insoliteActions.isBookmarked
 export const toggleApodFavoriteAction = apodActions.toggle
 export const getApodFavoritesAction = apodActions.getFavorites
 export const isApodFavoriteAction = apodActions.isBookmarked
+
+// Air Crash
+export const toggleAirCrashFavoriteAction = airCrashActions.toggle
+export const getAirCrashFavoritesAction = airCrashActions.getFavorites
+export const isAirCrashFavoriteAction = airCrashActions.isBookmarked

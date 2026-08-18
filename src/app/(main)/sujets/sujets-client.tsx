@@ -19,6 +19,7 @@ import { F1Card } from '@/components/feed/f1-card'
 import { CitationCard } from '@/components/feed/citation-card'
 import { InsoliteCard } from '@/components/feed/insolite-card'
 import { ApodCard } from '@/components/feed/apod-card'
+import { AirCrashCard } from '@/components/feed/air-crash-card'
 import { VisibilityButton } from '@/components/feed/visibility-button'
 import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
@@ -57,6 +58,7 @@ interface CardVisibility {
   citation: boolean
   insolite: boolean
   apod: boolean
+  airCrash: boolean
 }
 
 export type { CardVisibility }
@@ -84,6 +86,7 @@ const CARD_DISPLAY_NAMES: Record<string, string> = {
   citation: 'citation_tab',
   insolite: 'insolite_tab',
   apod: 'apod_tab',
+  airCrash: 'air_crash_tab',
 }
 
 const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: string; text: string; sourceUrl: string | null; imageFilename: string | null } | null, userId: string | undefined, hasUserId: boolean, visibility: CardVisibility | undefined) => React.ReactElement | null> = {
@@ -137,6 +140,9 @@ const CARD_RENDERERS: Record<string, (config: CardConfig, saviezVousFact: { id: 
   ),
   apod: (config) => (
     <ApodCard onToggle={config.toggle} largeImage isVisible={config.isVisible} />
+  ),
+  airCrash: (config) => (
+    <AirCrashCard onToggle={config.toggle} isVisible={config.isVisible} />
   ),
 }
 
@@ -199,7 +205,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
   const isAllSelected = allTopics.length > 0 && followedIdsSet.size === allTopics.length
 
   const [visibility, setVisibility] = useState<CardVisibility>(initialVisibility ?? {
-    saviezVous: true, wikipedia: true, wikipediaShowEn: false, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, portailWikipedia: true, proverbe: true, news: true, f1: true, citation: true, insolite: true, apod: true, pixabayActiveCategory: 'bird',
+    saviezVous: true, wikipedia: true, wikipediaShowEn: false, radioFrance: true, wikimedia: true, wikiloves: true, cnrs: true, pixabay: true, portailLexical: true, portailWikipedia: true, proverbe: true, news: true, f1: true, citation: true, insolite: true, apod: true, airCrash: true, pixabayActiveCategory: 'bird',
   })
 
   const [showTopics, setShowTopics] = useState(false)
@@ -286,6 +292,7 @@ export function SujetsClient({ allTopics, initialFollowedIds, saviezVousFact, us
     { key: 'citation', visKey: 'citation', field: 'citationCardVisible' },
     { key: 'insolite', visKey: 'insolite', field: 'insoliteCardVisible' },
     { key: 'apod', visKey: 'apod', field: 'apodCardVisible' },
+    { key: 'airCrash', visKey: 'airCrash', field: 'airCrashCardVisible' },
   ]
 
   const cardConfigs: CardConfig[] = useMemo(() =>

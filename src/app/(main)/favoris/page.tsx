@@ -64,6 +64,7 @@ export default async function FavorisPage({
     citation: countMap.get('CITATION') ?? 0,
     insolite: countMap.get('INSOLITE') ?? 0,
     apod: countMap.get('APOD') ?? 0,
+    airCrash: countMap.get('AIR_CRASH') ?? 0,
   }
 
   const total = countMap.get('IDEA') ?? 0

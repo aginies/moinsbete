@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Quote, Trash2, Trophy, Globe, Download, Sparkles, Telescope } from 'lucide-react'
+import { Bookmark, X, Search, Lightbulb, Image as ImageIcon, Radio, Info, Newspaper, BookOpen, Earth, Video, Quote, Trash2, Trophy, Globe, Download, Sparkles, Telescope, Plane } from 'lucide-react'
 import { CompactIdeaCard } from '@/components/feed/idea-card'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import Link from 'next/link'
@@ -30,6 +30,7 @@ import { F1Favorites } from './f1-favorites'
 import { CitationBookmarks } from './citation-bookmarks'
 import { InsoliteBookmarks } from '@/components/feed/insolite-bookmarks'
 import { ApodBookmarks } from '@/components/feed/apod-bookmarks'
+import { AirCrashBookmarks } from '@/components/feed/air-crash-bookmarks'
 import { ShareButton } from '@/components/feed/share-button'
 import { useItemShare } from '@/components/feed/use-item-share'
 import { SearchResults } from '@/components/lobby/search-results'
@@ -45,7 +46,7 @@ interface FavorisPageClientProps {
   counts: Record<string, number>
 }
 
-type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'portail-wikipedia' | 'proverbe' | 'news' | 'f1' | 'citation' | 'insolite' | 'apod' | 'results'
+type Tab = 'idees' | 'radio-france' | 'cnrs-news' | 'image-du-jour' | 'saviez-vous' | 'image-wikimedia' | 'image-wikiloves' | 'image-pixabay' | 'portail-lexical' | 'portail-wikipedia' | 'proverbe' | 'news' | 'f1' | 'citation' | 'insolite' | 'apod' | 'air-crash' | 'results'
 
 interface SourceTabConfig {
   id: Tab
@@ -145,6 +146,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
       { id: 'citation', countKey: 'citation', label: 'Citations', Icon: Quote, sourceDesc: 'citations favorites', component: <CitationBookmarks userId={userId} onRemoveComplete={() => handleRemove('citation')} searchQuery={searchQuery} /> },
       { id: 'insolite', countKey: 'insolite', label: 'Insolite', Icon: Sparkles, sourceDesc: 'articles insolites', component: <InsoliteBookmarks userId={userId} onRemoveComplete={() => handleRemove('insolite')} searchQuery={searchQuery} /> },
       { id: 'apod', countKey: 'apod', label: 'APOD', Icon: Telescope, sourceDesc: 'images APOD', component: <ApodBookmarks userId={userId} onRemoveComplete={() => handleRemove('apod')} sharedIds={sharedApodIds} onShareToggle={handleApodShare} isSharing={apodIsSharing} searchQuery={searchQuery} /> },
+      { id: 'air-crash', countKey: 'airCrash', label: 'Air Crash Investigation', Icon: Plane, sourceDesc: 'accidents aériens', component: <AirCrashBookmarks userId={userId} onRemoveComplete={() => handleRemove('airCrash')} searchQuery={searchQuery} /> },
     ]
     if (derivedIdeasCount > 0) {
       base.unshift({ id: 'idees', countKey: 'idees', label: 'Idées', Icon: Lightbulb, sourceDesc: 'idées favorites', component: <div /> })

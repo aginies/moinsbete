@@ -39,6 +39,7 @@ model User {
   citationCardVisible          Boolean               @default(true)
   insoliteCardVisible          Boolean               @default(true)
   apodCardVisible              Boolean               @default(true)
+  airCrashCardVisible          Boolean               @default(true)
   cardOrder                    Json?
   newsCardVisible              Boolean?              @default(true)
   cardNavBarEnabled            Boolean               @default(true)
@@ -435,6 +436,18 @@ model CachedApodImage {
   @@index([expiresAt])
 }
 
+model CachedAirCrashArticle {
+  id          String   @id @default(cuid())
+  title       String   @unique
+  description String   @default("")
+  url         String
+  imageUrl    String?
+  scrapedAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
+
 model UserSuggestion {
   id          String              @id @default(cuid())
   userId      String
@@ -525,4 +538,5 @@ enum BookmarkType {
   CITATION
   INSOLITE
   APOD
+  AIR_CRASH
 }

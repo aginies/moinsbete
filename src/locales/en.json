@@ -278,6 +278,11 @@
     "apod_articles": "APOD images",
     "apod_expired": "Expired",
     "apod_desc": "NASA Astronomy Picture of the Day",
+    "air_crash_tab": "Air Crash Investigation",
+    "air_crash_articles": "Cached air crashes",
+    "air_crash_expired": "Expired crashes",
+    "air_crash_desc": "Air crash investigations, from Wikipedia",
+    "air_crash_empty": "No crashes cached yet.",
     "reload_page": "Reload page for a new article",
     "filter_categories": "Filter",
     "citation_articles": "Cached Quotes",
@@ -682,7 +687,8 @@
       "saviez_vous_tab": "Did You Know?",
       "news_tab": "NEWS",
       "f1_tab": "Formula 1",
-      "apod_tab": "Space"
+      "apod_tab": "Space",
+      "air_crash_tab": "Air Crash Investigation"
     },
     "cache_title": "Cache",
     "cache_desc": "Refresh content source caches",
@@ -696,6 +702,7 @@
     "cache_portail_wikipedia": "Wikipedia Portal",
     "cache_insolite": "Interesting Articles",
     "cache_apod": "APOD (NASA)",
+    "cache_air_crash": "Air Crash Investigation",
     "last_updated": "Updated",
     "never_updated": "Never updated"
   },

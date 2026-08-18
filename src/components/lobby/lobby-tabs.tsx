@@ -34,6 +34,7 @@ interface LobbyTabsProps {
     CITATION: Set<string>
     INSOLITE: Set<string>
     APOD: Set<string>
+    AIR_CRASH: Set<string>
   }
 }
 
@@ -56,6 +57,7 @@ const TYPE_FILTERS: TypeFilter[] = [
   { value: 'CITATION', label: 'Citations', icon: 'Quote' },
   { value: 'INSOLITE', label: 'Insolite', icon: 'Sparkles' },
   { value: 'APOD', label: 'APOD', icon: 'Telescope' },
+  { value: 'AIR_CRASH', label: 'Air Crash Investigation', icon: 'Plane' },
 ]
 
 export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks, sharedByMeBookmarks, currentUserId, isAdmin, totalPages, totalPagesSharedWithMe, totalPagesSharedByMe, currentPage, locale, userFavoriteIds }: LobbyTabsProps) {
@@ -152,10 +154,15 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           const explanation = ((b as any).apodImage.explanation || '').toLowerCase()
           if (title.includes(q) || explanation.includes(q)) return true
         }
+        if ((b as any).airCrashArticle) {
+          const title = ((b as any).airCrashArticle.title || '').toLowerCase()
+          const description = ((b as any).airCrashArticle.description || '').toLowerCase()
+          if (title.includes(q) || description.includes(q)) return true
+        }
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation || (b as any).insoliteArticle || (b as any).apodImage)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation || (b as any).insoliteArticle || (b as any).apodImage || (b as any).airCrashArticle)
   }, [sharedBookmarks, activeType, searchQuery])
 
   const filteredSharedWithMe = useMemo(() => {
@@ -214,10 +221,15 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           const explanation = ((b as any).apodImage.explanation || '').toLowerCase()
           if (title.includes(q) || explanation.includes(q)) return true
         }
+        if ((b as any).airCrashArticle) {
+          const title = ((b as any).airCrashArticle.title || '').toLowerCase()
+          const description = ((b as any).airCrashArticle.description || '').toLowerCase()
+          if (title.includes(q) || description.includes(q)) return true
+        }
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation || (b as any).insoliteArticle || (b as any).apodImage)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation || (b as any).insoliteArticle || (b as any).apodImage || (b as any).airCrashArticle)
   }, [sharedWithMeBookmarks, activeType, searchQuery])
 
   const filteredSharedByMe = useMemo(() => {
@@ -275,10 +287,15 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           const explanation = ((b as any).apodImage.explanation || '').toLowerCase()
           if (title.includes(q) || explanation.includes(q)) return true
         }
+        if ((b as any).airCrashArticle) {
+          const title = ((b as any).airCrashArticle.title || '').toLowerCase()
+          const description = ((b as any).airCrashArticle.description || '').toLowerCase()
+          if (title.includes(q) || description.includes(q)) return true
+        }
         return false
       })
     }
-    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation || (b as any).insoliteArticle || (b as any).apodImage)
+    return filtered.filter(b => (b as any).idea || (b as any).saviezFact || (b as any).wikiImage !== undefined || (b as any).wikiMediaImage !== undefined || (b as any).wikiLovesImage !== undefined || (b as any).newsArticle || (b as any).portailWikipediaArticle || (b as any).proverbe || (b as any).citation || (b as any).insoliteArticle || (b as any).apodImage || (b as any).airCrashArticle)
   }, [sharedByMeBookmarks, activeType, searchQuery])
 
   return (

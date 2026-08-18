@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
         citationCardVisible: true,
         insoliteCardVisible: true,
         apodCardVisible: true,
+        airCrashCardVisible: true,
         cardNavBarEnabled: true,
       },
     })
@@ -93,6 +94,7 @@ export async function POST(request: NextRequest) {
       'citationCardVisible',
       'insoliteCardVisible',
       'apodCardVisible',
+      'airCrashCardVisible',
       'cardNavBarEnabled',
     ]
 

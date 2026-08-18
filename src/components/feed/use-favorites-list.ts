@@ -18,6 +18,7 @@ import {
   toggleCitationFavoriteAction,
   toggleInsoliteFavoriteAction,
   toggleApodFavoriteAction,
+  toggleAirCrashFavoriteAction,
 } from '@/actions/bookmark-actions'
 
 const TOGGLE_ACTIONS: Record<string, (docId: string, action?: 'add' | 'remove', meta?: Record<string, unknown>) => Promise<unknown>> = {
@@ -36,6 +37,7 @@ const TOGGLE_ACTIONS: Record<string, (docId: string, action?: 'add' | 'remove', 
   CITATION: toggleCitationFavoriteAction,
   INSOLITE: toggleInsoliteFavoriteAction,
   APOD: toggleApodFavoriteAction,
+  AIR_CRASH: toggleAirCrashFavoriteAction,
 }
 
 interface UseFavoritesListOptions<Doc extends { id: string }> {

@@ -14,6 +14,7 @@ import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexica
 import { scrapeAndCachePortailWikipedia } from '@/scripts/cache-portail-wikipedia'
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { scrapeAndCacheApod } from '@/scripts/cache-apod'
+import { scrapeAndCacheAirCrash } from '@/scripts/cache-air-crash'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
 
@@ -81,6 +82,10 @@ export async function refreshApod(): Promise<RefreshResult> {
   return executeRefresh('APOD', scrapeAndCacheApod)
 }
 
+export async function refreshAirCrash(): Promise<RefreshResult> {
+  return executeRefresh('Air Crash Investigation', scrapeAndCacheAirCrash)
+}
+
 export async function refreshAll(): Promise<RefreshResult> {
   const authErr = await authCheck()
   if (authErr) return authErr
@@ -121,6 +126,9 @@ export async function refreshAll(): Promise<RefreshResult> {
 
     await scrapeAndCacheApod()
     results.push({ name: 'APOD', ok: true })
+
+    await scrapeAndCacheAirCrash()
+    results.push({ name: 'Air Crash Investigation', ok: true })
 
     const counts = await cleanupExpired()
     const total = Object.values(counts).reduce((a, b) => a + b, 0)

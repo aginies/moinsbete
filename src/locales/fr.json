@@ -278,6 +278,11 @@
     "apod_articles": "Images APOD",
     "apod_expired": "Expirés",
     "apod_desc": "L'image astronomique du jour par la NASA",
+    "air_crash_tab": "Air Crash Investigation",
+    "air_crash_articles": "Accidents aériens en cache",
+    "air_crash_expired": "Accidents expirés",
+    "air_crash_desc": "Enquêtes sur des accidents d'avion, tirées de Wikipédia",
+    "air_crash_empty": "Aucun accident en cache pour l'instant.",
     "reload_page": "Recharger la page pour un nouvel article",
     "filter_categories": "Filtrer",
     "citation_articles": "Citations en cache",
@@ -682,7 +687,8 @@
       "saviez_vous_tab": "Saviez-vous ?",
       "news_tab": "NEWS",
       "f1_tab": "Formule 1",
-      "apod_tab": "Espace"
+      "apod_tab": "Espace",
+      "air_crash_tab": "Air Crash Investigation"
     },
     "cache_title": "Cache",
     "cache_desc": "Actualiser le cache des sources de contenu",
@@ -696,6 +702,7 @@
     "cache_portail_wikipedia": "Portail Wikipédia",
     "cache_insolite": "Articles insolites",
     "cache_apod": "APOD (NASA)",
+    "cache_air_crash": "Air Crash Investigation",
     "last_updated": "Mis à jour",
     "never_updated": "Jamais mis à jour"
   },
