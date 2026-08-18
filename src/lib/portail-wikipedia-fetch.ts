@@ -52,6 +52,19 @@ export async function fetchLinksFromPortal(pageTitle: string): Promise<string[]>
   return allLinks
 }
 
+export async function fetchPageWikitext(pageTitle: string): Promise<string> {
+  const url = `https://fr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(pageTitle)}&prop=wikitext&format=json`
+  const res = await fetch(url, {
+    headers: HEADERS,
+    signal: AbortSignal.timeout(30000),
+  })
+  if (!res.ok) throw new Error(`Wikitext fetch failed: ${res.status}`)
+  const data = await res.json()
+  const text: string | undefined = data?.parse?.wikitext?.['*']
+  if (!text) throw new Error('Wikitext not found in API response')
+  return text
+}
+
 export async function fetchArticleDetails(titles: string[]): Promise<PortalArticleData[]> {
   if (titles.length === 0) return []
 
