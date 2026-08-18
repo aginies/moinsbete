@@ -21,7 +21,7 @@ async function fetchFromCache(source: string): Promise<CommonsImage | null> {
         where: { source, expiresAt: { gte: new Date() } },
       })
     )
-    const valid = pool.filter(i => i.expiresAt >= now)
+    const valid = pool.filter(i => new Date(i.expiresAt) >= now)
 
     if (valid.length === 0) {
       console.log(`[WikiLoves] No valid images for source ${source}`)

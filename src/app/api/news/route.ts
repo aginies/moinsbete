@@ -43,7 +43,7 @@ async function fetchFromCache(categories: string[], limit: number, query?: strin
   })
 
   const now = new Date()
-  const articles = pool.filter(a => a.expiresAt >= now)
+  const articles = pool.filter(a => new Date(a.expiresAt) >= now)
   if (articles.length === 0) return []
 
   return articles.map(a => ({
@@ -53,7 +53,7 @@ async function fetchFromCache(categories: string[], limit: number, query?: strin
     imageUrl: a.imageUrl || undefined,
     source: a.source,
     category: a.category,
-    publishedAt: a.publishedAt?.toISOString() || '',
+    publishedAt: a.publishedAt ? new Date(a.publishedAt).toISOString() : '',
     formattedPublishedAt: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
   }))
 }

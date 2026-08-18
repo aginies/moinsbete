@@ -8,6 +8,7 @@ import { scrapeAndCacheSaviezVousImages } from '@/scripts/cache-saviez-vous-imag
 import { scrapeAndCacheF1 } from '@/scripts/cache-f1'
 import { scrapeAndCachePortailWikipedia } from '@/scripts/cache-portail-wikipedia'
 import { scrapeAndCacheCitation } from '@/scripts/cache-citation'
+import { scrapeAndCacheWikiLoves } from '@/scripts/scrape-wikiloves'
 import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexical'
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { scrapeAndCacheApod } from '@/scripts/cache-apod'
@@ -78,43 +79,47 @@ export async function GET(request: NextRequest) {
   const results: Record<string, string> = {}
   
   try {
-    console.log('[cron] Step 1/13: Scraping CNRS...')
+    console.log('[cron] Step 1/14: Scraping CNRS...')
     await scrapeAndCacheCnrs()
     results.cnrs = 'ok'
     
-    console.log('[cron] Step 2/13: Scraping Radio France...')
+    console.log('[cron] Step 2/14: Scraping Radio France...')
     await scrapeAndCacheRadioEpisodes()
     results.radio = 'ok'
     
-    console.log('[cron] Step 3/13: Scraping News...')
+    console.log('[cron] Step 3/14: Scraping News...')
     await scrapeAndCacheNews()
     results.news = 'ok'
     
-    console.log('[cron] Step 4/13: Scraping Wikipedia Image (FR)...')
+    console.log('[cron] Step 4/14: Scraping Wikipedia Image (FR)...')
     await scrapeAndCacheWikipediaImages()
     results.wiki = 'ok'
 
-    console.log('[cron] Step 5/13: Scraping Wikipedia Image (EN)...')
+    console.log('[cron] Step 5/14: Scraping Wikipedia Image (EN)...')
     await scrapeAndCacheWikipediaImagesEN()
     results.wikiEn = 'ok'
 
-    console.log('[cron] Step 6/13: Scraping F1 portal...')
+    console.log('[cron] Step 6/14: Scraping F1 portal...')
     await scrapeAndCacheF1()
     results.f1 = 'ok'
 
-    console.log('[cron] Step 7/13: Scraping Portail Wikipédia...')
+    console.log('[cron] Step 7/14: Scraping Portail Wikipédia...')
     await scrapeAndCachePortailWikipedia()
     results.portailWiki = 'ok'
 
-    console.log('[cron] Step 8/13: Scraping Wikiquote...')
+    console.log('[cron] Step 8/14: Scraping Wikiquote...')
     await scrapeAndCacheCitation()
     results.citation = 'ok'
 
-    console.log('[cron] Step 9/13: Scraping Articles insolites...')
+    console.log('[cron] Step 9/14: Scraping Wiki Loves...')
+    await scrapeAndCacheWikiLoves()
+    results.wikiLoves = 'ok'
+
+    console.log('[cron] Step 10/14: Scraping Articles insolites...')
     await scrapeAndCacheInsolite()
     results.insolite = 'ok'
 
-    console.log('[cron] Step 10/13: Cleanup...')
+    console.log('[cron] Step 11/14: Cleanup...')
     const counts = await cleanupExpired()
     const citationSkipped = counts.citation === 0
     const insoliteSkipped = counts.insolite === 0
@@ -137,15 +142,15 @@ export async function GET(request: NextRequest) {
       results.insoliteConfigCleanup = `configs:${oldConfigCleaned}`
     }
 
-    console.log('[cron] Step 11/13: Resolving Saviez-vous images...')
+    console.log('[cron] Step 12/14: Resolving Saviez-vous images...')
     await scrapeAndCacheSaviezVousImages()
     results.saviezvous = 'ok'
 
-    console.log('[cron] Step 12/13: Scraping Portail Lexical Word of the Day...')
+    console.log('[cron] Step 13/14: Scraping Portail Lexical Word of the Day...')
     await scrapeAndCachePortailLexicalWotd()
     results.portailLexical = 'ok'
 
-    console.log('[cron] Step 13/13: Scraping APOD (NASA)...')
+    console.log('[cron] Step 14/14: Scraping APOD (NASA)...')
     await scrapeAndCacheApod()
     results.apod = 'ok'
     

@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
         },
       })
     )
-    const valid = pool.filter(i => i.expiresAt >= now)
+    const valid = pool.filter(i => new Date(i.expiresAt) >= now)
     const randomEntry = valid.length > 0 ? valid[Math.floor(Math.random() * valid.length)] : null
 
     if (randomEntry) {

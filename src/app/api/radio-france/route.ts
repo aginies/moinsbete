@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       where: { expiresAt: { gte: new Date() } },
     })
   )
-  const valid = pool.filter(e => e.expiresAt >= now && (!excludeId || e.title !== excludeId))
+  const valid = pool.filter(e => new Date(e.expiresAt) >= now && (!excludeId || e.title !== excludeId))
   const doc = valid.length > 0 ? valid[Math.floor(Math.random() * valid.length)] : null
 
   if (doc) {

@@ -108,6 +108,22 @@ async function getRedisClient(): Promise<RedisClient | 'fallback' | null> {
   }
 }
 
+const REDIS_OP_TIMEOUT_MS = 2000
+
+export async function withTimeout<T>(promise: Promise<T>, fallback: T, timeoutMs = REDIS_OP_TIMEOUT_MS): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((resolve) => {
+        timer = setTimeout(() => resolve(fallback), timeoutMs)
+      }),
+    ])
+  } finally {
+    if (timer) clearTimeout(timer)
+  }
+}
+
 export function createRedisTtlCache<T>(options?: TtlCacheOptions) {
   const fallbackCache = createTtlCache<T>(options)
   const ttlMs = options?.ttlMs ?? 5 * 60 * 1000
@@ -120,7 +136,7 @@ export function createRedisTtlCache<T>(options?: TtlCacheOptions) {
     const client = await getRedisClient()
     if (client && client !== 'fallback') {
       try {
-        const raw = await client.get(`${prefix}${key}`)
+        const raw = await withTimeout(client.get(`${prefix}${key}`), null)
         if (raw) {
           const value = JSON.parse(raw) as T
           fallbackCache.set(key, value)
@@ -139,7 +155,10 @@ export function createRedisTtlCache<T>(options?: TtlCacheOptions) {
     const client = await getRedisClient()
     if (client && client !== 'fallback') {
       try {
-        await client.set(`${prefix}${key}`, JSON.stringify(value), { EX: Math.ceil(ttlMs / 1000) })
+        await withTimeout(
+          client.set(`${prefix}${key}`, JSON.stringify(value), { EX: Math.ceil(ttlMs / 1000) }),
+          'OK'
+        )
       } catch (err) {
         console.error('Redis set error:', err)
       }
@@ -156,7 +175,7 @@ export function createRedisTtlCache<T>(options?: TtlCacheOptions) {
     const client = await getRedisClient()
     if (client && client !== 'fallback') {
       try {
-        await client.del(`${prefix}${key}`)
+        await withTimeout(client.del(`${prefix}${key}`), 0)
       } catch (err) {
         console.error('Redis del error:', err)
       }
@@ -169,10 +188,10 @@ export function createRedisTtlCache<T>(options?: TtlCacheOptions) {
     const client = await getRedisClient()
     if (client && client !== 'fallback') {
       try {
-        const keys = await client.keys(`${prefix}*`)
+        const keys = await withTimeout(client.keys(`${prefix}*`), [] as string[])
         if (keys.length > 0) {
           for (const key of keys) {
-            await client.del(key)
+            await withTimeout(client.del(key), 0)
           }
         }
       } catch (err) {

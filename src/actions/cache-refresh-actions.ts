@@ -110,6 +110,9 @@ export async function refreshAll(): Promise<RefreshResult> {
     await scrapeAndCacheCitation()
     results.push({ name: 'Citation', ok: true })
 
+    await scrapeAndCacheWikiLoves()
+    results.push({ name: 'Wiki Loves', ok: true })
+
     await scrapeAndCachePortailWikipedia()
     results.push({ name: 'Portail Wikipédia', ok: true })
 
