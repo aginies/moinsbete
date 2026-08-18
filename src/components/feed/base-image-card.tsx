@@ -159,7 +159,7 @@ export function BaseImageCard<TTopic>({
   }, [fetchFn, topics, enablePrefetch])
 
   const loadImage = useCallback(async (direction?: 'prev' | 'next') => {
-    if (nextImage) {
+    if (nextImage && direction) {
       setImage(nextImage)
       setNextImage(null)
       setError(false)
@@ -170,6 +170,7 @@ export function BaseImageCard<TTopic>({
       }
       return
     }
+    setNextImage(null)
     setLoading(true)
     setError(false)
     setIsImageLoaded(false)
@@ -189,6 +190,10 @@ export function BaseImageCard<TTopic>({
     }
     setLoading(false)
   }, [fetchFn, topics, imageStorageKey, nextImage])
+
+  useEffect(() => {
+    setNextImage(null)
+  }, [topics])
 
   useAutoRefresh(storageKey || 'base', loadImage)
 
