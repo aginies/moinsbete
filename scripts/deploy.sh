@@ -242,7 +242,7 @@ fix_weak_password
 
 log "Applying schema with db push..."
 cd "$DEST"
-npx prisma db push 2>&1 | tail -3 || log "db push failed, continuing..."
+npx prisma db push --accept-data-loss 2>&1 | tail -3 || log "db push failed, continuing..."
 
 resolve_legacy_migrations
 apply_pending_migrations
