@@ -1,3 +1,5 @@
+import { decodeHtmlEntities } from '@/lib/utils'
+
 const MYMEMORY_URL = 'https://api.mymemory.translated.net/get'
 const MAX_CHUNK_CHARS = 500
 const CHUNK_DELAY_MS = 500
@@ -61,7 +63,7 @@ async function translateChunk(chunk: string): Promise<string | null> {
     const translated = data?.responseData?.translatedText
     if (!translated) return null
     if (translated.toUpperCase().startsWith('MYMEMORY WARNING')) return null
-    return translated
+    return decodeHtmlEntities(translated)
   } catch {
     return null
   }

@@ -92,11 +92,15 @@ async function upsertApod(data: ApodApiResponse): Promise<boolean> {
   return true
 }
 
+function needsTranslation(value: string | null): boolean {
+  return value === null || value.includes('&#')
+}
+
 async function ensureApodTranslation(date: string, title: string, explanation: string): Promise<void> {
   const existing = await prisma.cachedApodImage.findUnique({ where: { date } })
   if (!existing) return
-  const needTitle = !existing.titleFr
-  const needExplanation = !existing.explanationFr
+  const needTitle = needsTranslation(existing.titleFr)
+  const needExplanation = needsTranslation(existing.explanationFr)
   if (!needTitle && !needExplanation) return
 
   const updates: { titleFr?: string; explanationFr?: string } = {}
@@ -119,7 +123,14 @@ async function ensureApodTranslation(date: string, title: string, explanation: s
 
 async function backfillApodTranslations(): Promise<void> {
   const missing = await prisma.cachedApodImage.findMany({
-    where: { explanationFr: null, expiresAt: { gte: new Date() } },
+    where: {
+      expiresAt: { gte: new Date() },
+      OR: [
+        { explanationFr: null },
+        { titleFr: { contains: '&#' } },
+        { explanationFr: { contains: '&#' } },
+      ],
+    },
     orderBy: { date: 'desc' },
     take: TRANSLATION_BACKFILL_LIMIT,
   })

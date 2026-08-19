@@ -76,6 +76,11 @@ describe('translateEnToFr', () => {
     await expect(translateEnToFr('Hello world')).resolves.toBe('Bonjour le monde')
   })
 
+  it('decodes HTML entities from translated text', async () => {
+    mockMyMemory({ "Curious knots in the Helix Nebula": "Curieux nœuds cométaires dans la nébuleuse de l&#39;Hélice" })
+    await expect(translateEnToFr('Curious knots in the Helix Nebula')).resolves.toBe("Curieux nœuds cométaires dans la nébuleuse de l'Hélice")
+  })
+
   it('splits long text and joins translations', async () => {
     const s1 = 'First sentence here.'
     const s2 = 'Second sentence here.'
