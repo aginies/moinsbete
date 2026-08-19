@@ -39,6 +39,7 @@ const CARD_DEFINITIONS: { key: string; label: string; icon: string }[] = [
   { key: 'citation', label: 'Citations', icon: '💬' },
   { key: 'insolite', label: 'Insolite', icon: '✨' },
   { key: 'apod', label: 'APOD', icon: '🔭' },
+  { key: 'airCrash', label: 'Air Crash Investigation', icon: '✈️' },
 ]
 
 const DEFAULT_ORDER = CARD_DEFAULT_ORDER
