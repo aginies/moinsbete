@@ -31,6 +31,8 @@ interface BaseImage {
   description: string
   droits: string
   link: string
+  titreFr?: string
+  descriptionFr?: string
 }
 
 interface BaseImageCardConfig<TTopic> {
@@ -228,6 +230,8 @@ export function BaseImageCard<TTopic>({
         link: image!.link,
         droits: image!.droits,
         description: image!.description,
+        titreFr: image!.titreFr,
+        descriptionFr: image!.descriptionFr,
       })
     },
   })
@@ -328,7 +332,7 @@ export function BaseImageCard<TTopic>({
                  )
                )}
               {image && config.resourceType && (
-                <ShareToLobbyButton resourceId={image.docid} resourceType={config.resourceType} meta={{ titre: image.titre, auteur: image.auteur, imageUrl: image.imageUrl, link: image.link, droits: image.droits }} />
+                <ShareToLobbyButton resourceId={image.docid} resourceType={config.resourceType} meta={{ titre: image.titre, auteur: image.auteur, imageUrl: image.imageUrl, link: image.link, droits: image.droits, description: image.description, titreFr: image.titreFr, descriptionFr: image.descriptionFr }} />
               )}
            </div>
         }

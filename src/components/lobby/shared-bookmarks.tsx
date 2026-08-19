@@ -129,6 +129,8 @@ interface SharedBookmark {
     date: string
     title: string
     explanation: string
+    titleFr?: string | null
+    explanationFr?: string | null
     imageUrl: string
     hdImageUrl: string | null
     copyright: string | null
@@ -980,6 +982,8 @@ function ApodBookmarkItem({
   const [isAdding, setIsAdding] = useState(false)
   const isFavorite = bookmark.resourceId ? userFavoriteIds.APOD.has(bookmark.resourceId) : false
   const showBookmarkBtn = currentUserId !== bookmark.user.id && isAdmin === false && !isFavorite
+  const titre = locale === 'fr' && bookmark.apodImage.titleFr ? bookmark.apodImage.titleFr : bookmark.apodImage.title
+  const explanation = locale === 'fr' && bookmark.apodImage.explanationFr ? bookmark.apodImage.explanationFr : bookmark.apodImage.explanation
 
   const handleAddToFavorites = async () => {
     if (isAdding || !bookmark.resourceId) return
@@ -992,6 +996,8 @@ function ApodBookmarkItem({
         link: bookmark.apodImage.apodUrl,
         droits: 'NASA / APOD',
         description: bookmark.apodImage.explanation,
+        titreFr: bookmark.apodImage.titleFr || undefined,
+        descriptionFr: bookmark.apodImage.explanationFr || undefined,
       })
       if (result.success) {
         router.refresh()
@@ -1019,7 +1025,7 @@ function ApodBookmarkItem({
           >
             <img
               src={sanitizeUrl(bookmark.apodImage.imageUrl, '')}
-              alt={bookmark.apodImage.title}
+              alt={titre}
               loading="lazy"
               className="w-full h-32 object-cover transition-opacity hover:opacity-90"
               onError={(e) => {
@@ -1030,16 +1036,16 @@ function ApodBookmarkItem({
           </div>
         )}
         <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
-          {bookmark.apodImage.title}
+          {titre}
         </p>
         {bookmark.apodImage.copyright && (
           <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-1">
             {bookmark.apodImage.copyright}
           </p>
         )}
-        {bookmark.apodImage.explanation && (
+        {explanation && (
           <p className="text-xs text-indigo-800 dark:text-indigo-200 mb-2 line-clamp-3">
-            {bookmark.apodImage.explanation}
+            {explanation}
           </p>
         )}
         <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-2">
@@ -1105,7 +1111,7 @@ function ApodBookmarkItem({
       {showFullImage && (
         <ImageLightbox
           src={bookmark.apodImage.imageUrl}
-          alt={bookmark.apodImage.title}
+          alt={titre}
           onClose={() => setShowFullImage(false)}
         />
       )}

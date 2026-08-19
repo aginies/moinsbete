@@ -118,8 +118,8 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
     useShareToLobby<{ id: string; text: string; signification: string; source: string; wiktionnaireUrl?: string; etymologie?: string; definitions?: string[] }>('PROVERBE', sharedProverbeIds, setSharedProverbeIds, (item) => item.id,
       (item) => ({ text: item.text, signification: item.signification, source: item.source, wiktionnaireUrl: item.wiktionnaireUrl, etymologie: item.etymologie, definitions: item.definitions }))
   const { toggle: handleApodShare, isSharing: apodIsSharing } =
-    useShareToLobby<{ id: string; titre: string; auteur: string; imageUrl: string; link: string; droits: string; description: string }>('APOD', sharedApodIds, setSharedApodIds, (item) => item.id,
-      (item) => ({ titre: item.titre, auteur: item.auteur, imageUrl: item.imageUrl, link: item.link, droits: item.droits, description: item.description }))
+    useShareToLobby<{ id: string; titre: string; auteur: string; imageUrl: string; link: string; droits: string; description: string; titreFr?: string; descriptionFr?: string }>('APOD', sharedApodIds, setSharedApodIds, (item) => item.id,
+      (item) => ({ titre: item.titre, auteur: item.auteur, imageUrl: item.imageUrl, link: item.link, droits: item.droits, description: item.description, titreFr: item.titreFr, descriptionFr: item.descriptionFr }))
 
   const filteredIdeas = useMemo(() => {
     if (!searchQuery.trim()) return ideas

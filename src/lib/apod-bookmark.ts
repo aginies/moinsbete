@@ -10,6 +10,8 @@ export interface ApodFavoriteDoc {
   link: string
   droits: string
   description: string
+  titreFr: string
+  descriptionFr: string
   date: string
   favoritedAt: string
 }
@@ -21,6 +23,8 @@ export interface ApodFavoriteMeta {
   link?: string
   droits?: string
   description?: string
+  titreFr?: string
+  descriptionFr?: string
 }
 
 export const APOD_TYPE: BookmarkType = 'APOD'
@@ -36,6 +40,8 @@ export const apodManager = createBookmarkManager(APOD_TYPE, (meta, resourceId) =
     link: apodPageUrl(resourceId) || m.link || '',
     droits: m.droits || '',
     description: m.description || '',
+    titreFr: m.titreFr || '',
+    descriptionFr: m.descriptionFr || '',
     date: resourceId,
     favoritedAt: new Date().toISOString(),
   }

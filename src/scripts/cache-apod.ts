@@ -1,11 +1,13 @@
 import { prisma } from '@/lib/db'
 import { sleep } from '@/lib/cache-helpers'
 import { apodPageUrl, decodeHtmlEntities } from '@/lib/utils'
+import { translateEnToFr } from '@/lib/translate'
 import { runCacheScript } from './cache-script-helper'
 
 const NASA_API_KEY = process.env.NASA_API_KEY || 'DEMO_KEY'
 const BACKFILL_DAYS = 30
 const MIN_POOL_SIZE = 30
+const TRANSLATION_BACKFILL_LIMIT = 10
 
 interface ApodApiResponse {
   date: string
@@ -90,6 +92,45 @@ async function upsertApod(data: ApodApiResponse): Promise<boolean> {
   return true
 }
 
+async function ensureApodTranslation(date: string, title: string, explanation: string): Promise<void> {
+  const existing = await prisma.cachedApodImage.findUnique({ where: { date } })
+  if (!existing) return
+  const needTitle = !existing.titleFr
+  const needExplanation = !existing.explanationFr
+  if (!needTitle && !needExplanation) return
+
+  const updates: { titleFr?: string; explanationFr?: string } = {}
+  if (needTitle) {
+    const translated = await translateEnToFr(title)
+    if (translated) updates.titleFr = translated
+  }
+  if (needExplanation) {
+    const translated = await translateEnToFr(explanation)
+    if (translated) updates.explanationFr = translated
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await prisma.cachedApodImage.update({ where: { date }, data: updates })
+    console.log(`  ${date}: FR translation stored`)
+  } else {
+    console.log(`  ${date}: FR translation failed, will retry next run`)
+  }
+}
+
+async function backfillApodTranslations(): Promise<void> {
+  const missing = await prisma.cachedApodImage.findMany({
+    where: { explanationFr: null, expiresAt: { gte: new Date() } },
+    orderBy: { date: 'desc' },
+    take: TRANSLATION_BACKFILL_LIMIT,
+  })
+  if (missing.length === 0) return
+  console.log(`  Translating ${missing.length} cached images to FR...`)
+  for (const row of missing) {
+    await ensureApodTranslation(row.date, row.title, row.explanation)
+    await sleep(1000)
+  }
+}
+
 export async function scrapeAndCacheApod(): Promise<void> {
   console.log('🔭 Scraping APOD (NASA)...')
 
@@ -116,11 +157,14 @@ export async function scrapeAndCacheApod(): Promise<void> {
     if (item && (await upsertApod(item))) {
       total++
       console.log(`  ${date}: ${item.title}`)
+      await ensureApodTranslation(date, decodeHtmlEntities(item.title), decodeHtmlEntities(item.explanation || ''))
     } else {
       console.log(`  ${date}: skipped (video or unavailable)`)
     }
     await sleep(2000)
   }
+
+  await backfillApodTranslations()
 
   console.log(`  ✅ ${total} APOD images upserted`)
 }

@@ -12,7 +12,7 @@ import { ImageHint } from './image-hint'
 import { ShareButton } from './share-button'
 import { useItemShare } from './use-item-share'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 import { ApodFavoriteDoc } from '@/lib/apod-bookmark'
 
@@ -29,10 +29,13 @@ interface ApodBookmarksProps {
 
 function ApodFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareToggle, isSharing }: { item: ApodFavoriteDoc; onRemove: () => void; onShowFullImage: (url: string) => void; isShared: boolean; onShareToggle: () => void; isSharing: boolean }) {
   const t = useTranslations('feed')
+  const locale = useLocale()
+  const titre = locale === 'fr' && item.titreFr ? item.titreFr : item.titre
+  const description = locale === 'fr' && item.descriptionFr ? item.descriptionFr : item.description
   const { handleShare, copied, shareUrl } = useItemShare({
     shareUrl: item.link,
-    title: `APOD - ${item.titre}`,
-    text: `${item.titre}\n${item.auteur}\n\n${item.description ?? ''}`,
+    title: `APOD - ${titre}`,
+    text: `${titre}\n${item.auteur}\n\n${description ?? ''}`,
     itemId: item.id,
   })
 
@@ -47,7 +50,7 @@ function ApodFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareTo
             <img
               decoding="async"
               src={sanitizeUrl(item.imageUrl, '')}
-              alt={item.titre}
+              alt={titre}
               loading="lazy"
               className="max-w-full transition-opacity hover:opacity-90 rounded-xl"
               onError={(e) => {
@@ -58,16 +61,16 @@ function ApodFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareTo
           </div>
         )}
         <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
-          {item.titre}
+          {titre}
         </p>
         {item.auteur && (
           <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-1">
             {item.auteur}
           </p>
         )}
-        {item.description && (
+        {description && (
           <p className="text-sm leading-relaxed text-indigo-900 dark:text-indigo-100 mb-2">
-            {item.description}
+            {description}
           </p>
         )}
         {isValidUrl(item.link) && (
@@ -84,7 +87,7 @@ function ApodFavoriteItem({ item, onRemove, onShowFullImage, isShared, onShareTo
       </div>
       <div className="flex flex-col gap-2">
         <ShareButton onClick={handleShare} copied={copied} shareUrl={shareUrl} />
-        <ShareToLobbyButton resourceId={item.id} resourceType="APOD" meta={{ titre: item.titre, auteur: item.auteur, imageUrl: item.imageUrl, link: item.link, droits: item.droits }} />
+        <ShareToLobbyButton resourceId={item.id} resourceType="APOD" meta={{ titre: item.titre, auteur: item.auteur, imageUrl: item.imageUrl, link: item.link, droits: item.droits, description: item.description, titreFr: item.titreFr || undefined, descriptionFr: item.descriptionFr || undefined }} />
         <button
           onClick={onRemove}
           className="rounded-full p-1.5 text-red-500 opacity-60 hover:opacity-100 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/40 transition-all"
@@ -126,7 +129,7 @@ export function ApodBookmarks({ userId, onRemoveComplete, sharedIds, onShareTogg
         onRemoveComplete={onRemoveComplete}
         fetchFn={fetchFn}
         searchQuery={searchQuery}
-        searchFields={(item) => `${item.titre} ${item.description ?? ''}`}
+        searchFields={(item) => `${item.titre} ${item.titreFr} ${item.description ?? ''} ${item.descriptionFr ?? ''}`}
         renderItem={(item, onRemove) => (
           <ApodFavoriteItem item={item} onRemove={onRemove} onShowFullImage={setShowFullImage} isShared={sharedIds.has(item.id)} onShareToggle={() => onShareToggle && onShareToggle(item)} isSharing={isSharing === item.id} />
         )}

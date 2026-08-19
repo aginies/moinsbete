@@ -422,16 +422,18 @@ model CachedInsoliteArticle {
 }
 
 model CachedApodImage {
-  id          String   @id @default(cuid())
-  date        String   @unique
-  title       String
-  explanation String
-  imageUrl    String
-  hdImageUrl  String?
-  copyright   String?
-  apodUrl     String
-  scrapedAt   DateTime @default(now())
-  expiresAt   DateTime
+  id             String   @id @default(cuid())
+  date           String   @unique
+  title          String
+  explanation    String
+  titleFr        String?
+  explanationFr  String?
+  imageUrl       String
+  hdImageUrl     String?
+  copyright      String?
+  apodUrl        String
+  scrapedAt      DateTime @default(now())
+  expiresAt      DateTime
 
   @@index([expiresAt])
 }

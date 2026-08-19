@@ -150,8 +150,8 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           if (title.includes(q) || extract.includes(q)) return true
         }
         if ((b as any).apodImage) {
-          const title = ((b as any).apodImage.title || '').toLowerCase()
-          const explanation = ((b as any).apodImage.explanation || '').toLowerCase()
+          const title = `${(b as any).apodImage.title || ''} ${(b as any).apodImage.titleFr || ''}`.toLowerCase()
+          const explanation = `${(b as any).apodImage.explanation || ''} ${(b as any).apodImage.explanationFr || ''}`.toLowerCase()
           if (title.includes(q) || explanation.includes(q)) return true
         }
         if ((b as any).airCrashArticle) {
@@ -217,8 +217,8 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           if (title.includes(q) || extract.includes(q)) return true
         }
         if ((b as any).apodImage) {
-          const title = ((b as any).apodImage.title || '').toLowerCase()
-          const explanation = ((b as any).apodImage.explanation || '').toLowerCase()
+          const title = `${(b as any).apodImage.title || ''} ${(b as any).apodImage.titleFr || ''}`.toLowerCase()
+          const explanation = `${(b as any).apodImage.explanation || ''} ${(b as any).apodImage.explanationFr || ''}`.toLowerCase()
           if (title.includes(q) || explanation.includes(q)) return true
         }
         if ((b as any).airCrashArticle) {
@@ -283,8 +283,8 @@ export function LobbyTabs({ suggestions, sharedBookmarks, sharedWithMeBookmarks,
           if (title.includes(q) || extract.includes(q)) return true
         }
         if ((b as any).apodImage) {
-          const title = ((b as any).apodImage.title || '').toLowerCase()
-          const explanation = ((b as any).apodImage.explanation || '').toLowerCase()
+          const title = `${(b as any).apodImage.title || ''} ${(b as any).apodImage.titleFr || ''}`.toLowerCase()
+          const explanation = `${(b as any).apodImage.explanation || ''} ${(b as any).apodImage.explanationFr || ''}`.toLowerCase()
           if (title.includes(q) || explanation.includes(q)) return true
         }
         if ((b as any).airCrashArticle) {

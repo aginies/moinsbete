@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useRef } from 'react'
 import { Telescope, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import { useLocale } from 'next-intl'
 import { BaseImageCard } from './base-image-card'
 import { sanitizeUrl } from '@/lib/utils'
 import { fetchCardImage } from '@/lib/fetch-card-image'
@@ -18,6 +19,20 @@ interface ApodImage {
   droits: string
   link: string
   date: string
+  titreFr?: string
+  descriptionFr?: string
+}
+
+const APOD_LANG_KEY = 'apod_lang'
+
+function readSavedLang(): 'fr' | 'en' | null {
+  if (typeof localStorage === 'undefined') return null
+  try {
+    const v = localStorage.getItem(APOD_LANG_KEY)
+    return v === 'fr' || v === 'en' ? v : null
+  } catch {
+    return null
+  }
 }
 
 function todayStr(): string {
@@ -56,6 +71,17 @@ function ApodCardInner({
   initialDate,
 }: ApodCardProps) {
   const [topics] = useState<unknown[]>([])
+  const locale = useLocale()
+  const [lang, setLang] = useState<'fr' | 'en'>(() => readSavedLang() ?? (locale === 'en' ? 'en' : 'fr'))
+
+  const handleLangChange = useCallback((l: 'fr' | 'en') => {
+    setLang(l)
+    try {
+      localStorage.setItem(APOD_LANG_KEY, l)
+    } catch {
+      // ignore
+    }
+  }, [])
 
   const [startDate] = useState<string>(() => {
     if (initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate)) return initialDate
@@ -139,45 +165,66 @@ function ApodCardInner({
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
         />
       )}
-      renderMetadata={(img) => (
-        <>
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">
-              {img.titre}
-            </p>
-            {img.docid && (
-              <span className="flex-shrink-0 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
-                {formatApodDate(img.docid)}
+      renderMetadata={(img) => {
+        const hasFr = Boolean(img.titreFr || img.descriptionFr)
+        const titre = lang === 'fr' && img.titreFr ? img.titreFr : img.titre
+        const description = lang === 'fr' && img.descriptionFr ? img.descriptionFr : img.description
+        return (
+          <>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">
+                {titre}
+              </p>
+              <span className="flex flex-shrink-0 items-center gap-1">
+                {hasFr && (
+                  <span className="flex items-center gap-0.5 rounded-full bg-indigo-100 p-0.5 dark:bg-indigo-900/40">
+                    {(['fr', 'en'] as const).map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); handleLangChange(l) }}
+                        className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase transition-colors ${lang === l ? 'bg-indigo-600 text-white' : 'text-indigo-700 hover:bg-indigo-200 dark:text-indigo-300 dark:hover:bg-indigo-800/60'}`}
+                      >
+                        {l}
+                      </button>
+                    ))}
+                  </span>
+                )}
+                {img.docid && (
+                  <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                    {formatApodDate(img.docid)}
+                  </span>
+                )}
               </span>
+            </div>
+            {img.auteur && (
+              <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-1">
+                {img.auteur}
+              </p>
             )}
-          </div>
-          {img.auteur && (
-            <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-1">
-              {img.auteur}
+            {description && (
+              <p className="text-sm leading-relaxed text-indigo-900 dark:text-indigo-100 mb-2">
+                {description}
+              </p>
+            )}
+            <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-2">
+              {img.droits || 'NASA / APOD'}
             </p>
-          )}
-          {img.description && (
-            <p className="text-sm leading-relaxed text-indigo-900 dark:text-indigo-100 mb-2">
-              {img.description}
-            </p>
-          )}
-          <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-2">
-            {img.droits || 'NASA / APOD'}
-          </p>
-          {img.link && (
-            <Link
-              href={sanitizeUrl(img.link)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-xs text-indigo-700 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 hover:underline"
-            >
-              Voir sur APOD
-              <ExternalLink className="h-3 w-3" />
-            </Link>
-          )}
-        </>
-      )}
+            {img.link && (
+              <Link
+                href={sanitizeUrl(img.link)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 text-xs text-indigo-700 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 hover:underline"
+              >
+                Voir sur APOD
+                <ExternalLink className="h-3 w-3" />
+              </Link>
+            )}
+          </>
+        )
+      }}
     />
   )
 }
