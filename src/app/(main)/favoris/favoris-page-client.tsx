@@ -186,18 +186,10 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   useEffect(() => {
     const list = tabsListRef.current
     if (!list || window.innerWidth >= 768) return
-    const active = list.querySelector<HTMLElement>('[data-active]')
-    if (!active) return
-    const listRect = list.getBoundingClientRect()
-    const elRect = active.getBoundingClientRect()
-    const left = elRect.left - listRect.left + list.scrollLeft - 8
-    const right = left + elRect.width + 16
-    if (left < list.scrollLeft) {
-      list.scrollTo({ left, behavior: 'smooth' })
-    } else if (right > list.scrollLeft + list.clientWidth) {
-      list.scrollTo({ left: right - list.clientWidth, behavior: 'smooth' })
+    if (searchQuery?.trim()) {
+      list.scrollTo({ left: 0, behavior: 'smooth' })
     }
-  }, [activeTab, searchQuery])
+  }, [searchQuery])
 
   useEffect(() => {
     if (!hasInitialSet.current && activeTab === 'idees' && derivedIdeasCount === 0) {
@@ -232,7 +224,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-6">
         <div className="w-full">
-          <TabsList ref={tabsListRef} className="flex w-full h-auto gap-x-1 overflow-x-auto pt-0 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-muted rounded-lg min-h-0 md:w-fit md:flex-wrap md:gap-y-2 md:overflow-visible md:pb-28">
+          <TabsList ref={tabsListRef} className="flex w-full h-auto justify-start md:justify-center gap-x-1 overflow-x-auto pt-0 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-muted rounded-lg min-h-0 md:w-fit md:flex-wrap md:gap-y-2 md:overflow-visible md:pb-28">
             {searchQuery && (
               <TabsTrigger value="results" className={triggerClass} style={{ height: 'auto' }}>
                 <Search className="h-4 w-4" /> Résultats ({searchResults.length})
