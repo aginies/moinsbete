@@ -30,6 +30,7 @@ interface InsoliteCardProps {
   showToggle?: boolean
   showBookmark?: boolean
   showShare?: boolean
+  showLink?: boolean
   isVisible?: boolean
   onToggle?: () => void
 }
@@ -49,6 +50,7 @@ export const InsoliteCard = React.memo(function InsoliteCardInner({
   showToggle = true,
   showBookmark = true,
   showShare = true,
+  showLink = true,
   isVisible,
   onToggle,
  }: InsoliteCardProps) {
@@ -106,6 +108,8 @@ export const InsoliteCard = React.memo(function InsoliteCardInner({
         color="purple"
         icon={<Sparkles className={'h-4 w-4 ' + c.iconForeground} />}
         title={t('insolite_tab')}
+        showLink={showLink}
+        linkHref={showLink ? '/insolite' : undefined}
         showToggle={showToggle}
         onToggle={onToggle}
         showRefresh={false}
