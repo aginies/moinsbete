@@ -444,8 +444,8 @@ src/components/
 
 | Prop | Type | Défaut | Valeurs |
 |------|------|--------|---------|
-| `shape` | `CardShape` | `'round'` | `'square'`, `'slight'`, `'default'`, `'round'`, `'pill'` |
-| `borderStyle` | `CardBorderStyle` | `'medium'` | `'none'`, `'thin'`, `'medium'`, `'thick'`, `'dashed'`, `'dotted'`, `'double'` |
+| `shape` | `CardShape` | `'slight'` | `'square'`, `'slight'`, `'default'`, `'round'`, `'pill'` |
+| `borderStyle` | `CardBorderStyle` | `'thin'` | `'none'`, `'thin'`, `'medium'`, `'thick'`, `'dashed'`, `'dotted'`, `'double'` |
 | `shadow` | `CardShadow` | `'md'` | `'none'`, `'sm'`, `'default'`, `'md'`, `'lg'`, `'xl'`, `'2xl'`, `'inner'` |
 | `compact` | `CardCompact` | `'default'` | `'default'`, `'compact'`, `'tight'` |
 

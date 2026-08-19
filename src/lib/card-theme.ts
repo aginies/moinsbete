@@ -11,8 +11,8 @@ export interface CardLayout {
 }
 
 export const DEFAULT_CARD_LAYOUT: CardLayout = {
-  shape: 'round',
-  borderStyle: 'medium',
+  shape: 'slight',
+  borderStyle: 'thin',
   shadow: 'md',
   compact: 'default',
 }

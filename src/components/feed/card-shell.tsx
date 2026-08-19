@@ -13,6 +13,7 @@ import {
   CARD_BORDER_STYLES,
   CARD_SHADOWS,
   CARD_COMPACTIONS,
+  DEFAULT_CARD_LAYOUT,
 } from '@/lib/card-theme'
 
 interface CardShellProps {
@@ -32,10 +33,10 @@ export function CardShell({
   color,
   padding,
   noPadding,
-  shape = 'round',
-  borderStyle = 'medium',
-  shadow = 'md',
-  compact = 'default',
+  shape = DEFAULT_CARD_LAYOUT.shape,
+  borderStyle = DEFAULT_CARD_LAYOUT.borderStyle,
+  shadow = DEFAULT_CARD_LAYOUT.shadow,
+  compact = DEFAULT_CARD_LAYOUT.compact,
   children,
   className,
   style,
