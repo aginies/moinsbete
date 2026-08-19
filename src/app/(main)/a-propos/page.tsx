@@ -56,7 +56,7 @@ export default async function AproposPage() {
           <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">100% gratuit</h2>
           <p className="text-muted-foreground">
             MoinsBête est gratuit. Pas de publicité, pas d&apos;abonnement.
-            Juste de l&apos;apprentissage de qualité, sans friction.
+            Juste de l&apos;apprentissage de qualité.
           </p>
         </section>
 
@@ -367,13 +367,12 @@ export default async function AproposPage() {
         {/* ——— SOURCES ——— */}
         <section id="sources" className="pt-6 border-t border-border/40">
           <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Sources des contenus</h2>
-          <p className="text-muted-foreground">
-           Le contenu de MoinsBête provient de multiples sources de qualité en français :
-              Wikipédia, Wiktionary, le journal du CNRS, FreeNewsAPI, Wikimedia Commons,
-              Radio France, Pixabay, la Formule 1 (FIA), Wiki Loves, le Portail Lexical,
-             Wikiquote, les articles insolites de Wikipédia, la NASA (APOD) et
-             Aviation Safety Network (ASN).
-          </p>
+           <p className="text-muted-foreground">
+            Le contenu de MoinsBête provient de multiples sources de qualité en français :
+               Wikipédia, Wiktionary, le journal du CNRS, FreeNewsAPI, Wikimedia Commons,
+               Radio France, Pixabay, la Formule 1 (FIA), Wiki Loves, le Portail Lexical,
+              Wikiquote, les articles insolites de Wikipédia et la NASA (APOD).
+           </p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-lg border border-border/60 p-4">
               <h3 className="mb-1 font-semibold">Wikipédia</h3>
@@ -517,18 +516,6 @@ export default async function AproposPage() {
                 className="mt-2 inline-block text-xs text-primary hover:underline"
               >
                 apod.nasa.gov →
-              </a>
-            </div>
-            <div className="rounded-lg border border-border/60 p-4">
-              <h3 className="mb-1 font-semibold">Aviation Safety Network</h3>
-              <p className="text-sm text-muted-foreground">Enquêtes sur les accidents d&apos;aviation</p>
-              <a
-                href="https://aviation-safety.net"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-block text-xs text-primary hover:underline"
-              >
-                aviation-safety.net →
               </a>
             </div>
           </div>
