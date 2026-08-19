@@ -148,6 +148,19 @@ export default async function AproposPage() {
           </section>
 
           <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Espace — Image du jour NASA</h3>
+            <p className="text-muted-foreground">
+              Chaque jour, une image astronomique sélectionnée par la NASA (Astronomy Picture of the Day) :
+              galaxies, nébuleuses, planètes, missions spatiales et phénomènes célestes, avec une explication
+              rédigée par des astronomes. Parcourez les jours précédents en swipant, et retrouvez vos images
+              préférées dans vos favoris.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Les images sont fournies par l&apos;API publique de la NASA et mises en cache 30 jours.
+            </p>
+          </section>
+
+          <section className="mt-4">
             <h3 className="mb-2 text-lg font-medium text-foreground/90">Documentaires Radio France</h3>
             <p className="text-muted-foreground">
               Découvrez des documentaires audio de qualité depuis Radio France.
@@ -230,6 +243,20 @@ export default async function AproposPage() {
               ainsi que des faits intéressants sur le monde de la automobile.
             </p>
           </section>
+
+          <section className="mt-4">
+            <h3 className="mb-2 text-lg font-medium text-foreground/90">Air Crash Investigation</h3>
+            <p className="text-muted-foreground">
+              Chaque jour, une enquête sur un accident d&apos;avion historique, tirée de Wikipédia :
+              plus de 230 enquêtes couvrant les grands accidents et incidents aériens depuis les années 1930.
+              Chaque carte renvoie vers la fiche de l&apos;accident sur Aviation Safety Network, la base de
+              données de référence sur la sécurité aérienne, pour approfondir l&apos;enquête officielle.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sauvegardez vos enquêtes préférées dans vos favoris et retrouvez-les
+              facilement dans l&apos;onglet Air Crash Investigation de votre page favoris.
+            </p>
+          </section>
         </section>
 
         {/* ——— COMMUNAUTÉ ——— */}
@@ -245,7 +272,7 @@ export default async function AproposPage() {
             <p className="text-muted-foreground">
               Chaque utilisateur peut partager ses favoris avec la communauté. Pour qu&apos;un contenu apparaisse dans les favoris partagés,
               il doit d&apos;abord être ajouté aux favoris de l&apos;utilisateur. Les favoris incluent les idées, faits surprenants, images du jour,
-              images Wikimedia et Wiki Loves, citations, articles Portail Wikipédia, articles insolites.
+              images Wikimedia et Wiki Loves, images NASA APOD, citations, articles Portail Wikipédia, articles insolites et enquêtes Air Crash.
             </p>
             <h4 className="mt-4 mb-2 text-base font-medium text-foreground/80">Partagé avec vous</h4>
             <p className="text-muted-foreground">
@@ -267,7 +294,7 @@ export default async function AproposPage() {
           <section className="mt-4">
             <h3 className="mb-2 text-lg font-medium text-foreground/90">Partagez tout le contenu</h3>
             <p className="text-muted-foreground">
-              Chaque idée, fait, image, article du CNRS, article NEWS, article F1, documentaire Radio France, vidéo Pixabay, citation, article Portail Wikipédia, article insolite et page de MoinsBête peut être partagée
+              Chaque idée, fait, image, article du CNRS, article NEWS, article F1, documentaire Radio France, vidéo Pixabay, citation, article Portail Wikipédia, article insolite, image NASA APOD, enquête Air Crash et page de MoinsBête peut être partagée
               facilement. Utilisez le bouton de partage pour envoyer du contenu par email, réseaux sociaux
               ou copier le lien directement.
             </p>
@@ -314,7 +341,7 @@ export default async function AproposPage() {
               <div className="text-2xl font-bold text-primary">{stats.saviezVous.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Le saviez-vous ?</div>
             </div>
-            <div className="rounded-lg border border-border/60 p-4 text-center col-span-2 sm:col-span-1">
+            <div className="rounded-lg border border-border/60 p-4 text-center">
               <div className="text-2xl font-bold text-primary">{stats.proverbes.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Proverbes</div>
             </div>
@@ -326,6 +353,14 @@ export default async function AproposPage() {
               <div className="text-2xl font-bold text-primary">{stats.insolite.toLocaleString('fr-FR')}</div>
               <div className="text-sm text-muted-foreground">Articles insolites</div>
             </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">{stats.apod.toLocaleString('fr-FR')}</div>
+              <div className="text-sm text-muted-foreground">Images NASA APOD</div>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4 text-center">
+              <div className="text-2xl font-bold text-primary">{stats.airCrash.toLocaleString('fr-FR')}</div>
+              <div className="text-sm text-muted-foreground">Enquêtes Air Crash</div>
+            </div>
           </div>
         </section>
 
@@ -334,9 +369,10 @@ export default async function AproposPage() {
           <h2 className="mb-3 text-2xl font-bold tracking-tight text-foreground">Sources des contenus</h2>
           <p className="text-muted-foreground">
            Le contenu de MoinsBête provient de multiples sources de qualité en français :
-             Wikipédia, Wiktionary, le journal du CNRS, FreeNewsAPI, Wikimedia Commons,
-             Radio France, Pixabay, la Formule 1 (FIA), Wiki Loves, le Portail Lexical,
-            Wikiquote, et les articles insolites de Wikipédia.
+              Wikipédia, Wiktionary, le journal du CNRS, FreeNewsAPI, Wikimedia Commons,
+              Radio France, Pixabay, la Formule 1 (FIA), Wiki Loves, le Portail Lexical,
+             Wikiquote, les articles insolites de Wikipédia, la NASA (APOD) et
+             Aviation Safety Network (ASN).
           </p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-lg border border-border/60 p-4">
@@ -469,6 +505,30 @@ export default async function AproposPage() {
                 className="mt-2 inline-block text-xs text-primary hover:underline"
               >
                 atlas.atilf.fr/tlfi →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">NASA APOD</h3>
+              <p className="text-sm text-muted-foreground">Astronomy Picture of the Day</p>
+              <a
+                href="https://apod.nasa.gov/apod/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                apod.nasa.gov →
+              </a>
+            </div>
+            <div className="rounded-lg border border-border/60 p-4">
+              <h3 className="mb-1 font-semibold">Aviation Safety Network</h3>
+              <p className="text-sm text-muted-foreground">Enquêtes sur les accidents d&apos;aviation</p>
+              <a
+                href="https://aviation-safety.net"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-primary hover:underline"
+              >
+                aviation-safety.net →
               </a>
             </div>
           </div>

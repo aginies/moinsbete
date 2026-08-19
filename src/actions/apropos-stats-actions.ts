@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db'
 import { CACHE_SOURCES } from '@/lib/admin-cache-config'
 
-const CACHE_KEY = 'apropos_stats'
+const CACHE_KEY = 'apropos_stats_v2'
 const TTL_MS = 24 * 60 * 60 * 1000
 
 export interface AproposStats {
@@ -17,6 +17,8 @@ export interface AproposStats {
   proverbes: number
   citations: number
   insolite: number
+  apod: number
+  airCrash: number
 }
 
 async function computeStats(): Promise<AproposStats> {
@@ -47,6 +49,8 @@ async function computeStats(): Promise<AproposStats> {
     proverbes: proverbeRow ? (() => { try { return JSON.parse(proverbeRow.value).length } catch { return 0 } })() : 0,
     citations: num('citationArticles'),
     insolite: num('insoliteArticles'),
+    apod: num('apodImages'),
+    airCrash: num('airCrashArticles'),
   }
 }
 
