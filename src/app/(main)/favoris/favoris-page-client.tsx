@@ -58,7 +58,7 @@ interface SourceTabConfig {
 }
 
 const triggerClass =
-  'flex-shrink-0 w-[calc(50%-4px)] sm:w-[calc(50%-4px)] md:w-[calc(33.33%-4px)] lg:w-[calc(16.66%-4px)] xl:w-[calc(20%-4px)] h-auto flex items-start justify-center gap-1.5 px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer bg-muted data-active:bg-background'
+  'flex-shrink-0 grow-0 w-auto md:w-[calc(33.33%-4px)] lg:w-[calc(16.66%-4px)] xl:w-[calc(20%-4px)] h-auto flex items-start justify-center gap-1.5 px-2 py-1 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer bg-muted data-active:bg-background'
 
 function IdeaShareButton({ idea }: { idea: CompactIdea }) {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
@@ -79,6 +79,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   const hasInitialSet = useRef(false)
   const [searchQuery, setSearchQuery] = useState('')
   const previousTabRef = useRef<Tab | null>(null)
+  const tabsListRef = useRef<HTMLDivElement>(null)
   const { savedIdeaIds, handleBookmark } = useBookmarkToggle(ideas)
 
   // Shared resources
@@ -183,6 +184,22 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
   }, [searchQuery, activeTab])
 
   useEffect(() => {
+    const list = tabsListRef.current
+    if (!list || window.innerWidth >= 768) return
+    const active = list.querySelector<HTMLElement>('[data-active]')
+    if (!active) return
+    const listRect = list.getBoundingClientRect()
+    const elRect = active.getBoundingClientRect()
+    const left = elRect.left - listRect.left + list.scrollLeft - 8
+    const right = left + elRect.width + 16
+    if (left < list.scrollLeft) {
+      list.scrollTo({ left, behavior: 'smooth' })
+    } else if (right > list.scrollLeft + list.clientWidth) {
+      list.scrollTo({ left: right - list.clientWidth, behavior: 'smooth' })
+    }
+  }, [activeTab, searchQuery])
+
+  useEffect(() => {
     if (!hasInitialSet.current && activeTab === 'idees' && derivedIdeasCount === 0) {
       const first = sortedTabs.find(tab => (c[tab.countKey] || 0) > 0)
       if (first) { hasInitialSet.current = true; setActiveTab(first.id) }
@@ -215,7 +232,7 @@ export function FavorisPageClient({ ideas, userId, currentPage, totalPages, tota
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-6">
         <div className="w-full">
-          <TabsList className="flex flex-wrap gap-x-1 gap-y-1 sm:gap-y-2 md:gap-y-2 lg:gap-y-2 xl:gap-y-1 h-auto pt-0 pb-20 bg-muted rounded-lg min-h-0">
+          <TabsList ref={tabsListRef} className="flex w-full h-auto gap-x-1 overflow-x-auto pt-0 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-muted rounded-lg min-h-0 md:w-fit md:flex-wrap md:gap-y-2 md:overflow-visible md:pb-28">
             {searchQuery && (
               <TabsTrigger value="results" className={triggerClass} style={{ height: 'auto' }}>
                 <Search className="h-4 w-4" /> Résultats ({searchResults.length})
