@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useState, useEffect, useCallback } from 'react'
-import { ExternalLink, Bookmark, Plane } from 'lucide-react'
+import { ExternalLink, Bookmark, Plane, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { isValidUrl as isValidUrlUtil, sanitizeUrl } from '@/lib/utils'
 import { useItemShare } from './use-item-share'
@@ -24,6 +24,7 @@ export interface AirCrashArticle {
   description: string
   url: string
   imageUrl: string | null
+  asnUrl: string | null
 }
 
 interface AirCrashCardProps {
@@ -126,6 +127,7 @@ export const AirCrashCard = React.memo(function AirCrashCardInner({
         description: article!.description,
         url: article!.url,
         imageUrl: article!.imageUrl,
+        asnUrl: article!.asnUrl,
       })
     },
   })
@@ -211,7 +213,19 @@ export const AirCrashCard = React.memo(function AirCrashCardInner({
               {article.description}
             </p>
           )}
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+            {article.asnUrl && (
+              <Link
+                href={sanitizeUrl(article.asnUrl, '#')}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className={'inline-flex items-center gap-1 text-xs ' + c.link + ' ' + c.linkHover + ' ' + c.linkDark + ' ' + c.linkHoverDark + ' hover:underline'}
+              >
+                <Globe className="h-3 w-3" />
+                {t('air_crash_asn')}
+              </Link>
+            )}
             <Link
               href={sanitizeUrl(article.url, '#')}
               target="_blank"

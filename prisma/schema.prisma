@@ -442,6 +442,8 @@ model CachedAirCrashArticle {
   description String   @default("")
   url         String
   imageUrl    String?
+  asnId       String?  @unique
+  asnUrl      String?
   scrapedAt   DateTime @default(now())
   expiresAt   DateTime
 

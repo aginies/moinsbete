@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
-import { ExternalLink, Trash2 } from 'lucide-react'
+import { ExternalLink, Trash2, Globe } from 'lucide-react'
 import { sanitizeUrl, isValidUrl } from '@/lib/utils'
 import { getAirCrashFavoritesAction } from '@/actions/bookmark-actions'
 import { PaginatedFavoritesList } from '@/components/feed/paginated-favorites-list'
@@ -12,15 +12,7 @@ import { useItemShare } from './use-item-share'
 import { ShareToLobbyButton } from '@/components/lobby/share-to-lobby-button'
 import { useTranslations } from 'next-intl'
 import { ImageLightbox } from './image-lightbox'
-
-export interface AirCrashFavoriteDoc {
-  id: string
-  title: string
-  description: string
-  url: string | null
-  imageUrl: string | null
-  favoritedAt: string
-}
+import type { AirCrashFavoriteDoc } from '@/lib/air-crash-bookmark'
 
 const AIR_CRASH_FAVORITES_KEY = 'air_crash_favorites'
 
@@ -66,12 +58,23 @@ function AirCrashFavoriteItem({ item, onRemove, onShowFullImage }: { item: AirCr
             {item.description}
           </p>
         )}
+        {item.asnUrl && (
+          <Link
+            href={sanitizeUrl(item.asnUrl, '#')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
+          >
+            {t('air_crash_asn')}
+            <Globe className="h-3 w-3" />
+          </Link>
+        )}
         {item.url && (
           <Link
             href={sanitizeUrl(item.url, '#')}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
+            className="ml-3 inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 hover:underline"
           >
             {t('read_article')}
             <ExternalLink className="h-3 w-3" />

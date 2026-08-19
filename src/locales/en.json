@@ -283,6 +283,7 @@
     "air_crash_expired": "Expired crashes",
     "air_crash_desc": "Air crash investigations, from Wikipedia",
     "air_crash_empty": "No crashes cached yet.",
+    "air_crash_asn": "ASN page",
     "reload_page": "Reload page for a new article",
     "filter_categories": "Filter",
     "citation_articles": "Cached Quotes",
@@ -703,6 +704,7 @@
     "cache_insolite": "Interesting Articles",
     "cache_apod": "APOD (NASA)",
     "cache_air_crash": "Air Crash Investigation",
+    "cache_air_crash_asn": "ASN links",
     "last_updated": "Updated",
     "never_updated": "Never updated"
   },

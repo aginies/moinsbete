@@ -13,6 +13,7 @@ interface AirCrashItem {
   description: string
   url: string
   imageUrl: string | null
+  asnUrl: string | null
 }
 
 export async function GET(request: NextRequest) {
@@ -44,6 +45,7 @@ export async function GET(request: NextRequest) {
       description: article.description,
       url: article.url,
       imageUrl: article.imageUrl,
+      asnUrl: article.asnUrl,
     }
     return NextResponse.json({ article: item })
   } catch (error) {

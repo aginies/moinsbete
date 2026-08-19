@@ -44,7 +44,7 @@ export default async function AdminPage() {
   ).join(',\n        ')}`
   const latestRow = await prisma.$queryRawUnsafe<Record<string, Date | null>[]>(latestSql)
 
-  const [ideaCount, topicCount, sourceCount, bookmarkCount, userCount, viewedIdeaCount, activeStreakCount, saviezVousCount, srsDueCount, proverbeRow, users, insoliteConfigCount, latestSaviezVous] = await Promise.all([
+  const [ideaCount, topicCount, sourceCount, bookmarkCount, userCount, viewedIdeaCount, activeStreakCount, saviezVousCount, srsDueCount, proverbeRow, users, insoliteConfigCount, latestSaviezVous, airCrashAsnLinked] = await Promise.all([
     prisma.idea.count({ where: { isPublished: true } }),
     prisma.topic.count(),
     prisma.source.count(),
@@ -79,6 +79,7 @@ export default async function AdminPage() {
     }),
     prisma.cachedConfig.count({ where: { key: { startsWith: 'insolite_' } } }),
     prisma.saviezVousFact.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
+    prisma.cachedAirCrashArticle.count({ where: { asnId: { not: null } } }),
   ])
 
   const stats = cacheStats[0]
@@ -112,6 +113,7 @@ export default async function AdminPage() {
     srsDue: srsDueCount,
     proverbesCached: proverbeRow ? (() => { try { return JSON.parse(proverbeRow.value).length } catch { return 0 } })() : 0,
     insoliteConfigCount,
+    airCrashAsnLinked,
   }
 
   for (const s of CACHE_SOURCES) {

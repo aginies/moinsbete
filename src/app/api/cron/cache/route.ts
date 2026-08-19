@@ -13,6 +13,7 @@ import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexica
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { scrapeAndCacheApod } from '@/scripts/cache-apod'
 import { scrapeAndCacheAirCrash } from '@/scripts/cache-air-crash'
+import { scrapeAndCacheAirCrashAsn } from '@/scripts/cache-air-crash-asn'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
 import { isAllowedIp, getClientIp } from '@/lib/ip'
@@ -80,47 +81,47 @@ export async function GET(request: NextRequest) {
   const results: Record<string, string> = {}
   
   try {
-    console.log('[cron] Step 1/15: Scraping CNRS...')
+    console.log('[cron] Step 1/16: Scraping CNRS...')
     await scrapeAndCacheCnrs()
     results.cnrs = 'ok'
     
-    console.log('[cron] Step 2/15: Scraping Radio France...')
+    console.log('[cron] Step 2/16: Scraping Radio France...')
     await scrapeAndCacheRadioEpisodes()
     results.radio = 'ok'
     
-    console.log('[cron] Step 3/15: Scraping News...')
+    console.log('[cron] Step 3/16: Scraping News...')
     await scrapeAndCacheNews()
     results.news = 'ok'
     
-    console.log('[cron] Step 4/15: Scraping Wikipedia Image (FR)...')
+    console.log('[cron] Step 4/16: Scraping Wikipedia Image (FR)...')
     await scrapeAndCacheWikipediaImages()
     results.wiki = 'ok'
 
-    console.log('[cron] Step 5/15: Scraping Wikipedia Image (EN)...')
+    console.log('[cron] Step 5/16: Scraping Wikipedia Image (EN)...')
     await scrapeAndCacheWikipediaImagesEN()
     results.wikiEn = 'ok'
 
-    console.log('[cron] Step 6/15: Scraping F1 portal...')
+    console.log('[cron] Step 6/16: Scraping F1 portal...')
     await scrapeAndCacheF1()
     results.f1 = 'ok'
 
-    console.log('[cron] Step 7/15: Scraping Portail Wikipédia...')
+    console.log('[cron] Step 7/16: Scraping Portail Wikipédia...')
     await scrapeAndCachePortailWikipedia()
     results.portailWiki = 'ok'
 
-    console.log('[cron] Step 8/15: Scraping Wikiquote...')
+    console.log('[cron] Step 8/16: Scraping Wikiquote...')
     await scrapeAndCacheCitation()
     results.citation = 'ok'
 
-    console.log('[cron] Step 9/15: Scraping Wiki Loves...')
+    console.log('[cron] Step 9/16: Scraping Wiki Loves...')
     await scrapeAndCacheWikiLoves()
     results.wikiLoves = 'ok'
 
-    console.log('[cron] Step 10/15: Scraping Articles insolites...')
+    console.log('[cron] Step 10/16: Scraping Articles insolites...')
     await scrapeAndCacheInsolite()
     results.insolite = 'ok'
 
-    console.log('[cron] Step 11/15: Cleanup...')
+    console.log('[cron] Step 11/16: Cleanup...')
     const counts = await cleanupExpired()
     const citationSkipped = counts.citation === 0
     const insoliteSkipped = counts.insolite === 0
@@ -147,21 +148,25 @@ export async function GET(request: NextRequest) {
       results.insoliteConfigCleanup = `configs:${oldConfigCleaned}`
     }
 
-    console.log('[cron] Step 12/15: Resolving Saviez-vous images...')
+    console.log('[cron] Step 12/16: Resolving Saviez-vous images...')
     await scrapeAndCacheSaviezVousImages()
     results.saviezvous = 'ok'
 
-    console.log('[cron] Step 13/15: Scraping Portail Lexical Word of the Day...')
+    console.log('[cron] Step 13/16: Scraping Portail Lexical Word of the Day...')
     await scrapeAndCachePortailLexicalWotd()
     results.portailLexical = 'ok'
 
-    console.log('[cron] Step 14/15: Scraping APOD (NASA)...')
+    console.log('[cron] Step 14/16: Scraping APOD (NASA)...')
     await scrapeAndCacheApod()
     results.apod = 'ok'
 
-    console.log('[cron] Step 15/15: Scraping Air Crash...')
+    console.log('[cron] Step 15/16: Scraping Air Crash...')
     await scrapeAndCacheAirCrash()
     results.airCrash = 'ok'
+
+    console.log('[cron] Step 16/16: Matching Air Crash ASN links...')
+    const asnResult = await scrapeAndCacheAirCrashAsn()
+    results.airCrashAsn = asnResult.matched > 0 ? `matched:${asnResult.matched}` : 'up-to-date'
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
     console.log(`[cron] Cache update completed in ${duration}s`)

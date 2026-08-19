@@ -18,7 +18,7 @@ import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { cleanupExpiredCache } from '@/actions/cleanup-actions'
 import { clearAllNewsAction, clearFreenewsapiAction } from '@/actions/cleanup-actions'
-import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshPortailWikipedia, refreshInsolite, refreshApod, refreshAirCrash, refreshAll } from '@/actions/cache-refresh-actions'
+import { refreshCnrs, refreshRadio, refreshNews, refreshWikiImage, refreshWikiLoves, refreshSaviezVous, refreshPortailWikipedia, refreshInsolite, refreshApod, refreshAirCrash, refreshAirCrashAsn, refreshAll } from '@/actions/cache-refresh-actions'
 import { CACHE_SOURCES } from '@/lib/admin-cache-config'
 
 const EXPIRED_ICONS: Record<string, React.ReactNode> = {
@@ -100,6 +100,7 @@ export interface AdminStats {
     airCrashArticles: number
     airCrashExpired: number
     airCrashScrapedAt: string | null
+    airCrashAsnLinked: number
 }
 
 export interface AdminUser {
@@ -878,6 +879,14 @@ function CacheTab({ stats }: { stats: AdminStats }) {
       count: stats.airCrashArticles,
       scrapedAt: stats.airCrashScrapedAt,
       refreshFn: refreshAirCrash,
+    },
+    {
+      key: 'airCrashAsn',
+      labelKey: adminT('cache_air_crash_asn'),
+      icon: <Plane className="h-4 w-4" />,
+      count: stats.airCrashAsnLinked,
+      scrapedAt: stats.airCrashScrapedAt,
+      refreshFn: refreshAirCrashAsn,
     },
   ]
 

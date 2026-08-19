@@ -15,6 +15,7 @@ import { scrapeAndCachePortailWikipedia } from '@/scripts/cache-portail-wikipedi
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { scrapeAndCacheApod } from '@/scripts/cache-apod'
 import { scrapeAndCacheAirCrash } from '@/scripts/cache-air-crash'
+import { scrapeAndCacheAirCrashAsn } from '@/scripts/cache-air-crash-asn'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
 
@@ -84,6 +85,21 @@ export async function refreshApod(): Promise<RefreshResult> {
 
 export async function refreshAirCrash(): Promise<RefreshResult> {
   return executeRefresh('Air Crash Investigation', scrapeAndCacheAirCrash)
+}
+
+export async function refreshAirCrashAsn(): Promise<RefreshResult> {
+  const authErr = await authCheck()
+  if (authErr) return authErr
+  try {
+    const result = await scrapeAndCacheAirCrashAsn()
+    return {
+      success: true,
+      message: `ASN: ${result.matched} liés, ${result.unmatched} non trouvés, ${result.failed} en erreur.`,
+      count: result.matched,
+    }
+  } catch (error) {
+    return { success: false, message: `Air Crash ASN: ${error instanceof Error ? error.message : String(error)}` }
+  }
 }
 
 export async function refreshAll(): Promise<RefreshResult> {
