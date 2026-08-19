@@ -56,7 +56,7 @@ npm run fetch-proverbes
 
 # Remplir le cache sources externes
 npm run cache:all            # CNRS, Radio, Wiki FR, News, cleanup
-npx tsx src/scripts/run-cron.ts  # + F1, Citation, Lexical, Saviez-vous images
+npx tsx src/scripts/run-cron.ts  # Complet : 11 scripts + cleanup (Wiki EN, Portail Wiki, Insolite inclus)
 ```
 
 ### Avec une base de données existante :
@@ -364,7 +364,7 @@ cp /srv/http/moinsbete/dev.db "/srv/http/moinsbete/dev.db.backup.$(date +%Y%m%d)
 cp "/srv/http/moinsbete/dev.db.backup.20260707" /srv/http/moinsbete/dev.db
 
 # Nettoyage cache expiré
-npx tsx scripts/cleanup-cached.ts
+npx tsx src/scripts/cleanup-cached.ts
 
 # Mise à jour du cache (ou via cron système)
 npx tsx src/scripts/run-cron.ts

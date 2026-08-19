@@ -17,7 +17,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Adding a New Card
 
-Every new card source must include these files/patterns. Current codebase has **14 card sources**: `saviezVous`, `wikipedia`, `cnrs`, `radioFrance`, `news`, `wikimedia`, `wikiloves`, `pixabay`, `portailLexical`, `portailWikipedia`, `proverbe`, `f1`, `citation`, `insolite`.
+Every new card source must include these files/patterns. Current codebase has **16 card sources**: `saviezVous`, `wikipedia`, `cnrs`, `radioFrance`, `news`, `wikimedia`, `wikiloves`, `pixabay`, `portailLexical`, `portailWikipedia`, `proverbe`, `f1`, `citation`, `insolite`, `apod`, `airCrash`.
 
 ## 1. Prisma Schema (`prisma/schema.prisma`)
 
@@ -59,11 +59,11 @@ Every new card source must include these files/patterns. Current codebase has **
 
 - Fetch from external API
 - Upsert to DB with 6h TTL (or source-specific TTL)
-- Run via `/api/cron/cache` (12 sequential steps, not 3x daily)
+- Run via `/api/cron/cache` (16 sequential steps, not 3x daily)
 - Export `scrapeAndCache{Source}()` function
 
 ### Cron step ordering:
-1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image (FR) → 5. Wikipedia Image (EN) → 6. F1 → 7. Portail Wikipédia → 8. Wikiquote (Citation) → 9. Cleanup (9 cache models) → 10. Saviez-vous images → 11. Portail Lexical (WOTD) → 12. Insolite
+1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image (FR) → 5. Wikipedia Image (EN) → 6. F1 → 7. Portail Wikipédia → 8. Wikiquote (Citation) → 9. Wiki Loves → 10. Insolite → 11. Cleanup (11 cache models) → 12. Saviez-vous images → 13. Portail Lexical (WOTD) → 14. APOD (NASA, + FR translation via MyMemory) → 15. Air Crash → 16. Air Crash ASN matching
 
 ### Auth: token (`x-cron-token` header or `?token=` param) OR IP whitelist (`ALLOWED_CRON_IPS` in `src/lib/ip.ts`, re-exported from `cache-helpers.ts`, with CIDR support)
 
@@ -122,12 +122,12 @@ Every new card source must include these files/patterns. Current codebase has **
 
 ### Favoris page server component (`src/app/(main)/favoris/page.tsx`):
 - Raw SQL count query: `SELECT type, COUNT(*) FROM Bookmark WHERE userId = ? GROUP BY type`
-- Map counts to 14 `BookmarkType` values
+- Map counts to 16 `BookmarkType` values
 - Query bookmarked ideas with ideaTopics and source includes
-- Pass all 14 count props to client
+- Pass all 16 count props to client
 
 ### Favoris page client component (`src/app/(main)/favoris/favoris-page-client.tsx`):
-- 15 tabs: `idees`, `image-du-jour`, `saviez-vous`, `image-wikimedia`, `image-wikiloves`, `image-pixabay`, `portail-lexical`, `portail-wikipedia`, `proverbe`, `radio-france`, `cnrs-news`, `news`, `f1`, `citation`, `insolite` (+ `results` for search)
+- 17 tabs: `idees`, `image-du-jour`, `saviez-vous`, `image-wikimedia`, `image-wikiloves`, `image-pixabay`, `portail-lexical`, `portail-wikipedia`, `proverbe`, `radio-france`, `cnrs-news`, `news`, `f1`, `citation`, `insolite`, `apod`, `air-crash` (+ `results` for search)
 - `tabConfig` array with `SourceTabConfig` interface (id, countKey, label, Icon, sourceDesc, component)
 - Uses `useAllSourceCounts` hook for counts + remove handlers
 - `sortedTabs` = `portail-lexical` pinned first, rest sorted by count descending
@@ -140,10 +140,10 @@ Every new card source must include these files/patterns. Current codebase has **
 ## 7. Integration Files
 
 ### `src/app/(main)/sujets/sujets-client.tsx`
-- `CardVisibility` interface with 14 boolean fields + `pixabayActiveCategory` + `wikipediaImageShowEn`
+- `CardVisibility` interface with 16 boolean fields + `pixabayActiveCategory` + `wikipediaImageShowEn`
 - `CardConfig` interface: `{ key, isVisible, isGloballyVisible, toggle }`
-- `CARD_RENDERERS` record: 14 key → renderer function mappings
-- `cardDefinitions` array: 14 entries mapping key → visKey → DB field name, optional `extraCheck` for userId-gated cards
+- `CARD_RENDERERS` record: 16 key → renderer function mappings
+- `cardDefinitions` array: 16 entries mapping key → visKey → DB field name, optional `extraCheck` for userId-gated cards
 - `cardConfigs`: computed from `cardDefinitions` with visibility + global visibility + extra checks
 - `orderedConfigs`: sorted by user's `cardOrder` JSON (from `/api/user-card-order`), falls back to `CARD_DEFAULT_ORDER`
 - `visibleCards` / `hiddenCards` split
@@ -154,7 +154,7 @@ Every new card source must include these files/patterns. Current codebase has **
 - `CARD_DISPLAY_NAMES` record: locale key per card key
 
 ### `src/app/(main)/sujets/page.tsx`
-- Query user for all 14 visibility fields + `wikipediaImageShowEn` + `cardNavBarEnabled` + `following` + `hasSeenSplash`
+- Query user for all 16 visibility fields + `wikipediaImageShowEn` + `cardNavBarEnabled` + `following` + `hasSeenSplash`
 - Map to `CardVisibility` interface
 - Pass `globalVisibility` from `getGlobalCardVisibility()` action
 - Pass `cardNavBarEnabled` prop
@@ -174,11 +174,11 @@ Every new card source must include these files/patterns. Current codebase has **
 
 ### `src/app/(main)/favoris/page.tsx`
 - Raw SQL `SELECT type, COUNT(*) FROM Bookmark WHERE userId = ? GROUP BY type`
-- Map all 14 `BookmarkType` values to count props
+- Map all 16 `BookmarkType` values to count props
 - Pass to `FavorisPageClient`
 
 ### `src/app/(main)/favoris/favoris-page-client.tsx`
-- 15 tabs with `Tab` type union
+- 17 tabs with `Tab` type union
 - `tabConfig` array with `SourceTabConfig` interface
 - `sortedTabs` = `portail-lexical` pinned first, rest sorted by count descending
 - `searchResults` computed with accent normalization
@@ -186,12 +186,12 @@ Every new card source must include these files/patterns. Current codebase has **
 - `handleXxxRemove` callbacks for optimistic count updates
 - `useEffect` sync from server counts
 - Individual `<TabsContent>` for each source
-- Share state loading for image sources (SAVIEZ_VOUS, IMAGE_DU_JOUR, IMAGE_WIKILOVES, IMAGE_WIKIMEDIA, PROVERBE)
+- Share state loading for image sources (SAVIEZ_VOUS, IMAGE_DU_JOUR, IMAGE_WIKILOVES, IMAGE_WIKIMEDIA, PROVERBE, APOD)
 
 ### `src/app/admin/admin-content.tsx`
 - `AdminStats` interface with all source stats (articles, expired, scrapedAt)
 - 5 tabs: stats, users, cartes, cleanup, cache
-- `cardConfigs` array: 14 entries mapping key → labelKey → icon
+- `cardConfigs` array: 16 entries mapping key → labelKey → icon
 - `CartesTab` with `CardToggle` per card (calls `updateGlobalCardVisibility()`)
 - `CacheTab` with `CacheSource` interface, individual refresh + refresh all, uses `CACHE_SOURCES` from `@/lib/admin-cache-config.ts`
 - `StatCard` component with optional sublabel for expired count
@@ -201,7 +201,7 @@ Every new card source must include these files/patterns. Current codebase has **
 - Language switcher dropdown
 
 ### `src/app/admin/page.tsx`
-- Uses `CACHE_SOURCES` from `@/lib/admin-cache-config.ts` for dynamic SQL query (all 9 cache models, total + expired)
+- Uses `CACHE_SOURCES` from `@/lib/admin-cache-config.ts` for dynamic SQL query (all 11 cache models, total + expired)
 - Individual `findFirst` queries for latest scrapedAt per source
 - `prisma.saviezVousFact.count()` for static facts
 - `prisma.cachedConfig.findUnique({ where: { key: 'proverbes_all' } })` for proverbe count
@@ -210,14 +210,14 @@ Every new card source must include these files/patterns. Current codebase has **
 - Pass formatted stats to `AdminContent`
 
 ### `src/app/api/cron/cache/route.ts`
-- 12 sequential steps with step numbering
+- 16 sequential steps with step numbering
 - Auth: token OR IP whitelist (including CIDR matching)
 - Cleanup step: calls `cleanupExpired()` + `cleanupNewsByMaxAge(5)`
 - Returns `{ ok, results, duration, ip }`
 - Portail lexical step uses upsert-by-date (no TTL)
 
 ### `src/lib/cache-helpers.ts`
-- `cleanupExpired()` deletes from 9 cache models: CNRS, Radio, Wiki, WikiLoves, News, F1, PortailWiki, Citation, Insolite
+- `cleanupExpired()` deletes from 11 cache models: CNRS, Radio, Wiki, WikiLoves, News, F1, PortailWiki, Citation, Insolite, Apod, AirCrash
 - Returns counts object
 - `ALLOWED_CRON_IPS` + `isAllowedIp()` with CIDR support (defined in `src/lib/ip.ts`, re-exported from `cache-helpers.ts`)
 - Helper functions: `getValidCachedCnrsArticles`, `getValidCachedRadioEpisodes`, `getValidCachedWikipediaImages`, `upsertWikipediaImages`, `sleep`, `clearAllNewsArticles`, `clearFreenewsapiArticles`, `cleanupNewsByMaxAge(days)`

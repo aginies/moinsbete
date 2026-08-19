@@ -128,6 +128,9 @@ Endpoints rate limités:
 | `/api/citation` | 30/min | IP client |
 | `/api/portail-wikipedia` | 30/min | IP client |
 | `/api/portail-lexical` | 30/min | IP client |
+| `/api/insolite` | 30/min | IP client |
+| `/api/apod` | 30/min | IP client |
+| `/api/air-crash` | 30/min | IP client |
 | `/api/history` | 60/min | User ID |
 | `/api/auth/reset-password/generate` | 3/min | IP client |
 | `/api/auth/reset-password` | 5/min | IP client |

@@ -111,7 +111,7 @@ WHERE userId IN (SELECT id FROM User WHERE email = 'user@example.com');
 ```sql
 -- Types disponibles: IDEA, RADIO_FRANCE, CNRS_NEWS, IMAGE_DU_JOUR, SAVIEZ_VOUS,
 -- IMAGE_WIKIMEDIA, IMAGE_WIKILOVES, IMAGE_PIXABAY, PORTAIL_LEXICAL, PROVERBE,
--- NEWS, F1, PORTAIL_WIKIPEDIA, CITATION, INSOLITE
+-- NEWS, F1, PORTAIL_WIKIPEDIA, CITATION, INSOLITE, APOD, AIR_CRASH
 
 DELETE FROM Bookmark
 WHERE userId IN (SELECT id FROM User WHERE email = 'user@example.com')
@@ -154,6 +154,8 @@ UPDATE User SET
   citationCardVisible = true,
   insoliteCardVisible = true,
   newsCardVisible = true,
+  apodCardVisible = true,
+  airCrashCardVisible = true,
   cardNavBarEnabled = true,
   cardOrder = null
 WHERE email = 'user@example.com';
@@ -228,13 +230,15 @@ UNION ALL SELECT 'CachedNewsArticle', COUNT(*), SUM(CASE WHEN expiresAt < dateti
 UNION ALL SELECT 'CachedF1Article', COUNT(*), SUM(CASE WHEN expiresAt < datetime('now') THEN 1 ELSE 0 END) FROM CachedF1Article
 UNION ALL SELECT 'CachedWikipediaPortalArticle', COUNT(*), SUM(CASE WHEN expiresAt < datetime('now') THEN 1 ELSE 0 END) FROM CachedWikipediaPortalArticle
 UNION ALL SELECT 'CachedCitationArticle', COUNT(*), SUM(CASE WHEN expiresAt < datetime('now') THEN 1 ELSE 0 END) FROM CachedCitationArticle
-UNION ALL SELECT 'CachedInsoliteArticle', COUNT(*), SUM(CASE WHEN expiresAt < datetime('now') THEN 1 ELSE 0 END) FROM CachedInsoliteArticle;
+UNION ALL SELECT 'CachedInsoliteArticle', COUNT(*), SUM(CASE WHEN expiresAt < datetime('now') THEN 1 ELSE 0 END) FROM CachedInsoliteArticle
+UNION ALL SELECT 'CachedApodImage', COUNT(*), SUM(CASE WHEN expiresAt < datetime('now') THEN 1 ELSE 0 END) FROM CachedApodImage
+UNION ALL SELECT 'CachedAirCrashArticle', COUNT(*), SUM(CASE WHEN expiresAt < datetime('now') THEN 1 ELSE 0 END) FROM CachedAirCrashArticle;
 ```
 
 ### Nettoyage
 
 ```bash
-# Via script (9 modèles + news max-age 5j)
+# Via script (11 modèles + news max-age 5j)
 npm run cache:cleanup
 
 # Via API (recommandé en production)
@@ -274,7 +278,7 @@ SELECT key, LENGTH(value) as json_size FROM CachedConfig WHERE key = 'proverbes_
 SELECT key, value FROM CachedConfig WHERE key = 'cartes_global_visibility';
 
 -- Réinitialiser (toutes visibles)
-UPDATE CachedConfig SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"portailWikipedia":true,"proverbe":true,"news":true,"f1":true,"citation":true,"insolite":true}' WHERE key = 'cartes_global_visibility';
+UPDATE CachedConfig SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"portailWikipedia":true,"proverbe":true,"news":true,"f1":true,"citation":true,"insolite":true,"apod":true,"airCrash":true}' WHERE key = 'cartes_global_visibility';
 ```
 
 ### Ordre des cartes

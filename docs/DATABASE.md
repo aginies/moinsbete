@@ -38,6 +38,9 @@
 | **CachedF1Article** | Articles F1 en cache (TTL: 24h) |
 | **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache (TTL: 7 jours) |
 | **CachedCitationArticle** | Citations Wikiquote en cache (TTL: 24h) |
+| **CachedInsoliteArticle** | Articles insolites en cache (TTL: 24h) |
+| **CachedApodImage** | Images NASA APOD en cache (TTL: 30 jours, `titleFr`/`explanationFr` via MyMemory) |
+| **CachedAirCrashArticle** | Épisodes Air Crash Investigation en cache (TTL: 7 jours, `asnUrl` lien Fiche ASN) |
 | **SourceTopic** | Junction Source ↔ Topic |
 
 ## Gestion de la base de données

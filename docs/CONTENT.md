@@ -24,6 +24,8 @@
 | **CachedWikipediaPortalArticle** | Articles Portail Wikipédia en cache (TTL: 7 jours) |
 | **CachedCitationArticle** | Citations Wikiquote en cache (TTL: 24h) |
 | **CachedInsoliteArticle** | Articles insolites en cache (TTL: 24h) |
+| **CachedApodImage** | Images NASA APOD en cache (TTL: 30 jours, `titleFr`/`explanationFr` traduits via MyMemory) |
+| **CachedAirCrashArticle** | Épisodes Air Crash Investigation en cache (TTL: 7 jours, `asnUrl` lien Fiche ASN) |
 | **UserWikimediaTopic** | Catégories Wikimedia actives par utilisateur |
 | **UserWikiLovesTopic** | Catégories Wiki Loves actives par utilisateur |
 | **SaviezVousFact** | Faits "Le saviez-vous" (static, no TTL) |
@@ -68,9 +70,9 @@ npx tsx src/scripts/ingest-wikipedia.ts
 # Étape 5: Faits "Le saviez-vous ?"
 ./scripts/update le-saviez-vous
 
-# Étape 6: Cache sources externes (12 étapes, voir section ci-dessous)
+# Étape 6: Cache sources externes (16 étapes, voir section ci-dessous)
 npm run cache:all            # Rapide : CNRS, Radio, Wiki FR, News, cleanup
-npx tsx src/scripts/run-cron.ts  # Complet : 8 scripts (sans cleanup, wiki EN, portail wiki, insolite)
+npx tsx src/scripts/run-cron.ts  # Complet : 11 scripts + cleanup (CNRS, Radio, News, Wiki FR/EN, F1, Citation, Portail Wiki, Lexical, Saviez-vous images, Insolite)
 # Ou cron API : curl -H "x-cron-token: $CRON_SECRET" http://localhost:3000/api/cron/cache
 
 # Étape 7: Proverbes depuis Wiktionary
@@ -172,10 +174,13 @@ npx tsx scripts/insert_saviez_vous.ts
 | `cache-f1.ts` | Portail:F1 + fia.com (actualités, image, classement, saviez, fia) | `CachedF1Article` | 24h image / 7j contenu | — | Step 6 |
 | `cache-portail-wikipedia.ts` | Contenus de qualité / Bons contenus | `CachedWikipediaPortalArticle` | 7j | — | Step 7 |
 | `cache-citation.ts` | fr.wikiquote.org (thèmes, auteurs) | `CachedCitationArticle` | 24h | — | Step 8 |
-| `cache-insolite.ts` | Articles insolites Wikipédia | `CachedInsoliteArticle` | 24h | `cache:insolite` | Step 12 |
-| `cache-saviez-vous-images.ts` | Résolution images Wikimedia pour faits | `SaviezVousFact.imageFilename` | None | — | Step 10 |
-| `cache-portail-lexical.ts` | Mot du jour Portail Lexical | `PortailLexicalMotDuJour` | None (upsert-by-date) | `cache:portail-lexical` | Step 11 |
-| `scrape-wikiloves.ts` | Wiki Loves Monuments + Earth | `CachedWikiLovesImage` | 30j | — | Non (manuel) |
+| `cache-insolite.ts` | Articles insolites Wikipédia | `CachedInsoliteArticle` | 24h | `cache:insolite` | Step 10 |
+| `cache-saviez-vous-images.ts` | Résolution images Wikimedia pour faits | `SaviezVousFact.imageFilename` | None | — | Step 12 |
+| `cache-portail-lexical.ts` | Mot du jour Portail Lexical | `PortailLexicalMotDuJour` | None (upsert-by-date) | `cache:portail-lexical` | Step 13 |
+| `scrape-wikiloves.ts` | Wiki Loves Monuments + Earth | `CachedWikiLovesImage` | 30j | — | Step 9 |
+| `cache-apod.ts` | api.nasa.gov APOD (+ traduction EN→FR MyMemory) | `CachedApodImage` | 30j | `cache:apod` | Step 14 |
+| `cache-air-crash.ts` | Wikipédia Air Crash Investigation (tableaux d'épisodes) | `CachedAirCrashArticle` | 7j | — | Step 15 |
+| `cache-air-crash-asn.ts` | Matching incidents ASN (infobox → recherche ASN) | `CachedAirCrashArticle.asnUrl` | — | — | Step 16 |
 | `fetch-proverbes.ts` | Wiktionary proverbes → API `/api/proverbes` | `CachedConfig` (key: `proverbes_all`, JSON) | None | `fetch-proverbes` | Non (manuel) |
 
 **Mode d'exécution :**
@@ -184,10 +189,10 @@ npx tsx scripts/insert_saviez_vous.ts
 # Rapide : CNRS + Radio + Wiki FR + News + cleanup
 npm run cache:all
 
-# Local complet : 8 scripts (CNRS, Radio, News, Wiki FR, Saviez-vous images, F1, Citation, Lexical)
+# Local complet : 11 scripts + cleanup (CNRS, Radio, News, Wiki FR/EN, Saviez-vous images, F1, Citation, Portail Wiki, Lexical, Insolite)
 npx tsx src/scripts/run-cron.ts
 
-# Cron API complet : 12 étapes + cleanup (9 modèles)
+# Cron API complet : 16 étapes + cleanup (11 modèles)
 # Auth: token (?token= ou x-cron-token header) ou IP whitelist
 curl -H "x-cron-token: $CRON_SECRET" http://localhost:3000/api/cron/cache
 
@@ -199,46 +204,58 @@ npm run cache:news
 npm run cache:insolite
 npm run cache:insolite:enrich   # insolite avec enrichissement complet images
 npm run cache:portail-lexical
+npm run cache:apod
 npm run fetch-proverbes
 npx tsx src/scripts/cache-wikipedia-image-en.ts
 npx tsx src/scripts/cache-f1.ts
 npx tsx src/scripts/cache-portail-wikipedia.ts
 npx tsx src/scripts/cache-citation.ts
+npx tsx src/scripts/cache-air-crash.ts
+npx tsx src/scripts/cache-air-crash-asn.ts
 npx tsx src/scripts/scrape-wikiloves.ts
 
-# Nettoyer les items expirés (9 modèles)
+# Nettoyer les items expirés (11 modèles)
 npm run cache:cleanup
+
+# Décoder les entités HTML résiduelles dans les caches (ex: &#39;)
+npm run db:cleanup-entities            # --dry-run pour prévisualiser
 ```
 
-**Ordre du cron** (`/api/cron/cache`, 12 étapes séquentielles) :
+**Ordre du cron** (`/api/cron/cache`, 16 étapes séquentielles) :
 
 ```
-Step  1/12:  CNRS
-Step  2/12:  Radio France
-Step  3/12:  News (freenewsapi.io)
-Step  4/12:  Wikipedia Image FR
-Step  5/12:  Wikipedia Image EN
-Step  6/12:  F1
-Step  7/12:  Portail Wikipédia
-Step  8/12:  Wikiquote (citation)
-Step  9/12:  Cleanup (9 modèles expirés + news max-age 5j)
-Step 10/12:  Saviez-vous images
-Step 11/12:  Portail Lexical (WOTD)
-Step 12/12:  Articles insolites
+Step  1/16:  CNRS
+Step  2/16:  Radio France
+Step  3/16:  News (freenewsapi.io)
+Step  4/16:  Wikipedia Image FR
+Step  5/16:  Wikipedia Image EN
+Step  6/16:  F1
+Step  7/16:  Portail Wikipédia
+Step  8/16:  Wikiquote (citation)
+Step  9/16:  Wiki Loves
+Step 10/16:  Articles insolites
+Step 11/16:  Cleanup (11 modèles expirés + news max-age 5j)
+Step 12/16:  Saviez-vous images
+Step 13/16:  Portail Lexical (WOTD)
+Step 14/16:  APOD (NASA, + traduction FR MyMemory)
+Step 15/16:  Air Crash Investigation
+Step 16/16:  Air Crash ASN matching (liens Fiche ASN)
 ```
 
 **Différences entre modes :**
 
 | | `npm run cache:all` | `run-cron.ts` | `/api/cron/cache` |
 |---|---|---|---|
-| Étapes | 5 | 8 | 12 + cleanup |
-| Wiki EN | non | non | oui |
-| Portail Wiki | non | non | oui |
-| Insolite | non | non | oui |
+| Étapes | 5 | 11 + cleanup | 16 + cleanup |
+| Wiki EN | non | oui | oui |
+| Portail Wiki | non | oui | oui |
+| Insolite | non | oui | oui |
 | Saviez-vous images | non | oui | oui |
-| Cleanup | oui | non | oui (step 9) |
+| Cleanup | oui | oui | oui (step 11) |
 | Lexical | non | oui | oui |
-| Wikiloves | non | non | non (manuel) |
+| Wikiloves | non | non | oui (step 9) |
+| APOD | non | non | oui (step 14) |
+| Air Crash | non | non | oui (steps 15-16) |
 | Proverbes | non | non | non (manuel) |
 
 ## Ajouter de nouveaux articles Wikipédia
@@ -292,7 +309,7 @@ npx tsx src/scripts/seed-ideas.ts
 
 - `PaginatedFavoritesList<T>` generic component (PAGE_SIZE=10)
 - `useFavoritesList` hook
-- 14 tabs in favoris page, sorted by count descending
+- 16 tabs in favoris page (idees + 15 sources), sorted by count descending
 - Raw SQL `GROUP BY type` for counts in server component
 - Optimistic updates via `handleXxxRemove` callbacks
 - Accent normalization for search across all tabs

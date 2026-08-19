@@ -230,12 +230,22 @@ EOF
 npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
 SELECT COUNT(*) FROM "CachedInsoliteArticle" WHERE "expiresAt" < datetime('now');
 EOF
+
+# Images APOD expirées
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedApodImage" WHERE "expiresAt" < datetime('now');
+EOF
+
+# Épisodes Air Crash expirés
+npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
+SELECT COUNT(*) FROM "CachedAirCrashArticle" WHERE "expiresAt" < datetime('now');
+EOF
 ```
 
 ## Cache: forcer le refresh
 
 ```bash
-# Reset complet (9 scripts)
+# Reset complet (11 scripts + cleanup)
 npx tsx src/scripts/run-cron.ts
 
 # Reset rapide (CNRS + Radio + Wiki FR + News + cleanup)
@@ -249,14 +259,32 @@ npm run cache:news
 npm run cache:insolite
 npm run cache:insolite:enrich   # insolite avec enrichissement images
 npm run cache:portail-lexical
+npm run cache:apod
 npx tsx src/scripts/cache-wikipedia-image-en.ts
 npx tsx src/scripts/cache-f1.ts
 npx tsx src/scripts/cache-portail-wikipedia.ts
 npx tsx src/scripts/cache-citation.ts
+npx tsx src/scripts/cache-air-crash.ts
+npx tsx src/scripts/cache-air-crash-asn.ts
 npx tsx src/scripts/scrape-wikiloves.ts
 
-# Nettoyer les éléments expirés (9 modèles)
+# Nettoyer les éléments expirés (11 modèles)
 npm run cache:cleanup
+
+# Décoder les entités HTML résiduelles (ex: &#39; dans les titres)
+npm run db:cleanup-entities
+```
+
+## Entités HTML non décodées dans le cache
+
+Les scrapers décodent les entités HTML (`&#39;`, `&amp;`, `&quot;`, …) à l'écriture. Si des lignes anciennes restent encodées (ex: apostrophes `&#39;` dans les titres APOD traduits) :
+
+```bash
+# Prévisualiser les lignes affectées
+npm run db:cleanup-entities -- --dry-run
+
+# Corriger (tous les modèles de cache)
+npm run db:cleanup-entities
 ```
 
 ## Card visibility: vérifier la config globale
@@ -269,6 +297,6 @@ EOF
 
 # Réinitialiser à toutes visibles (true)
 npx prisma db execute --url "file:./dev.db" --stdin << 'EOF'
-UPDATE "CachedConfig" SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"portailWikipedia":true,"proverbe":true,"news":true,"f1":true,"citation":true,"insolite":true}' WHERE key = 'cartes_global_visibility';
+UPDATE "CachedConfig" SET value = '{"saviezVous":true,"wikipedia":true,"cnrs":true,"radioFrance":true,"wikimedia":true,"wikiloves":true,"pixabay":true,"portailLexical":true,"portailWikipedia":true,"proverbe":true,"news":true,"f1":true,"citation":true,"insolite":true,"apod":true,"airCrash":true}' WHERE key = 'cartes_global_visibility';
 EOF
 ```

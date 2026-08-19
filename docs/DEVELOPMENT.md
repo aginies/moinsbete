@@ -31,7 +31,7 @@
 | `npm run dev` | Serveur de développement |
 | `npm run build` | Build de production |
 | `npx prisma studio` | Interface DB |
-| `npm test` | Exécuter tous les tests (359 tests) |
+| `npm test` | Exécuter tous les tests (465 tests) |
 | `npx tsx src/scripts/seed-ideas.ts` | Seed manuel |
 | `npx tsx src/scripts/generate-ideas.ts` | Génération LLM |
 | `npx tsx scripts/scrape-saviez-vous.ts` | Scraper Wikipédia |
@@ -40,7 +40,7 @@
 
 ## Tests
 
-359 tests sur 31 fichiers (vitest).
+465 tests sur 38 fichiers (vitest).
 
 ```bash
 npm test              # Exécuter tous les tests
@@ -75,6 +75,11 @@ Couverture :
 /le-saviez-vous            → Le saviez-vous (facts from Wikipedia)
 /image-wikimedia           → Image Wikimedia (redirect)
 /image-wikiloves           → Wiki Loves images (redirect)
+/apod                      → NASA APOD (image du jour, toggle EN/FR, ?date=YYYY-MM-DD)
+/air-crash                 → Air Crash Investigation (liste des épisodes)
+/air-crash/[id]            → Page partage accident (OG/Twitter, lien Fiche ASN)
+/insolite                  → Articles insolites (article quotidien en page entière)
+/insolite/[id]             → Page partage article insolite
 ```
 
 ## API
@@ -100,6 +105,8 @@ Couverture :
 | `/api/portail-wikipedia` | GET | Articles Portail Wikipédia | 30/min IP |
 | `/api/portail-lexical` | GET | Mot du jour Portail Lexical | 30/min IP |
 | `/api/insolite` | GET | Articles insolites (1/jour) | 30/min IP |
+| `/api/apod` | GET | Image APOD NASA (EN/FR) | 30/min IP |
+| `/api/air-crash` | GET | Épisodes Air Crash Investigation | 30/min IP |
 | `/api/card-visibility` | GET | Global card visibility (admin) | — |
 | `/api/user-card-visibility` | GET/POST | Toggle user card visibility (session auth) | 30/min user |
 | `/api/user-card-order` | GET/POST | Get/set user card order (CSRF) | — |
@@ -112,7 +119,7 @@ Couverture :
 | `/api/admin/suggestions/[id]/merge` | POST | Fusionner suggestion (admin) | — |
 | `/api/lobby` | GET | Shared lobby bookmarks | — |
 | `/api/lobby/[id]` | POST/DELETE | Share/unshare to lobby (CSRF) | — |
-| `/api/cron/cache` | GET | Cron cache endpoint (10 étapes) | Token/IP |
+| `/api/cron/cache` | GET | Cron cache endpoint (16 étapes) | Token/IP |
 | `/api/favorites/export` | GET | Export favoris HTML + image | Auth |
 
 ## Ajouter un nouveau topic
@@ -153,11 +160,11 @@ Rôle `ADMIN` requis pour accéder à `/admin` et aux routes API admin.
 
 ### Onglets admin
 
-1. **Stats** — Compteurs par modèle DB + items expirés (14 cartes feed)
+1. **Stats** — Compteurs par modèle DB + items expirés (16 cartes feed)
 2. **Users** — Liste utilisateurs avec toggle enabled/disabled
-3. **Cartes** — Toggle global visibility par carte feed (14 cartes)
-4. **Cleanup** — Suppression des items expirés (9 cache models)
-5. **Cache** — Refresh individuel par source (8 sources) + refresh all
+3. **Cartes** — Toggle global visibility par carte feed (16 cartes)
+4. **Cleanup** — Suppression des items expirés (11 cache models)
+5. **Cache** — Refresh individuel par source (11 sources) + refresh all
 
 ### Cartes feed — visibilité globale
 
@@ -179,6 +186,8 @@ Stockée dans `CachedConfig` avec key `cartes_global_visibility` (JSON).
 | Citation | `citation` | 24h | Wikiquote scraper |
 | Formule 1 | `f1` | 24h | F1 scraper |
 | Articles insolites | `insolite` | 24h | Wikipedia Articles insolites scraper |
+| NASA APOD | `apod` | 30 jours | api.nasa.gov (+ traduction FR MyMemory) |
+| Air Crash Investigation | `airCrash` | 7 jours | Wikipédia Air Crash Investigation (+ liens Fiche ASN) |
 
 ### Cartes feed — visibilité par utilisateur
 
@@ -193,18 +202,19 @@ Champs `User`:
 - `imageWikimediaShowCategories`, `imageWikiLovesShowCategories`, `imagePixabayShowCategories`, `imagePixabayActiveCategory`
 - `portailLexicalCardVisible`, `portailWikipediaCardVisible`, `proverbeCardVisible`
 - `newsCardVisible`, `f1CardVisible`, `citationCardVisible`, `insoliteCardVisible`
+- `apodCardVisible`, `airCrashCardVisible`
 - `cardNavBarEnabled`
 
 ### Card ordering
 
 Ordre des cartes configurable par utilisateur via `cardOrder` JSON field sur `User` model.
 Fonctionne via `/api/user-card-order` (GET/POST).
-Fallback: `CARD_DEFAULT_ORDER` constant (14 cartes).
+Fallback: `CARD_DEFAULT_ORDER` constant (16 cartes).
 Accessible dans `/mon-compte` avec drag-to-reorder.
 
 ### Nettoyage
 
-Le cleanup supprime les items expirés de la DB (9 cache models):
+Le cleanup supprime les items expirés de la DB (11 cache models):
 
 | Modèle | Condition d'expiration |
 |--------|----------------------|
@@ -217,6 +227,8 @@ Le cleanup supprime les items expirés de la DB (9 cache models):
 | `CachedWikipediaPortalArticle` | `expiresAt < now` |
 | `CachedCitationArticle` | `expiresAt < now` |
 | `CachedInsoliteArticle` | `expiresAt < now` |
+| `CachedApodImage` | `expiresAt < now` |
+| `CachedAirCrashArticle` | `expiresAt < now` |
 
 **Non-cache models** (pas d'expiration):
 - `SaviezVousFact` — static facts, no TTL
@@ -300,6 +312,38 @@ Sources:
 - Wiki Loves Earth: `https://wikilovesearth.org/category/best/`
 - Wiki Loves Monuments: `https://www.wikilovesmonuments.org/galleries/`
 
+### `scripts/cache-apod.ts`
+
+Scrap et met en cache les images APOD NASA (TTL: 30 jours). Traduit titre/description en français via MyMemory (`titleFr`/`explanationFr`), avec décodage des entités HTML de la sortie.
+
+```bash
+npm run cache:apod
+```
+
+### `scripts/cache-air-crash.ts`
+
+Scrap et met en cache les épisodes Air Crash Investigation depuis les tableaux d'épisodes du wikitext Wikipédia (TTL: 7 jours).
+
+```bash
+npx tsx src/scripts/cache-air-crash.ts
+```
+
+### `scripts/cache-air-crash-asn.ts`
+
+Associe chaque accident à sa page d'incident ASN (infobox Wikipédia → recherche ASN par immatriculation/type/opérateur, porte sur la date exacte). Remplit `asnUrl`.
+
+```bash
+npx tsx src/scripts/cache-air-crash-asn.ts
+```
+
+### `scripts/cleanup-html-entities.ts`
+
+Décode les entités HTML résiduelles (`&#39;`, `&amp;`, …) dans les champs texte des modèles de cache.
+
+```bash
+npm run db:cleanup-entities            # --dry-run pour prévisualiser
+```
+
 ### `scripts/fetch-proverbes.ts`
 
 Récupère les proverbes depuis Wiktionary (pages Annexe + catégories). Affiche le nombre de proverbes par page et le total cumulé pendant le fetch.
@@ -365,6 +409,8 @@ src/components/
 │   ├── citation-card.tsx                # Carte Citation Wikiquote
 │   ├── news-card.tsx                    # Carte NEWS
 │   ├── insolite-card.tsx                # Carte Articles insolites
+│   ├── apod-card.tsx                    # Carte NASA APOD (toggle EN/FR)
+│   ├── air-crash-card.tsx               # Carte Air Crash Investigation (lien ASN)
 │   ├── idea-card.tsx                    # Carte d'idée (full + compact)
 │   ├── swipeable-idea-detail.tsx        # Détail swipeable (mobile)
 │   ├── feed.tsx                         # Feed avec infinite scroll
@@ -487,5 +533,9 @@ src/scripts/
 ├── cache-saviez-vous-images.ts      # Cache images Le saviez-vous
 ├── cache-portail-lexical.test.ts    # Tests portail lexical
 ├── cache-insolite.ts                # Cache Articles insolites (TTL: 24h)
+├── cache-apod.ts                    # Cache images NASA APOD (TTL: 30j, traduction FR)
+├── cache-air-crash.ts               # Cache épisodes Air Crash Investigation (TTL: 7j)
+├── cache-air-crash-asn.ts           # Matching liens Fiche ASN
+├── cleanup-html-entities.ts         # Décode entités HTML résiduelles (db:cleanup-entities)
 └── cleanup-cached.ts                # Nettoyage items expirés
 ```
