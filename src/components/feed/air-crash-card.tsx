@@ -31,6 +31,7 @@ interface AirCrashCardProps {
   showToggle?: boolean
   showBookmark?: boolean
   showShare?: boolean
+  showLink?: boolean
   isVisible?: boolean
   onToggle?: () => void
 }
@@ -83,6 +84,7 @@ export const AirCrashCard = React.memo(function AirCrashCardInner({
   showToggle = true,
   showBookmark = true,
   showShare = true,
+  showLink = true,
   isVisible,
   onToggle,
 }: AirCrashCardProps) {
@@ -143,8 +145,9 @@ export const AirCrashCard = React.memo(function AirCrashCardInner({
 
   const hasImage = article && isValidUrlUtil(article.imageUrl) && !imageError
 
+  const shareUrl = article?.id ? `${typeof window !== 'undefined' ? window.location.origin : 'https://moinsbete.guibo.com'}/air-crash/${article.id}` : ''
   const { handleShare, copied, shareUrl: shareUrlResult } = useItemShare({
-    shareUrl: article?.url || '',
+    shareUrl,
     title: article?.title || 'Air Crash Investigation',
     text: article?.description || article?.title || '',
   })
@@ -157,6 +160,8 @@ export const AirCrashCard = React.memo(function AirCrashCardInner({
         color="blue"
         icon={<Plane className={'h-4 w-4 ' + c.iconForeground} />}
         title={t('air_crash_tab')}
+        showLink={showLink}
+        linkHref={showLink ? '/air-crash' : undefined}
         showToggle={showToggle}
         onToggle={onToggle}
         showRefresh={true}
