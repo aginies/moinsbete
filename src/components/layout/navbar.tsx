@@ -13,6 +13,7 @@ import { FavoritesHelpContent } from '@/components/favorites-help-content'
 import { CarteMentaleHelpContent } from '@/components/carte-mentale-help-content'
 import { HistoriqueHelpContent } from '@/components/historique-help-content'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 interface NavbarInnerProps {
   session: {
@@ -27,6 +28,8 @@ interface NavbarInnerProps {
 }
 
 export function NavbarInner({ session }: NavbarInnerProps) {
+  const t = useTranslations('nav')
+  const th = useTranslations('help')
   const pathname = usePathname()
   const isLobby = pathname?.includes('/lobby')
   const isFavoris = pathname?.includes('/favoris')
@@ -46,31 +49,25 @@ export function NavbarInner({ session }: NavbarInnerProps) {
           <div className="flex items-center gap-2">
             {session?.user && <SearchButton />}
             {session?.user && (
-              <Link href="/lobby">
-                <Button variant="ghost" size="sm" className="hidden md:inline-flex">
-                  <MessageSquare className="h-4 w-4" />
-                  <span className="ml-1">Lobby</span>
-                </Button>
-              </Link>
+                <Link href="/lobby">
+                  <Button variant="ghost" size="sm" className="hidden md:inline-flex">
+                    <MessageSquare className="h-4 w-4" />
+                    <span className="ml-1">{t('lobby')}</span>
+                  </Button>
+                </Link>
             )}
             {session?.user ? (
               <>
                 <Link href="/favoris">
                   <Button variant="ghost" size="sm" className="hidden md:inline-flex">
                     <Bookmark className="h-4 w-4" />
-                    <span className="ml-1">Favoris</span>
+                    <span className="ml-1">{t('favorites')}</span>
                   </Button>
                 </Link>
                 <Link href="/mon-historique">
                   <Button variant="ghost" size="sm" className="hidden md:inline-flex">
                     <Clock className="h-4 w-4" />
-                    <span className="ml-1">Historique</span>
-                  </Button>
-                </Link>
-                <Link href="/review" className="hidden">
-                  <Button variant="ghost" size="sm" className="hidden md:inline-flex">
-                    <BookOpen className="h-4 w-4" />
-                    <span className="ml-1">Révision</span>
+                    <span className="ml-1">{t('history')}</span>
                   </Button>
                 </Link>
                 <Link href="/mon-compte" className="flex items-center gap-2 mr-2 hover:opacity-80 transition-opacity">
@@ -89,12 +86,12 @@ export function NavbarInner({ session }: NavbarInnerProps) {
               <>
                 <Link href="/login">
                   <Button variant="ghost" size="sm">
-                    Connexion
+                    {t('login')}
                   </Button>
                 </Link>
                 <Link href="/register">
                   <Button variant="ghost" size="sm">
-                     S&apos;inscrire
+                    {t('signup')}
                   </Button>
                 </Link>
               </>
@@ -110,7 +107,7 @@ export function NavbarInner({ session }: NavbarInnerProps) {
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>
-                  {isHistorique ? 'Aide — Historique' : isCarte ? 'Aide — Carte Mentale' : isFavoris ? 'Aide — Favoris' : isLobby ? 'Aide — Lobby' : 'Aide'}
+                  {isHistorique ? th('dialog_title_history') : isCarte ? th('dialog_title_carte') : isFavoris ? th('dialog_title_favoris') : isLobby ? th('dialog_title_lobby') : th('dialog_title')}
                 </DialogTitle>
                 </DialogHeader>
                 {isHistorique ? <HistoriqueHelpContent /> : isCarte ? <CarteMentaleHelpContent /> : isFavoris ? <FavoritesHelpContent /> : isLobby ? <LobbyHelpContent /> : <HelpContent />}

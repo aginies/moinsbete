@@ -5,20 +5,22 @@ import { usePathname } from 'next/navigation'
 import { Home, Clock, Bookmark, BookOpen, Network, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useVisitTracking } from '@/hooks/use-visit-tracking'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect, useRef } from 'react'
 
 const navItems = [
-  { href: '/sujets', label: 'Accueil', icon: Home },
-  { href: '/lobby', label: 'Lobby', icon: MessageSquare },
-  { href: '/favoris', label: 'Favoris', icon: Bookmark },
-  { href: '/review', label: 'Révision', icon: BookOpen, hidden: true },
-  { href: '/carte-mentale', label: 'Carte', icon: Network },
-  { href: '/mon-historique', label: 'Historique', icon: Clock },
+  { href: '/sujets', labelKey: 'home', icon: Home },
+  { href: '/lobby', labelKey: 'lobby', icon: MessageSquare },
+  { href: '/favoris', labelKey: 'favorites', icon: Bookmark },
+  { href: '/review', labelKey: 'review', icon: BookOpen, hidden: true },
+  { href: '/carte-mentale', labelKey: 'map', icon: Network },
+  { href: '/mon-historique', labelKey: 'history', icon: Clock },
 ]
 
 const PROTECTED_PATHS = ['/lobby', '/favoris', '/mon-historique']
 
 export function BottomNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+  const t = useTranslations('nav')
   const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(true)
   const lastScrollYRef = useRef(0)
@@ -70,11 +72,11 @@ export function BottomNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground'
               )}
-              aria-label={item.label}
+              aria-label={t(item.labelKey)}
               aria-current={isActive ? 'page' : undefined}
             >
               <Icon className="h-4 w-4" />
-              <span>{item.label}</span>
+              <span>{t(item.labelKey)}</span>
             </Link>
           )
         })}

@@ -70,8 +70,13 @@ export default async function RootLayout({
         <meta name="theme-color" content="#372773" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <template nonce={nonce} dangerouslySetInnerHTML={{
+        <script nonce={nonce} dangerouslySetInnerHTML={{
             __html: `(function() {
+              try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'light') document.documentElement.classList.remove('dark');
+                else if (saved === 'dark') document.documentElement.classList.add('dark');
+              } catch (e) {}
               var updateThemeColor = function() {
                 var isDark = document.documentElement.classList.contains('dark');
                 var meta = document.querySelector('meta[name="theme-color"]');

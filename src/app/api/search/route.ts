@@ -6,24 +6,21 @@ import { RATE_LIMIT_ERROR_MESSAGE } from '@/lib/constants'
 import { mapIdeaWithTopics } from '@/lib/feed-helpers'
 import { normalizeAccents } from '@/lib/utils'
 import { createRedisTtlCache } from '@/lib/redis-cache'
-import type { JsonValue } from '@prisma/client/runtime/library'
 
 interface SearchCacheEntry {
-  ideas: JsonValue[]
-  sources: JsonValue[]
-  topics: JsonValue[]
-  facts: JsonValue[]
-  proverbs: JsonValue[]
-  images: JsonValue[]
-  news: JsonValue[]
-  citations: JsonValue[]
-  portailWikipedia: JsonValue[]
-  insolite: JsonValue[]
-  expiresAt: number
+  ideas: unknown[]
+  sources: unknown[]
+  topics: unknown[]
+  facts: unknown[]
+  proverbs: unknown[]
+  images: unknown[]
+  news: unknown[]
+  citations: unknown[]
+  portailWikipedia: unknown[]
+  insolite: unknown[]
 }
 
 const searchCache = createRedisTtlCache<SearchCacheEntry>({ ttlMs: 5 * 60 * 1000 })
-const SEARCH_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
 // Module-level cache for parsed proverbes to avoid repeated JSON.parse + DB query
 let proverbesParseCache: { data: Array<{ text: string; signification: string; source: string }>; expiresAt: number } | null = null
@@ -31,17 +28,10 @@ const PROVERBES_PARSE_TTL = 5 * 60 * 1000 // 5 minutes
 
 async function getCachedSearch(q: string) {
   const normalized = normalizeAccents(q).toLowerCase()
-  const cached = await searchCache.get(normalized)
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached
-  }
-  if (cached) {
-    await searchCache.del(normalized)
-  }
-  return null
+  return searchCache.get(normalized)
 }
 
-async function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue[], topics: JsonValue[], facts: JsonValue[], proverbs: JsonValue[], images: JsonValue[], news: JsonValue[], citations: JsonValue[], portailWikipedia: JsonValue[], insolite: JsonValue[]) {
+async function setCachedSearch(q: string, ideas: unknown[], sources: unknown[], topics: unknown[], facts: unknown[], proverbs: unknown[], images: unknown[], news: unknown[], citations: unknown[], portailWikipedia: unknown[], insolite: unknown[]) {
   await searchCache.set(q, {
     ideas,
     sources,
@@ -53,7 +43,6 @@ async function setCachedSearch(q: string, ideas: JsonValue[], sources: JsonValue
     citations,
     portailWikipedia,
     insolite,
-    expiresAt: Date.now() + SEARCH_CACHE_TTL,
   })
 }
 
@@ -90,7 +79,7 @@ async function searchProverbesInCache(q: string) {
     .map(p => ({ id: p.text.toLowerCase().replace(/\s+/g, '_'), text: p.text, signification: p.signification, source: p.source }))
 }
 
-async function searchImagesInCache(q: string) {
+async function searchImagesInCache(q: string, normalizedQ: string) {
   try {
     const images = await prisma.cachedWikipediaImage.findMany({
       where: {
@@ -103,15 +92,17 @@ async function searchImagesInCache(q: string) {
         fileUrl: true,
         date: true,
       },
-      take: 5,
+      take: 20,
     })
     return images
+      .filter(img => normalizeAccents(img.description).toLowerCase().includes(normalizedQ))
+      .slice(0, 5)
   } catch {
     return []
   }
 }
 
-async function searchNews(q: string) {
+async function searchNews(q: string, normalizedQ: string) {
   try {
     const news = await prisma.cachedNewsArticle.findMany({
       where: {
@@ -127,15 +118,20 @@ async function searchNews(q: string) {
         url: true,
         imageUrl: true,
       },
-      take: 5,
+      take: 20,
     })
     return news
+      .filter(n =>
+        normalizeAccents(n.title).toLowerCase().includes(normalizedQ) ||
+        normalizeAccents(n.description || '').toLowerCase().includes(normalizedQ)
+      )
+      .slice(0, 5)
   } catch {
     return []
   }
 }
 
-async function searchCitations(q: string) {
+async function searchCitations(q: string, normalizedQ: string) {
   try {
     const citations = await prisma.cachedCitationArticle.findMany({
       where: {
@@ -150,15 +146,20 @@ async function searchCitations(q: string) {
         author: true,
         wikiUrl: true,
       },
-      take: 5,
+      take: 20,
     })
     return citations
+      .filter(c =>
+        normalizeAccents(c.text).toLowerCase().includes(normalizedQ) ||
+        normalizeAccents(c.author || '').toLowerCase().includes(normalizedQ)
+      )
+      .slice(0, 5)
   } catch {
     return []
   }
 }
 
-async function searchPortailWikipedia(q: string) {
+async function searchPortailWikipedia(q: string, normalizedQ: string) {
   try {
     const articles = await prisma.cachedWikipediaPortalArticle.findMany({
       where: {
@@ -174,15 +175,20 @@ async function searchPortailWikipedia(q: string) {
         pageUrl: true,
         imageUrl: true,
       },
-      take: 5,
+      take: 20,
     })
     return articles
+      .filter(a =>
+        normalizeAccents(a.title).toLowerCase().includes(normalizedQ) ||
+        normalizeAccents(a.extract || '').toLowerCase().includes(normalizedQ)
+      )
+      .slice(0, 5)
   } catch {
     return []
   }
 }
 
-async function searchInsolite(q: string) {
+async function searchInsolite(q: string, normalizedQ: string) {
   try {
     const articles = await prisma.cachedInsoliteArticle.findMany({
       where: {
@@ -198,9 +204,14 @@ async function searchInsolite(q: string) {
         url: true,
         imageUrl: true,
       },
-      take: 5,
+      take: 20,
     })
     return articles
+      .filter(a =>
+        normalizeAccents(a.title).toLowerCase().includes(normalizedQ) ||
+        normalizeAccents(a.description || '').toLowerCase().includes(normalizedQ)
+      )
+      .slice(0, 5)
   } catch {
     return []
   }
@@ -298,11 +309,11 @@ export async function GET(request: NextRequest) {
         take: 5,
       }),
       searchProverbesInCache(q),
-      searchImagesInCache(q),
-      searchNews(q),
-      searchCitations(q),
-      searchPortailWikipedia(q),
-      searchInsolite(q),
+      searchImagesInCache(q, normalizedQ),
+      searchNews(q, normalizedQ),
+      searchCitations(q, normalizedQ),
+      searchPortailWikipedia(q, normalizedQ),
+      searchInsolite(q, normalizedQ),
     ])
 
     const filteredIdeas = ideas.filter(idea =>
@@ -329,11 +340,11 @@ export async function GET(request: NextRequest) {
       topics: mapIdeaWithTopics(idea),
     }))
 
-    await setCachedSearch(normalizedQ, formattedIdeas as any, filteredSources as any, filteredTopics as any, filteredFacts as any, proverbs as any, images as any, news as any, citations as any, portailWikipedia as any, insolite as any)
+    await setCachedSearch(normalizedQ, formattedIdeas, filteredSources, filteredTopics, filteredFacts, proverbs, images, news, citations, portailWikipedia, insolite)
 
     return NextResponse.json({ ideas: formattedIdeas, sources: filteredSources, topics: filteredTopics, facts: filteredFacts, proverbs, images, news, citations, portailWikipedia, insolite })
   } catch (error) {
     console.error('Search error:', error)
-    return NextResponse.json({ ideas: [], sources: [], topics: [], facts: [], proverbs: [], images: [], news: [], citations: [], portailWikipedia: [], insolite: [] })
+    return NextResponse.json({ error: 'Search failed' }, { status: 500 })
   }
 }

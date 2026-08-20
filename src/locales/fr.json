@@ -712,7 +712,18 @@
     "placeholder": "Rechercher idées, faits, proverbes, images...",
     "no_results": "Aucun résultat pour \"{query}\"",
     "searching": "Recherche en cours...",
-    "time_estimate": "Cela peut prendre jusqu'à 1 minute pour afficher les résultats."
+    "time_estimate": "Cela peut prendre jusqu'à 1 minute pour afficher les résultats.",
+    "error": "Erreur lors de la recherche. Réessayez.",
+    "results_topics": "Sujets",
+    "results_ideas": "Idées",
+    "results_facts": "Faits",
+    "results_proverbs": "Proverbes",
+    "results_portail_wikipedia": "Portail Wikipédia",
+    "results_citations": "Citations",
+    "results_insolite": "Insolite",
+    "results_news": "News",
+    "results_images": "Images",
+    "results_sources": "Sources"
   },
   "lobby": {
     "favoris": "Favoris",
@@ -721,6 +732,11 @@
     "utilisateurs_after": " avec utilisateurs"
   },
   "help": {
+    "dialog_title": "Aide",
+    "dialog_title_history": "Aide — Historique",
+    "dialog_title_carte": "Aide — Carte Mentale",
+    "dialog_title_favoris": "Aide — Favoris",
+    "dialog_title_lobby": "Aide — Lobby",
     "page_title": "Page dédiée",
     "page_desc": "Cliquez sur le titre d une carte pour voir tous les détails.",
     "share_title": "Partager",

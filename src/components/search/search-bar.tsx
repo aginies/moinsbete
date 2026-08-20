@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import { Search, X, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { Input } from '@/components/ui/input'
@@ -24,25 +24,24 @@ interface SearchResult {
   insolite: Array<{ id: string; title: string; description: string; url: string; imageUrl: string | null }>
 }
 
-import React from 'react'
-
 interface SearchBarProps {
   onClose?: () => void
 }
 
-export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarProps) {
+export const SearchBar = memo(function SearchBar({ onClose }: SearchBarProps) {
   const t = useTranslations('search')
   const router = useRouter()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [searching, setSearching] = useState(false)
-  const [proverbsLoading, setProverbsLoading] = useState(false)
-  const [imagesLoading, setImagesLoading] = useState(false)
+  const [error, setError] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
 
   const closeResults = useCallback(() => {
     setQuery('')
+    setResults(null)
+    setError(false)
     setIsOpen(false)
     onClose?.()
   }, [onClose])
@@ -66,37 +65,45 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
   useEffect(() => {
     if (query.length < 2) {
       setResults(null)
+      setError(false)
       setIsOpen(false)
       return
     }
 
+    setResults(null)
+    setError(false)
+
+    const controller = new AbortController()
     const timer = setTimeout(async () => {
       setSearching(true)
-      setProverbsLoading(true)
-      setImagesLoading(true)
       try {
-        const res = await fetch(`/fr/api/search?q=${encodeURIComponent(query)}`, {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
           credentials: 'include',
+          signal: controller.signal,
         })
         if (!res.ok) {
           console.error('Search API error:', res.status, res.statusText)
-          setResults(null)
+          setError(true)
           return
         }
         const data = await res.json()
         setResults(data)
         setIsOpen(true)
       } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return
         console.error('Search fetch error:', err)
-        setResults(null)
+        setError(true)
       } finally {
-        setSearching(false)
-        setProverbsLoading(false)
-        setImagesLoading(false)
+        if (!controller.signal.aborted) {
+          setSearching(false)
+        }
       }
     }, 300)
 
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
   }, [query])
 
   const hasResults = results && (results.ideas.length > 0 || results.sources.length > 0 || results.topics.length > 0 || results.facts.length > 0 || results.proverbs.length > 0 || results.images.length > 0 || results.news.length > 0 || results.citations.length > 0 || results.portailWikipedia.length > 0 || results.insolite.length > 0)
@@ -111,6 +118,10 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-10 pr-10"
+          autoFocus
+          role="combobox"
+          aria-expanded={!!(isOpen && hasResults)}
+          aria-controls="search-results-dropdown"
         />
         {query && (
           <Button
@@ -125,10 +136,10 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
       </div>
 
       {isOpen && hasResults && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[60vh] overflow-y-auto rounded-xl border border-border/60 bg-card p-4 shadow-lg">
+        <div id="search-results-dropdown" className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[60vh] overflow-y-auto rounded-xl border border-border/60 bg-card p-4 shadow-lg">
           {results.topics.length > 0 && (
             <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Sujets</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_topics')}</h4>
               <div className="space-y-1">
                 {results.topics.map((topic) => (
                   <Link
@@ -147,16 +158,15 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
 
           {results.ideas.length > 0 && (
             <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Idées</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_ideas')}</h4>
               <div className="space-y-2">
-                {results.ideas.slice(0, 5).map((idea) => {
+                {results.ideas.map((idea) => {
                     const compactIdea = {
                     id: idea.id,
                     title: idea.title,
                     slug: idea.slug,
                     source: { title: idea.source.title, type: idea.source.type, url: idea.source.url, coverUrl: idea.source.coverUrl },
                     topics: idea.topics.map(t => ({ id: t.id || '', name: t.name, slug: t.slug || '', icon: t.icon, color: t.color })),
-                    viewedAt: new Date().toISOString(),
                   }
                   return (
                     <CompactIdeaCard key={idea.id} idea={compactIdea} />
@@ -168,9 +178,9 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
 
           {results.facts.length > 0 && (
             <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Faits</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_facts')}</h4>
               <div className="space-y-1">
-                {results.facts.slice(0, 5).map((fact) => (
+                {results.facts.map((fact) => (
                   <button
                     key={fact.id}
                     type="button"
@@ -184,11 +194,11 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             </div>
           )}
 
-          {results && results.proverbs.length > 0 && (
+          {results.proverbs.length > 0 && (
             <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Proverbes</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_proverbs')}</h4>
               <div className="space-y-1">
-                {results.proverbs.slice(0, 5).map((proverb) => (
+                {results.proverbs.map((proverb) => (
                   <Link
                     key={proverb.id}
                     href={`/proverbes?q=${encodeURIComponent(proverb.text)}`}
@@ -205,11 +215,11 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             </div>
           )}
 
-          {results && results.portailWikipedia.length > 0 && (
+          {results.portailWikipedia.length > 0 && (
             <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Portail Wikipédia</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_portail_wikipedia')}</h4>
               <div className="space-y-1">
-                {results.portailWikipedia.slice(0, 5).map((article) => (
+                {results.portailWikipedia.map((article) => (
                   <Link
                     key={article.id}
                     href={sanitizeUrl(article.pageUrl)}
@@ -228,11 +238,11 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             </div>
           )}
 
-          {results && results.citations.length > 0 && (
+          {results.citations.length > 0 && (
             <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Citations</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_citations')}</h4>
               <div className="space-y-1">
-                {results.citations.slice(0, 5).map((citation) => (
+                {results.citations.map((citation) => (
                   <Link
                     key={citation.id}
                     href={sanitizeUrl(citation.wikiUrl)}
@@ -241,7 +251,7 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
                     className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted text-left"
                     onClick={closeResults}
                   >
-                    <span className="line-clamp-2 font-medium text-foreground italic">"{citation.text}"</span>
+                    <span className="line-clamp-2 font-medium text-foreground italic">&ldquo;{citation.text}&rdquo;</span>
                     {citation.author && (
                       <p className="line-clamp-1 text-xs text-muted-foreground">— {citation.author}</p>
                     )}
@@ -251,11 +261,11 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             </div>
           )}
 
-          {results && results.insolite.length > 0 && (
+          {results.insolite.length > 0 && (
             <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Insolite</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_insolite')}</h4>
               <div className="space-y-1">
-                {results.insolite.slice(0, 5).map((article) => (
+                {results.insolite.map((article) => (
                   <Link
                     key={article.id}
                     href={sanitizeUrl(article.url)}
@@ -274,11 +284,11 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             </div>
           )}
 
-          {results && results.news.length > 0 && (
+          {results.news.length > 0 && (
             <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">News</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_news')}</h4>
               <div className="space-y-1">
-                {results.news.slice(0, 5).map((article) => (
+                {results.news.map((article) => (
                   <Link
                     key={article.id}
                     href={sanitizeUrl(article.url)}
@@ -297,21 +307,11 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             </div>
           )}
 
-          {proverbsLoading && (
+          {results.images.length > 0 && (
             <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Proverbes</h4>
-              <div className="flex items-center gap-2 py-1">
-                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Recherche proverbes...</span>
-              </div>
-            </div>
-          )}
-
-          {results && results.images.length > 0 && (
-            <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Images</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_images')}</h4>
               <div className="grid grid-cols-2 gap-2">
-                {results.images.slice(0, 5).map((image) => (
+                {results.images.map((image) => (
                   <Link
                     key={image.id}
                     href={sanitizeUrl(image.fileUrl)}
@@ -339,21 +339,11 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
             </div>
           )}
 
-          {imagesLoading && (
-            <div className="mb-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Images</h4>
-              <div className="flex items-center gap-2 py-1">
-                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Recherche images...</span>
-              </div>
-            </div>
-          )}
-
           {results.sources.length > 0 && (
             <div>
-              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Sources</h4>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t('results_sources')}</h4>
               <div className="space-y-1">
-                {results.sources.slice(0, 5).map((source) => (
+                {results.sources.map((source) => (
                   <Link
                     key={source.id}
                     href={`/sources/${source.slug}`}
@@ -369,9 +359,15 @@ export const SearchBar = React.memo(function SearchBar({ onClose }: SearchBarPro
         </div>
       )}
 
-      {isOpen && !hasResults && query.length >= 2 && !searching && (
+      {isOpen && !hasResults && query.length >= 2 && !searching && !error && (
         <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-border/60 bg-card p-6 text-center shadow-lg">
           <p className="text-sm text-muted-foreground">{t('no_results', { query })}</p>
+        </div>
+      )}
+
+      {error && !searching && query.length >= 2 && (
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-border/60 bg-card p-6 text-center shadow-lg">
+          <p className="text-sm text-muted-foreground">{t('error')}</p>
         </div>
       )}
 
