@@ -46,36 +46,49 @@ export interface AsnMatchResult {
 }
 
 export async function scrapeAndCacheAirCrashAsn(options: { limit?: number } = {}): Promise<AsnMatchResult> {
+  console.log(`[cache-air-crash-asn] Starting ASN matching (limit: ${options.limit || 'none'})`)
+  
   const missing = await prisma.cachedAirCrashArticle.findMany({
     where: { asnId: null },
     orderBy: { title: 'asc' },
     take: options.limit,
     select: { id: true, title: true },
   })
+  
+  console.log(`[cache-air-crash-asn] Found ${missing.length} articles without ASN links`)
+  
   if (missing.length === 0) {
     console.log('[cache-air-crash-asn] All articles already have ASN links, nothing to do')
     return { matched: 0, unmatched: 0, failed: 0 }
   }
+  
   console.log(`[cache-air-crash-asn] Matching ${missing.length} articles...`)
+  console.log(`[cache-air-crash-asn] Fetching wikitext for ${missing.length} articles...`)
 
   const wikitexts = await fetchWikitextBatch(missing.map(a => a.title))
+  console.log(`[cache-air-crash-asn] Fetched wikitext for ${wikitexts.size}/${missing.length} articles`)
 
   let matched = 0
   let unmatched = 0
   let failed = 0
 
-  for (const article of missing) {
+  for (let i = 0; i < missing.length; i++) {
+    const article = missing[i]
+    console.log(`[cache-air-crash-asn] Processing ${i + 1}/${missing.length}: ${article.title}`)
+    
     const wt = wikitexts.get(article.title)
     if (!wt) {
       failed++
-      console.log(`  ${article.title}: wikitext unavailable`)
+      console.log(`  [cache-air-crash-asn]   FAIL: wikitext unavailable`)
       continue
     }
 
     const info = parseAirCrashInfobox(wt, article.title)
+    console.log(`  [cache-air-crash-asn]   Infobox: dates=${info.dates.length}, type=${info.type || '?'}, reg=${info.reg || '?'}, operator=${info.operator || '?'}`)
+    
     if (info.dates.length === 0) {
       unmatched++
-      console.log(`  ${article.title}: no date in infobox, skipped`)
+      console.log(`  [cache-air-crash-asn]   UNMATCHED: no date in infobox`)
       continue
     }
 
@@ -87,6 +100,7 @@ export async function scrapeAndCacheAirCrashAsn(options: { limit?: number } = {}
 
     const pick = (rows: AsnRecord[]): AsnRecord | null => {
       for (const d of info.dates) {
+        console.log(`  [cache-air-crash-asn]   Searching ASN for date ${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`)
         const picked = pickBestAsnRow(rows, { ...wantedBase, date: d })
         if (picked) return picked
       }
@@ -95,18 +109,32 @@ export async function scrapeAndCacheAirCrashAsn(options: { limit?: number } = {}
 
     const year = info.dates[0].year
     let best: AsnRecord | null = null
+    
     if (info.reg) {
-      best = pick(await searchAsnRecords({ year, reg: info.reg }))
+      console.log(`  [cache-air-crash-asn]   Searching by registration: ${info.reg}`)
+      const rows = await searchAsnRecords({ year, reg: info.reg })
+      console.log(`  [cache-air-crash-asn]   Found ${rows.length} ASN records for registration`)
+      best = pick(rows)
     }
+    
     if (!best && info.type) {
-      best = pick(await searchAsnRecords({ year, type: modelToken(info.type) }))
+      console.log(`  [cache-air-crash-asn]   Searching by aircraft type: ${info.type}`)
+      const rows = await searchAsnRecords({ year, type: modelToken(info.type) })
+      console.log(`  [cache-air-crash-asn]   Found ${rows.length} ASN records for type`)
+      best = pick(rows)
     }
+    
     if (!best && info.operator) {
+      console.log(`  [cache-air-crash-asn]   Searching by operator: ${info.operator}`)
       let rows = await searchAsnRecords({ year, op: info.operator })
+      console.log(`  [cache-air-crash-asn]   Found ${rows.length} ASN records for operator`)
+      
       if (rows.length === 0) {
         const firstWord = info.operator.split(/\s+/)[0]
         if (firstWord.length >= 4 && firstWord.toLowerCase() !== info.operator.toLowerCase()) {
+          console.log(`  [cache-air-crash-asn]   Trying first word: ${firstWord}`)
           rows = await searchAsnRecords({ year, op: firstWord })
+          console.log(`  [cache-air-crash-asn]   Found ${rows.length} ASN records for first word`)
         }
       }
       best = pick(rows)
@@ -118,11 +146,11 @@ export async function scrapeAndCacheAirCrashAsn(options: { limit?: number } = {}
         data: { asnId: best.id, asnUrl: asnUrlFor(best.id) },
       })
       matched++
-      console.log(`  ${article.title} -> /wikibase/${best.id} (${best.date}, ${best.type})`)
+      console.log(`  [cache-air-crash-asn]   MATCHED: /wikibase/${best.id} (${best.date}, ${best.type})`)
     } else {
       unmatched++
       const d = info.dates[0]
-      console.log(`  ${article.title}: no match (dates ${info.dates.map(x => `${x.day}/${x.month}/${x.year}`).join(', ')}, type ${info.type ?? '?'}, reg ${info.reg ?? '?'})`)
+      console.log(`  [cache-air-crash-asn]   UNMATCHED: no ASN record found (dates ${info.dates.map(x => `${x.day}/${x.month}/${x.year}`).join(', ')}, type ${info.type ?? '?'}, reg ${info.reg ?? '?'})`)
     }
   }
 
