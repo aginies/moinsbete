@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db'
 import { PORTAL_ARTICLE_TTL_MS, fetchArticleDetails, fetchPageWikitext } from '@/lib/portail-wikipedia-fetch'
 
 const AIR_CRASH_PAGE = 'Air_Crash'
-const AIR_CRASH_TTL_MS = PORTAL_ARTICLE_TTL_MS // 7 days
+const AIR_CRASH_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days (data changes rarely)
 const SPECIALS_NON_ACCIDENT_LINKS = new Set(['De Havilland Comet', 'Douglas DC-7', 'Lockheed Constellation'])
 
 function splitWikitextCells(rowText: string): string[] {

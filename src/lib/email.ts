@@ -33,6 +33,33 @@ export async function sendResetEmail(to: string, token: string) {
   }
 }
 
+export async function sendCronErrorEmail(step: string, error: unknown) {
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@moinsbete.com'
+  const errorStr = error instanceof Error ? `${error.message}\n\n${error.stack}` : String(error)
+  
+  try {
+    await resend.emails.send({
+      from: EMAIL_FROM,
+      to: adminEmail,
+      subject: `[MoinsBête] Cron error: ${step}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #d32f2f;">Cron job error</h2>
+          <p><strong>Step:</strong> ${step}</p>
+          <p><strong>Time:</strong> ${new Date().toISOString()}</p>
+          <div style="margin: 20px 0; padding: 15px; background-color: #f5f5f5; border-radius: 6px; font-family: monospace; font-size: 12px; white-space: pre-wrap;">
+            ${errorStr}
+          </div>
+        </div>
+      `,
+    })
+    return { success: true }
+  } catch (e) {
+    console.error('Failed to send cron error email:', e)
+    return { success: false, error: e }
+  }
+}
+
 export async function sendShareNotificationEmail(to: string, toName: string, sharerName: string, title: string, resourceType?: string) {
   const lobbyUrl = 'https://moinsbete.guibo.com/fr/lobby?tab=partage'
   const accountUrl = 'https://moinsbete.guibo.com/fr/mon-compte'

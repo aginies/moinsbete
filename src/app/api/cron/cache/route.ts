@@ -14,6 +14,7 @@ import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { scrapeAndCacheApod } from '@/scripts/cache-apod'
 import { scrapeAndCacheAirCrash } from '@/scripts/cache-air-crash'
 import { scrapeAndCacheAirCrashAsn } from '@/scripts/cache-air-crash-asn'
+import { sendCronErrorEmail } from '@/lib/email'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
 import { isAllowedIp, getClientIp } from '@/lib/ip'
@@ -79,104 +80,117 @@ export async function GET(request: NextRequest) {
   console.log(`[cron] Starting cache update from IP: ${ip} (auth: ${auth.reason})`)
   
   const results: Record<string, string> = {}
+  let hasErrors = false
+
+  async function runStep(step: string, fn: () => Promise<void>) {
+    try {
+      await fn()
+      results[step] = 'ok'
+    } catch (error) {
+      hasErrors = true
+      console.error(`[cron] Step ${step} failed:`, error)
+      results[step] = 'error'
+      await sendCronErrorEmail(step, error)
+    }
+  }
   
   try {
     console.log('[cron] Step 1/16: Scraping CNRS...')
-    await scrapeAndCacheCnrs()
-    results.cnrs = 'ok'
+    await runStep('cnrs', scrapeAndCacheCnrs)
     
     console.log('[cron] Step 2/16: Scraping Radio France...')
-    await scrapeAndCacheRadioEpisodes()
-    results.radio = 'ok'
+    await runStep('radio', scrapeAndCacheRadioEpisodes)
     
     console.log('[cron] Step 3/16: Scraping News...')
-    await scrapeAndCacheNews()
-    results.news = 'ok'
+    await runStep('news', scrapeAndCacheNews)
     
     console.log('[cron] Step 4/16: Scraping Wikipedia Image (FR)...')
-    await scrapeAndCacheWikipediaImages()
-    results.wiki = 'ok'
+    await runStep('wiki', scrapeAndCacheWikipediaImages)
 
     console.log('[cron] Step 5/16: Scraping Wikipedia Image (EN)...')
-    await scrapeAndCacheWikipediaImagesEN()
-    results.wikiEn = 'ok'
+    await runStep('wikiEn', scrapeAndCacheWikipediaImagesEN)
 
     console.log('[cron] Step 6/16: Scraping F1 portal...')
-    await scrapeAndCacheF1()
-    results.f1 = 'ok'
+    await runStep('f1', scrapeAndCacheF1)
 
     console.log('[cron] Step 7/16: Scraping Portail Wikipédia...')
-    await scrapeAndCachePortailWikipedia()
-    results.portailWiki = 'ok'
+    await runStep('portailWiki', scrapeAndCachePortailWikipedia)
 
     console.log('[cron] Step 8/16: Scraping Wikiquote...')
-    await scrapeAndCacheCitation()
-    results.citation = 'ok'
+    await runStep('citation', scrapeAndCacheCitation)
 
     console.log('[cron] Step 9/16: Scraping Wiki Loves...')
-    await scrapeAndCacheWikiLoves()
-    results.wikiLoves = 'ok'
+    await runStep('wikiLoves', scrapeAndCacheWikiLoves)
 
     console.log('[cron] Step 10/16: Scraping Articles insolites...')
-    await scrapeAndCacheInsolite()
-    results.insolite = 'ok'
+    await runStep('insolite', scrapeAndCacheInsolite)
 
     console.log('[cron] Step 11/16: Cleanup...')
-    const counts = await cleanupExpired()
-    const citationSkipped = counts.citation === 0
-    const insoliteSkipped = counts.insolite === 0
-    const apodSkipped = counts.apod === 0
-    const airCrashSkipped = counts.airCrash === 0
-    let cleanupParts = [`cnrs:${counts.cnrs}`, `radio:${counts.radio}`, `wiki:${counts.wiki}`, `wikiLoves:${counts.wikiLoves}`, `news:${counts.news}`, `f1:${counts.f1}`, `portailWiki:${counts.portailWikipedia}`]
-    if (!citationSkipped) {
-      cleanupParts.push(`citation:${counts.citation}`)
-    }
-    if (!insoliteSkipped) {
-      cleanupParts.push(`insolite:${counts.insolite}`)
-    }
-    if (!apodSkipped) {
-      cleanupParts.push(`apod:${counts.apod}`)
-    }
-    if (!airCrashSkipped) {
-      cleanupParts.push(`airCrash:${counts.airCrash}`)
-    }
-    results.cleanup = cleanupParts.join(',')
-    const newsMaxAge = await cleanupNewsByMaxAge(5)
-    results.newsMaxAge = newsMaxAge > 0 ? `maxage:${newsMaxAge}` : ''
-    const oldConfigCleaned = await cleanupOldInsoliteConfigs(30)
-    if (oldConfigCleaned > 0) {
-      results.insoliteConfigCleanup = `configs:${oldConfigCleaned}`
+    try {
+      const counts = await cleanupExpired()
+      const citationSkipped = counts.citation === 0
+      const insoliteSkipped = counts.insolite === 0
+      const apodSkipped = counts.apod === 0
+      const airCrashSkipped = counts.airCrash === 0
+      let cleanupParts = [`cnrs:${counts.cnrs}`, `radio:${counts.radio}`, `wiki:${counts.wiki}`, `wikiLoves:${counts.wikiLoves}`, `news:${counts.news}`, `f1:${counts.f1}`, `portailWiki:${counts.portailWikipedia}`]
+      if (!citationSkipped) {
+        cleanupParts.push(`citation:${counts.citation}`)
+      }
+      if (!insoliteSkipped) {
+        cleanupParts.push(`insolite:${counts.insolite}`)
+      }
+      if (!apodSkipped) {
+        cleanupParts.push(`apod:${counts.apod}`)
+      }
+      if (!airCrashSkipped) {
+        cleanupParts.push(`airCrash:${counts.airCrash}`)
+      }
+      results.cleanup = cleanupParts.join(',')
+      const newsMaxAge = await cleanupNewsByMaxAge(5)
+      results.newsMaxAge = newsMaxAge > 0 ? `maxage:${newsMaxAge}` : ''
+      const oldConfigCleaned = await cleanupOldInsoliteConfigs(30)
+      if (oldConfigCleaned > 0) {
+        results.insoliteConfigCleanup = `configs:${oldConfigCleaned}`
+      }
+    } catch (error) {
+      hasErrors = true
+      console.error('[cron] Cleanup failed:', error)
+      results.cleanup = 'error'
+      await sendCronErrorEmail('cleanup', error)
     }
 
     console.log('[cron] Step 12/16: Resolving Saviez-vous images...')
-    await scrapeAndCacheSaviezVousImages()
-    results.saviezvous = 'ok'
+    await runStep('saviezvous', scrapeAndCacheSaviezVousImages)
 
     console.log('[cron] Step 13/16: Scraping Portail Lexical Word of the Day...')
-    await scrapeAndCachePortailLexicalWotd()
-    results.portailLexical = 'ok'
+    await runStep('portailLexical', scrapeAndCachePortailLexicalWotd)
 
     console.log('[cron] Step 14/16: Scraping APOD (NASA)...')
-    await scrapeAndCacheApod()
-    results.apod = 'ok'
+    await runStep('apod', scrapeAndCacheApod)
 
     console.log('[cron] Step 15/16: Scraping Air Crash...')
-    await scrapeAndCacheAirCrash()
-    results.airCrash = 'ok'
+    await runStep('airCrash', scrapeAndCacheAirCrash)
 
     console.log('[cron] Step 16/16: Matching Air Crash ASN links...')
-    const asnResult = await scrapeAndCacheAirCrashAsn()
-    results.airCrashAsn = asnResult.matched > 0 ? `matched:${asnResult.matched}` : 'up-to-date'
+    try {
+      const asnResult = await scrapeAndCacheAirCrashAsn()
+      results.airCrashAsn = asnResult.matched > 0 ? `matched:${asnResult.matched}` : 'up-to-date'
+    } catch (error) {
+      hasErrors = true
+      console.error('[cron] ASN matching failed:', error)
+      results.airCrashAsn = 'error'
+      await sendCronErrorEmail('airCrashAsn', error)
+    }
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
-    console.log(`[cron] Cache update completed in ${duration}s`)
+    console.log(`[cron] Cache update completed in ${duration}s${hasErrors ? ' (with errors)' : ''}`)
     
     return NextResponse.json({ 
-      ok: true, 
+      ok: !hasErrors, 
       results,
       duration: `${duration}s`,
       ip,
-    })
+    }, hasErrors ? { status: 207 } : {})  // 207 Multi-Status for partial success
   } catch (error) {
     console.error('[cron] Cache update error:', error)
     return NextResponse.json({ 
