@@ -15,24 +15,36 @@ async function fetchWikitextBatch(titles: string[]): Promise<Map<string, string>
     const batch = titles.slice(i, i + WIKI_BATCH_SIZE)
     const t = batch.map(x => encodeURIComponent(x)).join('|')
     const url = `https://fr.wikipedia.org/w/api.php?action=query&format=json&redirects=1&titles=${t}&prop=revisions&rvprop=content`
+    console.log(`[cache-air-crash-asn] Fetching wikitext batch ${Math.floor(i / WIKI_BATCH_SIZE) + 1}: ${batch.length} articles`)
     try {
       const res = await fetch(url, {
         headers: { 'User-Agent': WIKIMEDIA_UA },
         signal: AbortSignal.timeout(30_000),
       })
-      if (!res.ok) continue
+      console.log(`[cache-air-crash-asn] Wikipedia API response: ${res.status}`)
+      if (!res.ok) {
+        console.log(`[cache-air-crash-asn] Wikipedia API error: ${res.status}`)
+        continue
+      }
       const data = (await res.json()) as {
         query?: { pages?: Record<string, { title?: string; revisions?: Array<{ '*': string }> }> }
       }
       const pages = data?.query?.pages
       if (pages) {
+        let batchCount = 0
         for (const p of Object.values(pages)) {
           const content = p?.revisions?.[0]?.['*']
-          if (p?.title && typeof content === 'string') result.set(p.title, content)
+          if (p?.title && typeof content === 'string') {
+            result.set(p.title, content)
+            batchCount++
+          }
         }
+        console.log(`[cache-air-crash-asn] Batch ${Math.floor(i / WIKI_BATCH_SIZE) + 1}: got ${batchCount}/${batch.length} wikitexts`)
+      } else {
+        console.log(`[cache-air-crash-asn] Batch ${Math.floor(i / WIKI_BATCH_SIZE) + 1}: no pages in response`)
       }
-    } catch {
-      // Skip failed batch
+    } catch (err) {
+      console.log(`[cache-air-crash-asn] Batch ${Math.floor(i / WIKI_BATCH_SIZE) + 1} failed: ${err instanceof Error ? err.message : err}`)
     }
     if (i + WIKI_BATCH_SIZE < titles.length) await sleep(WIKI_BATCH_DELAY_MS)
   }
