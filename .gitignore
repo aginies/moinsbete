@@ -62,14 +62,18 @@ CHANGELOG*.md
 # user dotfiles
 .bash_profile
 .bashrc
+.claude
 .claude/
 .gitconfig
 .gitmodules
+.idea
 .idea/
 .mcp.json
 .profile
 .ripgreprc
+.rtk
 .rtk/
+.vscode
 .vscode/
 .zprofile
 .zshrc
