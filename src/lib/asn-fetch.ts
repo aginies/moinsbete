@@ -47,13 +47,23 @@ async function politeFetchText(url: string): Promise<string> {
   let lastError: unknown = null
   for (let attempt = 0; attempt < ASN_MAX_RETRIES; attempt++) {
     lastRequestAt = Date.now()
+    console.log(`[asn-fetch] Fetching (attempt ${attempt + 1}/${ASN_MAX_RETRIES}): ${url}`)
     try {
       const res = await fetch(url, {
-        headers: { 'User-Agent': ASN_UA },
+        headers: {
+          'User-Agent': ASN_UA,
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1',
+        },
         signal: AbortSignal.timeout(ASN_TIMEOUT_MS),
       })
+      console.log(`[asn-fetch] Response status: ${res.status}`)
       if (res.status === 429 || res.status === 403 || res.status >= 500) {
         lastError = new Error(`ASN fetch ${res.status}`)
+        console.log(`[asn-fetch] Retrying after ${res.status}...`)
         await sleep(15_000 * (attempt + 1))
         continue
       }
@@ -61,7 +71,8 @@ async function politeFetchText(url: string): Promise<string> {
       return await res.text()
     } catch (err) {
       lastError = err
-      await sleep(10_000 * (attempt + 1))
+      console.log(`[asn-fetch] Error: ${err instanceof Error ? err.message : err}`)
+      await sleep(15_000 * (attempt + 1))
     }
   }
   throw lastError instanceof Error ? lastError : new Error('ASN fetch failed')
