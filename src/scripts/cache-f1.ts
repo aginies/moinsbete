@@ -11,6 +11,41 @@ import {
   fetchArticleContent,
 } from '../lib/f1-wiki-parser'
 
+function parseF1Date(dateStr: string | undefined, fallback: Date): Date {
+  if (!dateStr) return fallback
+  
+  // Try DD.MM.YY format (FIA)
+  const ddMmyyMatch = dateStr.match(/^(\d{2})\.(\d{2})\.(\d{2})$/)
+  if (ddMmyyMatch) {
+    const [, dd, mm, yy] = ddMmyyMatch
+    const year = parseInt(yy, 10) >= 50 ? 1900 + parseInt(yy, 10) : 2000 + parseInt(yy, 10)
+    const d = new Date(year, parseInt(mm, 10) - 1, parseInt(dd, 10))
+    if (!isNaN(d.getTime())) return d
+  }
+  
+  // Try French format: "23 août 2026"
+  const months: Record<string, number> = {
+    'janvier': 0, 'février': 1, 'mars': 2, 'avril': 3, 'mai': 4, 'juin': 5,
+    'juillet': 6, 'août': 7, 'septembre': 8, 'octobre': 9, 'novembre': 10, 'décembre': 11,
+    'jan': 0, 'fév': 1, 'mar': 2, 'avr': 3, 'jun': 5, 'jul': 6, 'aoû': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'déc': 11,
+  }
+  const frenchMatch = dateStr.match(/^(\d{1,2})\s+([a-zà-ÿ]+)\s+(\d{4})$/i)
+  if (frenchMatch) {
+    const [, dd, monthName, year] = frenchMatch
+    const month = months[monthName.toLowerCase()]
+    if (month !== undefined) {
+      const d = new Date(parseInt(year, 10), month, parseInt(dd, 10))
+      if (!isNaN(d.getTime())) return d
+    }
+  }
+  
+  // Fallback to Date.parse
+  const d = new Date(dateStr)
+  if (!isNaN(d.getTime())) return d
+  
+  return fallback
+}
+
 interface F1FiaArticle {
   title: string
   date: string
@@ -80,10 +115,7 @@ export async function scrapeAndCacheF1(): Promise<void> {
     if (actualites.length > 0) {
       console.log(`  Actualites: ${actualites.length} articles`)
       for (const article of actualites) {
-        let publishedDate = article.date ? new Date(article.date) : now
-        if (isNaN(publishedDate.getTime())) {
-          publishedDate = now
-        }
+        const publishedDate = parseF1Date(article.date, now)
         await upsertCachedF1Article({
           section: 'actualites',
           title: article.title,
@@ -153,10 +185,7 @@ export async function scrapeAndCacheF1(): Promise<void> {
   if (fiaArticles.length > 0) {
     console.log(`  FIA F1 News: ${fiaArticles.length} articles`)
     for (const article of fiaArticles) {
-      let publishedDate = article.date ? new Date(article.date) : now
-      if (isNaN(publishedDate.getTime())) {
-        publishedDate = now
-      }
+      const publishedDate = parseF1Date(article.date, now)
       await upsertCachedF1Article({
         section: 'fia',
         title: article.title,
