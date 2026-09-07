@@ -370,6 +370,7 @@ model CachedF1Article {
   url         String   @unique
   imageUrl    String?
   meta        Json?
+  publishedAt DateTime?
   scrapedAt   DateTime @default(now())
   expiresAt   DateTime
 

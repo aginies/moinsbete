@@ -80,12 +80,17 @@ export async function scrapeAndCacheF1(): Promise<void> {
     if (actualites.length > 0) {
       console.log(`  Actualites: ${actualites.length} articles`)
       for (const article of actualites) {
+        let publishedDate = article.date ? new Date(article.date) : now
+        if (isNaN(publishedDate.getTime())) {
+          publishedDate = now
+        }
         await upsertCachedF1Article({
           section: 'actualites',
           title: article.title,
           description: article.date,
           content: article.content || '',
           url: article.url,
+          publishedAt: publishedDate,
           scrapedAt: now,
           expiresAt: contentExpiresAt,
         })
@@ -148,6 +153,10 @@ export async function scrapeAndCacheF1(): Promise<void> {
   if (fiaArticles.length > 0) {
     console.log(`  FIA F1 News: ${fiaArticles.length} articles`)
     for (const article of fiaArticles) {
+      let publishedDate = article.date ? new Date(article.date) : now
+      if (isNaN(publishedDate.getTime())) {
+        publishedDate = now
+      }
       await upsertCachedF1Article({
         section: 'fia',
         title: article.title,
@@ -155,6 +164,7 @@ export async function scrapeAndCacheF1(): Promise<void> {
         content: article.summary || '',
         imageUrl: article.imageUrl,
         url: article.url,
+        publishedAt: publishedDate,
         scrapedAt: now,
         expiresAt: contentExpiresAt,
       })

@@ -19,7 +19,7 @@ async function fetchFromApi(): Promise<{ sections: F1Section[]; lastUpdated?: st
   const [actualites, image, classement, saviez, fia] = await Promise.all([
     prisma.cachedF1Article.findMany({
       where: { section: 'actualites', expiresAt: { gte: now } },
-      orderBy: { scrapedAt: 'desc' },
+      orderBy: [{ publishedAt: 'desc' }, { scrapedAt: 'desc' }],
       take: 5,
     }),
     prisma.cachedF1Article.findFirst({
@@ -37,7 +37,7 @@ async function fetchFromApi(): Promise<{ sections: F1Section[]; lastUpdated?: st
     }),
     prisma.cachedF1Article.findMany({
       where: { section: 'fia', expiresAt: { gte: now } },
-      orderBy: { scrapedAt: 'desc' },
+      orderBy: [{ publishedAt: 'desc' }, { scrapedAt: 'desc' }],
       take: 10,
     }),
   ])

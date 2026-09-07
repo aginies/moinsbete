@@ -72,12 +72,13 @@ export interface CachedF1ArticleUpsert {
   content?: string
   imageUrl?: string
   meta?: unknown
+  publishedAt?: Date
   scrapedAt: Date
   expiresAt: string | Date
 }
 
 export async function upsertCachedF1Article(data: CachedF1ArticleUpsert) {
-  const { url, section, title, description, content, imageUrl, meta, scrapedAt, expiresAt } = data
+  const { url, section, title, description, content, imageUrl, meta, publishedAt, scrapedAt, expiresAt } = data
   const payload = {
     section,
     title,
@@ -85,6 +86,7 @@ export async function upsertCachedF1Article(data: CachedF1ArticleUpsert) {
     ...(content !== undefined ? { content } : {}),
     ...(imageUrl !== undefined ? { imageUrl } : {}),
     ...(meta !== undefined ? { meta: meta as object } : {}),
+    ...(publishedAt !== undefined ? { publishedAt } : {}),
     url,
     scrapedAt,
     expiresAt,
