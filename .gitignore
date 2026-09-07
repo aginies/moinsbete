@@ -58,3 +58,18 @@ next-env.d.ts
 *.bak
 *.bck
 CHANGELOG*.md
+
+# user dotfiles
+.bash_profile
+.bashrc
+.claude/
+.gitconfig
+.gitmodules
+.idea/
+.mcp.json
+.profile
+.ripgreprc
+.rtk/
+.vscode/
+.zprofile
+.zshrc
