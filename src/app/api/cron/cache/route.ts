@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
   const results: Record<string, string> = {}
   let hasErrors = false
 
-  async function runStep(step: string, fn: () => Promise<void>) {
+  async function runStep(step: string, fn: () => Promise<unknown>) {
     try {
       await fn()
       results[step] = 'ok'
