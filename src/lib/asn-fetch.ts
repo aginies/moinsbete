@@ -1,10 +1,10 @@
 import { decodeHtmlEntities } from '@/lib/utils'
 
 const ASN_BASE = 'https://aviation-safety.net'
-const ASN_UA = 'moinsbete/1.0 (air crash card; https://moinsbete.guibo.com)'
-const ASN_DELAY_MS = 1500
+const ASN_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+const ASN_DELAY_MS = 2000
 const ASN_TIMEOUT_MS = 20_000
-const ASN_MAX_RETRIES = 3
+const ASN_MAX_RETRIES = 5
 
 function sleep(ms: number): Promise<void> {
   return new Promise(r => setTimeout(r, ms))
@@ -52,9 +52,9 @@ async function politeFetchText(url: string): Promise<string> {
         headers: { 'User-Agent': ASN_UA },
         signal: AbortSignal.timeout(ASN_TIMEOUT_MS),
       })
-      if (res.status === 429 || res.status >= 500) {
+      if (res.status === 429 || res.status === 403 || res.status >= 500) {
         lastError = new Error(`ASN fetch ${res.status}`)
-        await sleep(10_000 * (attempt + 1))
+        await sleep(15_000 * (attempt + 1))
         continue
       }
       if (!res.ok) throw new Error(`ASN fetch failed: ${res.status}`)
