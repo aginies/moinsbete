@@ -12,8 +12,6 @@ import { scrapeAndCacheWikiLoves } from '@/scripts/scrape-wikiloves'
 import { scrapeAndCachePortailLexicalWotd } from '@/scripts/cache-portail-lexical'
 import { scrapeAndCacheInsolite } from '@/scripts/cache-insolite'
 import { scrapeAndCacheApod } from '@/scripts/cache-apod'
-import { scrapeAndCacheAirCrash } from '@/scripts/cache-air-crash'
-import { scrapeAndCacheAirCrashAsn } from '@/scripts/cache-air-crash-asn'
 import { sendCronErrorEmail } from '@/lib/email'
 import { cleanupExpired, cleanupNewsByMaxAge } from '@/lib/cache-helpers'
 import { cleanupOldInsoliteConfigs } from '@/lib/insolite'
@@ -95,44 +93,44 @@ export async function GET(request: NextRequest) {
   }
   
   try {
-    console.log('[cron] Step 1/16: Scraping CNRS...')
+    console.log('[cron] Step 1/14: Scraping CNRS...')
     await runStep('cnrs', scrapeAndCacheCnrs)
     
-    console.log('[cron] Step 2/16: Scraping Radio France...')
+    console.log('[cron] Step 2/14: Scraping Radio France...')
     await runStep('radio', scrapeAndCacheRadioEpisodes)
     
-    console.log('[cron] Step 3/16: Scraping News...')
+    console.log('[cron] Step 3/14: Scraping News...')
     await runStep('news', scrapeAndCacheNews)
     
-    console.log('[cron] Step 4/16: Scraping Wikipedia Image (FR)...')
+    console.log('[cron] Step 4/14: Scraping Wikipedia Image (FR)...')
     await runStep('wiki', scrapeAndCacheWikipediaImages)
 
-    console.log('[cron] Step 5/16: Scraping Wikipedia Image (EN)...')
+    console.log('[cron] Step 5/14: Scraping Wikipedia Image (EN)...')
     await runStep('wikiEn', scrapeAndCacheWikipediaImagesEN)
 
-    console.log('[cron] Step 6/16: Scraping F1 portal...')
+    console.log('[cron] Step 6/14: Scraping F1 portal...')
     await runStep('f1', scrapeAndCacheF1)
 
-    console.log('[cron] Step 7/16: Scraping Portail Wikipédia...')
+    console.log('[cron] Step 7/14: Scraping Portail Wikipédia...')
     await runStep('portailWiki', scrapeAndCachePortailWikipedia)
 
-    console.log('[cron] Step 8/16: Scraping Wikiquote...')
+    console.log('[cron] Step 8/14: Scraping Wikiquote...')
     await runStep('citation', scrapeAndCacheCitation)
 
-    console.log('[cron] Step 9/16: Scraping Wiki Loves...')
+    console.log('[cron] Step 9/14: Scraping Wiki Loves...')
     await runStep('wikiLoves', scrapeAndCacheWikiLoves)
 
-    console.log('[cron] Step 10/16: Scraping Articles insolites...')
+    console.log('[cron] Step 10/14: Scraping Articles insolites...')
     await runStep('insolite', scrapeAndCacheInsolite)
 
-    console.log('[cron] Step 11/16: Cleanup...')
+    console.log('[cron] Step 11/14: Cleanup...')
     try {
       const counts = await cleanupExpired()
       const citationSkipped = counts.citation === 0
       const insoliteSkipped = counts.insolite === 0
       const apodSkipped = counts.apod === 0
       const airCrashSkipped = counts.airCrash === 0
-      let cleanupParts = [`cnrs:${counts.cnrs}`, `radio:${counts.radio}`, `wiki:${counts.wiki}`, `wikiLoves:${counts.wikiLoves}`, `news:${counts.news}`, `f1:${counts.f1}`, `portailWiki:${counts.portailWikipedia}`]
+      const cleanupParts = [`cnrs:${counts.cnrs}`, `radio:${counts.radio}`, `wiki:${counts.wiki}`, `wikiLoves:${counts.wikiLoves}`, `news:${counts.news}`, `f1:${counts.f1}`, `portailWiki:${counts.portailWikipedia}`]
       if (!citationSkipped) {
         cleanupParts.push(`citation:${counts.citation}`)
       }
@@ -159,28 +157,14 @@ export async function GET(request: NextRequest) {
       await sendCronErrorEmail('cleanup', error)
     }
 
-    console.log('[cron] Step 12/16: Resolving Saviez-vous images...')
+    console.log('[cron] Step 12/14: Resolving Saviez-vous images...')
     await runStep('saviezvous', scrapeAndCacheSaviezVousImages)
 
-    console.log('[cron] Step 13/16: Scraping Portail Lexical Word of the Day...')
+    console.log('[cron] Step 13/14: Scraping Portail Lexical Word of the Day...')
     await runStep('portailLexical', scrapeAndCachePortailLexicalWotd)
 
-    console.log('[cron] Step 14/16: Scraping APOD (NASA)...')
+    console.log('[cron] Step 14/14: Scraping APOD (NASA)...')
     await runStep('apod', scrapeAndCacheApod)
-
-    console.log('[cron] Step 15/16: Scraping Air Crash...')
-    await runStep('airCrash', scrapeAndCacheAirCrash)
-
-    console.log('[cron] Step 16/16: Matching Air Crash ASN links...')
-    try {
-      const asnResult = await scrapeAndCacheAirCrashAsn()
-      results.airCrashAsn = asnResult.matched > 0 ? `matched:${asnResult.matched}` : 'up-to-date'
-    } catch (error) {
-      hasErrors = true
-      console.error('[cron] ASN matching failed:', error)
-      results.airCrashAsn = 'error'
-      await sendCronErrorEmail('airCrashAsn', error)
-    }
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(0)
     console.log(`[cron] Cache update completed in ${duration}s${hasErrors ? ' (with errors)' : ''}`)

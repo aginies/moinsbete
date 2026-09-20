@@ -59,11 +59,11 @@ Every new card source must include these files/patterns. Current codebase has **
 
 - Fetch from external API
 - Upsert to DB with 6h TTL (or source-specific TTL)
-- Run via `/api/cron/cache` (16 sequential steps, not 3x daily)
+- Run via `/api/cron/cache` (14 sequential steps, not 3x daily). Air Crash + Air Crash ASN are **manual only** (admin CacheTab buttons), not part of the cron
 - Export `scrapeAndCache{Source}()` function
 
 ### Cron step ordering:
-1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image (FR) → 5. Wikipedia Image (EN) → 6. F1 → 7. Portail Wikipédia → 8. Wikiquote (Citation) → 9. Wiki Loves → 10. Insolite → 11. Cleanup (11 cache models) → 12. Saviez-vous images → 13. Portail Lexical (WOTD) → 14. APOD (NASA, + FR translation via MyMemory) → 15. Air Crash → 16. Air Crash ASN matching
+1. CNRS → 2. Radio France → 3. News → 4. Wikipedia Image (FR) → 5. Wikipedia Image (EN) → 6. F1 → 7. Portail Wikipédia → 8. Wikiquote (Citation) → 9. Wiki Loves → 10. Insolite → 11. Cleanup (11 cache models) → 12. Saviez-vous images → 13. Portail Lexical (WOTD) → 14. APOD (NASA, + FR translation via MyMemory). Air Crash and Air Crash ASN are excluded from cron — refresh them manually from the admin CacheTab (`refreshAirCrash` / `refreshAirCrashAsn`); they are also excluded from `refreshAll`
 
 ### Auth: token (`x-cron-token` header or `?token=` param) OR IP whitelist (`ALLOWED_CRON_IPS` in `src/lib/ip.ts`, re-exported from `cache-helpers.ts`, with CIDR support)
 
@@ -210,7 +210,7 @@ Every new card source must include these files/patterns. Current codebase has **
 - Pass formatted stats to `AdminContent`
 
 ### `src/app/api/cron/cache/route.ts`
-- 16 sequential steps with step numbering
+- 14 sequential steps with step numbering (Air Crash / ASN are manual-only, see admin CacheTab)
 - Auth: token OR IP whitelist (including CIDR matching)
 - Cleanup step: calls `cleanupExpired()` + `cleanupNewsByMaxAge(5)`
 - Returns `{ ok, results, duration, ip }`

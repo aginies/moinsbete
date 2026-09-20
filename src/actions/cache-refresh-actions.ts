@@ -143,9 +143,6 @@ export async function refreshAll(): Promise<RefreshResult> {
     await scrapeAndCacheApod()
     results.push({ name: 'APOD', ok: true })
 
-    await scrapeAndCacheAirCrash()
-    results.push({ name: 'Air Crash Investigation', ok: true })
-
     const counts = await cleanupExpired()
     const total = Object.values(counts).reduce((a, b) => a + b, 0)
     await cleanupNewsByMaxAge(5)
