@@ -14,22 +14,25 @@ export function extractEntriesFR(html: string, archive: string): WikipediaImageE
   let h2Match: RegExpExecArray | null
 
   while ((h2Match = h2Regex.exec(html)) !== null) {
-    const h2Content = h2Match[1]
-    const dateMatch = h2Content.match(/(\d{1,2}(?:er)?\s+[a-zàâæçéèêëîïôœùûüÿ]+(?:\s+[a-zàâæçéèêëîïôœùûüÿ]+)?\s+\d{4})/i)
+    // Parsoid markup wraps the ordinal in tags (e.g. <abbr>1<sup>er</sup></abbr>),
+    // so strip tags before matching the date
+    const h2Text = h2Match[1].replace(/<[^>]*>/g, '')
+    const dateMatch = h2Text.match(/(\d{1,2}(?:er)?\s+[a-zàâæçéèêëîïôœùûüÿ]+(?:\s+[a-zàâæçéèêëîïôœùûüÿ]+)?\s+\d{4})/i)
     if (!dateMatch) continue
 
-    const date = dateMatch[1].replace(/<[^>]*>/g, '').trim()
+    const date = dateMatch[1].trim()
     const afterH2 = html.slice(h2Match.index + h2Match[0].length, h2Match.index + h2Match[0].length + 5000)
 
-    const imgSrcMatch = afterH2.match(/src="(\/\/upload\.wikimedia\.org[^"]+)"/)
+    const imgSrcMatch = afterH2.match(/src="(\/\/(?:upload|thumb)\.wikimedia\.org[^"]+)"/)
     const imgAltMatch = afterH2.match(/alt="([^"]+)"/)
-    const fileHrefMatch = afterH2.match(/href="\/wiki\/Fichier:([^"]+)"/)
+    const fileHrefMatch = afterH2.match(/href="(?:https?:\/\/[^"\/]+)?\/wiki\/Fichier:([^"]+)"/)
 
     if (imgSrcMatch && imgAltMatch && fileHrefMatch) {
       let imageUrl = `https:${imgSrcMatch[1]}`
       if (imageUrl.includes('/thumb/')) {
         imageUrl = imageUrl.replace(/\/\d+px-/, '/1280px-')
       }
+      imageUrl = imageUrl.split('?')[0]
 
       entries.push({
         imageUrl,
@@ -56,15 +59,16 @@ export function extractEntriesEN(html: string, archive: string): WikipediaImageE
     const date = dateMatch[2].trim()
     const afterDate = html.slice(dateMatch.index + dateMatch[0].length, dateMatch.index + dateMatch[0].length + 5000)
 
-    const imgSrcMatch = afterDate.match(/src="(\/\/upload\.wikimedia\.org[^"]+)"/)
+    const imgSrcMatch = afterDate.match(/src="(\/\/(?:upload|thumb)\.wikimedia\.org[^"]+)"/)
     const imgAltMatch = afterDate.match(/alt="([^"]+)"/)
-    const fileHrefMatch = afterDate.match(/href="\/wiki\/File:([^"]+)"/)
+    const fileHrefMatch = afterDate.match(/href="(?:https?:\/\/[^"\/]+)?\/wiki\/File:([^"]+)"/)
 
     if (imgSrcMatch && imgAltMatch && fileHrefMatch) {
       let imageUrl = `https:${imgSrcMatch[1]}`
       if (imageUrl.includes('/thumb/')) {
         imageUrl = imageUrl.replace(/\/\d+px-/, '/1280px-')
       }
+      imageUrl = imageUrl.split('?')[0]
 
       entries.push({
         imageUrl,
